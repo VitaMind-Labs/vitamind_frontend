@@ -1,0 +1,9 @@
+export { default as Header } from "./Header";
+export { default as HeroSection } from "./HeroSection";
+export { default as PlatformOverview } from "./PlatformOverview";
+export { default as TechnologiesSection } from "./TechnologiesSection";
+export { default as DiscoverySection } from "./DiscoverySection";
+export { default as ApproachSection } from "./ApproachSection";
+export { default as FocusSection } from "./FocusSection";
+export { default as CTASection } from "./CTASection";
+export { default as FooterSection } from "./FooterSection";
