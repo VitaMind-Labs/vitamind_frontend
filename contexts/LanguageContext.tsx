@@ -21,19 +21,18 @@ const STORAGE_KEY = "vitamind-language";
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Lang>(() => {
-    if (typeof window === "undefined") {
-      return "en";
-    }
+  const [language, setLanguage] = useState<Lang>("en");
 
+  useEffect(() => {
     const storedLanguage = window.localStorage.getItem(STORAGE_KEY) as Lang | null;
-    return storedLanguage && copy[storedLanguage] ? storedLanguage : "en";
-  });
+    if (storedLanguage && copy[storedLanguage] && storedLanguage !== language) {
+      setLanguage(storedLanguage);
+    }
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, language);
     document.documentElement.lang = language;
-    document.documentElement.dir = getDirection(language);
   }, [language]);
 
   const value = {

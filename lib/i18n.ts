@@ -86,6 +86,7 @@ export const copy = {
       placeholder: "Type your answer…",
       send: "Send",
       thinking: "Mira is reflecting…",
+      preparing: "Preparing your diagnostic session…",
       welcome:
         "Hello, I'm Mira. We'll talk for a few minutes. Take your time, there are no wrong answers. How have you been feeling lately?",
       closing:
@@ -106,6 +107,81 @@ export const copy = {
       sideCardTitle: "Care-first design",
       sideCardBody:
         "The diagnostic area is intentionally softer, more spacious, and less modal so it feels like a destination page rather than a popup.",
+    },
+    subscription: {
+      selectPlan: "Choose your plan",
+      mainHeading: "Choose your path",
+      mainSubheading: "to wellness.",
+      mainDescription: "Select the plan that fits your journey. All plans include a 7-day free trial.",
+      popular: "Popular",
+      features: "Features",
+      basic: {
+        name: "Basic",
+        desc: "Essential tools for personal wellness.",
+        features: [
+          "3 diagnostic sessions/month",
+          "Journal with text entries",
+          "Session history & insights",
+          "Email support",
+        ],
+        cta: "Choose Basic",
+      },
+      pro: {
+        name: "Pro",
+        desc: "Advanced therapeutic experience.",
+        features: [
+          "Unlimited diagnostic sessions",
+          "Journal with voice & text",
+          "Mira voice conversations",
+          "Pattern analysis & reports",
+          "Priority support",
+        ],
+        cta: "Choose Pro",
+      },
+      parents: {
+        name: "Parents",
+        desc: "For parents & family wellness.",
+        features: [
+          "All Pro features",
+          "Up to 4 family profiles",
+          "Family insights dashboard",
+          "Shared journal option",
+          "24/7 dedicated support",
+        ],
+        cta: "Choose Parents",
+      },
+      trialInfo: "Secure payment · Cancel anytime · 7-day free trial on all plans",
+      ctaTitle: "Start your free trial.",
+      ctaSubtitle: "No commitment. Cancel anytime.",
+      ctaDescription: "Every plan includes 7 days free. Experience the full therapeutic journey with no risk.",
+      continueToDashboard: "Continue to dashboard",
+      securePrivate: "Secure & private",
+      signIn: "Sign in",
+    },
+    dashboard: {
+      welcome: "Welcome back",
+      subtitle: "Your wellness space",
+      description: "This is your private area. Journal, review past sessions, track your emotional patterns, and manage your subscription — all in one calm, cinematic interface.",
+      open: "Open",
+      quickActions: {
+        writeJournal: "Write journal",
+        journalDesc: "Express your thoughts freely",
+        newConsultation: "New consultation",
+        consultationDesc: "Start a guided session",
+        viewHistory: "View history",
+        historyDesc: "Review your progress",
+      },
+      sidebar: {
+        welcome: "Welcome",
+        journal: "Journal",
+        history: "History",
+        consultation: "Consultation",
+        profile: "Profile",
+        subscription: "Subscription",
+        backHome: "Back home",
+      },
+      today: "Today",
+      noEntry: "No journal entry yet today",
     },
   },
   fr: {
@@ -182,6 +258,7 @@ export const copy = {
       placeholder: "Écrivez votre réponse…",
       send: "Envoyer",
       thinking: "Mira réfléchit…",
+      preparing: "Préparation de votre session diagnostic…",
       welcome:
         "Bonjour, je suis Mira. Nous allons échanger quelques minutes. Prenez votre temps, il n’y a pas de mauvaise réponse. Comment vous sentez-vous en ce moment ?",
       closing:
@@ -202,6 +279,81 @@ export const copy = {
       sideCardTitle: "Un design pensé pour le soin",
       sideCardBody:
         "La zone diagnostic est volontairement plus spacieuse et moins modale afin de ressembler à une vraie page de destination.",
+    },
+    subscription: {
+      selectPlan: "Choisissez votre plan",
+      mainHeading: "Choisissez votre voie",
+      mainSubheading: "vers le bien-être.",
+      mainDescription: "Sélectionnez le plan qui correspond à votre parcours. Tous les plans incluent un essai gratuit de 7 jours.",
+      popular: "Populaire",
+      features: "Fonctionnalités",
+      basic: {
+        name: "Basique",
+        desc: "Outils essentiels pour votre bien-être.",
+        features: [
+          "3 sessions diagnostic/mois",
+          "Journal avec entrées texte",
+          "Historique des sessions et aperçus",
+          "Support par email",
+        ],
+        cta: "Choisir Basique",
+      },
+      pro: {
+        name: "Pro",
+        desc: "Expérience thérapeutique avancée.",
+        features: [
+          "Sessions diagnostiques illimitées",
+          "Journal avec voix et texte",
+          "Conversations vocales avec Mira",
+          "Analyse des tendances et rapports",
+          "Support prioritaire",
+        ],
+        cta: "Choisir Pro",
+      },
+      parents: {
+        name: "Parents",
+        desc: "Pour le bien-être des parents et de la famille.",
+        features: [
+          "Toutes les fonctionnalités Pro",
+          "Jusqu'à 4 profils familiaux",
+          "Tableau de bord des aperçus familiaux",
+          "Option de journal partagé",
+          "Support dédié 24/7",
+        ],
+        cta: "Choisir Parents",
+      },
+      trialInfo: "Paiement sécurisé · Annulation à tout moment · Essai gratuit de 7 jours sur tous les plans",
+      ctaTitle: "Commencez votre essai gratuit.",
+      ctaSubtitle: "Aucun engagement. Annulation à tout moment.",
+      ctaDescription: "Chaque plan comprend 7 jours gratuits. Expérimentez le parcours thérapeutique complet sans risque.",
+      continueToDashboard: "Continuer vers le tableau de bord",
+      securePrivate: "Sécurisé et privé",
+      signIn: "Se connecter",
+    },
+    dashboard: {
+      welcome: "Bienvenue",
+      subtitle: "Votre espace bien-être",
+      description: "C'est votre espace privé. Rédigez dans votre journal, révisez vos sessions précédentes, suivez vos tendances émotionnelles et gérez votre abonnement — tout en un seul endroit calme et cinématique.",
+      open: "Ouvrir",
+      quickActions: {
+        writeJournal: "Écrire un journal",
+        journalDesc: "Exprimez vos pensées librement",
+        newConsultation: "Nouvelle consultation",
+        consultationDesc: "Commencer une session guidée",
+        viewHistory: "Voir l'historique",
+        historyDesc: "Passez en revue votre progression",
+      },
+      sidebar: {
+        welcome: "Bienvenue",
+        journal: "Journal",
+        history: "Historique",
+        consultation: "Consultation",
+        profile: "Profil",
+        subscription: "Abonnement",
+        backHome: "Retour accueil",
+      },
+      today: "Aujourd'hui",
+      noEntry: "Aucune entrée de journal pour aujourd'hui",
     },
   },
   ar: {
@@ -278,6 +430,7 @@ export const copy = {
       placeholder: "اكتب إجابتك…",
       send: "إرسال",
       thinking: "ميرا تفكر…",
+      preparing: "جاري تحضير جلسة التشخيص…",
       welcome:
         "مرحباً، أنا ميرا. سنتحدث لبضع دقائق. خذ وقتك، لا توجد إجابات خاطئة. كيف تشعر هذه الأيام؟",
       closing:
@@ -299,6 +452,81 @@ export const copy = {
       sideCardBody:
         "منطقة التشخيص أكثر اتساعاً وأقل شبهًا بالنافذة المنبثقة حتى تبدو كصفحة حقيقية مريحة.",
     },
+    subscription: {
+      selectPlan: "اختر خطتك",
+      mainHeading: "اختر طريقك",
+      mainSubheading: "نحو العافية.",
+      mainDescription: "اختر الخطة التي تناسب رحلتك. جميع الخطط تشمل تجربة مجانية لمدة 7 أيام.",
+      popular: "الأكثر شيوعاً",
+      features: "الميزات",
+      basic: {
+        name: "أساسي",
+        desc: "الأدوات الأساسية لعافيتك الشخصية.",
+        features: [
+          "3 جلسات تشخيص/الشهر",
+          "مذكرة مع إدخالات نصية",
+          "سجل الجلسات والرؤى",
+          "دعم البريد الإلكتروني",
+        ],
+        cta: "اختر أساسي",
+      },
+      pro: {
+        name: "احترافي",
+        desc: "تجربة علاجية متقدمة.",
+        features: [
+          "جلسات تشخيصية غير محدودة",
+          "مذكرة مع صوت ونص",
+          "محادثات صوتية مع ميرا",
+          "تحليل الأنماط والتقارير",
+          "دعم الأولويات",
+        ],
+        cta: "اختر احترافي",
+      },
+      parents: {
+        name: "الآباء",
+        desc: "لعافية الآباء والأسرة.",
+        features: [
+          "جميع ميزات الخطة الاحترافية",
+          "ما يصل إلى 4 ملفات أسرية",
+          "لوحة معلومات رؤى الأسرة",
+          "خيار المذكرة المشتركة",
+          "دعم مخصص 24/7",
+        ],
+        cta: "اختر الآباء",
+      },
+      trialInfo: "دفع آمن · إلغاء في أي وقت · تجربة مجانية لمدة 7 أيام لجميع الخطط",
+      ctaTitle: "ابدأ تجربتك المجانية.",
+      ctaSubtitle: "بدون التزام. إلغاء في أي وقت.",
+      ctaDescription: "تتضمن كل خطة 7 أيام مجانية. جرب الرحلة العلاجية الكاملة بدون مخاطر.",
+      continueToDashboard: "الاستمرار إلى لوحة التحكم",
+      securePrivate: "آمن وخاص",
+      signIn: "تسجيل الدخول",
+    },
+    dashboard: {
+      welcome: "أهلا بعودتك",
+      subtitle: "مساحة العافية الخاصة بك",
+      description: "هذا هو مساحتك الخاصة. احتفظ بمذكرتك، راجع الجلسات السابقة، تابع أنماطك العاطفية، وأدر اشتراكك — كل شيء في مكان واحد هادئ وسينمائي.",
+      open: "فتح",
+      quickActions: {
+        writeJournal: "كتابة المذكرة",
+        journalDesc: "عبر عن أفكارك بحرية",
+        newConsultation: "استشارة جديدة",
+        consultationDesc: "ابدأ جلسة موجهة",
+        viewHistory: "عرض السجل",
+        historyDesc: "راجع تقدمك",
+      },
+      sidebar: {
+        welcome: "مرحبا",
+        journal: "المذكرة",
+        history: "السجل",
+        consultation: "الاستشارة",
+        profile: "الملف الشخصي",
+        subscription: "الاشتراك",
+        backHome: "الرجوع للرئيسية",
+      },
+      today: "اليوم",
+      noEntry: "لا توجد مدخلات مذكرة لهذا اليوم",
+    },
   },
 } as const;
 
@@ -306,27 +534,82 @@ export function getDirection(lang: Lang) {
   return LANGS.find((item) => item.code === lang)?.dir ?? "ltr";
 }
 
+let currentUtterance: SpeechSynthesisUtterance | null = null;
+let voicesLoaded = false;
+
+function getSpeechVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === "undefined") return [];
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) voicesLoaded = true;
+  return voices;
+}
+
+export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
+  return new Promise((resolve) => {
+    const voices = getSpeechVoices();
+    if (voices.length > 0) {
+      resolve(voices);
+      return;
+    }
+    const handler = () => {
+      const updated = getSpeechVoices();
+      if (updated.length > 0) {
+        resolve(updated);
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+    window.speechSynthesis.onvoiceschanged = handler;
+    setTimeout(() => {
+      const fallback = getSpeechVoices();
+      resolve(fallback);
+      window.speechSynthesis.onvoiceschanged = null;
+    }, 3000);
+  });
+}
+
+/** Warm up speech synthesis — call on first user gesture to bypass Chrome autoplay policy */
+export function warmUpSpeech() {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const dummy = new SpeechSynthesisUtterance("");
+    dummy.volume = 0;
+    window.speechSynthesis.speak(dummy);
+    window.speechSynthesis.cancel();
+  } catch { /* ignore */ }
+}
+
 export function speak(text: string, lang: Lang) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
   try {
     window.speechSynthesis.cancel();
+
     const utterance = new SpeechSynthesisUtterance(text);
+    currentUtterance = utterance;
+
     const target = LANGS.find((item) => item.code === lang)?.bcp47 ?? "en-US";
     utterance.lang = target;
     utterance.rate = 0.95;
     utterance.pitch = 1;
 
-    const voices = window.speechSynthesis.getVoices();
-    const matchedVoice =
-      voices.find((voice) => voice.lang.toLowerCase() === target.toLowerCase()) ||
-      voices.find((voice) =>
-        voice.lang.toLowerCase().startsWith(target.split("-")[0]),
-      );
-
-    if (matchedVoice) {
-      utterance.voice = matchedVoice;
+    const voices = getSpeechVoices();
+    if (voices.length > 0) {
+      const langPrefix = target.split("-")[0];
+      const matchedVoice =
+        voices.find((voice) => voice.lang.toLowerCase() === target.toLowerCase()) ||
+        voices.find((voice) =>
+          voice.lang.toLowerCase().startsWith(langPrefix) &&
+          voice.lang.includes("-"),
+        ) ||
+        voices.find((voice) =>
+          voice.lang.toLowerCase().startsWith(langPrefix),
+        );
+      if (matchedVoice) utterance.voice = matchedVoice;
     }
+
+    utterance.onend = () => { currentUtterance = null; };
+    utterance.onerror = () => { currentUtterance = null; };
 
     window.speechSynthesis.speak(utterance);
   } catch (error) {
@@ -334,7 +617,21 @@ export function speak(text: string, lang: Lang) {
   }
 }
 
+export async function speakWithVoices(text: string, lang: Lang) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+  if (voicesLoaded) {
+    speak(text, lang);
+    return;
+  }
+
+  const voices = await loadVoices();
+  if (voices.length > 0) voicesLoaded = true;
+  speak(text, lang);
+}
+
 export function stopSpeaking() {
+  currentUtterance = null;
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }

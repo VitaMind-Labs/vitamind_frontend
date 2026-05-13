@@ -174,8 +174,8 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 10000);
-        const clock = new THREE.Clock();
         const plane = new Plane(speed, planeSize);
+        let lastTime = performance.now();
 
         const resize = () => {
             const canvas = canvasRef.current;
@@ -193,7 +193,10 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
         };
 
         const render = () => {
-            plane.render(clock.getDelta());
+            const currentTime = performance.now();
+            const delta = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+            plane.render(delta);
             renderer.render(scene, camera);
         };
 

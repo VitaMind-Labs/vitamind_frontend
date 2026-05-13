@@ -2,72 +2,74 @@
 @import "tailwindcss";
 
 /* =========================================================
-   SCIENTIFIC LUXURY DESIGN SYSTEM v2.0
-   Neuroscience-inspired · Clinical Grade · Premium Experience
+   PREMIUM DESIGN SYSTEM v3.0
+   Teal & Gold · Clinical Excellence · Luxury Experience
    
    COLOR SYSTEM:
-   🌿 Calm Teal #518591 - 70% dominant (balance, trust, serenity)
-   ☀️ Vital Yellow #e3b01c - 20% accent (energy, focus, positivity)
-   ⚪ Light Neutral #f9f9f9 - 10% background (clarity, minimalism)
-   ⚫ Deep Gray #222222 - contrast text (modern tone)
+   🌊 Deep Teal #518591 - hsl(187,27%,40%) - Primary (trust, serenity, balance)
+   ✨ Vital Gold #e3b01c - hsl(45,93%,47%) - Accent (energy, warmth, premium)
+   ⚪ Luxury White #F0F0F0 - Background (clarity, minimalism)
+   🌿 Soft Teal #E0E0E0 - Surfaces claires
+   🎨 Muted Cyan #B0B0B0 - Cartes & sections
+   ⚫ Dark UI Text #909090 - Texte principal
 ========================================================= */
 
-:root {
-  /* ===== PRIMARY: Calm Teal #518591 (70% dominant) ===== */
-  --color-primary: #518591;
+@theme {
+  /* ===== PRIMARY: Deep Teal (hsl(187,27%,40%)) ===== */
+  --color-primary: hsl(187, 27%, 40%);
   --color-on-primary: #ffffff;
-  --color-primary-container: #3a6a75;
+  --color-primary-container: hsl(187, 27%, 35%);
   --color-on-primary-container: #ffffff;
-  --color-primary-fixed: #cfe5e9;
-  --color-primary-fixed-dim: #9fc6cd;
-  --color-on-primary-fixed: #1a3e45;
-  --color-on-primary-fixed-variant: #2d5a63;
-  --color-inverse-primary: #9fc6cd;
-  --color-surface-tint: #518591;
+  --color-primary-fixed: hsl(187, 27%, 85%);
+  --color-primary-fixed-dim: hsl(187, 27%, 70%);
+  --color-on-primary-fixed: hsl(187, 27%, 15%);
+  --color-on-primary-fixed-variant: hsl(187, 27%, 25%);
+  --color-inverse-primary: hsl(187, 27%, 65%);
+  --color-surface-tint: hsl(187, 27%, 40%);
 
-  /* ===== SECONDARY: Deep variations of Teal ===== */
-  --color-secondary: #3a6a75;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #cfe5e9;
-  --color-on-secondary-container: #1a3e45;
-  --color-secondary-fixed: #cfe5e9;
-  --color-secondary-fixed-dim: #9fc6cd;
-  --color-on-secondary-fixed: #1a3e45;
-  --color-on-secondary-fixed-variant: #2d5a63;
+  /* ===== SECONDARY: Soft Teal surfaces ===== */
+  --color-secondary: #E0E0E0;
+  --color-on-secondary: hsl(187, 27%, 20%);
+  --color-secondary-container: #F0F0F0;
+  --color-on-secondary-container: hsl(187, 27%, 15%);
+  --color-secondary-fixed: #E0E0E0;
+  --color-secondary-fixed-dim: #D0D0D0;
+  --color-on-secondary-fixed: hsl(187, 27%, 15%);
+  --color-on-secondary-fixed-variant: hsl(187, 27%, 30%);
 
-  /* ===== TERTIARY: Vital Yellow #e3b01c (20% accent) ===== */
-  --color-tertiary: #e3b01c;
+  /* ===== TERTIARY: Vital Gold (hsl(45,93%,47%)) ===== */
+  --color-tertiary: hsl(45, 93%, 47%);
   --color-on-tertiary: #1a1c1c;
-  --color-tertiary-container: #fce6a8;
-  --color-on-tertiary-container: #5a3e00;
-  --color-tertiary-fixed: #fdf0cc;
-  --color-tertiary-fixed-dim: #fce6a8;
-  --color-on-tertiary-fixed: #332200;
-  --color-on-tertiary-fixed-variant: #8a6a00;
+  --color-tertiary-container: hsl(45, 93%, 85%);
+  --color-on-tertiary-container: hsl(45, 93%, 20%);
+  --color-tertiary-fixed: hsl(45, 93%, 90%);
+  --color-tertiary-fixed-dim: hsl(45, 93%, 75%);
+  --color-on-tertiary-fixed: hsl(45, 93%, 15%);
+  --color-on-tertiary-fixed-variant: hsl(45, 93%, 35%);
 
-  /* ===== SURFACE: Light Neutral #f9f9f9 (10% background) ===== */
-  --color-background: #f9f9f9;
-  --color-on-background: #222222;
-  --color-surface: #f9f9f9;
-  --color-on-surface: #222222;
-  --color-surface-variant: #f0f0f0;
-  --color-on-surface-variant: #5a5a5a;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f9f9f9;
-  --color-surface-container: #f2f2f2;
-  --color-surface-container-high: #ececec;
-  --color-surface-container-highest: #e6e6e6;
-  --color-surface-dim: #e0e0e0;
-  --color-surface-bright: #ffffff;
+  /* ===== SURFACE: Luxury White & Soft Teal ===== */
+  --color-background: #F0F0F0;
+  --color-on-background: #909090;
+  --color-surface: #E0E0E0;
+  --color-on-surface: #909090;
+  --color-surface-variant: #D0D0D0;
+  --color-on-surface-variant: #909090;
+  --color-surface-container-lowest: #F0F0F0;
+  --color-surface-container-low: #E8E8E8;
+  --color-surface-container: #E0E0E0;
+  --color-surface-container-high: #D8D8D8;
+  --color-surface-container-highest: #D0D0D0;
+  --color-surface-dim: #C8C8C8;
+  --color-surface-bright: #F8F8F8;
 
   /* ===== INVERSE SURFACE (Dark mode alternative) ===== */
-  --color-inverse-surface: #222222;
-  --color-inverse-on-surface: #f9f9f9;
-  --color-inverse-primary: #9fc6cd;
+  --color-inverse-surface: #909090;
+  --color-inverse-on-surface: #F0F0F0;
+  --color-inverse-primary: hsl(187, 27%, 65%);
 
   /* ===== OUTLINE ===== */
-  --color-outline: #b0b0b0;
-  --color-outline-variant: #d9d9d9;
+  --color-outline: #D0D0D0;
+  --color-outline-variant: #B0B0B0;
 
   /* ===== ERROR ===== */
   --color-error: #ba1a1a;
@@ -75,19 +77,33 @@
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
 
-  /* Typography */
-  --font-label-sm: 'JetBrains Mono', monospace;
-  --font-headline-xl: 'Hanken Grotesk', sans-serif;
-  --font-body-md: 'Hanken Grotesk', sans-serif;
-  --font-headline-lg-mobile: 'Hanken Grotesk', sans-serif;
-  --font-headline-lg: 'Hanken Grotesk', sans-serif;
+  /* ===== ACCENTS PREMIUM ===== */
+  --color-gold: hsl(45, 93%, 47%);
+  --color-gold-light: hsl(45, 93%, 60%);
+  --color-gold-dark: hsl(45, 93%, 35%);
+  --color-teal: hsl(187, 27%, 40%);
+  --color-teal-light: hsl(187, 27%, 55%);
+  --color-teal-dark: hsl(187, 27%, 25%);
 
-  /* Font Sizes */
-  --text-label-sm: 12px;
-  --text-headline-xl: 48px;
-  --text-body-md: 16px;
-  --text-headline-lg-mobile: 24px;
-  --text-headline-lg: 32px;
+  /* Typography */
+  --font-label-sm: 'Manrope', 'Inter', 'Plus Jakarta Sans', monospace;
+  --font-headline-xl: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
+  --font-body-md: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
+  --font-headline-lg-mobile: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
+  --font-headline-lg: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
+
+  /* Font Sizes - Hierarchie typographique */
+  --text-hero: 96px;
+  --text-section-title: 54px;
+  --text-card-title: 20px;
+  --text-body: 16px;
+  --text-button: 14px;
+
+  /* Font Sizes Responsive */
+  --text-hero-mobile: 56px;
+  --text-section-title-mobile: 42px;
+  --text-card-title-mobile: 18px;
+  --text-body-mobile: 14px;
 
   /* Spacing */
   --margin-mobile: 20px;
@@ -96,31 +112,73 @@
   --margin-desktop: 64px;
   --unit: 8px;
 
-  /* Border Radius */
-  --radius-DEFAULT: 0.125rem;
-  --radius-lg: 0.25rem;
-  --radius-xl: 0.5rem;
-  --radius-full: 0.75rem;
+  /* Border Radius - Premium arrondis */
+  --radius-DEFAULT: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+}
+
+/* Base Styles */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-body-md);
-  font-size: var(--text-body-md);
-  line-height: 1.6;
+  font-size: var(--text-body);
+  line-height: 1.5;
   font-weight: 400;
   background-color: var(--color-background);
   color: var(--color-on-background);
 }
 
+/* Typography Premium */
 h1,
-h2,
-h3,
-h4,
-h5 {
+.h1 {
   font-family: var(--font-headline-xl);
-  color: var(--color-on-surface);
+  font-size: var(--text-hero-mobile);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
+h2,
+.h2 {
+  font-family: var(--font-headline-lg);
+  font-size: var(--text-section-title-mobile);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+h3,
+.h3 {
+  font-family: var(--font-headline-lg);
+  font-size: var(--text-card-title-mobile);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+
+  h1,
+  .h1 {
+    font-size: var(--text-hero);
+  }
+
+  h2,
+  .h2 {
+    font-size: var(--text-section-title);
+  }
+
+  h3,
+  .h3 {
+    font-size: var(--text-card-title);
+  }
+}
+
+/* Material Symbols */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -137,84 +195,226 @@ h5 {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
+/* Navigation Active State */
 .active-nav {
   font-weight: 600;
-  border-bottom: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-tertiary);
 }
 
+/* Custom Scrollbar - Premium */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-outline-variant);
-  border-radius: 10px;
+  background: var(--color-tertiary);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-outline);
+  background: var(--color-primary);
 }
 
+/* Selection Color */
+::selection {
+  background: var(--color-tertiary);
+  color: var(--color-on-tertiary);
+}
+
+/* ===== COMPONENTS UTILITIES ===== */
 @layer components {
+
+  /* Typography Components */
   .label-sm {
     font-family: var(--font-label-sm);
-    font-size: var(--text-label-sm);
-    line-height: 1.5;
+    font-size: var(--text-button);
+    line-height: 1.4;
     letter-spacing: 0.05em;
     font-weight: 500;
+    text-transform: uppercase;
   }
 
   .headline-xl {
     font-family: var(--font-headline-xl);
-    font-size: var(--text-headline-xl);
+    font-size: var(--text-hero);
     line-height: 1.1;
     letter-spacing: -0.02em;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .body-md {
     font-family: var(--font-body-md);
-    font-size: var(--text-body-md);
+    font-size: var(--text-body);
     line-height: 1.6;
     font-weight: 400;
   }
 
   .headline-lg-mobile {
     font-family: var(--font-headline-lg-mobile);
-    font-size: var(--text-headline-lg-mobile);
+    font-size: var(--text-section-title-mobile);
     line-height: 1.2;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .headline-lg {
     font-family: var(--font-headline-lg);
-    font-size: var(--text-headline-lg);
+    font-size: var(--text-section-title);
     line-height: 1.2;
     letter-spacing: -0.01em;
-    font-weight: 600;
+    font-weight: 700;
   }
 
-  /* Utility classes for your color system */
+  /* Color Utilities */
   .bg-primary {
     background-color: var(--color-primary);
   }
+
   .text-primary {
     color: var(--color-primary);
   }
+
   .bg-tertiary {
     background-color: var(--color-tertiary);
   }
+
   .text-tertiary {
     color: var(--color-tertiary);
   }
+
   .bg-surface {
     background-color: var(--color-surface);
   }
+
+  .bg-background {
+    background-color: var(--color-background);
+  }
+
   .text-on-background {
     color: var(--color-on-background);
+  }
+
+  .text-on-surface {
+    color: var(--color-on-surface);
+  }
+
+  .text-on-primary {
+    color: var(--color-on-primary);
+  }
+
+  /* Premium Gradients */
+  .gradient-teal-gold {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+  }
+
+  .gradient-gold-teal {
+    background: linear-gradient(135deg, var(--color-tertiary), var(--color-primary));
+  }
+
+  .gradient-premium {
+    background: linear-gradient(135deg,
+        hsl(187, 27%, 40%) 0%,
+        hsl(45, 93%, 47%) 50%,
+        hsl(187, 27%, 40%) 100%);
+  }
+
+  /* Glassmorphism Effect */
+  .glass-premium {
+    background: rgba(224, 224, 224, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(208, 208, 208, 0.2);
+  }
+
+  /* Card Styles */
+  .card-premium {
+    background: var(--color-surface-container-low);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-xl);
+    transition: all 0.3s ease;
+  }
+
+  .card-premium:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-tertiary);
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Container */
+  .container-premium {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+}
+
+/* Card Cinema - Premium card style used across pages */
+.card-cinema {
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  transition: all 0.3s ease;
+}
+
+.card-cinema:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-tertiary);
+}
+
+/* Missing brand utility aliases */
+.text-primary-dark {
+  color: hsl(187, 27%, 30%);
+}
+
+.bg-primary-light {
+  background-color: hsl(187, 27%, 90%);
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Grain overlay texture */
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  pointer-events: none;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .container-premium {
+    padding: 0 var(--margin-mobile);
+  }
+
+  .card-premium,
+  .card-cinema {
+    border-radius: var(--radius-lg);
   }
 }

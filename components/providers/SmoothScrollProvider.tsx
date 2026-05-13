@@ -15,37 +15,39 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // 1. Détection du mouvement réduit
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    // 2. Initialisation de Lenis
     const lenis = new Lenis({
-      duration: reduceMotion ? 0.5 : 2.8,
-      easing: (t) => 1 - Math.pow(1 - t, 5),
-      smoothWheel: true,
-      wheelMultiplier: reduceMotion ? 0.5 : 0.9,
-      touchMultiplier: 1.2,
-      infinite: false,
-      lerp: reduceMotion ? 0.01 : 0.055,
+      duration: reduceMotion ? 0.5 : 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing plus fluide (expo)
+      smoothWheel: !reduceMotion,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      lerp: reduceMotion ? 1 : 0.1, // Si mouvement réduit, on désactive quasiment le lerp
     });
 
     lenisRef.current = lenis;
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
+    // 3. Synchronisation avec ScrollTrigger
+    // On met à jour ScrollTrigger dès que Lenis scroll
     lenis.on("scroll", ScrollTrigger.update);
 
-    gsap.ticker.add((time) => {
+    // 4. Utilisation UNIQUEMENT du ticker de GSAP pour la performance
+    // On évite le requestAnimationFrame manuel pour laisser GSAP tout gérer
+    const updateTicker = (time: number) => {
       lenis.raf(time * 1000);
-    });
+    };
 
+    gsap.ticker.add(updateTicker);
     gsap.ticker.lagSmoothing(0);
 
+    // 5. Nettoyage (Clean-up)
     return () => {
       lenis.destroy();
+      gsap.ticker.remove(updateTicker); // TRÈS IMPORTANT
+      ScrollTrigger.getAll().forEach(t => t.kill()); // Nettoie les instances GSAP
       lenisRef.current = null;
     };
   }, []);

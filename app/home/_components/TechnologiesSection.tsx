@@ -39,13 +39,13 @@ export default function TechnologiesSection() {
                             >
                                 <div className="flex items-center gap-8 md:gap-12">
                                     {/* Numérotation stylisée */}
-                                    <span className="text-4xl md:text-5xl font-light text-gray-300">
+                                    <div className="text-4xl md:text-5xl font-light text-gray-300">
                                         0{index + 1}.
-                                    </span>
+                                    </div>
                                     {/* Titre */}
-                                    <h3 className="text-4xl md:text-6xl font-medium tracking-tight text-gray-900 transition-colors duration-300 group-hover:text-gray-600">
+                                    <div className="text-5xl md:text-6xl font-medium tracking-tight text-gray-900 transition-colors duration-300 group-hover:text-gray-600">
                                         {item.label}
-                                    </h3>
+                                    </div>
                                 </div>
 
                                 {/* Icône Plus/Moins */}
