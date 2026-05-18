@@ -1,4 +1,4 @@
-export type Lang = "en" | "fr" | "ar";
+export type Lang = "en" | "fr" | "derja";
 
 export const LANGS: {
   code: Lang;
@@ -9,7 +9,7 @@ export const LANGS: {
 }[] = [
     { code: "en", label: "English", flag: "EN", bcp47: "en-US", dir: "ltr" },
     { code: "fr", label: "Français", flag: "FR", bcp47: "fr-FR", dir: "ltr" },
-    { code: "ar", label: "العربية", flag: "AR", bcp47: "ar-TN", dir: "rtl" },
+    { code: "derja", label: "دارجة تونسية", flag: "TN", bcp47: "ar-TN", dir: "rtl" },
   ];
 
 export const copy = {
@@ -88,7 +88,7 @@ export const copy = {
       thinking: "Mira is reflecting…",
       preparing: "Preparing your diagnostic session…",
       welcome:
-        "Hello, I'm Mira. We'll talk for a few minutes. Take your time, there are no wrong answers. How have you been feeling lately?",
+        "Hello, I'm Mira. Before we begin, what is your name?",
       closing:
         "Thank you for sharing this with me. Here is your orientation. Please remember that this is not a medical diagnosis.",
       orientation: "Orientation summary",
@@ -107,6 +107,31 @@ export const copy = {
       sideCardTitle: "Care-first design",
       sideCardBody:
         "The diagnostic area is intentionally softer, more spacious, and less modal so it feels like a destination page rather than a popup.",
+      result: {
+        header: "Clinical orientation summary",
+        reportReady: "Report ready",
+        scoreSource: "Generated score",
+        axes: {
+          bipolar: { eyebrow: "Mood axis", title: "Mood regulation", label: "Bipolar spectrum" },
+          asrs: { eyebrow: "Functional axis", title: "Executive functions", label: "ADHD" },
+          psychosis: { eyebrow: "Vigilance axis", title: "Perception and thought", label: "Psychosis risk" },
+        },
+        analysisTitle: "Report analysis",
+        orientationTitle: "Recommended orientation",
+        summaryTitle: "Generated summary",
+        signalsTitle: "Key signals",
+        recommendationTitle: "Recommendation",
+        download: "Download detailed report",
+        restart: "Restart",
+        signupCta: "Create an account for full access",
+        readAloud: "Read report",
+        stopReading: "Stop reading",
+        noteTitle: "Clinical note",
+        noteBody:
+          "This summary is an orientation screening. It does not replace a medical evaluation and should be interpreted with a qualified clinician.",
+        privacyTitle: "Privacy",
+        privacyBody: "Your session ID keeps this flow linked until you create your account.",
+      },
     },
     subscription: {
       selectPlan: "Choose your plan",
@@ -260,7 +285,7 @@ export const copy = {
       thinking: "Mira réfléchit…",
       preparing: "Préparation de votre session diagnostic…",
       welcome:
-        "Bonjour, je suis Mira. Nous allons échanger quelques minutes. Prenez votre temps, il n’y a pas de mauvaise réponse. Comment vous sentez-vous en ce moment ?",
+        "Bonjour, je suis Mira. Avant de commencer, comment vous appelez-vous ?",
       closing:
         "Merci pour votre confiance. Voici votre orientation. Souvenez-vous que ceci ne constitue pas un diagnostic médical.",
       orientation: "Résumé d’orientation",
@@ -279,6 +304,31 @@ export const copy = {
       sideCardTitle: "Un design pensé pour le soin",
       sideCardBody:
         "La zone diagnostic est volontairement plus spacieuse et moins modale afin de ressembler à une vraie page de destination.",
+      result: {
+        header: "Synthèse d’orientation clinique",
+        reportReady: "Rapport prêt",
+        scoreSource: "Score généré",
+        axes: {
+          bipolar: { eyebrow: "Axe humeur", title: "Régulation de l’humeur", label: "Spectre bipolaire" },
+          asrs: { eyebrow: "Axe fonctionnel", title: "Fonctions exécutives", label: "TDAH" },
+          psychosis: { eyebrow: "Axe vigilance", title: "Perception et pensée", label: "Risque psychotique" },
+        },
+        analysisTitle: "Analyse du rapport",
+        orientationTitle: "Orientation recommandée",
+        summaryTitle: "Résumé généré",
+        signalsTitle: "Signaux clés",
+        recommendationTitle: "Recommandation",
+        download: "Télécharger le rapport détaillé",
+        restart: "Recommencer",
+        signupCta: "Créer un compte pour l’accès complet",
+        readAloud: "Lire le rapport",
+        stopReading: "Arrêter la lecture",
+        noteTitle: "Note clinique",
+        noteBody:
+          "Cette synthèse est une orientation de dépistage. Elle ne remplace pas une évaluation médicale et doit être interprétée avec un professionnel qualifié.",
+        privacyTitle: "Confidentialité",
+        privacyBody: "L’ID de session garde ce parcours lié jusqu’à la création du compte.",
+      },
     },
     subscription: {
       selectPlan: "Choisissez votre plan",
@@ -356,101 +406,126 @@ export const copy = {
       noEntry: "Aucune entrée de journal pour aujourd'hui",
     },
   },
-  ar: {
+  derja: {
     brand: "VitaMind",
     nav: {
-      badge: "واجهة صحة نفسية ديناميكية",
-      signIn: "تسجيل الدخول",
-      signUp: "إنشاء حساب",
-      diagnostic: "فتح التشخيص",
-      backHome: "الرجوع للرئيسية",
+      badge: "واجهة ديناميكية للصحة النفسية",
+      signIn: "دخول",
+      signUp: "اعمل حساب",
+      diagnostic: "ابدا التشخيص",
+      backHome: "ارجع للدار",
     },
     home: {
-      eyebrow: "مساعد التشخيص النفسي",
-      titleA: "اكتشف VitaMind،",
-      titleB: "أول خطوة",
-      titleC: "نحو وضوح أكثر",
+      eyebrow: "مساعد للتشخيص النفسي",
+      titleA: "VitaMind،",
+      titleB: "اول خطوة",
+      titleC: "باش تفهم روحك اكثر",
       subtitle:
-        "مساحة محادثة هادئة وموجّهة تساعد المستخدم على التعبير عن حالته قبل التقييم السريري الرسمي.",
-      chips: ["ADHD · ASRS-v1.1", "ثنائي القطب · MDQ", "الذهان · PQ-B", "القلق · GAD-7"],
-      cta: "ابدأ جلسة التشخيص",
-      secondaryCta: "إنشاء حساب",
+        "بلاصة محادثة هادئة وموجّهة تعاونك تعبّر على حالتك قبل تقييم طبي رسمي.",
+      chips: ["تشتّت الانتباه · ASRS-v1.1", "ثنائي القطب · MDQ", "ذهان · PQ-B", "قلق · GAD-7"],
+      cta: "ابدا جلسة التشخيص",
+      secondaryCta: "اعمل حساب",
       disclaimer:
-        "هذا ليس تشخيصاً طبياً. VitaMind تجربة توجيهية تكمل الرعاية المهنية ولا تستبدلها.",
-      featureTitle: "بداية أكثر إنسانية",
+        "هذا موش تشخيص طبي. VitaMind يعطي توجيه اولي ويكمّل المتابعة مع مختص.",
+      featureTitle: "بداية انسانية اكثر",
       featureBody:
-        "متعدد اللغات، يدعم الصوت، ومصمم ليجعل الخطوة الأولى أكثر طمأنينة وسلاسة.",
-      previewTop: "تجربة محادثة خاصة",
-      previewBottom: "واجهة جاهزة لمنتج عافية عصري.",
+        "يدعم الصوت وبرشا لغات، ومصمّم باش يخلي اول خطوة اهون واطمن.",
+      previewTop: "محادثة خاصة وآمنة",
+      previewBottom: "تجربة جاهزة لمنتج عناية نفسية عصري.",
     },
     auth: {
-      badge: "دخول آمن لمساحة العافية",
-      titleSignIn: "مرحباً بعودتك",
-      titleSignUp: "أنشئ مساحتك",
-      subtitleSignIn: "سجّل الدخول لمتابعة رحلة التشخيص الموجّهة.",
-      subtitleSignUp: "أنشئ حسابك لبدء تجربة أكثر هدوءاً وتخصيصاً.",
-      nickname: "الاسم المستعار",
-      nicknamePlaceholder: "اختر اسماً مستعاراً",
-      email: "البريد الإلكتروني",
+      badge: "دخول آمن لمساحتك",
+      titleSignIn: "اهلا برجوعك",
+      titleSignUp: "اعمل مساحتك",
+      subtitleSignIn: "ادخل باش تكمل رحلة التشخيص متاعك.",
+      subtitleSignUp: "اعمل حساب باش تاخو تجربة اهدى ومفصّلة عليك.",
+      nickname: "الاسم",
+      nicknamePlaceholder: "اكتب الاسم الي تحب نستعملوه",
+      email: "الايميل",
       emailPlaceholder: "hello@example.com",
-      phone: "رقم الهاتف",
+      phone: "نومرو التليفون",
       phonePlaceholder: "+216 12 345 678",
-      password: "كلمة المرور",
-      passwordPlaceholder: "أدخل كلمة المرور",
-      confirmPassword: "تأكيد كلمة المرور",
-      confirmPasswordPlaceholder: "أعد كتابة كلمة المرور",
-      signInButton: "الدخول إلى VitaMind",
-      signUpButton: "إنشاء الحساب",
-      switchToSignIn: "لديك حساب بالفعل؟",
-      switchToSignUp: "تحتاج إلى حساب؟",
-      switchSignInLink: "تسجيل الدخول",
-      switchSignUpLink: "إنشاء حساب",
-      helperTitle: "مصمم ليبني الثقة",
+      password: "كلمة السر",
+      passwordPlaceholder: "اكتب كلمة السر",
+      confirmPassword: "عاود كلمة السر",
+      confirmPasswordPlaceholder: "عاود اكتب كلمة السر",
+      signInButton: "ادخل ل VitaMind",
+      signUpButton: "اعمل حسابي",
+      switchToSignIn: "عندك حساب؟",
+      switchToSignUp: "ما عندكش حساب؟",
+      switchSignInLink: "ادخل",
+      switchSignUpLink: "اعمل حساب",
+      helperTitle: "مصمّم باش يطمنك",
       helperBody:
-        "تدرج بصري واضح، ألوان هادئة، وإيقاع مريح يجعل تجربة الدخول أكثر أناقة وطمأنينة.",
-      highlights: ["دخول بالاسم المستعار", "تهيئة سريعة", "جاهز لجلسة التشخيص"],
+        "تنظيم واضح، الوان هادئة، ونسق مريح يخلي تجربة الدخول محترفة ومطمّنة.",
+      highlights: ["دخول بالاسم", "تهيئة خفيفة", "جلسة التشخيص مربوطة"],
       legal:
-        "بالمتابعة، أنت توافق على استخدام هذه التجربة بشكل مسؤول وطلب المساعدة المهنية عند الحاجة.",
+        "بالمتابعة، انت موافق تستعمل التجربة بمسؤولية وتطلب مساعدة مختص وقت يلزم.",
       errors: {
-        nickname: "الاسم المستعار مطلوب.",
-        email: "يرجى إدخال بريد إلكتروني صالح.",
-        phone: "يرجى إدخال رقم هاتف صالح.",
-        password: "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل.",
-        confirmPassword: "كلمتا المرور غير متطابقتين.",
+        nickname: "الاسم مطلوب.",
+        email: "ادخل ايميل صحيح.",
+        phone: "ادخل نومرو تليفون صحيح.",
+        password: "كلمة السر لازمها 8 حروف على الاقل.",
+        confirmPassword: "كلمات السر موش كيف كيف.",
       },
     },
     diagnostic: {
       title: "جلسة التشخيص",
       subtitle: "محادثة خاصة وموجّهة مع ميرا.",
-      confidential: "واجهة سرية · توجيه غير طبي",
-      restart: "إعادة البدء",
-      mute: "كتم الصوت",
-      unmute: "تفعيل الصوت",
+      confidential: "سريّة · توجيه موش طبي",
+      restart: "عاود من الاول",
+      mute: "سكّر الصوت",
+      unmute: "حلّ الصوت",
       session: "معرّف الجلسة",
-      placeholder: "اكتب إجابتك…",
-      send: "إرسال",
-      thinking: "ميرا تفكر…",
-      preparing: "جاري تحضير جلسة التشخيص…",
+      placeholder: "اكتب اجابتك…",
+      send: "ابعث",
+      thinking: "ميرا تخمّم…",
+      preparing: "قاعدين نوجدو الجلسة…",
       welcome:
-        "مرحباً، أنا ميرا. سنتحدث لبضع دقائق. خذ وقتك، لا توجد إجابات خاطئة. كيف تشعر هذه الأيام؟",
+        "اهلا، انا ميرا. قبل ما نبداو، شنوة اسمك؟",
       closing:
-        "شكراً لمشاركتك. هذه هي خلاصة التوجيه. تذكّر أن هذا ليس تشخيصاً طبياً.",
-      orientation: "ملخص التوجيه",
-      profile: "الملف الأقرب",
-      confidenceLabel: "مستوى التطابق",
-      signals: "الإشارات الأساسية",
-      next: "الخطوة التالية المقترحة",
+        "يعطيك الصحة على المشاركة. هاذي خلاصة التوجيه، وذكّر الي هذا موش تشخيص طبي.",
+      orientation: "خلاصة التوجيه",
+      profile: "البروفيل الاقرب",
+      confidenceLabel: "درجة التطابق",
+      signals: "اهم العلامات",
+      next: "الخطوة الجاية المقترحة",
       medicalNote:
-        "هذه النتيجة إرشادية فقط. عند وجود قلق مهم أو حالة طارئة، تواصل مع مختص أو خدمات الطوارئ المحلية.",
-      panelTitle: "كيف تعمل هذه الجلسة",
+        "النتيجة هاذي توجيهية برك. كان فما قلق كبير ولا حالة استعجالية، احكي مع مختص ولا اتصل بالاستعجالي.",
+      panelTitle: "كيفاش تخدم الجلسة",
       panelPoints: [
-        "المحادثة تجمع بعض الإجابات الموجّهة.",
-        "يمكن تغيير اللغة في أي وقت.",
-        "المعرّف المُنشأ يساعد على تتبع الجلسة الحالية.",
+        "المحادثة تجمع اجابات موجّهة.",
+        "تنجم تبدّل اللغة في اي وقت.",
+        "معرّف الجلسة يربط التشخيص بالحساب وقت التسجيل.",
       ],
-      sideCardTitle: "تصميم يضع الرعاية أولاً",
+      sideCardTitle: "تصميم يحط العناية قبل كل شي",
       sideCardBody:
-        "منطقة التشخيص أكثر اتساعاً وأقل شبهًا بالنافذة المنبثقة حتى تبدو كصفحة حقيقية مريحة.",
+        "منطقة التشخيص معمولة باش تكون واسعة ومريحة، موش كيف نافذة صغيرة.",
+      result: {
+        header: "خلاصة التوجيه السريري",
+        reportReady: "التقرير جاهز",
+        scoreSource: "Score متولّد",
+        axes: {
+          bipolar: { eyebrow: "محور المزاج", title: "تنظيم المزاج", label: "طيف ثنائي القطب" },
+          asrs: { eyebrow: "محور الوظائف", title: "الوظائف التنفيذية", label: "تشتّت الانتباه" },
+          psychosis: { eyebrow: "محور الانتباه", title: "الإدراك والتفكير", label: "خطر الذهان" },
+        },
+        analysisTitle: "تحليل التقرير",
+        orientationTitle: "التوجيه المقترح",
+        summaryTitle: "الخلاصة المتولّدة",
+        signalsTitle: "اهم العلامات",
+        recommendationTitle: "التوصية",
+        download: "هبّط التقرير المفصّل",
+        restart: "عاود",
+        signupCta: "اعمل حساب باش تاخو النفاذ الكامل",
+        readAloud: "اسمع التقرير",
+        stopReading: "وقّف القراءة",
+        noteTitle: "ملاحظة سريرية",
+        noteBody:
+          "الخلاصة هاذي توجيه اولي. ما تعوّضش تقييم طبي ولازم تتفهم مع مختص.",
+        privacyTitle: "الخصوصية",
+        privacyBody: "معرّف الجلسة يحافظ على الربط حتى تكمل التسجيل.",
+      },
     },
     subscription: {
       selectPlan: "اختر خطتك",
@@ -532,109 +607,6 @@ export const copy = {
 
 export function getDirection(lang: Lang) {
   return LANGS.find((item) => item.code === lang)?.dir ?? "ltr";
-}
-
-let currentUtterance: SpeechSynthesisUtterance | null = null;
-let voicesLoaded = false;
-
-function getSpeechVoices(): SpeechSynthesisVoice[] {
-  if (typeof window === "undefined") return [];
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length > 0) voicesLoaded = true;
-  return voices;
-}
-
-export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
-  return new Promise((resolve) => {
-    const voices = getSpeechVoices();
-    if (voices.length > 0) {
-      resolve(voices);
-      return;
-    }
-    const handler = () => {
-      const updated = getSpeechVoices();
-      if (updated.length > 0) {
-        resolve(updated);
-        window.speechSynthesis.onvoiceschanged = null;
-      }
-    };
-    window.speechSynthesis.onvoiceschanged = handler;
-    setTimeout(() => {
-      const fallback = getSpeechVoices();
-      resolve(fallback);
-      window.speechSynthesis.onvoiceschanged = null;
-    }, 3000);
-  });
-}
-
-/** Warm up speech synthesis — call on first user gesture to bypass Chrome autoplay policy */
-export function warmUpSpeech() {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  try {
-    window.speechSynthesis.cancel();
-    const dummy = new SpeechSynthesisUtterance("");
-    dummy.volume = 0;
-    window.speechSynthesis.speak(dummy);
-    window.speechSynthesis.cancel();
-  } catch { /* ignore */ }
-}
-
-export function speak(text: string, lang: Lang) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
-  try {
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    currentUtterance = utterance;
-
-    const target = LANGS.find((item) => item.code === lang)?.bcp47 ?? "en-US";
-    utterance.lang = target;
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-
-    const voices = getSpeechVoices();
-    if (voices.length > 0) {
-      const langPrefix = target.split("-")[0];
-      const matchedVoice =
-        voices.find((voice) => voice.lang.toLowerCase() === target.toLowerCase()) ||
-        voices.find((voice) =>
-          voice.lang.toLowerCase().startsWith(langPrefix) &&
-          voice.lang.includes("-"),
-        ) ||
-        voices.find((voice) =>
-          voice.lang.toLowerCase().startsWith(langPrefix),
-        );
-      if (matchedVoice) utterance.voice = matchedVoice;
-    }
-
-    utterance.onend = () => { currentUtterance = null; };
-    utterance.onerror = () => { currentUtterance = null; };
-
-    window.speechSynthesis.speak(utterance);
-  } catch (error) {
-    console.warn("Speech synthesis unavailable", error);
-  }
-}
-
-export async function speakWithVoices(text: string, lang: Lang) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
-  if (voicesLoaded) {
-    speak(text, lang);
-    return;
-  }
-
-  const voices = await loadVoices();
-  if (voices.length > 0) voicesLoaded = true;
-  speak(text, lang);
-}
-
-export function stopSpeaking() {
-  currentUtterance = null;
-  if (typeof window !== "undefined" && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
 }
 
 export const t = (lang: Lang) => copy[lang];

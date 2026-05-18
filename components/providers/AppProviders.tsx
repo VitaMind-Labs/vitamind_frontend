@@ -2,12 +2,14 @@
 
 import { type ReactNode } from "react";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { SmoothScrollProvider } from "./SmoothScrollProvider";
+import { DiseaseProvider } from "@/lib/disease-context";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
-    <SmoothScrollProvider>
-      <LanguageProvider>{children}</LanguageProvider>
-    </SmoothScrollProvider>
+    // <SmoothScrollProvider>
+    <LanguageProvider>
+      <DiseaseProvider>{children}</DiseaseProvider>
+    </LanguageProvider>
+    // {/* </SmoothScrollProvider> */ }
   );
 }

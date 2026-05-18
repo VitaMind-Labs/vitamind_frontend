@@ -4,10 +4,11 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
+  useCallback,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { copy, getDirection, type Lang } from "@/lib/i18n";
+import { LANGS, copy, getDirection, type Lang } from "@/lib/i18n";
 
 type LanguageContextValue = {
   language: Lang;
@@ -17,22 +18,46 @@ type LanguageContextValue = {
 };
 
 const STORAGE_KEY = "vitamind-language";
+const DEFAULT_LANGUAGE: Lang = "en";
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Lang>("en");
+function normalizeStoredLanguage(value: string | null): Lang {
+  const storedLanguage = value === "ar" ? "derja" : value;
+  return storedLanguage && storedLanguage in copy ? (storedLanguage as Lang) : DEFAULT_LANGUAGE;
+}
 
-  useEffect(() => {
-    const storedLanguage = window.localStorage.getItem(STORAGE_KEY) as Lang | null;
-    if (storedLanguage && copy[storedLanguage] && storedLanguage !== language) {
-      setLanguage(storedLanguage);
-    }
+function getLanguageSnapshot(): Lang {
+  if (typeof window === "undefined") return DEFAULT_LANGUAGE;
+  return normalizeStoredLanguage(window.localStorage.getItem(STORAGE_KEY));
+}
+
+function subscribeToLanguageChange(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener("vitamind-language-change", callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("vitamind-language-change", callback);
+  };
+}
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const language = useSyncExternalStore(
+    subscribeToLanguageChange,
+    getLanguageSnapshot,
+    () => DEFAULT_LANGUAGE,
+  );
+
+  const setLanguage = useCallback((nextLanguage: Lang) => {
+    window.localStorage.setItem(STORAGE_KEY, nextLanguage);
+    window.dispatchEvent(new Event("vitamind-language-change"));
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, language);
-    document.documentElement.lang = language;
+    const selected = LANGS.find((item) => item.code === language);
+    document.documentElement.lang = selected?.bcp47 ?? language;
+    document.documentElement.dir = selected?.dir ?? "ltr";
   }, [language]);
 
   const value = {

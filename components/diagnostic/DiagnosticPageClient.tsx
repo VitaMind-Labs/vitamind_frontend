@@ -7,12 +7,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { DiagnosticHeader } from "@/components/diagnostic/DiagnosticHeader";
 import { ChatExperience } from "@/components/diagnostic/ChatExperience";
 import { createChatId } from "@/lib/chat";
+import { ensureDiagnosticSession } from "@/lib/diagnosticSession";
 
 export function DiagnosticPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatId = searchParams.get("chatId");
-  const { dictionary } = useLanguage();
+  const { dictionary, language } = useLanguage();
   const diagnosticText = dictionary.diagnostic;
 
   useEffect(() => {
@@ -22,6 +23,14 @@ export function DiagnosticPageClient() {
     params.set("chatId", createChatId());
     router.replace(`/diagnostic?${params.toString()}`);
   }, [chatId, router, searchParams]);
+
+  useEffect(() => {
+    if (!chatId) return;
+
+    void ensureDiagnosticSession(chatId, language).catch((error) => {
+      console.warn("Diagnostic session could not be persisted yet", error);
+    });
+  }, [chatId, language]);
 
   if (!chatId) {
     return (
@@ -36,10 +45,8 @@ export function DiagnosticPageClient() {
 
   return (
     <>
-
       <DiagnosticHeader chatId={chatId} />
       <ChatExperience chatId={chatId} />
     </>
   );
 }
-

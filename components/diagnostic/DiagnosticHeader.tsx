@@ -3,25 +3,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Volume2, VolumeX, ShieldCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAudio } from "@/contexts/AudioContext";
+import { stopDiagnosticVoice, warmUpDiagnosticVoice } from "@/lib/diagnosticVoice";
 import { Button} from "@/components/ui/button";
+import { LANGS } from "@/lib/i18n";
 
 export function DiagnosticHeader({ chatId }: { chatId: string }) {
     const { language, setLanguage, dictionary, direction } = useLanguage();
     const { isSoundEnabled, setIsSoundEnabled } = useAudio();
     const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
     const diagnostic = dictionary.diagnostic;
 
-    useEffect(() => { setMounted(true); }, []);
-
-    const languages = [
-        { code: "en", label: "English" },
-        { code: "fr", label: "Français" },
-        { code: "ar", label: "العربية" },
-    ];
+    function toggleSound() {
+        const next = !isSoundEnabled;
+        setIsSoundEnabled(next);
+        if (next) warmUpDiagnosticVoice();
+        else stopDiagnosticVoice();
+    }
 
     return (
         <header dir={direction} className="relative top-2 md:top-5 left-1/2 z-50 w-full -translate-x-1/2 px-2 sm:px-4">
@@ -53,7 +53,7 @@ export function DiagnosticHeader({ chatId }: { chatId: string }) {
                     <div className="hidden md:flex items-center gap-2">
                         <span className="flex items-center gap-1.5 rounded-full bg-primary/5 px-3 py-1.5 text-[11px] font-semibold text-primary border border-primary/10">
                             <ShieldCheck className="h-3 w-3 text-tertiary" />
-                            {mounted ? diagnostic.confidential : "Loading..."}
+                            {diagnostic.confidential}
                         </span>
                         <span className="rounded-full bg-primary/5 px-3 py-1.5 text-[11px] font-medium text-on-background/60 border border-primary/10">
                             ID: {chatId.slice(0, 6)}
@@ -62,10 +62,10 @@ export function DiagnosticHeader({ chatId }: { chatId: string }) {
 
                     {/* Sound Toggle */}
                     <Button
-                        onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+                        onClick={toggleSound}
                         className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/10 bg-surface text-on-background transition-all duration-300 hover:bg-primary/5 hover:border-primary/20"
-                        aria-label={isSoundEnabled ? "Disable sound" : "Enable sound"}
-                        title={isSoundEnabled ? "Disable sound" : "Enable sound"}
+                        aria-label={isSoundEnabled ? diagnostic.mute : diagnostic.unmute}
+                        title={isSoundEnabled ? diagnostic.mute : diagnostic.unmute}
                     >
                         {isSoundEnabled ? (
                             <Volume2 className="h-5 w-5" />
@@ -80,16 +80,16 @@ export function DiagnosticHeader({ chatId }: { chatId: string }) {
                             onClick={() => setIsLanguageOpen(!isLanguageOpen)}
                             className="flex h-10 px-4 items-center justify-center rounded-full border border-primary/10 bg-surface text-on-background text-sm font-medium transition-all duration-300 hover:bg-primary/5 hover:border-primary/20"
                         >
-                            {mounted ? language.toUpperCase() : "EN"}
+                            {LANGS.find((item) => item.code === language)?.flag || language.toUpperCase()}
                         </Button>
 
                         {isLanguageOpen && (
                             <div className="absolute right-0 mt-2 w-40 rounded-2xl border border-primary/10 bg-surface shadow-[0_8px_32px_rgba(81,133,145,0.12)] overflow-hidden z-50">
-                                {languages.map((lang) => (
+                                {LANGS.map((lang) => (
                                     <Button
                                         key={lang.code}
                                         onClick={() => {
-                                            setLanguage(lang.code as any);
+                                            setLanguage(lang.code);
                                             setIsLanguageOpen(false);
                                         }}
                                         className={`w-full px-4 py-3 text-left text-sm font-medium transition-all duration-200 ${language === lang.code

@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { ChatOption } from "@/hooks/useDiagnosticChat";
 
 interface ChatInputProps {
   value: string;
@@ -10,9 +11,11 @@ interface ChatInputProps {
   onSend: () => void;
   loading: boolean;
   chatId: string;
+  options?: ChatOption[] | null;
+  onOptionClick?: (value: string, label: string) => void;
 }
 
-export function ChatInput({ value, onChange, onSend, loading, chatId }: ChatInputProps) {
+export function ChatInput({ value, onChange, onSend, loading, chatId, options, onOptionClick }: ChatInputProps) {
   const { dictionary } = useLanguage();
   const diagnostic = dictionary.diagnostic;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -29,6 +32,31 @@ export function ChatInput({ value, onChange, onSend, loading, chatId }: ChatInpu
       event.preventDefault();
       onSend();
     }
+  }
+
+  if (options && options.length > 0 && onOptionClick) {
+    return (
+      <div className="py-4 pb-4 md:pb-6 w-full flex-shrink-0">
+        <div className="mx-auto max-w-2xl">
+          <div className="flex flex-wrap justify-center gap-2 p-4 bg-white/70 backdrop-blur-sm border border-primary/10 rounded-2xl shadow-sm">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onOptionClick(option.value, option.label)}
+                disabled={loading}
+                className="px-6 py-3 rounded-xl border border-primary/25 bg-white text-primary text-sm font-medium shadow-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 active:scale-95 disabled:opacity-50"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="text-center mt-3 text-xs text-on-background/40 font-medium">
+          {diagnostic.session} · {chatId.slice(0, 8)}
+        </p>
+      </div>
+    );
   }
 
   return (

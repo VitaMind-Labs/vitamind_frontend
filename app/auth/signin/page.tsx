@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Header } from "@/app/home/_components";
+import { Suspense } from "react";
 import { AuthScreen } from "@/components/auth/AuthScreen";
+import AuthHeader from "../_components/Authheader";
 
 export const metadata: Metadata = {
   title: "Sign in | VitaMind",
@@ -10,8 +11,10 @@ export const metadata: Metadata = {
 export default function SignInPage() {
   return (
     <>
-      <Header />
-      <AuthScreen mode="signin" />
+      <AuthHeader />
+      <Suspense fallback={null}>
+        <AuthScreen mode="signin" />
+      </Suspense>
     </>
   );
 }

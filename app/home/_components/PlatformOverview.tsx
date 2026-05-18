@@ -1,94 +1,129 @@
+"use client";
+
+import { motion } from "framer-motion";
 import Link from "next/link";
-import { Brain, HeartHandshake } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import { ArrowUpRight, Brain, HeartHandshake } from "lucide-react";
+import {
+  ambientFloat,
+  ambientFloatTransition,
+  buttonTap,
+  getButtonHover,
+  getRevealProps,
+  shimmerSweep,
+  shimmerSweepTransition,
+} from "../animations";
 
 export default function PlatformOverview() {
-    return (
-        <section>
-            <div className="relative w-full overflow-hidden rounded-3xl bg-[url('/bg_img.jpg')] bg-cover bg-center bg-no-repeat p-8 md:p-16">
-                {/* Overlay - gardé tel quel */}
-                <div className="absolute inset-0 bg-[#071013]/80" />
+  return (
+    <section className="relative overflow-hidden py-6">
+      <motion.div
+        {...getRevealProps({ y: 28, blur: 10, duration: 1 })}
+        className="relative overflow-hidden rounded-[32px] border border-[rgba(81,133,145,0.18)] px-8 py-12 md:px-12 md:py-16"
+        style={{
+          background:
+            "linear-gradient(145deg, rgba(16,28,31,0.96) 0%, rgba(26,44,47,0.94) 60%, rgba(61,52,20,0.92) 100%)",
+          boxShadow: "0 24px 80px -28px rgba(15,23,42,0.38)",
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <motion.div
+            animate={ambientFloat}
+            transition={{ ...ambientFloatTransition, duration: 18 }}
+            className="absolute -left-16 top-0 h-72 w-72 rounded-full blur-[120px]"
+            style={{ background: "rgba(81,133,145,0.22)" }}
+          />
+          <motion.div
+            animate={ambientFloat}
+            transition={{ ...ambientFloatTransition, duration: 15, delay: 0.6 }}
+            className="absolute bottom-[-20%] right-[-5%] h-80 w-80 rounded-full blur-[120px]"
+            style={{ background: "rgba(227,176,28,0.16)" }}
+          />
+          <motion.div
+            animate={shimmerSweep}
+            transition={{ ...shimmerSweepTransition, duration: 5 }}
+            className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          />
+        </div>
 
-                {/* Glow Effects - gardés tels quels */}
-                <div className="absolute left-0 top-0 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
-                <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-12">
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-4xl">
+              <motion.div
+                {...getRevealProps({ delay: 0.08, y: 14, blur: 6, duration: 0.75 })}
+                className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/8 px-5 py-2.5 backdrop-blur-md"
+              >
+                <Brain className="h-4 w-4 text-[hsl(45,93%,47%)]" />
+                <span className="font-body text-[11px] font-semibold uppercase tracking-[0.28em] text-white/85">
+                  VitaMind Platform
+                </span>
+              </motion.div>
 
-                <div className="relative z-10 flex flex-col gap-16">
-                    {/* TOP CONTENT */}
-                    <div className="max-w-5xl space-y-8">
-                        <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-5 py-2 backdrop-blur-md">
-                            <Brain className="h-4 w-4 text-[hsl(45,93%,47%)]" />
-                            <Label className="font-mono-custom text-xs uppercase tracking-[0.25em] text-white">
-                                VitaMind Platform
-                            </Label>
-                        </div>
+              <motion.h2
+                {...getRevealProps({ delay: 0.14, y: 22, blur: 10, duration: 0.95 })}
+                className="mt-7 max-w-4xl font-display text-[clamp(34px,5vw,68px)] font-light leading-[1.02] tracking-[-0.035em] text-white"
+              >
+                Building the future of
+                <span className="bg-gradient-to-r from-[hsl(45,93%,47%)] via-white to-[hsl(187,27%,40%)] bg-clip-text text-transparent">
+                  {" "}accessible mental healthcare.
+                </span>
+              </motion.h2>
 
-                        <div className="space-y-6">
-                            <h1 className="max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-white md:text-6xl">
-                                AI-powered mental health triage and emotional
-                                <span className="bg-gradient-to-r from-[hsl(45,93%,47%)] to-[hsl(187,27%,40%)] bg-clip-text text-transparent">
-                                    {" "}wellbeing support
-                                </span>
-                                .
-                            </h1>
-
-                            <p className="max-w-3xl text-lg leading-relaxed text-white/70 md:text-xl">
-                                VitaMind bridges the gap between emotional
-                                distress and the first psychiatry appointment
-                                through intelligent symptom triage, validated
-                                clinical questionnaires, and a personalized
-                                wellbeing dashboard designed to guide users
-                                safely and compassionately.
-                            </p>
-                        </div>
-
-                        {/* Mini Stats */}
-                        <div className="flex flex-wrap gap-4 pt-4">
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-md">
-                                <p className="text-2xl font-bold text-[hsl(45,93%,47%)]">AI + CBT</p>
-                                <Label className="text-sm text-white/80">
-                                    Therapeutic intelligence
-                                </Label>
-                            </div>
-
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-md">
-                                <p className="text-2xl font-bold text-[hsl(45,93%,47%)]">3 Languages</p>
-                                <Label className="text-sm text-white/80">
-                                    Arabic • French • English
-                                </Label>
-                            </div>
-
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-md">
-                                <p className="text-2xl font-bold text-[hsl(45,93%,47%)]">24/7</p>
-                                <Label className="text-sm text-white/80">
-                                    Intelligent support access
-                                </Label>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Bottom CTA */}
-                    <div className="flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-10 md:flex-row md:items-center">
-                        <div className="max-w-2xl">
-                            <Label className="mb-2 text-2xl font-semibold text-white">
-                                Building the future of accessible mental healthcare
-                            </Label>
-                            <p className="text-white/60">
-                                Combining psychiatry, behavioral AI, and digital
-                                wellbeing into one intelligent ecosystem.
-                            </p>
-                        </div>
-
-                        <Link
-                            href="/diagnostic"
-                            className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-gradient-to-r from-[hsl(45,93%,47%)] to-[hsl(187,27%,40%)] px-6 py-3 text-sm font-medium uppercase tracking-[0.2em] text-white backdrop-blur-md transition-all duration-300 hover:shadow-lg hover:scale-105"
-                        >
-                            <HeartHandshake className="h-4 w-4" />
-                            Explore VitaMind
-                        </Link>
-                    </div>
-                </div>
+              <motion.p
+                {...getRevealProps({ delay: 0.2, y: 18, blur: 8, duration: 0.85 })}
+                className="mt-6 max-w-3xl font-body text-[17px] leading-[1.8] text-white/72"
+              >
+                VitaMind bridges the gap between emotional distress and the first psychiatric consultation
+                with structured triage, culturally aware AI, and a calmer path to care.
+              </motion.p>
             </div>
-        </section>
-    );
+
+            <motion.div whileHover={getButtonHover()} whileTap={buttonTap}>
+              <Link
+                href="/diagnostic"
+                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/15 bg-gradient-to-r from-[hsl(45,93%,47%)] to-[hsl(187,27%,40%)] px-7 py-4 font-body text-[12px] font-semibold uppercase tracking-[0.22em] text-white shadow-[0_18px_44px_rgba(81,133,145,0.24)]"
+              >
+                <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.22),transparent_60%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <HeartHandshake className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">Explore VitaMind</span>
+                <ArrowUpRight className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+            </motion.div>
+          </div>
+
+          <motion.div
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.16 } },
+            }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            className="grid grid-cols-1 gap-4 border-t border-white/10 pt-8 md:grid-cols-3"
+          >
+            {[
+              { value: "AI + CBT", label: "Therapeutic intelligence" },
+              { value: "3 Languages", label: "Arabic, French, English" },
+              { value: "24/7", label: "Structured support access" },
+            ].map((item) => (
+              <motion.div
+                key={item.value}
+                variants={{
+                  hidden: { opacity: 0, y: 24, scale: 0.98, filter: "blur(8px)" },
+                  visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+                }}
+                className="rounded-[22px] border border-white/10 bg-white/7 px-5 py-5 backdrop-blur-md"
+              >
+                <p className="font-display text-[28px] font-light tracking-[-0.03em] text-[hsl(45,93%,47%)]">
+                  {item.value}
+                </p>
+                <p className="mt-2 font-body text-[14px] leading-relaxed text-white/68">
+                  {item.label}
+                </p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </motion.div>
+    </section>
+  );
 }

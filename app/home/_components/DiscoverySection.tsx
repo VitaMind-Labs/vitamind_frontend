@@ -1,204 +1,309 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+    createStaggerContainer,
+    createStaggerItem,
+    getCardHover,
+    getRevealProps,
+} from "../animations";
 
-const phases = [
+// ─── DONNÉES ──────────────────────────────────────────────────────────────────
+const steps = [
     {
-        id: "01",
-        title: "Mira AI Triage",
-        description: "Empathic AI-powered conversation and adaptive symptom analysis before psychiatric orientation.",
-        items: ["CBT / ACT conversational support", "Adaptive mental health triage", "Safe emotional onboarding"],
-        image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1600&auto=format&fit=crop",
+        number: "01",
+        id: "Step 1",
+        title: "Smart Behavioral Capture",
+        description:
+            "Mira AI understands emotional patterns through interactions, behavioral signals and adaptive intelligence.",
+        accent: "#518591",
+        glow: "rgba(81,133,145,0.16)",
     },
     {
-        id: "02",
-        title: "Clinical Questionnaires",
-        description: "Validated psychological assessments used to detect emotional and cognitive risk patterns.",
-        items: ["PHQ-9 & GAD-7", "ASRS & behavioral analysis", "Progressive emotional scoring"],
-        image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop",
+        number: "02",
+        id: "Step 2",
+        title: "Clinical Screening",
+        description:
+            "Validated psychiatric frameworks designed for early detection and behavioral analysis.",
+        accent: "#e3b01c",
+        glow: "rgba(227,176,28,0.16)",
     },
     {
-        id: "03",
-        title: "Digital Phenotyping",
-        description: "Behavioral signal detection using typing dynamics and emotional interaction patterns.",
-        items: ["Typing rhythm analysis", "Low-signal crisis detection", "AI emotional profiling"],
-        image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=1600&auto=format&fit=crop",
-    },
-    {
-        id: "04",
-        title: "Wellbeing Dashboard",
-        description: "Personalized interface for emotional stabilization and daily tracking.",
-        items: ["Mood & energy tracking", "Guided grounding exercises", "Adaptive UI"],
-        image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1600&auto=format&fit=crop",
-    },
-    {
-        id: "05",
-        title: "Clinical Escalation",
-        description: "Secure orientation toward mental health professionals with intelligent reporting.",
-        items: ["Smart PDF export", "Psychiatric referral flow", "Crisis escalation protocol"],
-        image: "https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=1600&auto=format&fit=crop",
+        number: "03",
+        id: "Step 3",
+        title: "Lumina Stabilization",
+        description:
+            "Adaptive visual experiences helping users reduce emotional overload in real time.",
+        accent: "#2c3e3b",
+        glow: "rgba(44,62,59,0.14)",
     },
 ];
 
-export default function DiscoverySection() {
-    const [current, setCurrent] = useState(0);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-    const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+// ─── ICÔNES PAR ÉTAPE ─────────────────────────────────────────────────────────
+const StepIcon = ({ index }: { index: number }) => {
+    const icons = [
+        // Step 1 — cerveau / capture
+        <svg key="1" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="#518591" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="4" />
+            <line x1="12" y1="2" x2="12" y2="6" />
+            <line x1="12" y1="18" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="6" y2="12" />
+            <line x1="18" y1="12" x2="22" y2="12" />
+        </svg>,
+        // Step 2 — analyse clinique
+        <svg key="2" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="#518591" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 12l2 2 4-4" />
+            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.21.45 4.55 1.23" />
+        </svg>,
+        // Step 3 — stabilisation
+        <svg key="3" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="#518591" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+        </svg>,
+    ];
+    return icons[index] ?? icons[0];
+};
 
-    const next = useCallback(() => setCurrent((prev) => (prev + 1) % phases.length), []);
-    const prev = useCallback(() => setCurrent((prev) => (prev - 1 + phases.length) % phases.length), []);
-
-    useEffect(() => {
-        if (isAutoPlaying) {
-            autoPlayRef.current = setInterval(next, 5000);
-        }
-
-        return () => {
-            if (autoPlayRef.current) {
-                clearInterval(autoPlayRef.current);
-                autoPlayRef.current = null;
-            }
-        };
-    }, [isAutoPlaying, next]);
+export default function WorkflowSection() {
+    const cardVariants = createStaggerItem({ y: 34, blur: 10, duration: 0.8 });
 
     return (
-        <section
-            className="relative py-24 px-6 lg:px-20 bg-gradient-to-b from-white to-[#518591]/5"
-            onMouseEnter={() => setIsAutoPlaying(false)}
-            onMouseLeave={() => setIsAutoPlaying(true)}
-        >
-            <div className="max-w-7xl mx-auto">
-                {/* En-tête */}
-                <div className="text-center mb-16">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-[#518591]/20 bg-white/80 px-4 py-2 backdrop-blur-sm">
-                        <div className="h-1.5 w-1.5 rounded-full bg-[#e3b01c] animate-pulse" />
-                        <span className="text-xs font-medium uppercase tracking-wider text-[#518591]">Discovery Workflow</span>
-                    </div>
-                    <h2 className="mt-6 text-4xl md:text-6xl font-bold tracking-tighter">
-                        AI-powered mental
-                        <br />
-                        <span className="bg-gradient-to-r from-[#e3b01c] via-[#518591] to-[#e3b01c] bg-clip-text text-transparent">
-                            healthcare journey
-                        </span>
-                    </h2>
+        <section className="w-full overflow-hidden py-16 md:py-24">
+            {/* ── CONTENEUR PRINCIPAL ──
+                CORRECTION : bordure animée via CSS keyframes inline → remplacée
+                par une bordure statique élégante + box-shadow layered.
+                Le borderRadius passe de 50px (trop agressif) à 28px (harmonieux).   */}
+            <div
+                className="relative mx-auto overflow-hidden px-6 sm:px-8 lg:px-12"
+                style={{
+                    borderRadius: "28px",
+                    border: "1.5px solid rgba(81,133,145,0.20)",
+                    background:
+                        "linear-gradient(160deg, #ffffff 0%, #f8fafc 60%, #f1f5f9 100%)",
+                    boxShadow:
+                        "0 2px 40px -8px rgba(81,133,145,0.10), 0 1px 8px -2px rgba(0,0,0,0.04)",
+                }}
+            >
+                {/* Halo d'ambiance centré — remplace les deux divs blur empilés */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 overflow-hidden"
+                    style={{ borderRadius: "inherit" }}
+                >
+                    <div
+                        style={{
+                            position: "absolute",
+                            left: "50%",
+                            top: 0,
+                            width: "700px",
+                            height: "500px",
+                            transform: "translate(-50%, -35%)",
+                            background:
+                                "radial-gradient(ellipse, rgba(81,133,145,0.07) 0%, transparent 70%)",
+                            filter: "blur(60px)",
+                        }}
+                    />
                 </div>
 
-                {/* Carousel - Layout horizontal moderne */}
-                <div className="relative">
-                    {/* Conteneur principal */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                        {/* Image */}
-                        <div className="relative h-[300px] lg:h-[350px] w-full lg:w-[500px] rounded-2xl overflow-hidden shadow-2xl">
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={current}
-                                    initial={{ opacity: 0, scale: 1.05 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={{ duration: 0.4 }}
-                                    className="relative h-full w-full"
-                                >
-                                    <Image src={phases[current].image} alt={phases[current].title} fill className="object-cover" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                                </motion.div>
-                            </AnimatePresence>
+                {/* ── CONTENU ── */}
+                <div className="relative z-10 px-2 py-16 sm:px-4 lg:px-10">
 
-                            {/* Badge */}
-                            <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
-                                <span className="text-xs font-bold text-[#518591]">Phase {phases[current].id}</span>
-                            </div>
-                        </div>
+                    {/* En-tête */}
+                    <motion.div
+                        {...getRevealProps({ y: 22, blur: 10, duration: 0.95 })}
+                        className="mb-16 text-center"
+                    >
+                        {/* Label */}
+                        <motion.p
+                            {...getRevealProps({ delay: 0.08, y: 12, blur: 6, duration: 0.7 })}
+                            className="font-body mb-4 text-[12px] font-semibold uppercase tracking-[0.32em]"
+                            style={{ color: "#518591" }}
+                        >
+                            Intelligent Process
+                        </motion.p>
 
-                        {/* Contenu */}
-                        <div className="flex flex-col justify-center">
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={current}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
-                                    transition={{ duration: 0.4 }}
-                                    className="space-y-6"
-                                >
-                                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#518591] tracking-tight">
-                                        {phases[current].title}
-                                    </h3>
-                                    <p className="text-lg text-gray-600 leading-relaxed">
-                                        {phases[current].description}
-                                    </p>
-                                    <ul className="space-y-3">
-                                        {phases[current].items.map((item, idx) => (
-                                            <motion.li
-                                                key={idx}
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: idx * 0.1 }}
-                                                className="flex items-center gap-3"
-                                            >
-                                                <div className="w-1.5 h-1.5 rounded-full bg-[#e3b01c]" />
-                                                <span className="text-gray-700">{item}</span>
-                                            </motion.li>
-                                        ))}
-                                    </ul>
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
-                    </div>
-
-                    {/* Contrôles - plus compacts et élégants */}
-                    <div className="flex items-center justify-between mt-12 pt-6 border-t border-gray-100">
-                        {/* Navigation buttons */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={prev}
-                                className="p-2 rounded-full border border-gray-200 hover:border-[#518591] hover:bg-[#518591] hover:text-white transition-all duration-300 group"
+                        {/* H2 — CORRECTION : taille unifiée avec TechnologiesSection */}
+                        <h2
+                            className="
+                                font-display
+                                mb-5
+                                text-[clamp(30px,4.5vw,56px)]
+                                leading-[1.08]
+                                tracking-[-0.025em]
+                                font-light
+                            "
+                            style={{ color: "#0f172a" }}
+                        >
+                            Our Working{" "}
+                            {/* CORRECTION : gradient text uniquement sur ce mot-clé */}
+                            <span
+                                className="inline-block"
+                                style={{
+                                    backgroundImage:
+                                        "linear-gradient(135deg, #518591 0%, #2c3e3b 50%, #e3b01c 100%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    backgroundClip: "text",
+                                }}
                             >
-                                <ChevronLeft className="w-5 h-5 text-gray-500 group-hover:text-white" />
-                            </button>
-                            <button
-                                onClick={next}
-                                className="p-2 rounded-full border border-gray-200 hover:border-[#518591] hover:bg-[#518591] hover:text-white transition-all duration-300 group"
-                            >
-                                <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-white" />
-                            </button>
-                        </div>
-
-                        {/* Dots indicator */}
-                        <div className="flex gap-2">
-                            {phases.map((_, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => setCurrent(idx)}
-                                    className={`transition-all duration-300 rounded-full ${idx === current
-                                        ? "w-8 h-1.5 bg-gradient-to-r from-[#e3b01c] to-[#518591]"
-                                        : "w-4 h-1.5 bg-gray-200 hover:bg-gray-300"
-                                        }`}
-                                />
-                            ))}
-                        </div>
-
-                        {/* Auto-play indicator */}
-                        <div className="flex items-center gap-2">
-                            <Sparkles className={`w-3 h-3 transition-colors ${isAutoPlaying ? "text-[#e3b01c]" : "text-gray-300"}`} />
-                            <span className="text-xs text-gray-400 font-mono">
-                                {phases[current].id}/{phases.length.toString().padStart(2, '0')}
+                                Flow
                             </span>
-                        </div>
-                    </div>
+                        </h2>
 
-                    {/* Progress bar */}
-                    <div className="absolute -bottom-8 left-0 right-0 h-0.5 bg-gray-100 rounded-full overflow-hidden">
-                        <motion.div
-                            key={current}
-                            initial={{ width: "0%" }}
-                            animate={{ width: "100%" }}
-                            transition={{ duration: 5, ease: "linear" }}
-                            className="h-full bg-gradient-to-r from-[#e3b01c] to-[#518591]"
+                        <p
+                            className="font-body mx-auto max-w-xl text-[16px] leading-[1.65]"
+                            style={{ color: "#475569" }}
+                        >
+                            Structured workflows designed to create a smooth, intelligent,
+                            and emotionally adaptive healthcare experience.
+                        </p>
+                    </motion.div>
+
+                    {/* ── GRILLE DE CARTES ──
+                        CORRECTION : minHeight fixe supprimé → les cartes s'adaptent
+                        au contenu et restent à hauteur égale via align-items: stretch    */}
+                    <motion.div
+                        variants={createStaggerContainer({ delayChildren: 0.08, staggerChildren: 0.12 })}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.15 }}
+                        className="relative grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8"
+                    >
+                        <div
+                            aria-hidden="true"
+                            className="absolute left-[16%] right-[16%] top-[4.65rem] hidden h-px md:block"
+                            style={{
+                                background:
+                                    "linear-gradient(to right, rgba(81,133,145,0.15), rgba(227,176,28,0.35), rgba(44,62,59,0.15))",
+                            }}
                         />
-                    </div>
+                        {steps.map((step, i) => (
+                            <motion.div
+                                key={step.id}
+                                variants={cardVariants}
+                                transition={{ delay: i * 0.08 }}
+                                whileHover={getCardHover()}
+                                className="group relative flex flex-col overflow-hidden"
+                                style={{
+                                    borderRadius: "20px",
+                                    background:
+                                        "linear-gradient(165deg, #ffffff 0%, #f8fafc 100%)",
+                                    border: "1px solid rgba(81,133,145,0.12)",
+                                    boxShadow:
+                                        "0 4px 24px -8px rgba(0,0,0,0.07)",
+                                    marginTop: i === 1 ? "26px" : i === 2 ? "52px" : "0px",
+                                }}
+                            >
+                                <div
+                                    aria-hidden="true"
+                                    className="absolute inset-x-0 top-0 h-px"
+                                    style={{
+                                        background: `linear-gradient(to right, transparent, ${step.accent}, transparent)`,
+                                    }}
+                                />
+                                <div
+                                    aria-hidden="true"
+                                    className="absolute -right-10 top-10 h-28 w-28 rounded-full blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                    style={{ background: step.glow }}
+                                />
+                                <div className="relative z-10 flex flex-col h-full p-8 lg:p-9">
+
+                                    {/* ── TOP : icône + numéro ── */}
+                                    <div className="flex items-start justify-between mb-8">
+                                        {/* Icône */}
+                                        <div
+                                            className="relative flex h-14 w-14 items-center justify-center flex-shrink-0 transition-transform duration-400 group-hover:scale-105"
+                                            style={{
+                                                borderRadius: "14px",
+                                                background:
+                                                    `linear-gradient(135deg, ${step.glow}, rgba(255,255,255,0.42))`,
+                                                border: "1px solid rgba(81,133,145,0.14)",
+                                            }}
+                                        >
+                                            <span
+                                                className="absolute -right-10 top-1/2 hidden h-[2px] w-10 -translate-y-1/2 md:block"
+                                                style={{
+                                                    background: `linear-gradient(to right, ${step.accent}, transparent)`,
+                                                    opacity: i === steps.length - 1 ? 0 : 1,
+                                                }}
+                                            />
+                                            <StepIcon index={i} />
+                                        </div>
+
+                                        {/* Numéro — CORRECTION : un seul style, pas de gradient */}
+                                        <span
+                                            className="font-display font-light text-[13px] tracking-[0.18em]"
+                                            style={{ color: step.accent }}
+                                        >
+                                            {step.number}
+                                        </span>
+                                    </div>
+
+                                    {/* ── CORPS ── */}
+                                    <div className="flex flex-col flex-1">
+                                        {/* Ligne décorative — s'étend au hover */}
+                                        <div
+                                            className="mb-5 h-px transition-all duration-500 group-hover:w-20"
+                                            style={{
+                                                width: "40px",
+                                                backgroundImage: `linear-gradient(to right, ${step.accent}, #e3b01c)`,
+                                            }}
+                                        />
+
+                                        {/* Label étape — CORRECTION : suppression gradient text ici */}
+                                        <span
+                                            className="font-body text-[12px] font-semibold uppercase tracking-[0.22em] mb-3"
+                                            style={{ color: step.accent }}
+                                        >
+                                            {step.id}
+                                        </span>
+
+                                        {/* Titre carte — CORRECTION : font-display, taille fixe */}
+                                        <h4
+                                            className="font-display text-[20px] font-medium leading-snug mb-4"
+                                            style={{ color: "#0f172a" }}
+                                        >
+                                            {step.title}
+                                        </h4>
+
+                                        {/* Description */}
+                                        <p
+                                            className="font-body text-[15px] leading-[1.65] flex-1"
+                                            style={{ color: "#475569" }}
+                                        >
+                                            {step.description}
+                                        </p>
+
+                                        {/* Badge bas — CORRECTION : taille et style unifiés */}
+                                        <div
+                                            className="
+                                                inline-flex self-start items-center gap-2 mt-6
+                                                rounded-full px-4 py-[7px]
+                                                font-body text-[12px] font-medium
+                                                transition-transform duration-400 group-hover:-translate-y-1
+                                            "
+                                            style={{
+                                                background: `${step.glow}`,
+                                                border: "1px solid rgba(81,133,145,0.12)",
+                                                color: step.accent,
+                                            }}
+                                        >
+                                            <span
+                                                className="w-[7px] h-[7px] rounded-full flex-shrink-0"
+                                                style={{ background: step.accent }}
+                                            />
+                                            Intelligent system flow
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
                 </div>
             </div>
         </section>
