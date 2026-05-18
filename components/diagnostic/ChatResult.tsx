@@ -107,7 +107,7 @@ export function ChatResult({ result, chatId, onRestart }: ChatResultProps) {
     >
       {/* Main Card - Clean white background */}
       <div className="bg-white border border-[rgba(81,133,145,0.06)] rounded-3xl w-full shadow-lg overflow-hidden">
-        
+
         {/* Header */}
         <div className="bg-gray-50 px-6 sm:px-8 py-4 border-b border-[rgba(81,133,145,0.04)] flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -116,12 +116,12 @@ export function ChatResult({ result, chatId, onRestart }: ChatResultProps) {
               {resultText.header}
             </span>
           </div>
-            <span className="text-xs font-mono text-on-background/60">ID: {chatId.slice(0, 8)}</span>
+          <span className="text-xs font-mono text-on-background/60">ID: {chatId.slice(0, 8)}</span>
         </div>
 
         {/* Content */}
         <div className="p-6 sm:p-8 lg:p-10">
-          
+
           {/* Axes Grid - 3 Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {axes.map((axis) => {
@@ -144,7 +144,7 @@ export function ChatResult({ result, chatId, onRestart }: ChatResultProps) {
                   <div className="mt-4 flex items-end justify-between gap-3">
                     <div>
                       <p className="text-sm text-on-background/70">{axis.label}</p>
-                          <p className={`mt-1 text-3xl font-bold ${scoreColor === 'text-primary' ? 'text-primary' : 'text-on-background'}`}>
+                      <p className={`mt-1 text-3xl font-bold ${scoreColor === 'text-primary' ? 'text-primary' : 'text-on-background'}`}>
                         {scoreText(axis.result)}
                       </p>
                     </div>
@@ -267,7 +267,7 @@ export function ChatResult({ result, chatId, onRestart }: ChatResultProps) {
             {resultText.noteBody}
           </p>
         </motion.div>
-        
+
         <motion.div
           className="p-5 sm:p-6 rounded-2xl bg-white border border-[rgba(81,133,145,0.06)] shadow-sm flex items-center justify-between"
           initial={{ opacity: 0, y: 20 }}
