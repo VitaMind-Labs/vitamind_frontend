@@ -30,9 +30,9 @@ function hideDiagnosticQuestionLabels(content: string) {
 }
 
 function getOptionLabel(option: ChatOption, language: Lang) {
-  if (language === "derja") return option.labelDerja || option.labelAr || option.label;
-  if (language === "fr") return option.labelFr || option.label;
-  return option.labelEn || option.label;
+  // LEGACY flow: backend still sends fr/derja labels; map modern locales onto them.
+  if (language === "ar") return option.labelAr || option.labelDerja || option.label;
+  return option.labelEn || option.labelFr || option.label;
 }
 
 export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef, onOptionClick }: ChatMessagesProps) {
@@ -42,7 +42,7 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
   return (
     <div
       ref={scrollRef}
-      className="flex-1 overflow-y-auto pb-4 space-y-6 px-1 sm:px-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
+      className="flex-1 overflow-y-auto pb-4 space-y-4 px-1 sm:px-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
     >
       {/* Welcome State */}
       {messages.length <= 1 && (
@@ -50,22 +50,22 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-          className="text-center py-12 sm:py-16 px-4"
+          className="text-center py-12 sm:py-14 px-4"
         >
-          <div className="inline-flex p-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] mb-6">
+          <div className="inline-flex p-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] mb-5">
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-2xl sm:text-[32px] font-semibold tracking-tight mb-3 max-w-lg mx-auto leading-snug text-gray-800">
+          <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight mb-3 max-w-lg mx-auto leading-snug text-gray-800">
             {diagnostic.welcome}
           </h1>
-          <p className="text-sm sm:text-[15px] text-gray-400 max-w-md mx-auto leading-relaxed font-medium">
-            {diagnostic.panelPoints?.[0] || "Le chat recueille quelques réponses guidées."}
+          <p className="text-sm sm:text-[14px] text-gray-400 max-w-md mx-auto leading-relaxed font-medium">
+            {diagnostic.panelPoints?.[0] ?? ""}
           </p>
         </motion.div>
       )}
 
       {/* Messages List */}
-      <div className="max-w-5xl mx-auto space-y-5">
+      <div className="max-w-[680px] mx-auto space-y-4">
         <AnimatePresence initial={false}>
           {displayedMessages.map((message, index) => {
             const content =
@@ -83,19 +83,19 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
                 transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
                 className="flex flex-col"
               >
-                <div className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"} gap-2.5 sm:gap-3 items-end`}>
+                <div className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"} gap-2 sm:gap-2.5 items-end`}>
                   {message.role === "assistant" && (
                     <div className="flex-shrink-0 mb-0.5">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm ring-2 ring-white">
-                        <Bot className="h-4 w-4 text-white" />
+                      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm ring-1.5 ring-white">
+                        <Bot className="h-3.5 w-3.5 text-white" />
                       </div>
                     </div>
                   )}
 
                   <div
-                    className={`max-w-[88%] sm:max-w-[75%] px-4 py-3 sm:px-5 sm:py-3.5 text-[15px] leading-relaxed shadow-sm break-words whitespace-pre-wrap ${message.role === "user"
-                        ? "bg-gradient-to-br from-primary to-primary/90 text-white rounded-[20px] rounded-br-md shadow-primary/10"
-                        : "bg-white/80 border border-gray-100/80 text-gray-700 rounded-[20px] rounded-bl-md shadow-[0_2px_12px_rgba(0,0,0,0.03)] backdrop-blur-sm"
+                    className={`max-w-[85%] sm:max-w-[78%] px-3.5 py-2.5 sm:px-4 sm:py-3 text-[14.5px] leading-relaxed shadow-sm break-words whitespace-pre-wrap ${message.role === "user"
+                        ? "bg-primary text-white rounded-[18px] rounded-br-lg shadow-[0_6px_20px_rgba(81,133,145,0.20)]"
+                        : "bg-white/80 border border-gray-100/70 text-gray-700 rounded-[18px] rounded-bl-lg shadow-[0_4px_16px_rgba(0,0,0,0.04)] backdrop-blur-sm"
                       }`}
                     style={{ wordBreak: "break-word" }}
                   >
@@ -104,8 +104,8 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
 
                   {message.role === "user" && (
                     <div className="flex-shrink-0 mb-0.5">
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center shadow-sm ring-2 ring-white">
-                        <User className="h-4 w-4 text-gray-500" />
+                      <div className="h-7 w-7 rounded-full bg-gray-200 flex items-center justify-center shadow-sm ring-1.5 ring-white">
+                        <User className="h-3.5 w-3.5 text-gray-500" />
                       </div>
                     </div>
                   )}
@@ -113,14 +113,14 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
 
                 {/* Options Buttons */}
                 {message.role === "assistant" && message.options && message.options.length > 0 && onOptionClick && (
-                  <div className="flex flex-wrap gap-2 mt-3 ml-11 sm:ml-12">
+                  <div className="flex flex-wrap gap-2 mt-3 ml-10 sm:ml-11">
                     {message.options.map((option) => (
                       <motion.button
                         whileTap={{ scale: 0.96 }}
                         key={option.value}
                         type="button"
                         onClick={() => onOptionClick(option.value, getOptionLabel(option, language))}
-                        className="px-4 py-2.5 sm:px-5 sm:py-2.5 rounded-xl border border-gray-200 bg-white/90 text-gray-600 text-sm font-medium shadow-sm hover:border-primary/30 hover:bg-primary hover:text-white hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+                        className="px-3.5 py-2.5 sm:px-4 sm:py-2.5 rounded-xl border border-gray-200 bg-white/90 text-gray-600 text-sm font-medium shadow-sm hover:border-primary/30 hover:bg-primary hover:text-white hover:shadow-md transition-all duration-300 backdrop-blur-sm"
                       >
                         {getOptionLabel(option, language)}
                       </motion.button>
@@ -139,14 +139,14 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 5 }}
-              className="flex justify-start gap-2.5 sm:gap-3 items-end"
+              className="flex justify-start gap-2 sm:gap-2.5 items-end"
             >
               <div className="flex-shrink-0 mb-0.5">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm ring-2 ring-white">
-                  <Bot className="h-4 w-4 text-white" />
+                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm ring-1.5 ring-white">
+                  <Bot className="h-3.5 w-3.5 text-white" />
                 </div>
               </div>
-              <div className="bg-white/80 border border-gray-100/80 rounded-[20px] rounded-bl-md px-4 py-3 shadow-[0_2px_12px_rgba(0,0,0,0.03)] backdrop-blur-sm">
+              <div className="bg-white/80 border border-gray-100/70 rounded-[18px] rounded-bl-lg px-3.5 py-2.5 shadow-[0_4px_16px_rgba(0,0,0,0.04)] backdrop-blur-sm">
                 <TypingIndicator />
               </div>
             </motion.div>
@@ -154,7 +154,7 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
         </AnimatePresence>
       </div>
 
-      <div className="h-6" />
+      <div className="h-4" />
     </div>
   );
 }
