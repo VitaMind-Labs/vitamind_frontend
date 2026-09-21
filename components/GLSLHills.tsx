@@ -20,9 +20,7 @@ class Plane {
     time: number;
 
     constructor(speed: number, planeSize: number) {
-        this.uniforms = {
-            time: { value: 0 },
-        };
+        this.uniforms = { time: { value: 0 } };
         this.mesh = this.createMesh(planeSize);
         this.time = speed;
     }
@@ -166,67 +164,60 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // Three.js setup
         const canvas = canvasRef.current;
         const container = containerRef.current;
         if (!canvas || !container) return;
 
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 10000);
         const plane = new Plane(speed, planeSize);
+
         let lastTime = performance.now();
+        let animationFrameId: number = 0;
 
         const resize = () => {
-            const canvas = canvasRef.current;
-            const container = containerRef.current;
-            if (!canvas || !container) return;
-
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            
-            canvas.width = width;
-            canvas.height = height;
-            camera.aspect = width / height;
+            if (!container) return;
+            const w = Math.max(container.clientWidth, 1);
+            const h = Math.max(container.clientHeight, 1);
+            camera.aspect = w / h;
             camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setSize(w, h, false);
         };
 
         const render = () => {
-            const currentTime = performance.now();
-            const delta = (currentTime - lastTime) / 1000;
-            lastTime = currentTime;
+            const now = performance.now();
+            const delta = Math.min((now - lastTime) / 1000, 0.033); // Cap delta to 33ms max
+            lastTime = now;
             plane.render(delta);
             renderer.render(scene, camera);
         };
 
         const renderLoop = () => {
             render();
-            requestAnimationFrame(renderLoop);
+            animationFrameId = requestAnimationFrame(renderLoop);
         };
 
-        const init = () => {
-            const container = containerRef.current;
-            if (!container) return;
-            
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            
-            renderer.setSize(width, height);
-            renderer.setClearColor(0x000000, 0);
-            camera.position.set(0, 16, cameraZ);
-            camera.lookAt(new THREE.Vector3(0, 28, 0));
-            scene.add(plane.mesh);
-            window.addEventListener('resize', resize);
-            resize();
-            renderLoop();
-        };
+        renderer.setClearColor(0x000000, 0);
+        camera.position.set(0, 16, cameraZ);
+        camera.lookAt(new THREE.Vector3(0, 28, 0));
+        scene.add(plane.mesh);
 
-        init();
+        window.addEventListener('resize', resize);
+        resize();
+        renderLoop();
 
         return () => {
             window.removeEventListener('resize', resize);
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
             renderer.dispose();
+            plane.mesh.geometry.dispose();
+            if (plane.mesh.material) {
+                plane.mesh.material.dispose();
+            }
         };
     }, [cameraZ, planeSize, speed]);
 
@@ -237,9 +228,9 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
                 style={{
                     position: 'absolute',
                     top: 0,
-                    right: 0,
-                    bottom: 0,
                     left: 0,
+                    width: '100%',
+                    height: '100%',
                     zIndex: 1
                 }}
             />

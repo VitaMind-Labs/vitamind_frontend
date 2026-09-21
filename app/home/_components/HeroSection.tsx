@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { GLSLHills } from "./GLSLHills";
+import { GLSLHills } from "../../../components/GLSLHills";
 import {
     ambientFloat,
     ambientFloatTransition,
