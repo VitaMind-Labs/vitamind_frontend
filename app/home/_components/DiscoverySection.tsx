@@ -1,289 +1,311 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { motion } from "framer-motion";
 import {
-    motion,
-    AnimatePresence,
-} from "framer-motion";
-import {
-    ChevronLeft,
-    ChevronRight,
-} from "lucide-react";
+    createStaggerContainer,
+    createStaggerItem,
+    getCardHover,
+    getRevealProps,
+} from "../animations";
 
-import { Progress } from "@/components/ui/progress";
-
-const phases = [
+// ─── DONNÉES ──────────────────────────────────────────────────────────────────
+const steps = [
     {
-        id: "01",
-        title: "Mira AI Triage",
+        number: "01",
+        id: "Step 1",
+        title: "Smart Behavioral Capture",
         description:
-            "Empathic AI-powered conversation and adaptive symptom analysis before psychiatric orientation.",
-        items: [
-            "CBT / ACT conversational support",
-            "Adaptive mental health triage",
-            "Safe emotional onboarding",
-        ],
-        image:
-            "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1600&auto=format&fit=crop",
+            "Mira AI understands emotional patterns through interactions, behavioral signals and adaptive intelligence.",
+        accent: "#518591",
+        glow: "rgba(81,133,145,0.16)",
     },
     {
-        id: "02",
-        title: "Clinical Questionnaires",
+        number: "02",
+        id: "Step 2",
+        title: "Clinical Screening",
         description:
-            "Validated psychological assessments used to detect emotional and cognitive risk patterns.",
-        items: [
-            "PHQ-9 & GAD-7",
-            "ASRS & behavioral analysis",
-            "Progressive emotional scoring",
-        ],
-        image:
-            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop",
+            "Validated psychiatric frameworks designed for early detection and behavioral analysis.",
+        accent: "#e3b01c",
+        glow: "rgba(227,176,28,0.16)",
     },
     {
-        id: "03",
-        title: "Digital Phenotyping",
+        number: "03",
+        id: "Step 3",
+        title: "Lumina Stabilization",
         description:
-            "Behavioral signal detection using typing dynamics and emotional interaction patterns.",
-        items: [
-            "Typing rhythm analysis",
-            "Low-signal crisis detection",
-            "AI emotional profiling",
-        ],
-        image:
-            "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=1600&auto=format&fit=crop",
-    },
-    {
-        id: "04",
-        title: "Wellbeing Dashboard",
-        description:
-            "Personalized chromatherapy-inspired wellbeing interface for emotional stabilization.",
-        items: [
-            "Mood & energy tracking",
-            "Guided grounding exercises",
-            "Adaptive chromatherapy UI",
-        ],
-        image:
-            "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1600&auto=format&fit=crop",
-    },
-    {
-        id: "05",
-        title: "Clinical Escalation",
-        description:
-            "Secure orientation toward mental health professionals with intelligent reporting.",
-        items: [
-            "Smart PDF export",
-            "Psychiatric referral flow",
-            "Crisis escalation protocol",
-        ],
-        image:
-            "https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=1600&auto=format&fit=crop",
+            "Adaptive visual experiences helping users reduce emotional overload in real time.",
+        accent: "#2c3e3b",
+        glow: "rgba(44,62,59,0.14)",
     },
 ];
 
-export default function DiscoverySection() {
-    const [current, setCurrent] = useState(0);
+// ─── ICÔNES PAR ÉTAPE ─────────────────────────────────────────────────────────
+const StepIcon = ({ index }: { index: number }) => {
+    const icons = [
+        // Step 1 — cerveau / capture
+        <svg key="1" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="#518591" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="4" />
+            <line x1="12" y1="2" x2="12" y2="6" />
+            <line x1="12" y1="18" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="6" y2="12" />
+            <line x1="18" y1="12" x2="22" y2="12" />
+        </svg>,
+        // Step 2 — analyse clinique
+        <svg key="2" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="#518591" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 12l2 2 4-4" />
+            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.21.45 4.55 1.23" />
+        </svg>,
+        // Step 3 — stabilisation
+        <svg key="3" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="#518591" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+        </svg>,
+    ];
+    return icons[index] ?? icons[0];
+};
 
-    const next = () => {
-        setCurrent((prev) =>
-            prev === phases.length - 1 ? 0 : prev + 1
-        );
-    };
-
-    const prev = () => {
-        setCurrent((prev) =>
-            prev === 0 ? phases.length - 1 : prev - 1
-        );
-    };
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            next();
-        }, 5000);
-
-        return () => clearInterval(timer);
-    }, []);
+export default function WorkflowSection() {
+    const cardVariants = createStaggerItem({ y: 34, blur: 10, duration: 0.8 });
 
     return (
-        <section className="relative min-h-screen bg-[var(--background)]">
-            <div className="flex min-h-screen flex-col justify-center overflow-hidden px-6 lg:px-20">
-                {/* HEADER */}
-                <div className="mb-14 space-y-5">
-                    <div className="inline-flex items-center gap-3 rounded-full border border-[var(--outline-variant)]/20 bg-[var(--surface-container-low)] px-4 py-2">
-                        <div className="h-2 w-2 rounded-full bg-[var(--primary)]" />
-
-                        <span className="font-mono-custom text-xs uppercase tracking-[0.3em] text-[var(--on-surface-variant)]">
-                            VitaMind Workflow
-                        </span>
-                    </div>
-
-                    <h2 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-tighter text-[var(--primary)] md:text-7xl">
-                        AI-powered mental
-                        <br />
-                        healthcare journey
-                    </h2>
+        <section className="w-full overflow-hidden py-16 md:py-24">
+            {/* ── CONTENEUR PRINCIPAL ──
+                CORRECTION : bordure animée via CSS keyframes inline → remplacée
+                par une bordure statique élégante + box-shadow layered.
+                Le borderRadius passe de 50px (trop agressif) à 28px (harmonieux).   */}
+            <div
+                className="relative mx-auto overflow-hidden px-6 sm:px-8 lg:px-12"
+                style={{
+                    borderRadius: "28px",
+                    border: "1.5px solid rgba(81,133,145,0.20)",
+                    background:
+                        "linear-gradient(160deg, #ffffff 0%, #f8fafc 60%, #f1f5f9 100%)",
+                    boxShadow:
+                        "0 2px 40px -8px rgba(81,133,145,0.10), 0 1px 8px -2px rgba(0,0,0,0.04)",
+                }}
+            >
+                {/* Halo d'ambiance centré — remplace les deux divs blur empilés */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 overflow-hidden"
+                    style={{ borderRadius: "inherit" }}
+                >
+                    <div
+                        style={{
+                            position: "absolute",
+                            left: "50%",
+                            top: 0,
+                            width: "700px",
+                            height: "500px",
+                            transform: "translate(-50%, -35%)",
+                            background:
+                                "radial-gradient(ellipse, rgba(81,133,145,0.07) 0%, transparent 70%)",
+                            filter: "blur(60px)",
+                        }}
+                    />
                 </div>
 
-                {/* MAIN GRID */}
-                <div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:items-center">
-                    {/* IMAGE */}
-                    <div className="relative md:col-span-5 lg:col-span-4">
-                        <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-[var(--outline-variant)]/10 bg-[var(--surface-container-low)] shadow-2xl">
-                            <AnimatePresence mode="wait">
-                                <StepImage
-                                    key={current}
-                                    phase={phases[current]}
-                                />
-                            </AnimatePresence>
-                        </div>
-                    </div>
+                {/* ── CONTENU ── */}
+                <div className="relative z-10 px-2 py-16 sm:px-4 lg:px-10">
 
-                    {/* CONTENT */}
-                    <div className="relative min-h-[420px] md:col-span-7 md:pl-12 lg:col-span-6">
-                        <AnimatePresence mode="wait">
-                            <StepContent
-                                key={current}
-                                phase={phases[current]}
-                            />
-                        </AnimatePresence>
-                    </div>
-                </div>
+                    {/* En-tête */}
+                    <motion.div
+                        {...getRevealProps({ y: 22, blur: 10, duration: 0.95 })}
+                        className="mb-16 text-center"
+                    >
+                        {/* Label */}
+                        <motion.p
+                            {...getRevealProps({ delay: 0.08, y: 12, blur: 6, duration: 0.7 })}
+                            className="font-body mb-4 text-[12px] font-semibold uppercase tracking-[0.32em]"
+                            style={{ color: "#518591" }}
+                        >
+                            Intelligent Process
+                        </motion.p>
 
-                {/* FOOTER */}
-                <div className="mt-16 space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-3">
-                            <button
-                                onClick={prev}
-                                className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--outline-variant)]/20 transition hover:bg-black/5"
+                        {/* H2 — CORRECTION : taille unifiée avec TechnologiesSection */}
+                        <h2
+                            className="
+                                font-display
+                                mb-5
+                                text-[clamp(30px,4.5vw,56px)]
+                                leading-[1.08]
+                                tracking-[-0.025em]
+                                font-light
+                            "
+                            style={{ color: "#0f172a" }}
+                        >
+                            Our Working{" "}
+                            {/* CORRECTION : gradient text uniquement sur ce mot-clé */}
+                            <span
+                                className="inline-block"
+                                style={{
+                                    backgroundImage:
+                                        "linear-gradient(135deg, #518591 0%, #2c3e3b 50%, #e3b01c 100%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    backgroundClip: "text",
+                                }}
                             >
-                                <ChevronLeft className="h-5 w-5" />
-                            </button>
+                                Flow
+                            </span>
+                        </h2>
 
-                            <button
-                                onClick={next}
-                                className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--outline-variant)]/20 transition hover:bg-black/5"
-                            >
-                                <ChevronRight className="h-5 w-5" />
-                            </button>
-                        </div>
+                        <p
+                            className="font-body mx-auto max-w-xl text-[16px] leading-[1.65]"
+                            style={{ color: "#475569" }}
+                        >
+                            Structured workflows designed to create a smooth, intelligent,
+                            and emotionally adaptive healthcare experience.
+                        </p>
+                    </motion.div>
 
-                        <div className="font-mono-custom text-xs uppercase tracking-[0.2em] text-[var(--on-surface-variant)]/40">
-                            Phase {phases[current].id}
-                        </div>
-                    </div>
-
-                    <div className="relative overflow-hidden rounded-full bg-black/5">
-                        <Progress
-                            value={100}
-                            className="h-[2px] bg-transparent"
-                        />
-
-                        <motion.div
-                            key={current}
-                            initial={{ width: "0%" }}
-                            animate={{ width: "100%" }}
-                            transition={{
-                                duration: 5,
-                                ease: "linear",
+                    {/* ── GRILLE DE CARTES ──
+                        CORRECTION : minHeight fixe supprimé → les cartes s'adaptent
+                        au contenu et restent à hauteur égale via align-items: stretch    */}
+                    <motion.div
+                        variants={createStaggerContainer({ delayChildren: 0.08, staggerChildren: 0.12 })}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.15 }}
+                        className="relative grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8"
+                    >
+                        <div
+                            aria-hidden="true"
+                            className="absolute left-[16%] right-[16%] top-[4.65rem] hidden h-px md:block"
+                            style={{
+                                background:
+                                    "linear-gradient(to right, rgba(81,133,145,0.15), rgba(227,176,28,0.35), rgba(44,62,59,0.15))",
                             }}
-                            className="absolute left-0 top-0 h-full bg-[var(--primary)]"
                         />
-                    </div>
+                        {steps.map((step, i) => (
+                            <motion.div
+                                key={step.id}
+                                variants={cardVariants}
+                                transition={{ delay: i * 0.08 }}
+                                whileHover={getCardHover()}
+                                className="group relative flex flex-col overflow-hidden"
+                                style={{
+                                    borderRadius: "20px",
+                                    background:
+                                        "linear-gradient(165deg, #ffffff 0%, #f8fafc 100%)",
+                                    border: "1px solid rgba(81,133,145,0.12)",
+                                    boxShadow:
+                                        "0 4px 24px -8px rgba(0,0,0,0.07)",
+                                    marginTop: i === 1 ? "26px" : i === 2 ? "52px" : "0px",
+                                }}
+                            >
+                                <div
+                                    aria-hidden="true"
+                                    className="absolute inset-x-0 top-0 h-px"
+                                    style={{
+                                        background: `linear-gradient(to right, transparent, ${step.accent}, transparent)`,
+                                    }}
+                                />
+                                <div
+                                    aria-hidden="true"
+                                    className="absolute -right-10 top-10 h-28 w-28 rounded-full blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                    style={{ background: step.glow }}
+                                />
+                                <div className="relative z-10 flex flex-col h-full p-8 lg:p-9">
+
+                                    {/* ── TOP : icône + numéro ── */}
+                                    <div className="flex items-start justify-between mb-8">
+                                        {/* Icône */}
+                                        <div
+                                            className="relative flex h-14 w-14 items-center justify-center flex-shrink-0 transition-transform duration-400 group-hover:scale-105"
+                                            style={{
+                                                borderRadius: "14px",
+                                                background:
+                                                    `linear-gradient(135deg, ${step.glow}, rgba(255,255,255,0.42))`,
+                                                border: "1px solid rgba(81,133,145,0.14)",
+                                            }}
+                                        >
+                                            <span
+                                                className="absolute -right-10 top-1/2 hidden h-[2px] w-10 -translate-y-1/2 md:block"
+                                                style={{
+                                                    background: `linear-gradient(to right, ${step.accent}, transparent)`,
+                                                    opacity: i === steps.length - 1 ? 0 : 1,
+                                                }}
+                                            />
+                                            <StepIcon index={i} />
+                                        </div>
+
+                                        {/* Numéro — CORRECTION : un seul style, pas de gradient */}
+                                        <span
+                                            className="font-display font-light text-[13px] tracking-[0.18em]"
+                                            style={{ color: step.accent }}
+                                        >
+                                            {step.number}
+                                        </span>
+                                    </div>
+
+                                    {/* ── CORPS ── */}
+                                    <div className="flex flex-col flex-1">
+                                        {/* Ligne décorative — s'étend au hover */}
+                                        <div
+                                            className="mb-5 h-px transition-all duration-500 group-hover:w-20"
+                                            style={{
+                                                width: "40px",
+                                                backgroundImage: `linear-gradient(to right, ${step.accent}, #e3b01c)`,
+                                            }}
+                                        />
+
+                                        {/* Label étape — CORRECTION : suppression gradient text ici */}
+                                        <span
+                                            className="font-body text-[12px] font-semibold uppercase tracking-[0.22em] mb-3"
+                                            style={{ color: step.accent }}
+                                        >
+                                            {step.id}
+                                        </span>
+
+                                        {/* Titre carte — CORRECTION : font-display, taille fixe */}
+                                        <h4
+                                            className="font-display text-[20px] font-medium leading-snug mb-4"
+                                            style={{ color: "#0f172a" }}
+                                        >
+                                            {step.title}
+                                        </h4>
+
+                                        {/* Description */}
+                                        <p
+                                            className="font-body text-[15px] leading-[1.65] flex-1"
+                                            style={{ color: "#475569" }}
+                                        >
+                                            {step.description}
+                                        </p>
+
+                                        {/* Badge bas — CORRECTION : taille et style unifiés */}
+                                        <div
+                                            className="
+                                                inline-flex self-start items-center gap-2 mt-6
+                                                rounded-full px-4 py-[7px]
+                                                font-body text-[12px] font-medium
+                                                transition-transform duration-400 group-hover:-translate-y-1
+                                            "
+                                            style={{
+                                                background: `${step.glow}`,
+                                                border: "1px solid rgba(81,133,145,0.12)",
+                                                color: step.accent,
+                                            }}
+                                        >
+                                            <span
+                                                className="w-[7px] h-[7px] rounded-full flex-shrink-0"
+                                                style={{ background: step.accent }}
+                                            />
+                                            Intelligent system flow
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
                 </div>
             </div>
         </section>
-    );
-}
-
-function StepImage({ phase }: any) {
-    return (
-        <motion.div
-            initial={{
-                opacity: 0,
-                scale: 1.08,
-            }}
-            animate={{
-                opacity: 1,
-                scale: 1,
-            }}
-            exit={{
-                opacity: 0,
-                scale: 0.96,
-            }}
-            transition={{
-                duration: 0.8,
-            }}
-            className="absolute inset-0"
-        >
-            <Image
-                src={phase.image}
-                alt={phase.title}
-                fill
-                className="object-cover"
-            />
-
-            <div className="absolute inset-0 bg-black/10" />
-        </motion.div>
-    );
-}
-
-function StepContent({ phase }: any) {
-    return (
-        <motion.div
-            initial={{
-                opacity: 0,
-                y: 30,
-            }}
-            animate={{
-                opacity: 1,
-                y: 0,
-            }}
-            exit={{
-                opacity: 0,
-                y: -30,
-            }}
-            transition={{
-                duration: 0.6,
-            }}
-            className="flex flex-col justify-center"
-        >
-            <div className="space-y-10">
-                <div className="space-y-6">
-                    <div className="flex items-center gap-5">
-                        <span className="font-mono-custom text-sm text-[var(--on-surface-variant)]/30">
-                            {phase.id}
-                        </span>
-
-                        <div className="h-px flex-1 bg-[var(--outline-variant)]/30" />
-                    </div>
-
-                    <div className="space-y-5">
-                        <h3 className="text-4xl font-semibold tracking-tight text-[var(--primary)] md:text-6xl">
-                            {phase.title}
-                        </h3>
-
-                        <p className="max-w-xl text-lg leading-relaxed text-[var(--on-surface-variant)]">
-                            {phase.description}
-                        </p>
-                    </div>
-                </div>
-
-                <ul className="space-y-5">
-                    {phase.items.map((item: string) => (
-                        <li
-                            key={item}
-                            className="group flex items-center gap-5"
-                        >
-                            <div className="h-2 w-2 rounded-full bg-[var(--primary)] transition-transform duration-300 group-hover:scale-150" />
-
-                            <span className="text-base font-medium tracking-tight text-[var(--on-surface)]/80">
-                                {item}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </motion.div>
     );
 }

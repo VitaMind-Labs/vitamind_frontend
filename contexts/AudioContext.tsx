@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type AudioContextType = {
     isSoundEnabled: boolean;
@@ -8,9 +8,17 @@ type AudioContextType = {
 };
 
 const AudioContext = createContext<AudioContextType | null>(null);
+const STORAGE_KEY = "vitamind-diagnostic-sound";
 
 export function AudioProvider({ children }: { children: ReactNode }) {
-    const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+    const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
+        if (typeof window === "undefined") return true;
+        return window.localStorage.getItem(STORAGE_KEY) !== "off";
+    });
+
+    useEffect(() => {
+        window.localStorage.setItem(STORAGE_KEY, isSoundEnabled ? "on" : "off");
+    }, [isSoundEnabled]);
 
     return (
         <AudioContext.Provider value={{ isSoundEnabled, setIsSoundEnabled }}>

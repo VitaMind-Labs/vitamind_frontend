@@ -8,7 +8,7 @@ export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-full border border-white/45 bg-white/70 p-1 text-xs font-semibold shadow-[0_12px_30px_rgba(16,40,35,0.08)] backdrop-blur-md">
+    <div className="inline-flex items-center gap-1 rounded-full border border-[#518591]/30 bg-white/80 p-1 text-xs font-semibold shadow-[0_8px_24px_rgba(81,133,145,0.12)] backdrop-blur-md">
       {LANGS.map((item) => {
         const active = item.code === language;
 
@@ -23,12 +23,12 @@ export function LanguageSwitcher() {
             {active ? (
               <motion.span
                 layoutId="language-pill"
-                className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,var(--primary),#128763)]"
+                className="absolute inset-0 rounded-full bg-gradient-to-br from-[#518591] to-[#3d6a73]"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             ) : null}
             <span
-              className={`relative z-10 ${active ? "text-white" : "text-muted-foreground"}`}
+              className={`relative z-10 ${active ? "text-white font-bold" : "text-[#2c3e3b]/60 font-semibold"}`}
             >
               {item.flag}
             </span>

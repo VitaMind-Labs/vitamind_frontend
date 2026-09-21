@@ -2,200 +2,217 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Brain, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
-import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { ArrowRight, Brain, CheckCircle2, ShieldCheck, Sparkles, CreditCard, Calendar, Users, Crown } from "lucide-react";
+import Header from "./_components/Header";
 
 const plans = [
   {
     id: "basic",
     name: "Basic",
-    price: "$9.99",
+    price: "19,99TND",
     period: "/month",
-    desc: "Essential tools for personal wellness.",
+    desc: "The essentials to begin your wellness journey.",
     features: [
-      "3 diagnostic sessions/month",
-      "Journal with text entries",
-      "Session history & insights",
+      "3 diagnostic sessions / month",
+      "Text journal",
+      "History & insights",
       "Email support",
     ],
+    icon: Brain,
     popular: false,
+    color: "from-[#518591]/20 to-[#518591]/5",
+    borderColor: "border-[#518591]/15",
+    hoverBorderColor: "hover:border-[#518591]/30",
   },
   {
     id: "pro",
     name: "Pro",
-    price: "$19.99",
+    price: "39,99TND",
     period: "/month",
-    desc: "Advanced therapeutic experience.",
+    desc: "The full therapeutic experience.",
     features: [
       "Unlimited diagnostic sessions",
-      "Journal with voice & text",
-      "Mira voice conversations",
-      "Pattern analysis & reports",
+      "Voice & text journal",
+      "Voice conversations with Mira",
+      "Behavioral analytics",
       "Priority support",
     ],
+    icon: Crown,
     popular: true,
+    color: "from-[#e3b01c]/20 to-[#518591]/10",
+    borderColor: "border-[#e3b01c]/25",
+    hoverBorderColor: "hover:border-[#e3b01c]/40",
   },
   {
     id: "parents",
-    name: "Parents",
-    price: "$29.99",
+    name: "Family",
+    price: "69,99TND",
     period: "/month",
-    desc: "For parents & family wellness.",
+    desc: "For the whole family, with peace of mind.",
     features: [
       "All Pro features",
       "Up to 4 family profiles",
-      "Family insights dashboard",
-      "Shared journal option",
-      "24/7 dedicated support",
+      "Family dashboard",
+      "Shared journal",
+      "Dedicated 24/7 support",
     ],
+    icon: Users,
     popular: false,
+    color: "from-[#518591]/20 to-[#e3b01c]/10",
+    borderColor: "border-[#518591]/15",
+    hoverBorderColor: "hover:border-[#518591]/30",
   },
 ];
 
 export default function SubscriptionPage() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute left-[-10rem] top-[6rem] h-[34rem] w-[34rem] rounded-full bg-[#dceccb]/60 blur-[120px]" />
-        <div className="absolute right-[-8rem] top-[18rem] h-[30rem] w-[30rem] rounded-full bg-[#dfe8f5]/75 blur-[130px]" />
-        <div className="absolute left-[20%] top-[45%] h-[26rem] w-[26rem] rounded-full bg-white/60 blur-[160px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(183,216,156,0.15),transparent_25%),radial-gradient(circle_at_80%_15%,rgba(223,232,245,0.6),transparent_20%),linear-gradient(180deg,#fafaf8_0%,#f6f5ef_48%,#fafaf8_100%)]" />
-        <div className="grain-overlay absolute inset-0 opacity-[0.06]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-[98rem] px-6 pb-16 pt-6 sm:px-10 lg:px-16">
-        <header className="flex flex-col gap-4 border-b border-black/8 pb-6 lg:flex-row lg:items-center lg:justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <motion.div
-              whileHover={{ rotate: 8, scale: 1.03 }}
-              transition={{ type: "spring", stiffness: 200, damping: 14 }}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-black text-[#fafaf8]"
-            >
-              <Brain className="h-5 w-5" />
-            </motion.div>
-            <div>
-              <div className="text-sm font-semibold uppercase tracking-[0.24em] text-black/85">
-                VitaMind
-              </div>
-              <div className="text-sm text-black/45">Choose your plan</div>
-            </div>
-          </Link>
-          <div className="flex flex-wrap items-center gap-2">
-            <LanguageSwitcher />
-            <Link
-              href="/auth/signin"
-              className="inline-flex h-9 items-center justify-center rounded-full border border-black/8 bg-white/74 px-4 text-xs text-black/65"
-            >
-              Sign in
-            </Link>
+    <div className="flex flex-col min-h-screen bg-white">
+     
+      <Header  />
+      
+      {/* Main Content */}
+      <main className="flex-1">
+        <div className="relative mx-auto  px-6 pb-24 pt-12 sm:px-8 lg:px-12">
+          {/* Background orbs */}
+          <div className="pointer-events-none max-w-7xl absolute inset-0 overflow-hidden">
+            <div className="absolute left-[-5%] top-[-5%] h-[500px] w-[500px] rounded-full bg-[#518591]/8 blur-[100px]" />
+            <div className="absolute right-[-5%] top-[20%] h-[400px] w-[400px] rounded-full bg-[#e3b01c]/8 blur-[100px]" />
+            <div className="absolute left-1/2 top-[50%] h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#518591]/5 to-[#e3b01c]/5 blur-[80px]" />
           </div>
-        </header>
 
-        <div className="mt-16 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-dark shadow-sm">
-              <Sparkles className="h-3.5 w-3.5" />
-              Subscription
-            </div>
-            <h1 className="mt-8 text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-[0.9] tracking-[-0.06em]">
-              Choose your path
-              <span className="block text-black/50">to wellness.</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-black/55">
-              Select the plan that fits your journey. All plans include a 7-day free trial.
-            </p>
-          </motion.div>
-        </div>
-
-        <div className="mt-14 grid gap-6 md:grid-cols-3 md:max-w-6xl mx-auto">
-          {plans.map((plan, i) => (
+          {/* Hero Section */}
+          <div className="relative text-center">
             <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className={`card-cinema relative flex flex-col p-7 sm:p-8 ${
-                plan.popular ? "border-primary/40 ring-1 ring-primary/30 scale-[1.02]" : ""
-              }`}
+              transition={{ duration: 0.6 }}
             >
-              {plan.popular && (
-                <div className="absolute right-5 top-5 rounded-full bg-black px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white">
-                  Popular
-                </div>
-              )}
-              <div>
-                <h3 className="text-xl font-semibold text-black">{plan.name}</h3>
-                <p className="mt-1.5 text-sm text-black/45">{plan.desc}</p>
-                <div className="mt-6 flex items-baseline gap-1">
-                  <span className="text-4xl font-semibold text-black">{plan.price}</span>
-                  <span className="text-sm text-black/40">{plan.period}</span>
-                </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#518591]/20 bg-white/80 px-4 py-1.5 backdrop-blur-sm">
+                <Sparkles className="h-3 w-3 text-[#e3b01c]" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#518591]">
+                  Subscription Plans
+                </span>
               </div>
-              <ul className="mt-8 flex-1 space-y-3.5">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-black/60">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary-dark" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8">
-                <Link
-                  href={`/subscription/payment?plan=${plan.id}`}
-                  className={`flex items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-semibold transition-all hover:-translate-y-0.5 ${
-                    plan.popular
-                      ? "bg-black text-white shadow-md"
-                      : "border border-black/10 bg-white/80 text-black/70"
-                  }`}
-                >
-                  Choose {plan.name}
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
+
+              <h1 className="mt-6 text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                <span className="bg-gradient-to-r from-[#518591] via-[#2c3e3b] to-[#e3b01c] bg-clip-text text-transparent">
+                  Choose your path
+                </span>
+                <span className="block mt-3 text-[#2c3e3b]/50 font-light">
+                  to wellness
+                </span>
+              </h1>
+
+              <p className="mx-auto mt-5 max-w-lg text-base text-[#2c3e3b]/55 font-light leading-relaxed">
+                Select the plan that matches your journey.
+                All subscriptions include a 7-day free trial.
+              </p>
             </motion.div>
-          ))}
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-10 mx-auto flex max-w-2xl items-center justify-center gap-3 rounded-[28px] border border-black/8 bg-white/70 px-5 py-4 text-sm text-black/45"
-        >
-          <ShieldCheck className="h-4 w-4 shrink-0 text-primary-dark" />
-          Secure payment · Cancel anytime · 7-day free trial on all plans
-        </motion.div>
-
-        <section className="relative mt-24 overflow-hidden rounded-[2.8rem] border border-black/8 bg-black px-8 py-14 text-[#fafaf8] shadow-[0_30px_120px_rgba(17,17,17,0.16)] sm:px-10 lg:px-14">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(183,216,156,0.2),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(223,232,245,0.14),transparent_30%)]" />
-          <div className="relative">
-            <h2 className="max-w-4xl text-4xl font-semibold leading-[0.88] tracking-[-0.085em] text-white sm:text-5xl lg:text-[4.5rem]">
-              Start your free trial.
-              <span className="block text-white/55">No commitment. Cancel anytime.</span>
-            </h2>
-            <p className="mt-6 max-w-xl text-base leading-7 text-white/66">
-              Every plan includes 7 days free. Experience the full cinematic therapeutic journey with no risk.
-            </p>
-            <div className="relative mt-8 flex flex-col gap-3 border-t border-white/10 pt-7 sm:flex-row sm:flex-wrap">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center gap-3 rounded-full bg-[#fafaf8] px-7 py-3.5 text-sm font-semibold text-black transition-all hover:-translate-y-0.5"
-              >
-                Continue to dashboard
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/10 px-5 py-3.5 text-sm text-white/55">
-                <ShieldCheck className="h-4 w-4" />
-                Secure & private
-              </div>
-            </div>
           </div>
-        </section>
-      </div>
+
+          {/* Plans Grid */}
+          <div className="relative mt-14 grid gap-6 md:grid-cols-3 lg:gap-8">
+            {plans.map((plan, i) => {
+              const Icon = plan.icon;
+              return (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.1, duration: 0.5 }}
+                  className={`group relative rounded-[28px] bg-white p-7 lg:p-8 transition-all duration-500 hover:-translate-y-2 border-2 ${plan.borderColor} ${plan.hoverBorderColor} ${plan.popular ? "shadow-xl shadow-[#e3b01c]/10" : "shadow-sm hover:shadow-xl"}`}
+                >
+                  {/* Popular badge */}
+                  {plan.popular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#e3b01c] to-[#c49b0f] px-5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-lg shadow-[#e3b01c]/20">
+                      Popular
+                    </div>
+                  )}
+
+                  {/* Plan Icon */}
+                  <div className="mb-5">
+                    <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${plan.color} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>
+                      <Icon className="h-6 w-6 text-[#518591]" />
+                    </div>
+                  </div>
+
+                  {/* Plan Info */}
+                  <h3 className="text-xl font-bold text-[#2c3e3b]">{plan.name}</h3>
+                  <p className="mt-1.5 text-sm text-[#2c3e3b]/50 font-light">{plan.desc}</p>
+
+                  {/* Price */}
+                  <div className="mt-6 flex items-baseline gap-1">
+                    <span className="text-4xl font-bold text-[#2c3e3b] tracking-tight">{plan.price}</span>
+                    <span className="text-sm text-[#2c3e3b]/40 font-light">{plan.period}</span>
+                  </div>
+
+                  {/* Features */}
+                  <ul className="mt-7 space-y-3 border-t border-[#518591]/10 pt-6">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-3 text-sm text-[#2c3e3b]/65 font-light">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-[#e3b01c]" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA Button */}
+                  <div className="mt-8">
+                    <Link
+                      href={`/subscription/payment?plan=${plan.id}`}
+                      className={`group flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-300 ${
+                        plan.popular
+                          ? "bg-gradient-to-r from-[#518591] to-[#2c3e3b] text-white shadow-md shadow-[#518591]/20 hover:shadow-lg hover:-translate-y-0.5"
+                          : "border-2 border-[#518591]/15 bg-white text-[#2c3e3b] hover:border-[#518591] hover:bg-[#518591]/5 hover:text-[#518591]"
+                      }`}
+                    >
+                      Get Started
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Trust Badges */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="relative mt-14 flex flex-wrap items-center justify-center gap-6 rounded-2xl bg-white/70 backdrop-blur-sm border border-[#518591]/10 px-8 py-5 text-sm text-[#2c3e3b]/55"
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-[#e3b01c]" />
+              <span className="font-light">Secure payment</span>
+            </div>
+            <div className="hidden sm:block w-px h-5 bg-[#518591]/15" />
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-[#e3b01c]" />
+              <span className="font-light">Flexible cancellation</span>
+            </div>
+            <div className="hidden sm:block w-px h-5 bg-[#518591]/15" />
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-[#e3b01c]" />
+              <span className="font-light">7-day free trial</span>
+            </div>
+          </motion.div>
+
+          {/* FAQ Link */}
+          <div className="mt-16 text-center">
+            <h3 className="text-base font-semibold text-[#2c3e3b]">
+              Frequently asked questions?
+            </h3>
+            <p className="mt-2 text-sm text-[#2c3e3b]/50 font-light">
+              Have a question? Visit our{" "}
+              <Link href="/faq" className="text-[#518591] hover:underline font-medium">
+                help center
+              </Link>{" "}
+              or contact our team.
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

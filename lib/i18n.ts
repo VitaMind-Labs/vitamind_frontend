@@ -1,4 +1,4 @@
-export type Lang = "en" | "fr" | "ar";
+export type Lang = "en" | "fr" | "derja";
 
 export const LANGS: {
   code: Lang;
@@ -9,7 +9,7 @@ export const LANGS: {
 }[] = [
     { code: "en", label: "English", flag: "EN", bcp47: "en-US", dir: "ltr" },
     { code: "fr", label: "Français", flag: "FR", bcp47: "fr-FR", dir: "ltr" },
-    { code: "ar", label: "العربية", flag: "AR", bcp47: "ar-TN", dir: "rtl" },
+    { code: "derja", label: "دارجة تونسية", flag: "TN", bcp47: "ar-TN", dir: "rtl" },
   ];
 
 export const copy = {
@@ -86,8 +86,9 @@ export const copy = {
       placeholder: "Type your answer…",
       send: "Send",
       thinking: "Mira is reflecting…",
+      preparing: "Preparing your diagnostic session…",
       welcome:
-        "Hello, I'm Mira. We'll talk for a few minutes. Take your time, there are no wrong answers. How have you been feeling lately?",
+        "Hello, I'm Mira. Before we begin, what is your name?",
       closing:
         "Thank you for sharing this with me. Here is your orientation. Please remember that this is not a medical diagnosis.",
       orientation: "Orientation summary",
@@ -106,6 +107,106 @@ export const copy = {
       sideCardTitle: "Care-first design",
       sideCardBody:
         "The diagnostic area is intentionally softer, more spacious, and less modal so it feels like a destination page rather than a popup.",
+      result: {
+        header: "Clinical orientation summary",
+        reportReady: "Report ready",
+        scoreSource: "Generated score",
+        axes: {
+          bipolar: { eyebrow: "Mood axis", title: "Mood regulation", label: "Bipolar spectrum" },
+          asrs: { eyebrow: "Functional axis", title: "Executive functions", label: "ADHD" },
+          psychosis: { eyebrow: "Vigilance axis", title: "Perception and thought", label: "Psychosis risk" },
+        },
+        analysisTitle: "Report analysis",
+        orientationTitle: "Recommended orientation",
+        summaryTitle: "Generated summary",
+        signalsTitle: "Key signals",
+        recommendationTitle: "Recommendation",
+        download: "Download detailed report",
+        restart: "Restart",
+        signupCta: "Create an account for full access",
+        readAloud: "Read report",
+        stopReading: "Stop reading",
+        noteTitle: "Clinical note",
+        noteBody:
+          "This summary is an orientation screening. It does not replace a medical evaluation and should be interpreted with a qualified clinician.",
+        privacyTitle: "Privacy",
+        privacyBody: "Your session ID keeps this flow linked until you create your account.",
+      },
+    },
+    subscription: {
+      selectPlan: "Choose your plan",
+      mainHeading: "Choose your path",
+      mainSubheading: "to wellness.",
+      mainDescription: "Select the plan that fits your journey. All plans include a 7-day free trial.",
+      popular: "Popular",
+      features: "Features",
+      basic: {
+        name: "Basic",
+        desc: "Essential tools for personal wellness.",
+        features: [
+          "3 diagnostic sessions/month",
+          "Journal with text entries",
+          "Session history & insights",
+          "Email support",
+        ],
+        cta: "Choose Basic",
+      },
+      pro: {
+        name: "Pro",
+        desc: "Advanced therapeutic experience.",
+        features: [
+          "Unlimited diagnostic sessions",
+          "Journal with voice & text",
+          "Mira voice conversations",
+          "Pattern analysis & reports",
+          "Priority support",
+        ],
+        cta: "Choose Pro",
+      },
+      parents: {
+        name: "Parents",
+        desc: "For parents & family wellness.",
+        features: [
+          "All Pro features",
+          "Up to 4 family profiles",
+          "Family insights dashboard",
+          "Shared journal option",
+          "24/7 dedicated support",
+        ],
+        cta: "Choose Parents",
+      },
+      trialInfo: "Secure payment · Cancel anytime · 7-day free trial on all plans",
+      ctaTitle: "Start your free trial.",
+      ctaSubtitle: "No commitment. Cancel anytime.",
+      ctaDescription: "Every plan includes 7 days free. Experience the full therapeutic journey with no risk.",
+      continueToDashboard: "Continue to dashboard",
+      securePrivate: "Secure & private",
+      signIn: "Sign in",
+    },
+    dashboard: {
+      welcome: "Welcome back",
+      subtitle: "Your wellness space",
+      description: "This is your private area. Journal, review past sessions, track your emotional patterns, and manage your subscription — all in one calm, cinematic interface.",
+      open: "Open",
+      quickActions: {
+        writeJournal: "Write journal",
+        journalDesc: "Express your thoughts freely",
+        newConsultation: "New consultation",
+        consultationDesc: "Start a guided session",
+        viewHistory: "View history",
+        historyDesc: "Review your progress",
+      },
+      sidebar: {
+        welcome: "Welcome",
+        journal: "Journal",
+        history: "History",
+        consultation: "Consultation",
+        profile: "Profile",
+        subscription: "Subscription",
+        backHome: "Back home",
+      },
+      today: "Today",
+      noEntry: "No journal entry yet today",
     },
   },
   fr: {
@@ -182,8 +283,9 @@ export const copy = {
       placeholder: "Écrivez votre réponse…",
       send: "Envoyer",
       thinking: "Mira réfléchit…",
+      preparing: "Préparation de votre session diagnostic…",
       welcome:
-        "Bonjour, je suis Mira. Nous allons échanger quelques minutes. Prenez votre temps, il n’y a pas de mauvaise réponse. Comment vous sentez-vous en ce moment ?",
+        "Bonjour, je suis Mira. Avant de commencer, comment vous appelez-vous ?",
       closing:
         "Merci pour votre confiance. Voici votre orientation. Souvenez-vous que ceci ne constitue pas un diagnostic médical.",
       orientation: "Résumé d’orientation",
@@ -202,142 +304,309 @@ export const copy = {
       sideCardTitle: "Un design pensé pour le soin",
       sideCardBody:
         "La zone diagnostic est volontairement plus spacieuse et moins modale afin de ressembler à une vraie page de destination.",
+      result: {
+        header: "Synthèse d’orientation clinique",
+        reportReady: "Rapport prêt",
+        scoreSource: "Score généré",
+        axes: {
+          bipolar: { eyebrow: "Axe humeur", title: "Régulation de l’humeur", label: "Spectre bipolaire" },
+          asrs: { eyebrow: "Axe fonctionnel", title: "Fonctions exécutives", label: "TDAH" },
+          psychosis: { eyebrow: "Axe vigilance", title: "Perception et pensée", label: "Risque psychotique" },
+        },
+        analysisTitle: "Analyse du rapport",
+        orientationTitle: "Orientation recommandée",
+        summaryTitle: "Résumé généré",
+        signalsTitle: "Signaux clés",
+        recommendationTitle: "Recommandation",
+        download: "Télécharger le rapport détaillé",
+        restart: "Recommencer",
+        signupCta: "Créer un compte pour l’accès complet",
+        readAloud: "Lire le rapport",
+        stopReading: "Arrêter la lecture",
+        noteTitle: "Note clinique",
+        noteBody:
+          "Cette synthèse est une orientation de dépistage. Elle ne remplace pas une évaluation médicale et doit être interprétée avec un professionnel qualifié.",
+        privacyTitle: "Confidentialité",
+        privacyBody: "L’ID de session garde ce parcours lié jusqu’à la création du compte.",
+      },
+    },
+    subscription: {
+      selectPlan: "Choisissez votre plan",
+      mainHeading: "Choisissez votre voie",
+      mainSubheading: "vers le bien-être.",
+      mainDescription: "Sélectionnez le plan qui correspond à votre parcours. Tous les plans incluent un essai gratuit de 7 jours.",
+      popular: "Populaire",
+      features: "Fonctionnalités",
+      basic: {
+        name: "Basique",
+        desc: "Outils essentiels pour votre bien-être.",
+        features: [
+          "3 sessions diagnostic/mois",
+          "Journal avec entrées texte",
+          "Historique des sessions et aperçus",
+          "Support par email",
+        ],
+        cta: "Choisir Basique",
+      },
+      pro: {
+        name: "Pro",
+        desc: "Expérience thérapeutique avancée.",
+        features: [
+          "Sessions diagnostiques illimitées",
+          "Journal avec voix et texte",
+          "Conversations vocales avec Mira",
+          "Analyse des tendances et rapports",
+          "Support prioritaire",
+        ],
+        cta: "Choisir Pro",
+      },
+      parents: {
+        name: "Parents",
+        desc: "Pour le bien-être des parents et de la famille.",
+        features: [
+          "Toutes les fonctionnalités Pro",
+          "Jusqu'à 4 profils familiaux",
+          "Tableau de bord des aperçus familiaux",
+          "Option de journal partagé",
+          "Support dédié 24/7",
+        ],
+        cta: "Choisir Parents",
+      },
+      trialInfo: "Paiement sécurisé · Annulation à tout moment · Essai gratuit de 7 jours sur tous les plans",
+      ctaTitle: "Commencez votre essai gratuit.",
+      ctaSubtitle: "Aucun engagement. Annulation à tout moment.",
+      ctaDescription: "Chaque plan comprend 7 jours gratuits. Expérimentez le parcours thérapeutique complet sans risque.",
+      continueToDashboard: "Continuer vers le tableau de bord",
+      securePrivate: "Sécurisé et privé",
+      signIn: "Se connecter",
+    },
+    dashboard: {
+      welcome: "Bienvenue",
+      subtitle: "Votre espace bien-être",
+      description: "C'est votre espace privé. Rédigez dans votre journal, révisez vos sessions précédentes, suivez vos tendances émotionnelles et gérez votre abonnement — tout en un seul endroit calme et cinématique.",
+      open: "Ouvrir",
+      quickActions: {
+        writeJournal: "Écrire un journal",
+        journalDesc: "Exprimez vos pensées librement",
+        newConsultation: "Nouvelle consultation",
+        consultationDesc: "Commencer une session guidée",
+        viewHistory: "Voir l'historique",
+        historyDesc: "Passez en revue votre progression",
+      },
+      sidebar: {
+        welcome: "Bienvenue",
+        journal: "Journal",
+        history: "Historique",
+        consultation: "Consultation",
+        profile: "Profil",
+        subscription: "Abonnement",
+        backHome: "Retour accueil",
+      },
+      today: "Aujourd'hui",
+      noEntry: "Aucune entrée de journal pour aujourd'hui",
     },
   },
-  ar: {
+  derja: {
     brand: "VitaMind",
     nav: {
-      badge: "واجهة صحة نفسية ديناميكية",
-      signIn: "تسجيل الدخول",
-      signUp: "إنشاء حساب",
-      diagnostic: "فتح التشخيص",
-      backHome: "الرجوع للرئيسية",
+      badge: "واجهة ديناميكية للصحة النفسية",
+      signIn: "دخول",
+      signUp: "اعمل حساب",
+      diagnostic: "ابدا التشخيص",
+      backHome: "ارجع للدار",
     },
     home: {
-      eyebrow: "مساعد التشخيص النفسي",
-      titleA: "اكتشف VitaMind،",
-      titleB: "أول خطوة",
-      titleC: "نحو وضوح أكثر",
+      eyebrow: "مساعد للتشخيص النفسي",
+      titleA: "VitaMind،",
+      titleB: "اول خطوة",
+      titleC: "باش تفهم روحك اكثر",
       subtitle:
-        "مساحة محادثة هادئة وموجّهة تساعد المستخدم على التعبير عن حالته قبل التقييم السريري الرسمي.",
-      chips: ["ADHD · ASRS-v1.1", "ثنائي القطب · MDQ", "الذهان · PQ-B", "القلق · GAD-7"],
-      cta: "ابدأ جلسة التشخيص",
-      secondaryCta: "إنشاء حساب",
+        "بلاصة محادثة هادئة وموجّهة تعاونك تعبّر على حالتك قبل تقييم طبي رسمي.",
+      chips: ["تشتّت الانتباه · ASRS-v1.1", "ثنائي القطب · MDQ", "ذهان · PQ-B", "قلق · GAD-7"],
+      cta: "ابدا جلسة التشخيص",
+      secondaryCta: "اعمل حساب",
       disclaimer:
-        "هذا ليس تشخيصاً طبياً. VitaMind تجربة توجيهية تكمل الرعاية المهنية ولا تستبدلها.",
-      featureTitle: "بداية أكثر إنسانية",
+        "هذا موش تشخيص طبي. VitaMind يعطي توجيه اولي ويكمّل المتابعة مع مختص.",
+      featureTitle: "بداية انسانية اكثر",
       featureBody:
-        "متعدد اللغات، يدعم الصوت، ومصمم ليجعل الخطوة الأولى أكثر طمأنينة وسلاسة.",
-      previewTop: "تجربة محادثة خاصة",
-      previewBottom: "واجهة جاهزة لمنتج عافية عصري.",
+        "يدعم الصوت وبرشا لغات، ومصمّم باش يخلي اول خطوة اهون واطمن.",
+      previewTop: "محادثة خاصة وآمنة",
+      previewBottom: "تجربة جاهزة لمنتج عناية نفسية عصري.",
     },
     auth: {
-      badge: "دخول آمن لمساحة العافية",
-      titleSignIn: "مرحباً بعودتك",
-      titleSignUp: "أنشئ مساحتك",
-      subtitleSignIn: "سجّل الدخول لمتابعة رحلة التشخيص الموجّهة.",
-      subtitleSignUp: "أنشئ حسابك لبدء تجربة أكثر هدوءاً وتخصيصاً.",
-      nickname: "الاسم المستعار",
-      nicknamePlaceholder: "اختر اسماً مستعاراً",
-      email: "البريد الإلكتروني",
+      badge: "دخول آمن لمساحتك",
+      titleSignIn: "اهلا برجوعك",
+      titleSignUp: "اعمل مساحتك",
+      subtitleSignIn: "ادخل باش تكمل رحلة التشخيص متاعك.",
+      subtitleSignUp: "اعمل حساب باش تاخو تجربة اهدى ومفصّلة عليك.",
+      nickname: "الاسم",
+      nicknamePlaceholder: "اكتب الاسم الي تحب نستعملوه",
+      email: "الايميل",
       emailPlaceholder: "hello@example.com",
-      phone: "رقم الهاتف",
+      phone: "نومرو التليفون",
       phonePlaceholder: "+216 12 345 678",
-      password: "كلمة المرور",
-      passwordPlaceholder: "أدخل كلمة المرور",
-      confirmPassword: "تأكيد كلمة المرور",
-      confirmPasswordPlaceholder: "أعد كتابة كلمة المرور",
-      signInButton: "الدخول إلى VitaMind",
-      signUpButton: "إنشاء الحساب",
-      switchToSignIn: "لديك حساب بالفعل؟",
-      switchToSignUp: "تحتاج إلى حساب؟",
-      switchSignInLink: "تسجيل الدخول",
-      switchSignUpLink: "إنشاء حساب",
-      helperTitle: "مصمم ليبني الثقة",
+      password: "كلمة السر",
+      passwordPlaceholder: "اكتب كلمة السر",
+      confirmPassword: "عاود كلمة السر",
+      confirmPasswordPlaceholder: "عاود اكتب كلمة السر",
+      signInButton: "ادخل ل VitaMind",
+      signUpButton: "اعمل حسابي",
+      switchToSignIn: "عندك حساب؟",
+      switchToSignUp: "ما عندكش حساب؟",
+      switchSignInLink: "ادخل",
+      switchSignUpLink: "اعمل حساب",
+      helperTitle: "مصمّم باش يطمنك",
       helperBody:
-        "تدرج بصري واضح، ألوان هادئة، وإيقاع مريح يجعل تجربة الدخول أكثر أناقة وطمأنينة.",
-      highlights: ["دخول بالاسم المستعار", "تهيئة سريعة", "جاهز لجلسة التشخيص"],
+        "تنظيم واضح، الوان هادئة، ونسق مريح يخلي تجربة الدخول محترفة ومطمّنة.",
+      highlights: ["دخول بالاسم", "تهيئة خفيفة", "جلسة التشخيص مربوطة"],
       legal:
-        "بالمتابعة، أنت توافق على استخدام هذه التجربة بشكل مسؤول وطلب المساعدة المهنية عند الحاجة.",
+        "بالمتابعة، انت موافق تستعمل التجربة بمسؤولية وتطلب مساعدة مختص وقت يلزم.",
       errors: {
-        nickname: "الاسم المستعار مطلوب.",
-        email: "يرجى إدخال بريد إلكتروني صالح.",
-        phone: "يرجى إدخال رقم هاتف صالح.",
-        password: "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل.",
-        confirmPassword: "كلمتا المرور غير متطابقتين.",
+        nickname: "الاسم مطلوب.",
+        email: "ادخل ايميل صحيح.",
+        phone: "ادخل نومرو تليفون صحيح.",
+        password: "كلمة السر لازمها 8 حروف على الاقل.",
+        confirmPassword: "كلمات السر موش كيف كيف.",
       },
     },
     diagnostic: {
       title: "جلسة التشخيص",
       subtitle: "محادثة خاصة وموجّهة مع ميرا.",
-      confidential: "واجهة سرية · توجيه غير طبي",
-      restart: "إعادة البدء",
-      mute: "كتم الصوت",
-      unmute: "تفعيل الصوت",
+      confidential: "سريّة · توجيه موش طبي",
+      restart: "عاود من الاول",
+      mute: "سكّر الصوت",
+      unmute: "حلّ الصوت",
       session: "معرّف الجلسة",
-      placeholder: "اكتب إجابتك…",
-      send: "إرسال",
-      thinking: "ميرا تفكر…",
+      placeholder: "اكتب اجابتك…",
+      send: "ابعث",
+      thinking: "ميرا تخمّم…",
+      preparing: "قاعدين نوجدو الجلسة…",
       welcome:
-        "مرحباً، أنا ميرا. سنتحدث لبضع دقائق. خذ وقتك، لا توجد إجابات خاطئة. كيف تشعر هذه الأيام؟",
+        "اهلا، انا ميرا. قبل ما نبداو، شنوة اسمك؟",
       closing:
-        "شكراً لمشاركتك. هذه هي خلاصة التوجيه. تذكّر أن هذا ليس تشخيصاً طبياً.",
-      orientation: "ملخص التوجيه",
-      profile: "الملف الأقرب",
-      confidenceLabel: "مستوى التطابق",
-      signals: "الإشارات الأساسية",
-      next: "الخطوة التالية المقترحة",
+        "يعطيك الصحة على المشاركة. هاذي خلاصة التوجيه، وذكّر الي هذا موش تشخيص طبي.",
+      orientation: "خلاصة التوجيه",
+      profile: "البروفيل الاقرب",
+      confidenceLabel: "درجة التطابق",
+      signals: "اهم العلامات",
+      next: "الخطوة الجاية المقترحة",
       medicalNote:
-        "هذه النتيجة إرشادية فقط. عند وجود قلق مهم أو حالة طارئة، تواصل مع مختص أو خدمات الطوارئ المحلية.",
-      panelTitle: "كيف تعمل هذه الجلسة",
+        "النتيجة هاذي توجيهية برك. كان فما قلق كبير ولا حالة استعجالية، احكي مع مختص ولا اتصل بالاستعجالي.",
+      panelTitle: "كيفاش تخدم الجلسة",
       panelPoints: [
-        "المحادثة تجمع بعض الإجابات الموجّهة.",
-        "يمكن تغيير اللغة في أي وقت.",
-        "المعرّف المُنشأ يساعد على تتبع الجلسة الحالية.",
+        "المحادثة تجمع اجابات موجّهة.",
+        "تنجم تبدّل اللغة في اي وقت.",
+        "معرّف الجلسة يربط التشخيص بالحساب وقت التسجيل.",
       ],
-      sideCardTitle: "تصميم يضع الرعاية أولاً",
+      sideCardTitle: "تصميم يحط العناية قبل كل شي",
       sideCardBody:
-        "منطقة التشخيص أكثر اتساعاً وأقل شبهًا بالنافذة المنبثقة حتى تبدو كصفحة حقيقية مريحة.",
+        "منطقة التشخيص معمولة باش تكون واسعة ومريحة، موش كيف نافذة صغيرة.",
+      result: {
+        header: "خلاصة التوجيه السريري",
+        reportReady: "التقرير جاهز",
+        scoreSource: "Score متولّد",
+        axes: {
+          bipolar: { eyebrow: "محور المزاج", title: "تنظيم المزاج", label: "طيف ثنائي القطب" },
+          asrs: { eyebrow: "محور الوظائف", title: "الوظائف التنفيذية", label: "تشتّت الانتباه" },
+          psychosis: { eyebrow: "محور الانتباه", title: "الإدراك والتفكير", label: "خطر الذهان" },
+        },
+        analysisTitle: "تحليل التقرير",
+        orientationTitle: "التوجيه المقترح",
+        summaryTitle: "الخلاصة المتولّدة",
+        signalsTitle: "اهم العلامات",
+        recommendationTitle: "التوصية",
+        download: "هبّط التقرير المفصّل",
+        restart: "عاود",
+        signupCta: "اعمل حساب باش تاخو النفاذ الكامل",
+        readAloud: "اسمع التقرير",
+        stopReading: "وقّف القراءة",
+        noteTitle: "ملاحظة سريرية",
+        noteBody:
+          "الخلاصة هاذي توجيه اولي. ما تعوّضش تقييم طبي ولازم تتفهم مع مختص.",
+        privacyTitle: "الخصوصية",
+        privacyBody: "معرّف الجلسة يحافظ على الربط حتى تكمل التسجيل.",
+      },
+    },
+    subscription: {
+      selectPlan: "اختر خطتك",
+      mainHeading: "اختر طريقك",
+      mainSubheading: "نحو العافية.",
+      mainDescription: "اختر الخطة التي تناسب رحلتك. جميع الخطط تشمل تجربة مجانية لمدة 7 أيام.",
+      popular: "الأكثر شيوعاً",
+      features: "الميزات",
+      basic: {
+        name: "أساسي",
+        desc: "الأدوات الأساسية لعافيتك الشخصية.",
+        features: [
+          "3 جلسات تشخيص/الشهر",
+          "مذكرة مع إدخالات نصية",
+          "سجل الجلسات والرؤى",
+          "دعم البريد الإلكتروني",
+        ],
+        cta: "اختر أساسي",
+      },
+      pro: {
+        name: "احترافي",
+        desc: "تجربة علاجية متقدمة.",
+        features: [
+          "جلسات تشخيصية غير محدودة",
+          "مذكرة مع صوت ونص",
+          "محادثات صوتية مع ميرا",
+          "تحليل الأنماط والتقارير",
+          "دعم الأولويات",
+        ],
+        cta: "اختر احترافي",
+      },
+      parents: {
+        name: "الآباء",
+        desc: "لعافية الآباء والأسرة.",
+        features: [
+          "جميع ميزات الخطة الاحترافية",
+          "ما يصل إلى 4 ملفات أسرية",
+          "لوحة معلومات رؤى الأسرة",
+          "خيار المذكرة المشتركة",
+          "دعم مخصص 24/7",
+        ],
+        cta: "اختر الآباء",
+      },
+      trialInfo: "دفع آمن · إلغاء في أي وقت · تجربة مجانية لمدة 7 أيام لجميع الخطط",
+      ctaTitle: "ابدأ تجربتك المجانية.",
+      ctaSubtitle: "بدون التزام. إلغاء في أي وقت.",
+      ctaDescription: "تتضمن كل خطة 7 أيام مجانية. جرب الرحلة العلاجية الكاملة بدون مخاطر.",
+      continueToDashboard: "الاستمرار إلى لوحة التحكم",
+      securePrivate: "آمن وخاص",
+      signIn: "تسجيل الدخول",
+    },
+    dashboard: {
+      welcome: "أهلا بعودتك",
+      subtitle: "مساحة العافية الخاصة بك",
+      description: "هذا هو مساحتك الخاصة. احتفظ بمذكرتك، راجع الجلسات السابقة، تابع أنماطك العاطفية، وأدر اشتراكك — كل شيء في مكان واحد هادئ وسينمائي.",
+      open: "فتح",
+      quickActions: {
+        writeJournal: "كتابة المذكرة",
+        journalDesc: "عبر عن أفكارك بحرية",
+        newConsultation: "استشارة جديدة",
+        consultationDesc: "ابدأ جلسة موجهة",
+        viewHistory: "عرض السجل",
+        historyDesc: "راجع تقدمك",
+      },
+      sidebar: {
+        welcome: "مرحبا",
+        journal: "المذكرة",
+        history: "السجل",
+        consultation: "الاستشارة",
+        profile: "الملف الشخصي",
+        subscription: "الاشتراك",
+        backHome: "الرجوع للرئيسية",
+      },
+      today: "اليوم",
+      noEntry: "لا توجد مدخلات مذكرة لهذا اليوم",
     },
   },
 } as const;
 
 export function getDirection(lang: Lang) {
   return LANGS.find((item) => item.code === lang)?.dir ?? "ltr";
-}
-
-export function speak(text: string, lang: Lang) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
-  try {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    const target = LANGS.find((item) => item.code === lang)?.bcp47 ?? "en-US";
-    utterance.lang = target;
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-
-    const voices = window.speechSynthesis.getVoices();
-    const matchedVoice =
-      voices.find((voice) => voice.lang.toLowerCase() === target.toLowerCase()) ||
-      voices.find((voice) =>
-        voice.lang.toLowerCase().startsWith(target.split("-")[0]),
-      );
-
-    if (matchedVoice) {
-      utterance.voice = matchedVoice;
-    }
-
-    window.speechSynthesis.speak(utterance);
-  } catch (error) {
-    console.warn("Speech synthesis unavailable", error);
-  }
-}
-
-export function stopSpeaking() {
-  if (typeof window !== "undefined" && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
 }
 
 export const t = (lang: Lang) => copy[lang];
