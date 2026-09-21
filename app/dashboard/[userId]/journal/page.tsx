@@ -1,114 +1,120 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Save, BookOpen } from 'lucide-react';
-import { useDisease } from '@/lib/disease-context';
-import { addJournalEntry } from '@/lib/storage';
-import { DashboardHeader } from '../_components/dashboard-header';
-import { RatingBar } from './_components/rating-bar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import PageHeader from '@/components/dashboard/PageHeader';
+import { BookOpen, Plus, Search, Calendar } from 'lucide-react';
+import { useState } from 'react';
 
 export default function JournalPage() {
-  const { theme, definition } = useDisease();
-  const [content, setContent] = useState('');
-  const [rating, setRating] = useState(0);
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = () => {
-    if (!content.trim()) return;
-    addJournalEntry({
-      id: `entry_${Date.now()}`,
-      date: new Date().toISOString().split('T')[0],
-      content,
-      rating,
-      createdAt: new Date().toISOString(),
-    });
-    setSaved(true);
-    setTimeout(() => {
-      setContent('');
-      setRating(0);
-      setSaved(false);
-    }, 1500);
-  };
+  const [view, setView] = useState<'list' | 'write'>('list');
 
   return (
-    <div>
-      <DashboardHeader
-        title="Journal"
-        subtitle="Express your thoughts and feelings"
-      />
+    <>
+      <PageHeader title="Journal" subtitle="Express yourself and track your thoughts and feelings" />
 
-      <div className="bg-white rounded-2xl border border-[#2c3e3b]/5 overflow-hidden">
-        <div
-          className="flex items-center gap-3 px-6 py-4 border-b border-[#2c3e3b]/5"
-          style={{ backgroundColor: `${theme.primary}08` }}
-        >
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: theme.primary }}
-          >
-            <BookOpen className="w-4 h-4 text-white" />
+      {view === 'write' ? (
+        <div className="mb-8">
+          <div className="card-wellness">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-foreground">New Journal Entry</h3>
+              <button onClick={() => setView('list')} className="text-sm text-primary hover:underline font-medium">Back to entries</button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-sm font-medium text-foreground mb-3">Choose a prompt or write freely</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {["What am I grateful for today?", "How did I overcome a challenge?", "What made me smile today?", "What am I worried about?", "What did I learn today?", "How can I be kinder to myself?"].map((prompt) => (
+                  <button key={prompt} className="p-3 rounded-xl border border-border hover:border-primary hover:bg-primary/5 hover:shadow-sm transition-all text-left text-sm text-foreground">
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-foreground mb-2">Entry Title</label>
+              <Input placeholder="Give your entry a title..." />
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-foreground mb-2">Your thoughts</label>
+              <textarea className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground placeholder-muted-foreground transition-shadow" rows={10} placeholder="Write your thoughts, feelings, and reflections here..." />
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-foreground mb-2">Add tags (optional)</label>
+              <Input placeholder="e.g., #gratitude #reflection #growth" />
+            </div>
+            <div className="flex gap-3">
+              <Button className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">Save Entry</Button>
+              <Button variant="outline" className="flex-1" onClick={() => setView('list')}>Cancel</Button>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-[#2c3e3b]">
-              Daily Journal
-            </p>
-            <p className="text-xs text-[#2c3e3b]/40">
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input placeholder="Search entries..." className="pl-10" />
+            </div>
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm" onClick={() => setView('write')}>
+              <Plus className="w-4 h-4 mr-2" /> New Entry
+            </Button>
           </div>
-        </div>
 
-        <div className="p-6">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full min-h-[400px] p-4 rounded-xl border border-[#2c3e3b]/5 bg-[#f0f0f0] text-[#2c3e3b] text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#518591]/20 focus:border-[#518591] transition-all resize-y"
-            placeholder="Write about your day, your thoughts, your feelings... This is your safe space to express yourself freely."
-          />
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[
+              { label: 'Total Entries', value: '42', icon: BookOpen },
+              { label: 'This Month', value: '12', icon: Calendar },
+              { label: 'Streak', value: '8 days', icon: BookOpen },
+            ].map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <div key={idx} className="card-wellness">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
+                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    </div>
+                    <Icon className="w-6 h-6 text-primary" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-        <div className="px-6 py-4 border-t border-[#2c3e3b]/5 flex items-center justify-between flex-wrap gap-4">
-          <RatingBar rating={rating} onRate={setRating} />
-
-          <button
-            onClick={handleSave}
-            disabled={!content.trim() || saved}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-all disabled:opacity-50"
-            style={{ backgroundColor: saved ? '#22c55e' : theme.primary }}
-          >
-            <Save className="w-4 h-4" />
-            {saved ? 'Saved!' : 'Save Entry'}
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-6 p-5 rounded-2xl border border-[#2c3e3b]/5 bg-white">
-        <h3 className="text-sm font-semibold text-[#2c3e3b] mb-2">
-          Writing Tips
-        </h3>
-        <ul className="space-y-1.5">
-          {[
-            'Write freely without judgment - this is your private space',
-            'Try to write at least a few sentences each day',
-            'Rate your day honestly to track your progress over time',
-            `Consider how your ${definition.fullName} symptoms affect your day`,
-            'Note any coping strategies that worked well for you',
-          ].map((tip, i) => (
-            <li key={i} className="text-xs text-[#2c3e3b]/50 flex items-start gap-2">
-              <span
-                className="w-1 h-1 rounded-full mt-1.5 shrink-0"
-                style={{ backgroundColor: theme.primary }}
-              />
-              {tip}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+          <div className="space-y-4">
+            {[
+              { date: 'Today', title: 'A Day of Growth', preview: 'Today was a wonderful day. I managed to complete my morning meditation and felt more centered...', tags: ['#growth', '#meditation', '#gratitude'], mood: '😄' },
+              { date: 'Yesterday', title: 'Overcoming Anxiety', preview: 'I had a challenging moment today, but I used the breathing techniques I learned...', tags: ['#anxiety', '#coping', '#strength'], mood: '🙂' },
+              { date: '2 days ago', title: 'Reflection on Progress', preview: 'Looking back at my journal entries from a month ago, I can see how much I\'ve grown...', tags: ['#reflection', '#progress', '#self-love'], mood: '😄' },
+              { date: '3 days ago', title: 'A Difficult Day', preview: 'Today was challenging, but I reached out to my support system and felt better...', tags: ['#support', '#vulnerability', '#healing'], mood: '😐' },
+              { date: '1 week ago', title: 'New Beginnings', preview: 'Starting this journal has been transformative. I feel more aware of my emotions...', tags: ['#newbeginnings', '#awareness', '#journey'], mood: '🙂' },
+            ].map((entry, idx) => (
+              <div key={idx} className="card-wellness hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-2xl">{entry.mood}</span>
+                      <div>
+                        <p className="text-xs text-muted-foreground">{entry.date}</p>
+                        <h4 className="text-lg font-semibold text-foreground">{entry.title}</h4>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{entry.preview}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {entry.tags.map((tag) => (
+                        <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <Button variant="ghost" className="ml-2 shrink-0">Read</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </>
   );
 }
