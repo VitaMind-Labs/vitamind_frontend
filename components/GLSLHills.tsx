@@ -10,7 +10,7 @@ interface GLSLHillsProps {
 }
 
 interface PlaneUniforms {
-    [uniform: string]: THREE.IUniform<any>;
+    [uniform: string]: THREE.IUniform<unknown>;
     time: THREE.IUniform<number>;
 }
 
@@ -216,7 +216,11 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
             renderer.dispose();
             plane.mesh.geometry.dispose();
             if (plane.mesh.material) {
-                plane.mesh.material.dispose();
+                if (Array.isArray(plane.mesh.material)) {
+                    plane.mesh.material.forEach((material) => material.dispose());
+                } else {
+                    plane.mesh.material.dispose();
+                }
             }
         };
     }, [cameraZ, planeSize, speed]);
