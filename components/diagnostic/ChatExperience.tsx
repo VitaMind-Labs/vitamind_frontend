@@ -76,7 +76,6 @@ export function ChatExperience({ chatId }: { chatId: string }) {
       stopDiagnosticVoice();
       return;
     }
-
     if (!visibleReport) return;
     const reportKey = `${sessionId || chatId}:${language}`;
     if (spokenReportRef.current === reportKey) return;
@@ -102,11 +101,9 @@ export function ChatExperience({ chatId }: { chatId: string }) {
 
   useEffect(() => {
     if (!report) return;
-
     const timeout = setTimeout(() => {
       setVisibleReport(report);
     }, RESULT_REVEAL_DELAY_MS);
-
     return () => clearTimeout(timeout);
   }, [report]);
 
@@ -137,24 +134,18 @@ export function ChatExperience({ chatId }: { chatId: string }) {
   return (
     <div
       dir={direction}
-      className="relative w-full bg-transparent text-on-background overflow-x-hidden"
+      className="relative w-full min-h-[100dvh] overflow-x-hidden text-gray-700"
     >
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-primary/25 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-tertiary/15 rounded-full blur-[120px]" />
-        <div className="absolute top-[40%] left-[40%] w-[40vw] h-[40vw] bg-surface/20 rounded-full blur-[100px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(187,27%,40%,0.06),transparent_25%),radial-gradient(circle_at_80%_15%,hsl(45,93%,47%,0.04),transparent_20%)]" />
-        <div className="grain-overlay absolute inset-0 opacity-[0.03]" />
-      </div>
+    
 
       {!resolvedReport ? (
-        <div className="relative z-10 mx-auto flex h-[100dvh] max-w-7xl flex-col px-4 sm:px-6 lg:px-8 pt-24 pb-4">
+        <div className="relative z-10 mx-auto flex h-[100dvh] w-full flex-col px-3 sm:px-5 pt-20 sm:pt-24 pb-4">
           <AnimatePresence mode="wait">
             <motion.div
               key="chat-view"
               initial={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.4 }}
+              exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
+              transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
               className="flex flex-1 flex-col min-h-0"
             >
               <ChatMessages
@@ -164,16 +155,30 @@ export function ChatExperience({ chatId }: { chatId: string }) {
                 isTyping={isBotTyping || isPreparingReport}
                 onOptionClick={handleOptionClick}
               />
-              {(error || connectionStatus === "connecting" || connectionStatus === "disconnected") && (
-                <div className="mx-auto mb-2 max-w-2xl rounded-xl border border-primary/15 bg-white/80 px-4 py-2 text-center text-xs font-medium text-on-background/60 shadow-sm backdrop-blur-sm">
-                  {error || (connectionStatus === "connecting" ? "Connexion a MIRA..." : "Connexion interrompue, tentative de reprise...")}
-                </div>
-              )}
-              {isPreparingReport && (
-                <div className="mx-auto mb-2 max-w-2xl rounded-xl border border-[#475569]/30 bg-black/70 px-4 py-2 text-center text-xs font-medium text-white/60 shadow-sm backdrop-blur-sm">
-                  Analyse des reponses en cours. La synthese clinique apparaitra dans quelques secondes.
-                </div>
-              )}
+
+              {/* Status Bar */}
+              <div className="flex-shrink-0 space-y-2 px-1">
+                {(error || connectionStatus === "connecting" || connectionStatus === "disconnected") && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mx-auto max-w-lg rounded-2xl border border-gray-100 bg-white/70 px-4 py-2.5 text-center text-xs font-medium text-gray-400 shadow-sm backdrop-blur-md"
+                  >
+                    {error || (connectionStatus === "connecting" ? "Connexion à MIRA..." : "Connexion interrompue, tentative de reprise...")}
+                  </motion.div>
+                )}
+                {isPreparingReport && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mx-auto max-w-lg rounded-2xl border border-primary/10 bg-primary/[0.03] px-4 py-2.5 text-center text-xs font-medium text-primary shadow-sm backdrop-blur-md"
+                  >
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse mr-2" />
+                    Analyse des réponses en cours. La synthèse clinique apparaîtra dans quelques secondes.
+                  </motion.div>
+                )}
+              </div>
+
               <ChatInput
                 value={input}
                 onChange={setInput}
@@ -187,7 +192,7 @@ export function ChatExperience({ chatId }: { chatId: string }) {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="relative z-10 min-h-screen pt-28 pb-12">
+        <div className="relative z-10 min-h-screen pt-24 sm:pt-28 pb-12 px-3 sm:px-5">
           <ChatResult
             result={resolvedReport}
             chatId={sessionId || chatId}

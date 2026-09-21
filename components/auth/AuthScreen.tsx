@@ -61,61 +61,7 @@ function EyeBtn({ show, toggle }: { show: boolean; toggle: () => void }) {
   return <button type="button" onClick={toggle} className="hover:scale-110 transition-transform" style={{ color: "#B0BEC5" }}>{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>;
 }
 
-function LeftPanel({ isSignUp, subtitle }: { isSignUp: boolean; subtitle: string }) {
-  return (
-    <aside className="hidden lg:flex lg:w-[40%] xl:w-[38%] flex-col justify-between relative overflow-hidden p-10 xl:p-14"
-      style={{ background: "linear-gradient(155deg, #2c3e3b 0%, #1a2e2b 40%, #518591 100%)" }}>
-      {/* Halos */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 -left-24 h-[400px] w-[400px] rounded-full blur-[120px]" style={{ background: "rgba(81,133,145,0.25)" }} />
-        <div className="absolute -bottom-10 -right-10 h-[300px] w-[300px] rounded-full blur-[100px]" style={{ background: "rgba(227,176,28,0.12)" }} />
-      </div>
-      {/* Motif cercles */}
-      <div aria-hidden className="absolute inset-0 opacity-[0.04] pointer-events-none">
-        {[{ t: 20, r: 16, s: 160 }, { t: 32, r: 28, s: 80 }, { b: 32, l: 16, s: 224 }].map((c, i) => (
-          <div key={i} className="absolute rounded-full" style={{ border: "1px solid white", top: c.t && `${c.t * 4}px`, right: c.r && `${c.r * 4}px`, bottom: c.b && `${c.b * 4}px`, left: c.l && `${c.l * 4}px`, width: c.s, height: c.s }} />
-        ))}
-      </div>
-      {/* Logo */}
-      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="relative z-10 flex items-center gap-3">
-        <div className="p-2 rounded-[14px]" style={{ background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.15)" }}>
-          <Image src="/logo.png" alt="VitaMind" width={36} height={36} className="h-8 w-8 object-contain" priority />
-        </div>
-        <span className="font-display text-[18px] font-light tracking-[-0.02em] text-white">VitaMind</span>
-      </motion.div>
-      {/* Corps */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative z-10 flex-1 flex flex-col justify-center">
-        <span className="font-body text-[11px] font-semibold uppercase tracking-[0.30em] mb-6 block" style={{ color: "rgba(227,176,28,0.90)" }}>
-          {isSignUp ? "Your journey starts here" : "Welcome back"}
-        </span>
-        <h1 className="font-display font-light tracking-[-0.03em] leading-[1.05]" style={{ fontSize: "clamp(34px,3.5vw,52px)", color: "white" }}>
-          {isSignUp ? <>Giving the soul<br />a voice, and the<br /><span style={{ color: "#e3b01c" }}>mind its colors.</span></> : <>Continue your<br />guided path to<br /><span style={{ color: "#e3b01c" }}>inner clarity.</span></>}
-        </h1>
-        <motion.div initial={{ width: 0 }} animate={{ width: 60 }} transition={{ delay: 0.9, duration: 0.8, ease: "easeInOut" }} className="mt-7 h-[2px] rounded-full" style={{ background: "linear-gradient(to right, #e3b01c, #518591)" }} />
-        <p className="font-body text-[15px] leading-[1.72] mt-6 max-w-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{subtitle}</p>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="mt-8 rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", backdropFilter: "blur(16px)" }}>
-          <p className="font-display text-[14px] italic leading-[1.7]" style={{ color: "rgba(255,255,255,0.75)" }}>
-            "Your emotional wellbeing deserves intelligent support — not just data, but genuine understanding."
-          </p>
-          <div className="mt-3 flex items-center gap-2">
-            <div className="h-[1px] w-6" style={{ background: "rgba(227,176,28,0.50)" }} />
-            <span className="font-body text-[11px] font-medium" style={{ color: "rgba(227,176,28,0.80)" }}>VitaMind Philosophy</span>
-          </div>
-        </motion.div>
-      </motion.div>
-      {/* Trust pills */}
-      <div className="relative z-10 flex flex-col gap-3 mt-6">
-        {TRUST.map(({ icon: Icon, label }, i) => (
-          <motion.div key={label} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 + i * 0.1, duration: 0.45 }}
-            className="inline-flex items-center gap-3 rounded-full px-4 py-2.5 w-fit" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)" }}>
-            <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "#e3b01c" }} />
-            <span className="font-body text-[12px] font-medium" style={{ color: "rgba(255,255,255,0.80)" }}>{label}</span>
-          </motion.div>
-        ))}
-      </div>
-    </aside>
-  );
-}
+
 
 // ─── COMPOSANT PRINCIPAL ──────────────────────────────────────────────────────
 export function AuthScreen({ mode }: { mode: AuthMode }) {

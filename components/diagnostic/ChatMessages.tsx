@@ -42,29 +42,30 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
   return (
     <div
       ref={scrollRef}
-      className="flex-1 overflow-y-auto pb-4  space-y-6 px-2 md:px-4"
+      className="flex-1 overflow-y-auto pb-4 space-y-6 px-1 sm:px-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
     >
+      {/* Welcome State */}
       {messages.length <= 1 && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center py-8 px-4"
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+          className="text-center py-12 sm:py-16 px-4"
         >
-          <div className="inline-block p-3 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm mb-5">
+          <div className="inline-flex p-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] mb-6">
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 max-w-2xl mx-auto text-on-background">
-            <span className="bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent">
-              {diagnostic.welcome}
-            </span>
-          </div>
-          <p className="text-base text-on-background/70 max-w-xl mx-auto leading-relaxed">
-            {diagnostic.panelPoints[0]}
+          <h1 className="text-2xl sm:text-[32px] font-semibold tracking-tight mb-3 max-w-lg mx-auto leading-snug text-gray-800">
+            {diagnostic.welcome}
+          </h1>
+          <p className="text-sm sm:text-[15px] text-gray-400 max-w-md mx-auto leading-relaxed font-medium">
+            {diagnostic.panelPoints?.[0] || "Le chat recueille quelques réponses guidées."}
           </p>
         </motion.div>
       )}
 
-      <div className="max-w-3xl mx-auto space-y-5">
+      {/* Messages List */}
+      <div className="max-w-5xl mx-auto space-y-5">
         <AnimatePresence initial={false}>
           {displayedMessages.map((message, index) => {
             const content =
@@ -72,83 +73,88 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
                 ? hideDiagnosticQuestionLabels(message.content)
                 : message.content;
 
+            if (message.id === "welcome") return null;
+
             return (
-              message.id !== "welcome" && (
-                <motion.div
-                  key={message.id || `${message.role}-${index}`}
-                  initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="flex flex-col"
-                >
-                  <div className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
-                    {message.role === "assistant" && (
-                      <div className="flex-shrink-0 mt-1">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm">
-                          <Bot className="h-4 w-4 text-white" />
-                        </div>
+              <motion.div
+                key={message.id || `${message.role}-${index}`}
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                className="flex flex-col"
+              >
+                <div className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"} gap-2.5 sm:gap-3 items-end`}>
+                  {message.role === "assistant" && (
+                    <div className="flex-shrink-0 mb-0.5">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm ring-2 ring-white">
+                        <Bot className="h-4 w-4 text-white" />
                       </div>
-                    )}
-
-                    <div
-                      className={`max-w-[85%] sm:max-w-[75%] px-5 py-3.5 text-[15px] leading-relaxed shadow-sm break-words whitespace-pre-wrap ${message.role === "user"
-                        ? "bg-gradient-to-r from-primary to-primary/90 text-white rounded-2xl rounded-tr-sm"
-                        : "bg-white border border-[rgba(81,133,145,0.06)] text-on-background rounded-2xl rounded-tl-sm"
-                        }`}
-                      style={{ wordBreak: 'break-word' }}
-                    >
-                      {content}
-                    </div>
-
-                    {message.role === "user" && (
-                      <div className="flex-shrink-0 mt-1">
-                        <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center shadow-sm">
-                          <User className="h-4 w-4 text-gray-600" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {message.role === "assistant" && message.options && message.options.length > 0 && onOptionClick && (
-                    <div className="flex flex-wrap gap-2 mt-3 ml-10">
-                      {message.options.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => onOptionClick(option.value, getOptionLabel(option, language))}
-                          className="px-5 py-2.5 rounded-xl border border-primary/30 bg-white text-primary text-sm font-medium shadow-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 active:scale-95"
-                        >
-                          {getOptionLabel(option, language)}
-                        </button>
-                      ))}
                     </div>
                   )}
-                </motion.div>
-              )
+
+                  <div
+                    className={`max-w-[88%] sm:max-w-[75%] px-4 py-3 sm:px-5 sm:py-3.5 text-[15px] leading-relaxed shadow-sm break-words whitespace-pre-wrap ${message.role === "user"
+                        ? "bg-gradient-to-br from-primary to-primary/90 text-white rounded-[20px] rounded-br-md shadow-primary/10"
+                        : "bg-white/80 border border-gray-100/80 text-gray-700 rounded-[20px] rounded-bl-md shadow-[0_2px_12px_rgba(0,0,0,0.03)] backdrop-blur-sm"
+                      }`}
+                    style={{ wordBreak: "break-word" }}
+                  >
+                    {content}
+                  </div>
+
+                  {message.role === "user" && (
+                    <div className="flex-shrink-0 mb-0.5">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center shadow-sm ring-2 ring-white">
+                        <User className="h-4 w-4 text-gray-500" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Options Buttons */}
+                {message.role === "assistant" && message.options && message.options.length > 0 && onOptionClick && (
+                  <div className="flex flex-wrap gap-2 mt-3 ml-11 sm:ml-12">
+                    {message.options.map((option) => (
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
+                        key={option.value}
+                        type="button"
+                        onClick={() => onOptionClick(option.value, getOptionLabel(option, language))}
+                        className="px-4 py-2.5 sm:px-5 sm:py-2.5 rounded-xl border border-gray-200 bg-white/90 text-gray-600 text-sm font-medium shadow-sm hover:border-primary/30 hover:bg-primary hover:text-white hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+                      >
+                        {getOptionLabel(option, language)}
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
             );
           })}
         </AnimatePresence>
 
+        {/* Typing Indicator */}
         <AnimatePresence>
           {isTyping && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="flex justify-start gap-2"
+              exit={{ opacity: 0, y: 5 }}
+              className="flex justify-start gap-2.5 sm:gap-3 items-end"
             >
-              <div className="flex-shrink-0 mt-1">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm">
+              <div className="flex-shrink-0 mb-0.5">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-sm ring-2 ring-white">
                   <Bot className="h-4 w-4 text-white" />
                 </div>
               </div>
-              <div className="bg-white border border-[rgba(81,133,145,0.06)] rounded-2xl rounded-tl-sm px-2 py-2 shadow-sm">
+              <div className="bg-white/80 border border-gray-100/80 rounded-[20px] rounded-bl-md px-4 py-3 shadow-[0_2px_12px_rgba(0,0,0,0.03)] backdrop-blur-sm">
                 <TypingIndicator />
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      <div className="h-6" />
     </div>
   );
 }

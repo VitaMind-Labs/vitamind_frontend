@@ -122,9 +122,11 @@
 /* Base Styles */
 html {
   scroll-behavior: smooth;
+  position: relative;
 }
 
 body {
+  position: relative;
   font-family: var(--font-body-md);
   font-size: var(--text-body);
   line-height: 1.5;
@@ -351,6 +353,7 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

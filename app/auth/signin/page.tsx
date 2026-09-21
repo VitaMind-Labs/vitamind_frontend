@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function SignInPage() {
   return (
     <>
-      <AuthHeader />
+      {/* <AuthHeader /> */}
       <Suspense fallback={null}>
         <AuthScreen mode="signin" />
       </Suspense>
