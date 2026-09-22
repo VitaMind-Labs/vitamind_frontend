@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * LEGACY PROCESSING PHASE — PRESERVED BUT INACTIVE.
+ * Button-based ChatExperience (useDiagnosticChat). Kept intact; NOT rendered by
+ * DiagnosticPageClient in the active Mira flow (see MiraChatExperience).
+ * 
+ * Updated to match premium design aesthetics while preserving functionality.
+ */
+
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -136,10 +144,59 @@ export function ChatExperience({ chatId }: { chatId: string }) {
       dir={direction}
       className="relative w-full min-h-[100dvh] overflow-x-hidden text-gray-700"
     >
-    
+      {/* Premium atmosphere background */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[#f4f6f5]" />
+        <motion.div
+          animate={{ x: [0, 40, 0], y: [0, -24, 0] }}
+          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-40 start-[-10%] h-[560px] w-[560px] rounded-full blur-[140px]"
+          style={{ background: "rgba(81,133,145,0.08)" }}
+        />
+        <motion.div
+          animate={{ x: [0, -36, 0], y: [0, 28, 0] }}
+          transition={{ duration: 32, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[-15%] end-[-8%] h-[620px] w-[620px] rounded-full blur-[150px]"
+          style={{ background: "rgba(125,168,158,0.10)" }}
+        />
+        <motion.svg
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+          className="absolute top-[12%] h-[280px] w-[130%] opacity-[0.25]"
+          animate={{ x: ["0%", "-12%", "0%"] }}
+          transition={{ duration: 44, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <path
+            d="M0,160 C240,90 420,230 720,150 C1020,70 1200,200 1440,130"
+            fill="none"
+            stroke="rgba(81,133,145,0.12)"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M0,200 C260,130 460,260 740,190 C1020,120 1220,230 1440,170"
+            fill="none"
+            stroke="rgba(125,168,158,0.10)"
+            strokeWidth="1.5"
+          />
+        </motion.svg>
+        <motion.svg
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+          className="absolute bottom-[6%] h-[240px] w-[130%] opacity-[0.20]"
+          animate={{ x: ["-8%", "4%", "-8%"] }}
+          transition={{ duration: 52, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <path
+            d="M0,140 C220,210 480,80 760,160 C1040,240 1240,110 1440,180"
+            fill="none"
+            stroke="rgba(81,133,145,0.10)"
+            strokeWidth="1.5"
+          />
+        </motion.svg>
+      </div>
 
       {!resolvedReport ? (
-        <div className="relative z-10 mx-auto flex h-[100dvh] w-full flex-col px-3 sm:px-5 pt-20 sm:pt-24 pb-4">
+        <div className="relative z-10 mx-auto flex h-[100dvh] w-full max-w-4xl flex-col px-3 sm:px-5 pt-20 sm:pt-24 pb-4">
           <AnimatePresence mode="wait">
             <motion.div
               key="chat-view"
@@ -164,7 +221,7 @@ export function ChatExperience({ chatId }: { chatId: string }) {
                     animate={{ opacity: 1, y: 0 }}
                     className="mx-auto max-w-lg rounded-2xl border border-gray-100 bg-white/70 px-4 py-2.5 text-center text-xs font-medium text-gray-400 shadow-sm backdrop-blur-md"
                   >
-                    {error || (connectionStatus === "connecting" ? "Connexion à MIRA..." : "Connexion interrompue, tentative de reprise...")}
+                    {error || (connectionStatus === "connecting" ? diagnostic.reconnecting : diagnostic.connectionLost)}
                   </motion.div>
                 )}
                 {isPreparingReport && (
@@ -174,7 +231,7 @@ export function ChatExperience({ chatId }: { chatId: string }) {
                     className="mx-auto max-w-lg rounded-2xl border border-primary/10 bg-primary/[0.03] px-4 py-2.5 text-center text-xs font-medium text-primary shadow-sm backdrop-blur-md"
                   >
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse mr-2" />
-                    Analyse des réponses en cours. La synthèse clinique apparaîtra dans quelques secondes.
+                    {diagnostic.thinking}
                   </motion.div>
                 )}
               </div>

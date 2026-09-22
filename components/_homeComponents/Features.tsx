@@ -14,6 +14,7 @@ import {
   Eye,
   BarChart3
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Feature = {
   icon: React.ReactNode;
@@ -113,11 +114,19 @@ export const Features = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const { dictionary } = useLanguage();
+  const copy = dictionary.homeLanding.features;
+  const localizedFeatures = FEATURES_DATA.map((feature, index) => ({
+    ...feature,
+    title: copy.cards[index][0],
+    description: copy.cards[index][1],
+    statLabel: copy.cards[index][2],
+  }));
 
   // Regrouper par catégorie pour l'affichage
-  const coreFeatures = FEATURES_DATA.filter(f => f.category === "core");
-  const insightFeatures = FEATURES_DATA.filter(f => f.category === "insight");
-  const wellnessFeatures = FEATURES_DATA.filter(f => f.category === "wellness");
+  const coreFeatures = localizedFeatures.filter(f => f.category === "core");
+  const insightFeatures = localizedFeatures.filter(f => f.category === "insight");
+  const wellnessFeatures = localizedFeatures.filter(f => f.category === "wellness");
 
   return (
     <section
@@ -135,7 +144,7 @@ export const Features = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 border border-gray-100 mb-6">
               <Sparkles size={16} className="text-[#e3b01c]" />
-              <span className="text-sm font-medium text-gray-500">Intelligence Engine</span>
+              <span className="text-sm font-medium text-gray-500">{copy.eyebrow}</span>
             </div>
           </motion.div>
 
@@ -143,11 +152,11 @@ export const Features = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-gray-900 tracking-tight leading-[1.1]"
+            className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-gray-900 tracking-tight leading-[1.1] mb-10"
           >
-            Three layers of{" "}
+            {copy.titleA}{" "}
             <span className="bg-gradient-to-r from-[#518591] via-[#2c3e3b] to-[#e3b01c] bg-clip-text text-transparent">
-              intelligence
+              {copy.titleB}
             </span>
           </motion.h2>
 
@@ -157,7 +166,7 @@ export const Features = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-gray-400 text-lg mt-6 max-w-2xl"
           >
-            Every feature works in harmony. Core intelligence drives insights, insights trigger wellness actions.
+            {copy.intro}
           </motion.p>
         </div>
       </div>
@@ -165,17 +174,17 @@ export const Features = () => {
       {/* Grille principale - Structure en 3 colonnes */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Colonne 1 - Core Intelligence */}
           <div>
             <div className="sticky top-32">
               <div className="mb-6">
                 <div className="w-12 h-px bg-[#518591] mb-3" />
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#518591]">
-                  Core Engine
+                  {copy.columns[0].title}
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
-                  The foundation of everything
+                  {copy.columns[0].description}
                 </p>
               </div>
               <div className="space-y-4">
@@ -199,10 +208,10 @@ export const Features = () => {
               <div className="mb-6">
                 <div className="w-12 h-px bg-[#e3b01c] mb-3" />
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#e3b01c]">
-                  Deep Insights
+                  {copy.columns[1].title}
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
-                  Patterns you never saw coming
+                  {copy.columns[1].description}
                 </p>
               </div>
               <div className="space-y-4">
@@ -226,10 +235,10 @@ export const Features = () => {
               <div className="mb-6">
                 <div className="w-12 h-px bg-[#2c3e3b] mb-3" />
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#2c3e3b]">
-                  Active Wellness
+                  {copy.columns[2].title}
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
-                  Actions that transform
+                  {copy.columns[2].description}
                 </p>
               </div>
               <div className="space-y-4">

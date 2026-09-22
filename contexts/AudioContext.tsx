@@ -11,14 +11,17 @@ const AudioContext = createContext<AudioContextType | null>(null);
 const STORAGE_KEY = "vitamind-diagnostic-sound";
 
 export function AudioProvider({ children }: { children: ReactNode }) {
-    const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
-        if (typeof window === "undefined") return true;
-        return window.localStorage.getItem(STORAGE_KEY) !== "off";
-    });
+    const [isSoundEnabled, setIsSoundEnabledState] = useState(true);
 
     useEffect(() => {
-        window.localStorage.setItem(STORAGE_KEY, isSoundEnabled ? "on" : "off");
-    }, [isSoundEnabled]);
+        const stored = window.localStorage.getItem(STORAGE_KEY);
+        if (stored !== null) setIsSoundEnabledState(stored !== "off");
+    }, []);
+
+    function setIsSoundEnabled(enabled: boolean) {
+        setIsSoundEnabledState(enabled);
+        window.localStorage.setItem(STORAGE_KEY, enabled ? "on" : "off");
+    }
 
     return (
         <AudioContext.Provider value={{ isSoundEnabled, setIsSoundEnabled }}>

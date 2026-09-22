@@ -5,10 +5,13 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Brain, Check, Play, ShieldCheck, Lock, ArrowRight } from "lucide-react";
 import { MagneticButton, TextReveal, WordReveal } from "./AnimationUtilities";
 import { GLSLHills } from "@/components/GLSLHills";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Hero = () => {
     const sectionRef = useRef<HTMLDivElement | null>(null);
     const textRef = useRef<HTMLDivElement | null>(null);
+    const { dictionary } = useLanguage();
+    const copy = dictionary.homeLanding.hero;
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
@@ -46,17 +49,17 @@ export const Hero = () => {
                 >
                     {/* Titre */}
                     <h1 className="font-display font-extralight text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[7rem] leading-[0.9] tracking-tighter mb-8 max-w-5xl mx-auto">
-                        <TextReveal delay={0.4}>Your mind</TextReveal>
+                        <TextReveal delay={0.4}>{copy.titleA}</TextReveal>
                         <br />
                         <TextReveal delay={0.5}>
-                            <span className="text-gradient">deserves better</span>
+                            <span className="text-gradient">{copy.titleB}</span>
                         </TextReveal>
                     </h1>
 
                     {/* Sous-titre */}
                     <div className="max-w-2xl mx-auto mb-12">
                         <WordReveal
-                            text="Experience the future of emotional intelligence. Our neural engine understands, adapts, and guides your mental wellness journey with unprecedented precision and care."
+                            text={copy.subtitle}
                             className="text-lg md:text-xl text-gray-600 leading-relaxed font-light"
                             delay={0.7}
                         />
@@ -70,7 +73,7 @@ export const Hero = () => {
                         className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
                     >
                         <MagneticButton className="px-10 py-5 rounded-full bg-gray-900 text-white font-semibold text-lg shadow-2xl shadow-gray-900/20 hover:bg-black transition-all flex items-center gap-3 group magnetic-area">
-                            Start Your Journey
+                            {copy.primary}
                             <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-300" />
                         </MagneticButton>
 
@@ -78,7 +81,7 @@ export const Hero = () => {
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#518591] to-[#e3b01c] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
                                 <Play size={18} fill="white" />
                             </div>
-                            <span className="font-medium text-gray-700 text-lg">Watch Demo</span>
+                            <span className="font-medium text-gray-700 text-lg">{copy.demo}</span>
                         </button>
                     </motion.div>
 
@@ -92,7 +95,7 @@ export const Hero = () => {
                     transition={{ delay: 2.5 }}
                     className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10"
                 >
-                    <span className="text-[10px] text-gray-300 uppercase tracking-[0.3em] font-medium">Discover</span>
+                    <span className="text-[10px] text-gray-300 uppercase tracking-[0.3em] font-medium">{copy.discover}</span>
                     <motion.div
                         animate={{ y: [0, 8, 0] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -118,7 +121,7 @@ export const Hero = () => {
                         transition={{ duration: 0.6 }}
                         className="px-4 py-1.5 rounded-full bg-white border border-gray-100 shadow-sm"
                     >
-                        <span className="text-[10px] uppercase tracking-[0.25em] text-gray-400 font-medium">Live Preview</span>
+                        <span className="text-[10px] uppercase tracking-[0.25em] text-gray-400 font-medium">{copy.preview}</span>
                     </motion.div>
                     <div className="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200" />
                 </div>
@@ -161,7 +164,7 @@ export const Hero = () => {
                                         </div>
                                         <span className="font-bold text-sm">VitaMind</span>
                                     </div>
-                                    {["Dashboard", "Analytics", "Therapy", "Journal", "Settings"].map((item, i) => (
+                                    {copy.dashboard.map((item, i) => (
                                         <div key={i} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${i === 0 ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
                                             <div className="w-5 h-5 rounded-md bg-gray-200/50" />
                                             {item}
@@ -182,9 +185,9 @@ export const Hero = () => {
                                     {/* Stats */}
                                     <div className="grid grid-cols-3 gap-2 md:gap-4">
                                         {[
-                                            { label: "Wellness Score", value: "92", change: "+4.2%", color: "#518591" },
-                                            { label: "Streak", value: "14", change: "days", color: "#e3b01c" },
-                                            { label: "Sessions", value: "28", change: "this month", color: "#2c3e3b" },
+                                            { label: copy.stats[0], value: "92", change: copy.scoreChange, color: "#518591" },
+                                            { label: copy.stats[1], value: "14", change: copy.days, color: "#e3b01c" },
+                                            { label: copy.stats[2], value: "28", change: copy.thisMonth, color: "#2c3e3b" },
                                         ].map((stat, i) => (
                                             <motion.div
                                                 key={i}
@@ -207,10 +210,10 @@ export const Hero = () => {
                                     <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-gray-50/50 border border-gray-100">
                                         <div className="flex items-center justify-between mb-4 md:mb-6">
                                             <div>
-                                                <div className="text-xs md:text-sm font-semibold text-gray-900">Emotional Baseline</div>
-                                                <div className="text-[10px] md:text-xs text-gray-400">Last 30 days</div>
+                                                <div className="text-xs md:text-sm font-semibold text-gray-900">{copy.baseline}</div>
+                                                <div className="text-[10px] md:text-xs text-gray-400">{copy.last30}</div>
                                             </div>
-                                            <div className="px-2 md:px-3 py-1 rounded-full bg-[#518591]/10 text-[#518591] text-[10px] md:text-xs font-medium">Stable</div>
+                                            <div className="px-2 md:px-3 py-1 rounded-full bg-[#518591]/10 text-[#518591] text-[10px] md:text-xs font-medium">{copy.stable}</div>
                                         </div>
                                         <div className="h-24 md:h-32 flex items-end gap-1 md:gap-2">
                                             {[40, 55, 45, 70, 60, 80, 75, 85, 78, 92, 88, 95].map((h, i) => (
@@ -241,8 +244,8 @@ export const Hero = () => {
                                 <Check size={14} className="text-green-600" />
                             </div>
                             <div>
-                                <div className="text-[10px] md:text-xs font-bold text-gray-900">AI Insight</div>
-                                <div className="text-[9px] md:text-[10px] text-gray-400">Pattern detected</div>
+                                <div className="text-[10px] md:text-xs font-bold text-gray-900">{copy.insight}</div>
+                                <div className="text-[9px] md:text-[10px] text-gray-400">{copy.pattern}</div>
                             </div>
                         </div>
                     </motion.div>
@@ -254,7 +257,7 @@ export const Hero = () => {
                     >
                         <div className="flex items-center gap-2">
                             <ShieldCheck size={14} className="md:size-4" />
-                            <span className="text-[10px] md:text-xs font-bold">End-to-End Encrypted</span>
+                            <span className="text-[10px] md:text-xs font-bold">{copy.encrypted}</span>
                         </div>
                     </motion.div>
                 </motion.div>

@@ -6,7 +6,7 @@ const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
 
 type VoiceBody = {
   text?: string;
-  language?: "fr" | "en" | "derja";
+  language?: "en" | "ar";
 };
 
 function getApiKey() {
@@ -19,8 +19,7 @@ function getApiKey() {
 }
 
 function getVoiceId(language: VoiceBody["language"]) {
-  if (language === "fr") return process.env.ELEVENLABS_VOICE_ID_FR || process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
-  if (language === "derja") return process.env.ELEVENLABS_VOICE_ID_DERJA || process.env.ELEVENLABS_VOICE_ID_AR || process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
+  if (language === "ar") return process.env.ELEVENLABS_VOICE_ID_AR || process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
   return process.env.ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
 }
 
