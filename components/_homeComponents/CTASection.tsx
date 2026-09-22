@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useScroll, useTransform } from "framer-motion";
 import { Sparkles, Check, Play, ArrowRight } from "lucide-react";
 import { ScrollReveal, TextReveal, MagneticButton } from "./AnimationUtilities";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const CTASection = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -16,6 +17,8 @@ export const CTASection = () => {
     const y = useTransform(scrollYProgress, [0, 1], [120, -120]);
     const opacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 1, 1, 0]);
     const scale = useTransform(scrollYProgress, [0, 0.3], [0.9, 1]);
+    const { dictionary } = useLanguage();
+    const copy = dictionary.homeLanding.cta;
 
     return (
         <section id="cta" ref={containerRef} className="py-32 md:py-40 bg-white relative overflow-hidden">
@@ -36,26 +39,26 @@ export const CTASection = () => {
                 <ScrollReveal>
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 border border-gray-100 mb-8">
                         <Sparkles size={16} className="text-[#e3b01c]" />
-                        <span className="text-sm font-medium text-gray-500">Start your transformation today</span>
+                        <span className="text-sm font-medium text-gray-500">{copy.eyebrow}</span>
                     </div>
                 </ScrollReveal>
 
                 <h2 className="font-display text-4xl md:text-5xl lg:text-7xl text-gray-900 tracking-tight mb-8">
-                    <TextReveal>Ready to invest</TextReveal>
+                    <TextReveal>{copy.titleA}</TextReveal>
                     <br />
-                    <TextReveal delay={0.15}>in your mind?</TextReveal>
+                    <TextReveal delay={0.15}>{copy.titleB}</TextReveal>
                 </h2>
 
                 <ScrollReveal delay={0.3}>
                     <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed">
-                        Join 50,000+ professionals who have already transformed their mental wellness journey. Your future self will thank you.
+                        {copy.body}
                     </p>
                 </ScrollReveal>
 
                 <ScrollReveal delay={0.5}>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                         <MagneticButton className="px-12 py-5 rounded-full bg-gray-900 text-white font-bold text-lg shadow-2xl shadow-gray-900/20 hover:shadow-gray-900/40 hover:bg-black transition-all flex items-center gap-3 group magnetic-area">
-                            Get Started Free
+                            {copy.primary}
                             <motion.span className="inline-block">
                                 <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-300" />
                             </motion.span>
@@ -69,7 +72,7 @@ export const CTASection = () => {
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#518591] to-[#e3b01c] flex items-center justify-center text-white shadow-md">
                                 <Play size={16} fill="white" />
                             </div>
-                            Watch 2-min Demo
+                            {copy.demo}
                         </motion.button>
                     </div>
                 </ScrollReveal>
@@ -81,11 +84,10 @@ export const CTASection = () => {
                     transition={{ delay: 0.7, duration: 0.8 }}
                     className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400"
                 >
-                    {[
-                        { icon: <Check size={14} className="text-[#518591]" />, text: "No credit card required" },
-                        { icon: <Check size={14} className="text-[#e3b01c]" />, text: "14-day free trial" },
-                        { icon: <Check size={14} className="text-[#2c3e3b]" />, text: "Cancel anytime" }
-                    ].map((item, i) => (
+                    {copy.benefits.map((text, i) => {
+                        const colors = ["text-[#518591]", "text-[#e3b01c]", "text-[#2c3e3b]"];
+                        return { icon: <Check size={14} className={colors[i]} />, text };
+                    }).map((item, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, y: 10 }}

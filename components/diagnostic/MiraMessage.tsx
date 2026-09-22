@@ -4,6 +4,7 @@ import { Bot, Check, Copy, Loader2, MoreHorizontal, User, Volume2, VolumeX } fro
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { LANGS } from "@/lib/i18n";
 import { useSpeech } from "@/hooks/useSpeech";
 import { RichText } from "./RichText";
 
@@ -13,6 +14,7 @@ interface MiraMessageProps {
   content: string;
   createdAt: string;
   index: number;
+  language: "en" | "ar";
 }
 
 function Waveform() {
@@ -37,8 +39,8 @@ function Waveform() {
  * User messages: small compact teal bubbles aligned to the right
  * Both: narrow (~650-700px), with AI avatar, and listen as small refined pill button
  */
-export function MiraMessage({ content, role, createdAt, index }: MiraMessageProps) {
-  const { dictionary, language } = useLanguage();
+export function MiraMessage({ content, role, createdAt, index, language }: MiraMessageProps) {
+  const { dictionary } = useLanguage();
   const diagnostic = dictionary.diagnostic;
   const isUser = role === "user";
   const { state: speech, toggle } = useSpeech(content, language);
@@ -48,7 +50,8 @@ export function MiraMessage({ content, role, createdAt, index }: MiraMessageProp
 
   const time = (() => {
     try {
-      return new Date(createdAt).toLocaleTimeString(language === "ar" ? "ar-SA" : "en-US", {
+      const locale = LANGS.find((l) => l.code === language)?.bcp47 ?? "en-US";
+      return new Date(createdAt).toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
       });
@@ -102,15 +105,15 @@ export function MiraMessage({ content, role, createdAt, index }: MiraMessageProp
         </div>
       )}
 
-      {/* Message container - narrow for AI, compact for user */}
-      <div className={`flex max-w-[85%] flex-col sm:max-w-[78%] ${isUser ? "items-end" : "items-start"}`}>
+      {/* Message container - responsive widths */}
+      <div className={`flex flex-col ${isUser ? "max-w-[78%] sm:max-w-[72%] items-end" : "max-w-[88%] sm:max-w-[78%] items-start"} ${isUser ? "" : "min-w-0"}`}>
         <span className="sr-only">{isUser ? diagnostic.youLabel : diagnostic.miraLabel}</span>
 
-        {/* AI Message - refined floating white card */}
+        {/* AI Message - refined floating white card - responsive */}
         {!isUser && (
           <article
             aria-label={`${diagnostic.aiGuide}: ${content.slice(0, 120)}`}
-            className="w-full rounded-[18px] border border-gray-100/70 bg-white/75 px-4 py-3.5 shadow-[0_6px_20px_rgba(15,23,42,0.04)] backdrop-blur-xl"
+            className="w-full rounded-[16px] sm:rounded-[18px] border border-gray-100/70 bg-white/85 px-3.5 sm:px-4 py-3 sm:py-3.5 shadow-[0_6px_20px_rgba(15,23,42,0.04)] backdrop-blur-xl"
           >
             {/* Metadata: AI WELLNESS GUIDE · time */}
             <div className="mb-2 flex items-center gap-2 border-b border-gray-100/60 pb-2">
@@ -122,9 +125,9 @@ export function MiraMessage({ content, role, createdAt, index }: MiraMessageProp
                 <time className="text-[10px] font-medium tabular-nums text-gray-400">{time}</time>
               )}
             </div>
-            
-            {/* Message content - clean, readable typography */}
-            <RichText content={content} className="text-[15px] leading-relaxed" />
+
+            {/* Message content - responsive typography, RTL-friendly */}
+            <RichText content={content} className="text-[14px] sm:text-[15px] leading-relaxed break-words" />
 
             {/* Bottom controls - listen pill button and menu */}
             <div className="mt-2.5 flex items-center gap-1.5 border-t border-gray-100/60 pt-2">
@@ -194,13 +197,13 @@ export function MiraMessage({ content, role, createdAt, index }: MiraMessageProp
           </article>
         )}
 
-        {/* User Message - small compact teal bubble */}
+        {/* User Message - responsive compact teal bubble */}
         {isUser && (
           <div
             aria-label={`${diagnostic.youLabel}: ${content.slice(0, 120)}`}
-            className="rounded-[18px] rounded-br-lg bg-primary px-4 py-2.5 text-white shadow-[0_6px_20px_rgba(81,133,145,0.20)]"
+            className="rounded-[16px] sm:rounded-[18px] rounded-br-lg bg-primary px-3.5 sm:px-4 py-2.5 text-white shadow-[0_6px_20px_rgba(81,133,145,0.20)] max-w-full"
           >
-            <RichText content={content} className="text-[14.5px] leading-relaxed" />
+            <RichText content={content} className="text-[14px] sm:text-[14.5px] leading-relaxed break-words" />
           </div>
         )}
 

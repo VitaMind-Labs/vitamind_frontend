@@ -30,9 +30,7 @@ type ChatProxyBody = {
 };
 
 function normalizeLanguage(language?: string) {
-  if (language === "en" || language === "derja") return language;
-  if (language === "ar") return "derja";
-  return "fr";
+  return language === "ar" ? "ar" : "en";
 }
 
 function serviceUrl(path: string) {

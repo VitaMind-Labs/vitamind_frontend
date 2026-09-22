@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, Zap, Crown, Check, Lock, X, TrendingUp } from "lucide-react";
 import { ScrollReveal, TextReveal, MagneticButton } from "./AnimationUtilities";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Plan = {
     name: string;
@@ -11,46 +11,48 @@ type Plan = {
     period: string;
     description: string;
     icon: React.ReactNode;
-    features: string[];
+    features: readonly string[];
     cta: string;
     popular: boolean;
     accent: string;
 };
 
 export const Pricing = () => {
-    const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+    const { dictionary } = useLanguage();
+    const copy = dictionary.homeLanding.pricing;
 
+    const prices = ["€29", "€59", "€99"] as const;
     const plans: Plan[] = [
         {
-            name: "Starter",
-            price: "$0",
-            period: "forever free",
-            description: "Begin your wellness journey with essential tracking tools.",
+            name: copy.plans[0][0],
+            price: prices[0],
+            period: copy.plans[0][1],
+            description: copy.plans[0][2],
             icon: <Star size={24} />,
-            features: ["Daily mood tracking", "Basic insights", "Community access", "Weekly reports", "Mobile app"],
-            cta: "Start Free",
+            features: copy.plans[0][3],
+            cta: copy.plans[0][4],
             popular: false,
             accent: "#e3b01c"
         },
         {
-            name: "Professional",
-            price: "$19",
-            period: "/month",
-            description: "Advanced AI support for serious personal growth and care.",
+            name: copy.plans[1][0],
+            price: prices[1],
+            period: copy.plans[1][1],
+            description: copy.plans[1][2],
             icon: <Zap size={24} />,
-            features: ["Everything in Starter", "AI therapy 24/7", "Predictive alerts", "Wellness plans", "Priority support", "Video sessions"],
-            cta: "Get Pro",
+            features: copy.plans[1][3],
+            cta: copy.plans[1][4],
             popular: true,
             accent: "#518591"
         },
         {
-            name: "Enterprise",
-            price: "$49",
-            period: "/month",
-            description: "Complete solution for teams, clinics, and organizations.",
+            name: copy.plans[2][0],
+            price: prices[2],
+            period: copy.plans[2][1],
+            description: copy.plans[2][2],
             icon: <Crown size={24} />,
-            features: ["Everything in Pro", "Unlimited sessions", "Team dashboard", "Health coach", "Custom integrations", "SLA guarantee"],
-            cta: "Contact Sales",
+            features: copy.plans[2][3],
+            cta: copy.plans[2][4],
             popular: false,
             accent: "#2c3e3b"
         },
@@ -63,16 +65,16 @@ export const Pricing = () => {
                     <ScrollReveal>
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-100 shadow-sm mb-6">
                             <TrendingUp size={14} className="text-[#518591]" />
-                            <span className="text-sm font-medium text-gray-500">Simple Pricing</span>
+                            <span className="text-sm font-medium text-gray-500">{copy.eyebrow}</span>
                         </div>
                     </ScrollReveal>
-                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-gray-900 tracking-tight mb-6">
-                        <TextReveal>Invest in your</TextReveal>
+                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-gray-900 tracking-tight mb-10">
+                        <TextReveal>{copy.titleA}</TextReveal>
                         <br />
-                        <TextReveal delay={0.1}>mental wealth</TextReveal>
+                        <TextReveal delay={0.1}>{copy.titleB}</TextReveal>
                     </h2>
                     <ScrollReveal delay={0.2}>
-                        <p className="text-gray-500 text-lg md:text-xl">No hidden fees. Cancel anytime. Upgrade when you are ready.</p>
+                        <p className="text-gray-500 text-lg md:text-xl">{copy.intro}</p>
                     </ScrollReveal>
                 </div>
 
@@ -84,8 +86,6 @@ export const Pricing = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.12, duration: 0.7 }}
-                            onMouseEnter={() => setHoveredIdx(idx)}
-                            onMouseLeave={() => setHoveredIdx(null)}
                             className={`relative group ${plan.popular ? 'lg:-mt-3 lg:mb-3' : ''}`}
                         >
                             <div
@@ -96,7 +96,7 @@ export const Pricing = () => {
                             >
                                 {plan.popular && (
                                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#518591] to-[#2c3e3b] text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                                        Most Popular
+                                        {copy.popular}
                                     </div>
                                 )}
 
@@ -141,11 +141,11 @@ export const Pricing = () => {
 
                 <ScrollReveal delay={0.4}>
                     <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-400">
-                        <div className="flex items-center gap-2"><Lock size={14} className="text-[#518591]" /> SSL Secure</div>
+                        <div className="flex items-center gap-2"><Lock size={14} className="text-[#518591]" /> {copy.secure}</div>
                         <div className="w-1 h-1 rounded-full bg-gray-300" />
-                        <div className="flex items-center gap-2"><Check size={14} className="text-[#e3b01c]" /> 7-day trial</div>
+                        <div className="flex items-center gap-2"><Check size={14} className="text-[#e3b01c]" /> {copy.trial}</div>
                         <div className="w-1 h-1 rounded-full bg-gray-300" />
-                        <div className="flex items-center gap-2"><X size={14} className="text-red-300" /> Cancel anytime</div>
+                        <div className="flex items-center gap-2"><X size={14} className="text-red-300" /> {copy.cancel}</div>
                     </div>
                 </ScrollReveal>
             </div>

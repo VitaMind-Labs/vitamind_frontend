@@ -5,13 +5,14 @@ import { motion } from "framer-motion";
 import { useScroll, useTransform } from "framer-motion";
 import { Fingerprint, Brain, HeartPulse, TrendingUp } from "lucide-react";
 import { ScrollReveal, TextReveal } from "./AnimationUtilities";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Step = {
     num: string;
     title: string;
     desc: string;
     icon: React.ReactNode;
-    details: string[];
+    details: readonly string[];
 };
 
 export const HowItWorks = () => {
@@ -21,35 +22,37 @@ export const HowItWorks = () => {
         offset: ["start center", "end center"]
     });
     const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+    const { dictionary } = useLanguage();
+    const copy = dictionary.homeLanding.process;
 
     const steps: Step[] = [
         {
             num: "01",
-            title: "Connect",
-            desc: "Link your daily inputs and biometric data streams to our secure neural engine. Your privacy is our absolute priority.",
+            title: copy.steps[0][0],
+            desc: copy.steps[0][1],
             icon: <Fingerprint size={28} />,
-            details: ["End-to-end encryption", "HIPAA compliant", "Biometric sync"]
+            details: copy.steps[0][2]
         },
         {
             num: "02",
-            title: "Analyze",
-            desc: "Our AI maps emotional baselines and detects micro-changes in real-time with clinical-grade precision.",
+            title: copy.steps[1][0],
+            desc: copy.steps[1][1],
             icon: <Brain size={28} />,
-            details: ["Pattern recognition", "Baseline mapping", "Trend forecasting"]
+            details: copy.steps[1][2]
         },
         {
             num: "03",
-            title: "Intervene",
-            desc: "Receive personalized micro-interventions precisely when you need them, calibrated to your unique response profile.",
+            title: copy.steps[2][0],
+            desc: copy.steps[2][1],
             icon: <HeartPulse size={28} />,
-            details: ["Micro-sessions", "Cognitive exercises", "Breathing protocols"]
+            details: copy.steps[2][2]
         },
         {
             num: "04",
-            title: "Evolve",
-            desc: "Watch your wellness score improve with adaptive learning algorithms that evolve alongside your personal growth.",
+            title: copy.steps[3][0],
+            desc: copy.steps[3][1],
             icon: <TrendingUp size={28} />,
-            details: ["Progress tracking", "Adaptive learning", "Goal optimization"]
+            details: copy.steps[3][2]
         },
     ];
 
@@ -62,11 +65,11 @@ export const HowItWorks = () => {
                     <ScrollReveal>
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 border border-gray-100 mb-6">
                             <div className="h-px w-6 bg-[#e3b01c]" />
-                            <span className="text-sm font-medium text-gray-500">The Process</span>
+                            <span className="text-sm font-medium text-gray-500">{copy.eyebrow}</span>
                         </div>
                     </ScrollReveal>
-                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-gray-900 tracking-tight">
-                        <TextReveal>How it works</TextReveal>
+                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-gray-900 tracking-tight mb-10">
+                        <TextReveal>{copy.title}</TextReveal>
                     </h2>
                 </div>
 

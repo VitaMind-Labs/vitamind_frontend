@@ -30,9 +30,8 @@ function hideDiagnosticQuestionLabels(content: string) {
 }
 
 function getOptionLabel(option: ChatOption, language: Lang) {
-  // LEGACY flow: backend still sends fr/derja labels; map modern locales onto them.
-  if (language === "ar") return option.labelAr || option.labelDerja || option.label;
-  return option.labelEn || option.labelFr || option.label;
+  if (language === "ar") return option.labelAr || option.label;
+  return option.labelEn || option.label;
 }
 
 export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef, onOptionClick }: ChatMessagesProps) {
@@ -94,8 +93,8 @@ export function ChatMessages({ messages, displayedMessages, isTyping, scrollRef,
 
                   <div
                     className={`max-w-[85%] sm:max-w-[78%] px-3.5 py-2.5 sm:px-4 sm:py-3 text-[14.5px] leading-relaxed shadow-sm break-words whitespace-pre-wrap ${message.role === "user"
-                        ? "bg-primary text-white rounded-[18px] rounded-br-lg shadow-[0_6px_20px_rgba(81,133,145,0.20)]"
-                        : "bg-white/80 border border-gray-100/70 text-gray-700 rounded-[18px] rounded-bl-lg shadow-[0_4px_16px_rgba(0,0,0,0.04)] backdrop-blur-sm"
+                      ? "bg-primary text-white rounded-[18px] rounded-br-lg shadow-[0_6px_20px_rgba(81,133,145,0.20)]"
+                      : "bg-white/80 border border-gray-100/70 text-gray-700 rounded-[18px] rounded-bl-lg shadow-[0_4px_16px_rgba(0,0,0,0.04)] backdrop-blur-sm"
                       }`}
                     style={{ wordBreak: "break-word" }}
                   >

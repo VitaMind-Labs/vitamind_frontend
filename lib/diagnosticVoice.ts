@@ -73,7 +73,7 @@ async function speakWithBrowserVoice(text: string, language: Lang) {
   const target = LANGS.find((item) => item.code === language)?.bcp47 ?? "en-US";
   const langPrefix = target.split("-")[0].toLowerCase();
   utterance.lang = target;
-  utterance.rate = language === "derja" ? 0.9 : 0.95;
+  utterance.rate = language === "ar" ? 0.9 : 0.95;
   utterance.pitch = 1;
 
   const voices = voicesLoaded ? getSpeechVoices() : await loadBrowserVoices();
@@ -90,7 +90,7 @@ async function canUseElevenLabs() {
 
   // ElevenLabs disabled by default - use browser speech synthesis
   elevenLabsEnabled = false;
-  
+
   // Uncomment below to enable ElevenLabs when API key is configured
   // try {
   //   const response = await fetch("/api/voice", { method: "GET", cache: "no-store" });
@@ -112,7 +112,7 @@ export async function speakDiagnosticText(text: string, language: Lang) {
 
   try {
     const elevenEnabled = await canUseElevenLabs();
-    
+
     if (!elevenEnabled) {
       console.log("🎙️ Using browser speech synthesis (ElevenLabs disabled or no API key)");
       await speakWithBrowserVoice(cleanText, language);
@@ -138,7 +138,7 @@ export async function speakDiagnosticText(text: string, language: Lang) {
 
     currentObjectUrl = url;
     currentAudio = audio;
-    
+
     await new Promise<void>((resolve, reject) => {
       audio.onended = () => {
         releaseCurrentAudio();

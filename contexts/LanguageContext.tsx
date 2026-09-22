@@ -23,8 +23,7 @@ const DEFAULT_LANGUAGE: Lang = "en";
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 function normalizeStoredLanguage(value: string | null): Lang {
-  const storedLanguage = value === "ar" ? "derja" : value;
-  return storedLanguage && storedLanguage in copy ? (storedLanguage as Lang) : DEFAULT_LANGUAGE;
+  return value === "ar" ? "ar" : DEFAULT_LANGUAGE;
 }
 
 function getLanguageSnapshot(): Lang {
