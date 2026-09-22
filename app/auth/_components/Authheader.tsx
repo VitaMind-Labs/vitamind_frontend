@@ -50,19 +50,13 @@ export default function AuthHeader() {
                     >
                         <Image
                             src="/logo.png"
-                            alt="VitaMind"
+                            alt="Logo"
                             width={36}
                             height={36}
                             className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
                             priority
                         />
                     </div>
-                    <span
-                        className="font-display text-[14px] sm:text-[16px] font-light tracking-[-0.02em] hidden xs:block"
-                        style={{ color: "#2c3e3b" }}
-                    >
-                        VitaMind
-                    </span>
                 </Link>
 
                 {/* Right: langue + CTA */}

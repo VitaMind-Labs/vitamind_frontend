@@ -56,7 +56,7 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
                         <div className="relative rounded-full bg-white shadow-xl p-3">
                             <Image
                                 src="/logo.png"
-                                alt="VitaMind Logo"
+                                alt="Logo"
                                 width={120}
                                 height={120}
                                 className="w-full h-full object-contain"

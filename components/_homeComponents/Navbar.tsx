@@ -67,17 +67,10 @@ export const Navbar = () => {
                 : "bg-white/60 border-white/50 shadow-[0_8px_32px_rgba(15,23,42,0.06)]"
             }`}
           >
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-primary">
+            {/* Logo — text removed per request (no VitaMind/Care near logo, both languages) */}
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-primary" aria-label="VitaMind">
               <span className="relative flex items-center justify-center rounded-2xl bg-white p-1.5 sm:p-2 shadow-sm border border-white/60">
-                <Image src="/logo.png" alt="VitaMind Logo" width={42} height={42} className="h-7 w-7 sm:h-8 sm:w-8 object-contain md:h-9 md:w-9" priority />
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1.5">
-                <span className="font-display text-[15px] font-bold tracking-tight text-[#2c3e3b]">VitaMind</span>
-                <span className="hidden lg:inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-primary">
-                  <Sparkles className="h-3 w-3" aria-hidden />
-                  {direction === "rtl" ? "عافية" : "Care"}
-                </span>
+                <Image src="/logo.png" alt="Logo" width={42} height={42} className="h-7 w-7 sm:h-8 sm:w-8 object-contain md:h-9 md:w-9" priority />
               </span>
             </Link>
 

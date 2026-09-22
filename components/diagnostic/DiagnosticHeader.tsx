@@ -77,15 +77,12 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
           <span className="relative overflow-hidden rounded-full bg-white/80 border border-white/70 p-1 sm:p-1.5 shadow-[0_4px_16px_rgba(81,133,145,0.12)] backdrop-blur-md flex items-center justify-center">
             <Image
               src="/logo.png"
-              alt="VitaMind Logo"
+              alt="Logo"
               width={36}
               height={36}
               className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-contain"
               priority
             />
-          </span>
-          <span className="hidden min-[380px]:inline font-display text-[13px] sm:text-[15px] font-bold tracking-tight text-[#2c3e3b] leading-none">
-            VitaMind
           </span>
           <span
             className="hidden min-[900px]:inline-flex items-center gap-1 rounded-full bg-primary/8 border border-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-primary"

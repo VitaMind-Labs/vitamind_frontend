@@ -162,8 +162,7 @@ export const Hero = () => {
                                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#518591] to-[#e3b01c] flex items-center justify-center">
                                             <Brain size={20} className="text-white" />
                                         </div>
-                                        <span className="font-bold text-sm">VitaMind</span>
-                                    </div>
+                                        </div>
                                     {copy.dashboard.map((item, i) => (
                                         <div key={i} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${i === 0 ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
                                             <div className="w-5 h-5 rounded-md bg-gray-200/50" />
@@ -177,8 +176,7 @@ export const Hero = () => {
                                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#518591] to-[#e3b01c] flex items-center justify-center">
                                         <Brain size={16} className="text-white" />
                                     </div>
-                                    <span className="font-bold text-sm">VitaMind</span>
-                                </div>
+                                    </div>
 
                                 {/* Zone principale */}
                                 <div className="col-span-12 md:col-span-9 space-y-4 md:space-y-6">

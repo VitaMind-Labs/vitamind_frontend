@@ -68,9 +68,9 @@ export default function Header() {
         {/* LEFT - Logo */}
         <Link href="/" className="group flex items-center gap-2 sm:gap-3 shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-primary">
           <span className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-white/20 bg-white p-1.5 sm:p-2 shadow-sm">
-            <Image src="/logo.png" alt="VitaMind Logo" width={42} height={42} className="h-7 w-7 sm:h-8 sm:w-8 object-contain md:h-9 md:w-9" priority />
+            <Image src="/logo.png" alt="Logo" width={42} height={42} className="h-7 w-7 sm:h-8 sm:w-8 object-contain md:h-9 md:w-9" priority />
           </span>
-          <span className="hidden sm:inline font-display text-sm font-bold tracking-tight text-[#2c3e3b]">VitaMind</span>
+          {/* */}
         </Link>
 
         {/* CENTER NAV */}

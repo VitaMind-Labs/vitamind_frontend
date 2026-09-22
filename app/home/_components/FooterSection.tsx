@@ -252,12 +252,7 @@ export default function FooterSection() {
                         className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
                     >
                         <div>
-                            <p
-                                className="font-display text-[clamp(28px,3vw,40px)] font-light tracking-[-0.04em]"
-                                style={{ color: "#2c3e3b" }}
-                            >
-                                VitaMind
-                            </p>
+                            
                             <span
                                 style={{
                                     backgroundImage:
