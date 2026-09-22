@@ -276,7 +276,7 @@ export function MiraChatExperience({
       </div>
 
       {!result ? (
-        <main className="relative z-10 mx-auto flex h-[100dvh] min-h-0 w-full max-w-6xl flex-col overflow-hidden px-3 sm:px-4 lg:px-6 pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[calc(5.5rem+env(safe-area-inset-top))] pb-3 sm:pb-4">
+        <main className="relative z-10 mx-auto flex h-[100dvh] min-h-0 w-full max-w-6xl flex-col overflow-y-auto overflow-x-hidden px-3 sm:px-4 lg:px-6 pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[calc(5.5rem+env(safe-area-inset-top))] pb-3 sm:pb-4">
 
           {/* ── Floating glass progress panel - enhanced ── */}
           <div className="mx-auto w-full max-w-[760px] rounded-[16px] sm:rounded-[20px] border border-white/60 bg-white/70 px-3 sm:px-5 py-3 sm:py-4 shadow-[0_8px_32px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
@@ -396,7 +396,7 @@ export function MiraChatExperience({
                 aria-live="polite"
                 aria-label={diagnostic.title}
                 tabIndex={0}
-                className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain scroll-smooth px-1 py-1 sm:space-y-4 sm:px-2 focus-visible:outline-2 focus-visible:outline-primary scrollbar-thin"
+                className="diagnostic-scroll-area min-h-[clamp(10rem,24dvh,24rem)] flex-1 space-y-3 overflow-y-auto overscroll-contain scroll-smooth rounded-[22px] border border-white/55 bg-white/20 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-[2px] sm:space-y-4 sm:px-3 focus-visible:outline-2 focus-visible:outline-primary"
               >
                 <div className="max-w-[680px] mx-auto w-full space-y-3 sm:space-y-4 pb-2">
                   {messages.length === 0 && (

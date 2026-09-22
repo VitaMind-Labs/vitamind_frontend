@@ -180,6 +180,29 @@ body {
   background: var(--color-primary-fixed);
 }
 
+.diagnostic-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(81 133 145 / 0.38) transparent;
+}
+
+.diagnostic-scroll-area::-webkit-scrollbar {
+  width: 7px;
+}
+
+.diagnostic-scroll-area::-webkit-scrollbar-track {
+  margin-block: 10px;
+}
+
+.diagnostic-scroll-area::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  background-color: rgb(81 133 145 / 0.38);
+}
+
+.diagnostic-scroll-area::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(81 133 145 / 0.62);
+}
+
 /* Selection Color */
 ::selection {
   background: var(--color-tertiary);
