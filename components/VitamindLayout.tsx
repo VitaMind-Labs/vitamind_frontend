@@ -39,10 +39,6 @@ export default function VitamindLayout({ children }: { children: ReactNode }) {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                         <HeartPulse className="h-5 w-5" />
                     </div>
-                    <div>
-                        <p className="text-lg font-bold tracking-tight">VitaMind</p>
-                        <p className="text-xs text-muted-foreground">Your wellness space</p>
-                    </div>
                 </div>
 
                 <nav className="flex-1 space-y-1 p-4" aria-label="Dashboard navigation">
@@ -89,10 +85,6 @@ export default function VitamindLayout({ children }: { children: ReactNode }) {
                     <div className="flex items-center gap-3">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                             <HeartPulse className="h-4 w-4" />
-                        </div>
-                        <div>
-                            <p className="font-bold tracking-tight">VitaMind</p>
-                            <p className="text-xs text-muted-foreground">Your wellness space</p>
                         </div>
                     </div>
                     <nav className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Dashboard navigation">

@@ -15,7 +15,7 @@ export default function Header() {
                         <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white p-2 shadow-sm">
                             <Image
                                 src="/logo.png"
-                                alt="VitaMind Logo"
+                                alt="Logo"
                                 width={42}
                                 height={42}
                                 className="h-8 w-8 object-contain md:h-9 md:w-9"

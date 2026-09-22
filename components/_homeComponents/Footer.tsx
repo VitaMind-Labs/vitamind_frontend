@@ -14,9 +14,8 @@ export const Footer = () => {
                     <div className="lg:col-span-5">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-                                <Image src="/logo.png" alt="VitaMind" width={40} height={40} className="h-full w-full object-contain" />
+                                <Image src="/logo.png" alt="Logo" width={40} height={40} className="h-full w-full object-contain" />
                             </div>
-                            <span className="font-bold text-2xl tracking-tight">VitaMind</span>
                         </div>
                         <p className="text-gray-500 leading-relaxed max-w-sm mb-8">
                             {copy.description}
