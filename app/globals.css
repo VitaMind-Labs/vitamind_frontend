@@ -1,378 +1,428 @@
 /* app/globals.css */
 @import "tailwindcss";
 
-/* =========================================================
-   PREMIUM DESIGN SYSTEM v3.0
-   Teal & Gold · Clinical Excellence · Luxury Experience
-   
-   COLOR SYSTEM:
-   🌊 Deep Teal #518591 - hsl(187,27%,40%) - Primary (trust, serenity, balance)
-   ✨ Vital Gold #e3b01c - hsl(45,93%,47%) - Accent (energy, warmth, premium)
-   ⚪ Luxury White #F0F0F0 - Background (clarity, minimalism)
-   🌿 Soft Teal #E0E0E0 - Surfaces claires
-   🎨 Muted Cyan #B0B0B0 - Cartes & sections
-   ⚫ Dark UI Text #909090 - Texte principal
-========================================================= */
-
+/*
+ * VitaMind design tokens.
+ * Color source: https://www.vitamindspace.com/ (teal #518591 / #4a7b82 / #3d6a73,
+ * ink #2c3e3b, sage #7da89e / #5a7d76, gold #e3b01c / #c49b0f, rose #b87070,
+ * surfaces #f8f9fb / #f4f6f5). Only the palette is borrowed — never layout.
+ */
 @theme {
-  /* ===== PRIMARY: Deep Teal (hsl(187,27%,40%)) ===== */
-  --color-primary: hsl(187, 27%, 40%);
+  /* ===== BRAND RAMPS ===== */
+  --color-teal-50: #f1f6f6;
+  --color-teal-100: #e3eeef;
+  --color-teal-200: #cee1e3;
+  --color-teal-300: #a9c7cb;
+  --color-teal-400: #7ea5ab;
+  --color-teal-500: #518591;
+  --color-teal-600: #4a7b82;
+  --color-teal-700: #3d6a73;
+  --color-teal-800: #2f535a;
+  --color-teal-900: #223c41;
+
+  --color-ink: #2c3e3b;
+  --color-ink-soft: #4b5d5a;
+  --color-ink-muted: #5f716e;
+  --color-ink-subtle: #8a9a97;
+
+  --color-sage: #7da89e;
+  --color-sage-50: #f2f7f5;
+  --color-sage-100: #e3eeea;
+  --color-sage-700: #5a7d76;
+
+  --color-gold: #e3b01c;
+  --color-gold-50: #fcf7e6;
+  --color-gold-100: #f8ebc2;
+  --color-gold-300: #d4b37c;
+  --color-gold-600: #c49b0f;
+  --color-gold-700: #8a6d0a;
+
+  --color-rose: #b87070;
+  --color-rose-50: #faf2f2;
+  --color-rose-100: #f3dfdf;
+  --color-rose-700: #9a4f4f;
+
+  /* ===== SURFACES & LINES ===== */
+  --color-canvas: #f8f9fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f6f5;
+  --color-line: #e4e9e8;
+  --color-line-strong: #d3dcdb;
+
+  /* ===== SEMANTIC (shadcn-compatible) ===== */
+  --color-background: #f8f9fb;
+  --color-foreground: #2c3e3b;
+  --color-card: #ffffff;
+  --color-card-foreground: #2c3e3b;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #2c3e3b;
+  --color-muted: #f4f6f5;
+  --color-muted-foreground: #5f716e;
+  --color-accent: #e3eeef;
+  --color-accent-foreground: #3d6a73;
+  --color-border: #e4e9e8;
+  --color-input: #d3dcdb;
+  --color-ring: #518591;
+
+  --color-primary: #4a7b82;
+  --color-primary-foreground: #ffffff;
   --color-on-primary: #ffffff;
-  --color-primary-container: hsl(187, 27%, 35%);
-  --color-on-primary-container: #ffffff;
-  --color-primary-fixed: hsl(187, 27%, 85%);
-  --color-primary-fixed-dim: hsl(187, 27%, 70%);
-  --color-on-primary-fixed: hsl(187, 27%, 15%);
-  --color-on-primary-fixed-variant: hsl(187, 27%, 25%);
-  --color-inverse-primary: hsl(187, 27%, 65%);
-  --color-surface-tint: hsl(187, 27%, 40%);
+  --color-secondary: #f4f6f5;
+  --color-secondary-foreground: #2c3e3b;
+  --color-tertiary: #e3b01c;
+  --color-on-tertiary: #2c3e3b;
+  --color-destructive: #9a4f4f;
+  --color-destructive-foreground: #ffffff;
 
-  /* ===== SECONDARY: Soft Teal surfaces ===== */
-  --color-secondary: #E0E0E0;
-  --color-on-secondary: hsl(187, 27%, 20%);
-  --color-secondary-container: #F0F0F0;
-  --color-on-secondary-container: hsl(187, 27%, 15%);
-  --color-secondary-fixed: #E0E0E0;
-  --color-secondary-fixed-dim: #D0D0D0;
-  --color-on-secondary-fixed: hsl(187, 27%, 15%);
-  --color-on-secondary-fixed-variant: hsl(187, 27%, 30%);
+  --color-sidebar: #ffffff;
+  --color-sidebar-foreground: #2c3e3b;
+  --color-sidebar-accent: #e3eeef;
+  --color-sidebar-accent-foreground: #3d6a73;
+  --color-sidebar-border: #e4e9e8;
+  --color-sidebar-ring: #518591;
 
-  /* ===== TERTIARY: Vital Gold (hsl(45,93%,47%)) ===== */
-  --color-tertiary: hsl(45, 93%, 47%);
-  --color-on-tertiary: #1a1c1c;
-  --color-tertiary-container: hsl(45, 93%, 85%);
-  --color-on-tertiary-container: hsl(45, 93%, 20%);
-  --color-tertiary-fixed: hsl(45, 93%, 90%);
-  --color-tertiary-fixed-dim: hsl(45, 93%, 75%);
-  --color-on-tertiary-fixed: hsl(45, 93%, 15%);
-  --color-on-tertiary-fixed-variant: hsl(45, 93%, 35%);
-
-  /* ===== SURFACE: Luxury White & Soft Teal ===== */
-  --color-background: #F0F0F0;
-  --color-on-background: #909090;
-  --color-surface: #E0E0E0;
-  --color-on-surface: #909090;
-  --color-surface-variant: #D0D0D0;
-  --color-on-surface-variant: #909090;
-  --color-surface-container-lowest: #F0F0F0;
-  --color-surface-container-low: #E8E8E8;
-  --color-surface-container: #E0E0E0;
-  --color-surface-container-high: #D8D8D8;
-  --color-surface-container-highest: #D0D0D0;
-  --color-surface-dim: #C8C8C8;
-  --color-surface-bright: #F8F8F8;
-
-  /* ===== INVERSE SURFACE (Dark mode alternative) ===== */
-  --color-inverse-surface: #909090;
-  --color-inverse-on-surface: #F0F0F0;
-  --color-inverse-primary: hsl(187, 27%, 65%);
-
-  /* ===== OUTLINE ===== */
-  --color-outline: #D0D0D0;
-  --color-outline-variant: #B0B0B0;
-
-  /* ===== ERROR ===== */
-  --color-error: #ba1a1a;
+  /* Legacy Material-style aliases still consumed by existing screens. */
+  --color-on-background: #2c3e3b;
+  --color-on-surface: #2c3e3b;
+  --color-secondary-container: #f4f6f5;
+  --color-on-secondary-container: #2c3e3b;
+  --color-outline: #d3dcdb;
+  --color-outline-variant: #e4e9e8;
+  --color-error: #9a4f4f;
   --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
+  --color-error-container: #faf2f2;
 
-  /* ===== ACCENTS PREMIUM ===== */
-  --color-gold: hsl(45, 93%, 47%);
-  --color-gold-light: hsl(45, 93%, 60%);
-  --color-gold-dark: hsl(45, 93%, 35%);
-  --color-teal: hsl(187, 27%, 40%);
-  --color-teal-light: hsl(187, 27%, 55%);
-  --color-teal-dark: hsl(187, 27%, 25%);
+  /* ===== TYPOGRAPHY ===== */
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
 
-  /* Typography - Neo-Grotesk / Modern Sans Serif */
-  --font-label-sm: 'Manrope', 'Inter', 'Plus Jakarta Sans', monospace;
-  --font-headline-xl: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
-  --font-body-md: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
-  --font-headline-lg-mobile: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
-  --font-headline-lg: 'Manrope', 'Inter', 'Plus Jakarta Sans', sans-serif;
+  --text-display: clamp(2.5rem, 4.2vw + 1rem, 4.75rem);
+  --text-display--line-height: 1.04;
+  --text-heading: clamp(2rem, 2.6vw + 1rem, 3.5rem);
+  --text-heading--line-height: 1.08;
+  --text-title: clamp(1.375rem, 0.8vw + 1.1rem, 1.75rem);
+  --text-title--line-height: 1.25;
+  --text-lead: clamp(1rem, 0.35vw + 0.9rem, 1.1875rem);
+  --text-lead--line-height: 1.7;
 
-  /* Font Sizes - Hierarchie typographique */
-  --text-hero: 30px;
-  --text-section-title: 54px;
-  --text-card-title: 20px;
-  --text-body: 16px;
-  --text-button: 14px;
+  /* ===== LAYOUT ===== */
+  --container-page: 76rem;
+  --container-reading: 42rem;
 
-  /* Font Sizes Responsive */
-  --text-hero-mobile: 56px;
-  --text-section-title-mobile: 42px;
-  --text-card-title-mobile: 18px;
-  --text-body-mobile: 14px;
-
-  /* Spacing */
-  --margin-mobile: 20px;
-  --container-max: 1280px;
-  --gutter: 24px;
-  --margin-desktop: 64px;
-  --unit: 8px;
-
-  /* Border Radius - Premium arrondis */
-  --radius-DEFAULT: 0.75rem;
+  /* Kept for existing screens (Tailwind radius scale overrides). */
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
-  --radius-full: 9999px;
+  --radius-card: 1.5rem;
+  --radius-control: 0.875rem;
+
+  /* ===== ELEVATION (ink-tinted, never pure black) ===== */
+  --shadow-xs: 0 1px 2px rgb(44 62 59 / 0.05);
+  --shadow-card: 0 1px 2px rgb(44 62 59 / 0.04), 0 8px 24px -12px rgb(44 62 59 / 0.12);
+  --shadow-raised: 0 2px 4px rgb(44 62 59 / 0.04), 0 18px 40px -18px rgb(44 62 59 / 0.22);
+  --shadow-float: 0 4px 12px rgb(44 62 59 / 0.05), 0 28px 64px -28px rgb(44 62 59 / 0.28);
+  --shadow-brand: 0 10px 24px -10px rgb(74 123 130 / 0.55);
+  --shadow-focus: 0 0 0 4px rgb(81 133 145 / 0.16);
+
+  /* ===== MOTION ===== */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Base Styles */
+/* ===== BASE ===== */
 html {
-  scroll-behavior: smooth;
+  /* Framer Motion's useScroll({ target }) measures against the document scroller; it must be non-static. */
   position: relative;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html[dir="rtl"] {
+  --font-sans: var(--font-plex-arabic), var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-plex-arabic), var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-plex-arabic), var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  position: relative;
-  font-family: var(--font-body-md);
-  font-size: var(--text-body);
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
   background-color: var(--color-background);
-  color: var(--color-on-background);
+  color: var(--color-foreground);
+  overflow-x: clip;
 }
 
-
-
-/* Material Symbols */
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
+html[dir="rtl"] body {
   letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  line-height: 1.75;
 }
 
-/* Navigation Active State */
-.active-nav {
-  font-weight: 600;
-  border-bottom: 2px solid var(--color-tertiary);
+/* Arabic script is taller and never uses tight tracking or uppercase. */
+[dir="rtl"] :is(h1, h2, h3, h4) {
+  letter-spacing: 0 !important;
+  line-height: 1.3;
 }
 
-/* Custom Scrollbar - Premium */
+[dir="rtl"] .uppercase {
+  letter-spacing: 0 !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+p,
+li {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+
+.tabular-nums,
+[data-price],
+[data-stat] {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-teal-500);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgb(227 176 28 / 0.28);
+  color: var(--color-ink);
+}
+
+/* Lenis smooth scrolling (home only). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* ===== SHARED COMPONENT CLASSES ===== */
+@layer components {
+  .page-container {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-page);
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .page-container {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .page-container {
+      padding-inline: 2rem;
+    }
+  }
+
+  .section-y {
+    padding-block: clamp(4.5rem, 8vw, 8.5rem);
+  }
+
+  /* Headline: ink lead, brand gradient on the accent phrase only. */
+  .home-heading {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+
+  .home-heading-accent,
+  .text-gradient {
+    background: linear-gradient(120deg, var(--color-ink) 0%, var(--color-teal-500) 45%, var(--color-gold-600) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    /* Keeps descenders and Arabic marks from being clipped by the text mask. */
+    padding-block: 0.06em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  /* Gradient follows reading direction: ink → teal → gold ends on the last word in Arabic too. */
+  [dir="rtl"] .home-heading-accent,
+  [dir="rtl"] .text-gradient {
+    background-image: linear-gradient(240deg, var(--color-ink) 0%, var(--color-teal-500) 45%, var(--color-gold-600) 100%);
+  }
+
+  .home-body {
+    color: var(--color-ink-muted);
+    font-size: var(--text-lead);
+    line-height: 1.7;
+  }
+
+  .home-eyebrow {
+    color: var(--color-teal-700);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .home-icon {
+    align-items: center;
+    background: var(--color-teal-50);
+    border: 1px solid var(--color-teal-100);
+    border-radius: 0.875rem;
+    color: var(--color-teal-600);
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 2.75rem;
+    justify-content: center;
+    width: 2.75rem;
+  }
+
+  .surface-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Eyebrow chip — same treatment as the landing SectionHeader. */
+  .home-eyebrow-pill {
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-teal-100);
+    border-radius: 9999px;
+    box-shadow: var(--shadow-xs);
+    display: inline-flex;
+    gap: 0.5rem;
+    padding: 0.375rem 0.875rem;
+  }
+
+  /* Frosted surface — mirrors the floating header bar for panels over a tinted canvas. */
+  .surface-glass {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: rgb(255 255 255 / 0.82);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-raised);
+  }
+
+  /* Soft teal/gold light over the canvas, shared by focused flows (auth, checkout, support). */
+  .canvas-glow {
+    background:
+      radial-gradient(55% 32rem at 50% 0%, rgb(81 133 145 / 0.12), transparent 72%),
+      radial-gradient(40% 28rem at 90% 40rem, rgb(227 176 28 / 0.07), transparent 70%),
+      radial-gradient(45% 24rem at 10% 100%, rgb(125 168 158 / 0.08), transparent 70%);
+  }
+
+  .surface-card-interactive {
+    transition:
+      transform 300ms var(--ease-out-soft),
+      box-shadow 300ms var(--ease-out-soft),
+      border-color 200ms ease;
+  }
+
+  @media (hover: hover) {
+    .surface-card-interactive:hover {
+      border-color: var(--color-line-strong);
+      box-shadow: var(--shadow-raised);
+      transform: translateY(-3px);
+    }
+  }
+
+  /* Legacy card used by dashboard screens — aligned with surface-card. */
+  .card-premium,
+  .card-cinema {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    transition:
+      transform 300ms var(--ease-out-soft),
+      box-shadow 300ms var(--ease-out-soft);
+  }
+
+  .card-premium:hover,
+  .card-cinema:hover {
+    box-shadow: var(--shadow-raised);
+    transform: translateY(-3px);
+  }
+
+  .container-premium {
+    margin-inline: auto;
+    max-width: var(--container-page);
+    padding-inline: 1.5rem;
+  }
+
+  .mood-button {
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 5.5rem;
+    transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+
+  .mood-button:hover,
+  .mood-button.selected {
+    background: var(--color-teal-50);
+    border-color: var(--color-teal-200);
+  }
+}
+
+.home-page section {
+  scroll-margin-top: 6rem;
+}
+
+/* ===== SCROLLBARS ===== */
+* {
+  scrollbar-color: rgb(81 133 145 / 0.35) transparent;
+  scrollbar-width: thin;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  height: 8px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
-  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
+  background-clip: padding-box;
+  background-color: rgb(81 133 145 / 0.35);
+  border: 2px solid transparent;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-fixed);
-}
-
-.diagnostic-scroll-area {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(81 133 145 / 0.38) transparent;
-}
-
-.diagnostic-scroll-area::-webkit-scrollbar {
-  width: 7px;
+  background-color: rgb(81 133 145 / 0.6);
 }
 
 .diagnostic-scroll-area::-webkit-scrollbar-track {
-  margin-block: 10px;
+  margin-block: 12px;
 }
 
-.diagnostic-scroll-area::-webkit-scrollbar-thumb {
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  background-color: rgb(81 133 145 / 0.38);
-}
-
-.diagnostic-scroll-area::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(81 133 145 / 0.62);
-}
-
-/* Selection Color */
-::selection {
-  background: var(--color-tertiary);
-  color: var(--color-on-tertiary);
-}
-
-/* ===== COMPONENTS UTILITIES ===== */
-@layer components {
-
-  /* Typography Components */
-  .label-sm {
-    font-family: var(--font-label-sm);
-    font-size: var(--text-button);
-    line-height: 1.4;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-    text-transform: uppercase;
-  }
-
-  .headline-xl {
-    font-family: var(--font-headline-xl);
-    font-size: var(--text-hero);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    font-weight: 700;
-  }
-
-  .body-md {
-    font-family: var(--font-body-md);
-    font-size: var(--text-body);
-    line-height: 1.6;
-    font-weight: 400;
-  }
-
-  .headline-lg-mobile {
-    font-family: var(--font-headline-lg-mobile);
-    font-size: var(--text-section-title-mobile);
-    line-height: 1.2;
-    font-weight: 700;
-  }
-
-  .headline-lg {
-    font-family: var(--font-headline-lg);
-    font-size: var(--text-section-title);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    font-weight: 700;
-  }
-
-  /* Color Utilities */
-  .bg-primary {
-    background-color: var(--color-primary);
-  }
-
-  .text-primary {
-    color: var(--color-primary);
-  }
-
-  .bg-tertiary {
-    background-color: var(--color-tertiary);
-  }
-
-  .text-tertiary {
-    color: var(--color-tertiary);
-  }
-
-  .bg-surface {
-    background-color: var(--color-surface);
-  }
-
-  .bg-background {
-    background-color: var(--color-background);
-  }
-
-  .text-on-background {
-    color: var(--color-on-background);
-  }
-
-  .text-on-surface {
-    color: var(--color-on-surface);
-  }
-
-  .text-on-primary {
-    color: var(--color-on-primary);
-  }
-
-  /* Premium Gradients */
-  .gradient-teal-gold {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
-  }
-
-  .gradient-gold-teal {
-    background: linear-gradient(135deg, var(--color-tertiary), var(--color-primary));
-  }
-
-  .gradient-premium {
-    background: linear-gradient(135deg,
-        hsl(187, 27%, 40%) 0%,
-        hsl(45, 93%, 47%) 50%,
-        hsl(187, 27%, 40%) 100%);
-  }
-
-  /* Glassmorphism Effect */
-  .glass-premium {
-    background: rgba(224, 224, 224, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(208, 208, 208, 0.2);
-  }
-
-  /* Card Styles */
-  .card-premium {
-    background: var(--color-surface-container-low);
-    border: 1px solid var(--color-outline-variant);
-    border-radius: var(--radius-xl);
-    transition: all 0.3s ease;
-  }
-
-  .card-premium:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    border-color: var(--color-tertiary);
-  }
-
-  /* Button Styles */
-  .btn-primary {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
-    color: white;
-    padding: 12px 24px;
-    border-radius: var(--radius-full);
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary:hover {
-    transform: scale(1.02);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  }
-
-  /* Container */
-  .container-premium {
-    max-width: var(--container-max);
-    margin: 0 auto;
-    padding: 0 var(--gutter);
-  }
-}
-
-/* Card Cinema - Premium card style used across pages */
-.card-cinema {
-  background: var(--color-surface-container-low);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-xl);
-  transition: all 0.3s ease;
-}
-
-.card-cinema:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border-color: var(--color-tertiary);
-}
-
-/* Missing brand utility aliases */
-.text-primary-dark {
-  color: hsl(187, 27%, 30%);
-}
-
-.bg-primary-light {
-  background-color: hsl(187, 27%, 90%);
-}
-
-/* Scrollbar hide utility */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -382,22 +432,24 @@ body {
   scrollbar-width: none;
 }
 
-/* Grain overlay texture */
-.grain-overlay {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px 256px;
-  pointer-events: none;
-}
-
-/* Responsive Breakpoints */
-@media (max-width: 768px) {
-  .container-premium {
-    padding: 0 var(--margin-mobile);
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 
-  .card-premium,
-  .card-cinema {
-    border-radius: var(--radius-lg);
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Loading spinners remain meaningful feedback. */
+  .animate-spin {
+    animation-duration: 1.2s !important;
+    animation-iteration-count: infinite !important;
   }
 }

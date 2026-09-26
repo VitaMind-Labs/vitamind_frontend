@@ -1,20 +1,20 @@
+import { AuthLayout, AuthLoading } from "@/components/auth/AuthLayout";
+import { AuthScreen } from "@/components/auth/AuthScreen";
+import { BRAND } from "@/lib/config/brand";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { AuthScreen } from "@/components/auth/AuthScreen";
-import AuthHeader from "../_components/Authheader";
 
 export const metadata: Metadata = {
-  title: "Sign in | VitaMind",
-  description: "Secure sign in experience for VitaMind users.",
+  title: `Sign in | ${BRAND.name}`,
+  description: `Secure sign in experience for ${BRAND.name} users.`,
 };
 
 export default function SignInPage() {
   return (
-    <>
-      {/* <AuthHeader /> */}
-      <Suspense fallback={null}>
+    <AuthLayout>
+      <Suspense fallback={<AuthLoading />}>
         <AuthScreen mode="signin" />
       </Suspense>
-    </>
+    </AuthLayout>
   );
 }

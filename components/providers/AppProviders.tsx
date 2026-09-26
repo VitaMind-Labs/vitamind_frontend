@@ -1,15 +1,15 @@
 "use client";
 
 import { type ReactNode } from "react";
+import { MotionConfig } from "framer-motion";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { DiseaseProvider } from "@/lib/disease-context";
+import type { Lang } from "@/lib/i18n/config";
 
-export function AppProviders({ children }: { children: ReactNode }) {
+export function AppProviders({ children, initialLanguage }: { children: ReactNode; initialLanguage: Lang }) {
   return (
-    // <SmoothScrollProvider>
-    <LanguageProvider>
-      <DiseaseProvider>{children}</DiseaseProvider>
+    <LanguageProvider initialLanguage={initialLanguage}>
+      {/* Honors prefers-reduced-motion for every Framer Motion transform. */}
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </LanguageProvider>
-    // {/* </SmoothScrollProvider> */ }
   );
 }

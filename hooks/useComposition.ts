@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { usePersistFn } from "./usePersistFn";
 
 export interface UseCompositionReturn<T extends HTMLInputElement | HTMLTextAreaElement> {
@@ -16,25 +16,24 @@ export interface UseCompositionOptions<T extends HTMLInputElement | HTMLTextArea
 
 type TimerResponse = ReturnType<typeof setTimeout>;
 
-function useRefMethod<T extends (...args: any[]) => any>(fn: T) {
-  const fnRef = useRef(fn);
-  fnRef.current = fn;
-  const persistFn = useRef<T>(null as unknown as T);
-  if (!persistFn.current) {
-    persistFn.current = ((...args: any[]) => fnRef.current(...args)) as T;
-  }
-  return persistFn.current;
-}
-
 export function useComposition<T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement>(
-  options: UseCompositionOptions<T> = {}
+  options: UseCompositionOptions<T> = {},
 ): UseCompositionReturn<T> {
   const composingRef = useRef(false);
-  const composingTimerRef = useRef<TimerResponse>(undefined);
+  const composingTimerRef = useRef<TimerResponse | undefined>(undefined);
   const optionsRef = useRef(options);
-  optionsRef.current = options;
 
-  const isComposing = useRefMethod(() => composingRef.current);
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
+  useEffect(() => {
+    return () => {
+      if (composingTimerRef.current) clearTimeout(composingTimerRef.current);
+    };
+  }, []);
+
+  const isComposing = useCallback(() => composingRef.current, []);
 
   const onCompositionStart: React.CompositionEventHandler<T> = usePersistFn((e) => {
     composingRef.current = true;
@@ -46,9 +45,7 @@ export function useComposition<T extends HTMLInputElement | HTMLTextAreaElement 
   });
 
   const onCompositionEnd: React.CompositionEventHandler<T> = usePersistFn((e) => {
-    if (composingTimerRef.current) {
-      clearTimeout(composingTimerRef.current);
-    }
+    if (composingTimerRef.current) clearTimeout(composingTimerRef.current);
     composingTimerRef.current = setTimeout(() => {
       composingRef.current = false;
     }, 0);

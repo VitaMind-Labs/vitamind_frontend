@@ -3,6 +3,22 @@
 import { useEffect, useState } from "react";
 import { gsap } from "gsap";
 
+type ScrollTriggerConfig = {
+  start?: string;
+  end?: string;
+  scrub?: number | boolean;
+  toggleActions?: string;
+  [key: string]: unknown;
+};
+
+type AnimationConfig = {
+  duration?: number;
+  stagger?: number;
+  ease?: string;
+  scrollTrigger?: ScrollTriggerConfig;
+  [key: string]: unknown;
+};
+
 export function usePerformanceOptimization() {
   const [isMobile, setIsMobile] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -69,7 +85,7 @@ export function usePerformanceOptimization() {
     };
   }, [isMobile, reducedMotion, fps]);
 
-  const optimizeAnimation = (animationConfig: any) => {
+  const optimizeAnimation = (animationConfig: AnimationConfig): AnimationConfig => {
     const optimized = { ...animationConfig };
 
     if (isMobile) {
@@ -103,7 +119,7 @@ export function usePerformanceOptimization() {
     return optimized;
   };
 
-  const createOptimizedScrollTrigger = (config: any) => {
+  const createOptimizedScrollTrigger = (config: ScrollTriggerConfig): ScrollTriggerConfig => {
     const optimizedConfig = { ...config };
 
     if (isMobile) {

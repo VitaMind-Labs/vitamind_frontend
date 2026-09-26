@@ -6,6 +6,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+type TransformProperties = Record<string, string | number>;
+type ScrollTriggerConfig = Record<string, unknown>;
+
 export function useScrollAnimation() {
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -109,8 +112,8 @@ export function useScrollAnimation() {
 
   const createTransformAnimation = (
     element: HTMLElement,
-    properties: Record<string, any>,
-    scrollTriggerConfig?: any
+    properties: TransformProperties,
+    scrollTriggerConfig?: ScrollTriggerConfig
   ) => {
     const animation = gsap.to(element, {
       ...properties,

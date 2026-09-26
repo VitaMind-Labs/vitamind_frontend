@@ -26,6 +26,10 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       wheelMultiplier: 1,
       touchMultiplier: 2,
       lerp: reduceMotion ? 1 : 0.1, // Si mouvement réduit, on désactive quasiment le lerp
+      // In-page anchors (#features…) scroll smoothly and clear the floating header.
+      anchors: { offset: -96, immediate: reduceMotion },
+      // Keep native scrolling inside nested scrollable regions (menus, dialogs).
+      prevent: (node) => node.closest("[data-lenis-prevent]") !== null,
     });
 
     lenisRef.current = lenis;
