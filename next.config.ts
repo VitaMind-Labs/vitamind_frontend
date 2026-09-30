@@ -2,6 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.6"],
+  // The Mira conversation moved from /diagnostic to /orientation (query strings are kept).
+  async redirects() {
+    return [
+      { source: "/diagnostic", destination: "/orientation", permanent: true },
+      { source: "/diagnostic/:path*", destination: "/orientation/:path*", permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

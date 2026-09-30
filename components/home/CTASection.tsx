@@ -8,6 +8,7 @@ import { ArrowRight, Check, Play, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 import { Magnetic } from "./AnimationUtilities";
+import { ROUTES } from "@/lib/config/routes";
 
 /** Closing band: the one dark moment on the page, so the final call to action lands. */
 export const CTASection = () => {
@@ -19,7 +20,7 @@ export const CTASection = () => {
     const glowY = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : -60, reduce ? 0 : 60]);
 
     return (
-        <section id="cta" className="relative bg-white py-16 md:py-24">
+        <section id="cta" className="relative bg-canvas py-16 md:py-24">
             <div className="page-container">
                 <motion.div
                     ref={ref}
@@ -60,7 +61,7 @@ export const CTASection = () => {
                         <motion.div variants={fadeUp()} className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
                             <Magnetic className="justify-center">
                                 <Button asChild size="lg" className="group min-h-13 w-full bg-white px-7 text-ink shadow-[0_18px_40px_-16px_rgb(0_0_0/0.5)] hover:bg-teal-50 hover:text-ink sm:w-auto">
-                                    <Link href="/diagnostic">
+                                    <Link href={ROUTES.orientation}>
                                         {copy.primary}
                                         <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden />
                                     </Link>

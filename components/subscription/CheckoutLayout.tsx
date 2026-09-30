@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { MinimalFooter } from "@/components/layout/MinimalFooter";
 import { SiteHeader } from "@/components/layout/site-header";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguageTransition } from "@/hooks/useLanguageTransition";
 
 type CheckoutLayoutProps = {
   backHref: string;
@@ -12,9 +13,10 @@ type CheckoutLayoutProps = {
   children: ReactNode;
 };
 
-/** Shared shell for /subscription/*: logo + Back header, calm canvas, minimal footer. */
+/** Focused shell for /subscription/*: Back · logo · language, calm canvas, a reassurance line instead of a marketing footer. */
 export function CheckoutLayout({ backHref, backLabel, footerNote, children }: CheckoutLayoutProps) {
   const { direction } = useLanguage();
+  const scope = useLanguageTransition<HTMLElement>();
 
   return (
     <div dir={direction} className="relative isolate flex min-h-dvh flex-col overflow-x-clip bg-canvas text-ink">
@@ -22,9 +24,11 @@ export function CheckoutLayout({ backHref, backLabel, footerNote, children }: Ch
 
       <SiteHeader variant="checkout" backHref={backHref} backLabel={backLabel} />
 
-      <main className="page-container flex-1 pb-16 pt-8 sm:pt-12 lg:pb-24">{children}</main>
+      <main ref={scope} className="page-container flex-1 pb-16 pt-6 sm:pt-10 lg:pb-24">
+        {children}
+      </main>
 
-      <MinimalFooter note={footerNote} className="border-t border-line" />
+      <MinimalFooter note={footerNote} showLanguage={false} className="border-t border-line" />
     </div>
   );
 }

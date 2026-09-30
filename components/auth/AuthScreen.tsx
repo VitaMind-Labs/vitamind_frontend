@@ -1,21 +1,40 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getStoredDiagnosticSessionId } from "@/features/diagnostic";
+import { clearDiagnosticClaim, fingerprintHeaders, getDiagnosticClaimToken, getStoredDiagnosticSessionId } from "@/features/diagnostic";
+import { authApi } from "@/lib/api/auth";
+import { hasValidSession, type AuthTokens } from "@/lib/api/tokens";
+import { AuthLoading } from "@/components/auth/AuthLayout";
 import { setUser } from "@/lib/storage/storage";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import { FormField, IconInput } from "@/components/shared/FormField";
-import { EASE_OUT, fadeUp, stagger } from "@/lib/motion";
+import { DURATION, EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Eye, EyeOff, Loader2, Lock, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { LogoSpinner } from "@/components/shared/LogoLoader";
 
 type AuthMode = "signin" | "signup";
+
+/**
+ * Funnel: signup → subscription → dashboard. Honour internal redirects to the
+ * subscription/payment or dashboard areas; ignore anything else (open-redirect safe).
+ */
+function safeRedirect(redirect: string | null) {
+  return redirect && /^\/(subscription|dashboard)(\/|\?|$)/.test(redirect) ? redirect : "/dashboard";
+}
+
+const noSubscribe = () => () => {};
 type FormValues = { nickname: string; email: string; phone: string; password: string; confirmPassword: string };
 type FieldName = keyof FormValues;
+
+const LINK_CLASS =
+  "rounded-md font-semibold text-teal-700 underline-offset-4 transition-colors duration-200 hover:text-teal-800 hover:underline";
 
 function VisibilityToggle({ show, toggle, label }: { show: boolean; toggle: () => void; label: string }) {
   return (
@@ -37,15 +56,23 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const { dictionary, direction } = useLanguage();
+  const { dictionary, direction, language } = useLanguage();
   const auth = dictionary.auth;
   const isSignUp = mode === "signup";
+  // Already signed in with a live session: skip the form and go straight to the patient space.
+  const signedIn = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
+
+  useEffect(() => {
+    if (signedIn) router.replace(safeRedirect(searchParams.get("redirect")));
+  }, [signedIn, router, searchParams]);
 
   const [values, setValues] = useState<FormValues>({ nickname: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
   const [errorField, setErrorField] = useState<FieldName | null>(null);
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  // UI preference only — session persistence is unchanged until the backend exposes it.
+  const [remember, setRemember] = useState(true);
 
   const set = (f: FieldName) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues(p => ({ ...p, [f]: e.target.value }));
@@ -63,21 +90,29 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 
     startTransition(() => {
       (async () => {
-        const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
         const sid = searchParams.get("sessionId") || getStoredDiagnosticSessionId();
+        const claimToken = sid ? getDiagnosticClaimToken(sid) : null;
+        const email = values.email.trim();
         try {
-          const res = await fetch(`${base.replace(/\/$/, "")}${isSignUp ? "/auth/register" : "/auth/login"}`, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(isSignUp ? { nickname: values.nickname.trim(), email: values.email.trim(), phone: values.phone.trim(), password: values.password, diagnosticSessionId: sid } : { email: values.email.trim(), password: values.password }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message ?? data.error ?? "Authentication failed");
-          if (data.user) setUser({ id: data.user.id ?? "", fullName: data.user.nickname ?? values.email.trim(), email: values.email.trim(), password: "", disease: "ADHD", createdAt: new Date().toISOString() });
-          if (data.access_token) localStorage.setItem("vitamind_token", data.access_token);
-          if (data.refresh_token) localStorage.setItem("vitamind_refresh_token", data.refresh_token);
-          if (data.user) localStorage.setItem("vitamind_user", JSON.stringify(data.user));
-          const redirect = searchParams.get("redirect");
-          router.push(redirect?.startsWith("/dashboard") ? redirect : "/dashboard");
+          let session: AuthTokens;
+          if (isSignUp) {
+            const res = await authApi.register({
+              nickname: values.nickname.trim(), email, phone: values.phone.trim(), password: values.password, lang: language,
+              diagnosticSessionId: sid, diagnosticClaimToken: claimToken,
+            });
+            session = res;
+            if (sid && res.diagnostic?.claimed) clearDiagnosticClaim(sid);
+          } else {
+            session = await authApi.login(email, values.password);
+            // Returning visitor who ran Mira anonymously: attach that session now (best-effort).
+            if (sid) {
+              await authApi.claimDiagnostic(sid, claimToken, fingerprintHeaders())
+                .then((claim) => claim.claimed && clearDiagnosticClaim(sid))
+                .catch(() => undefined);
+            }
+          }
+          if (session.user) setUser({ id: session.user.id, fullName: session.user.nickname || email, email, password: "", disease: "ADHD", createdAt: new Date().toISOString() });
+          router.push(safeRedirect(searchParams.get("redirect")));
         } catch (err) { setError(err instanceof Error ? err.message : "Authentication failed"); }
       })();
     });
@@ -86,39 +121,37 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   const fieldError = (field: FieldName) => (errorField === field ? error : null);
   const formError = error && !errorField ? error : "";
   const switchHref = isSignUp ? "/auth/signin" : "/auth/signup";
-  const switchPrompt = isSignUp ? auth.switchToSignIn : auth.switchToSignUp;
-  const switchLink = isSignUp ? auth.switchSignInLink : auth.switchSignUpLink;
+  const switchPrompt = isSignUp ? auth.switchToSignIn : auth.subtitleSignIn;
+  const switchLink = isSignUp ? auth.switchSignInLink : auth.subtitleSignInLink;
+
+  if (signedIn !== false) return <AuthLoading />;
 
   return (
-    <motion.div
+    <motion.section
       dir={direction}
-      initial={{ opacity: 0, y: 18 }}
+      aria-labelledby="auth-title"
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: EASE_OUT }}
-      className="surface-glass relative flex w-full flex-col items-center px-5 py-8 sm:px-8 sm:py-10"
+      transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: 0.1 }}
+      className="relative w-full sm:rounded-[1.75rem] sm:border sm:border-white/90 sm:bg-white/85 sm:px-9 sm:py-10 sm:shadow-raised sm:backdrop-blur-xl lg:px-10 lg:py-11"
     >
-      <div className="text-center">
-        <p className="home-eyebrow home-eyebrow-pill">
-          <ShieldCheck className="h-3.5 w-3.5 text-teal-600" aria-hidden />
+      {/* ── HEADING ──────────────────────────────────────────────────── */}
+      <header>
+        <p className="inline-flex items-center gap-1.5 rounded-full border border-teal-100 bg-teal-50/80 px-2.5 py-1 text-xs font-medium text-teal-700">
+          <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
           {auth.badge}
         </p>
-        <h1 className="home-heading mt-5 text-[clamp(1.75rem,1.4vw+1.3rem,2.25rem)] font-light">
+        <h1
+          id="auth-title"
+          className="mt-5 text-[clamp(1.75rem,1.2vw+1.4rem,2.25rem)] font-light leading-[1.15] tracking-[-0.025em] text-ink rtl:font-normal"
+        >
           {isSignUp ? auth.titleSignUpA : auth.titleSignInA}{" "}
-          <span className="home-heading-accent font-normal">{isSignUp ? auth.titleSignUpB : auth.titleSignInB}</span>
+          <span className="home-heading-accent font-normal rtl:font-medium">{isSignUp ? auth.titleSignUpB : auth.titleSignInB}</span>
         </h1>
-        <p className="mt-3 text-[0.9375rem] leading-6 text-ink-muted">
-          {isSignUp ? (
-            auth.subtitleSignUp
-          ) : (
-            <>
-              {auth.subtitleSignIn}{" "}
-              <Link href="/auth/signup" className="rounded-md font-semibold text-teal-700 underline-offset-4 hover:underline">
-                {auth.subtitleSignInLink}
-              </Link>
-            </>
-          )}
+        <p className="mt-2.5 text-[0.9375rem] leading-6 text-ink-muted">
+          {isSignUp ? auth.subtitleSignUp : auth.subtitleWelcome}
         </p>
-      </div>
+      </header>
 
       {/* ── SERVER ERROR ─────────────────────────────────────────────── */}
       <AnimatePresence initial={false}>
@@ -129,9 +162,9 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: EASE_OUT }}
-            className="w-full overflow-hidden"
+            className="overflow-hidden"
           >
-            <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-rose-100 bg-rose-50 px-3.5 py-3">
+            <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-rose-100 bg-rose-50 px-3.5 py-3">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-700" aria-hidden />
               <p className="text-[0.8125rem] leading-5 text-rose-700">{formError}</p>
             </div>
@@ -139,20 +172,20 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         )}
       </AnimatePresence>
 
-      {/* ── FORM ─────────────────────────────────────────────────────── */}
+      {/* ── PRIMARY: CREDENTIALS ─────────────────────────────────────── */}
       <motion.form
         key={mode}
         noValidate
         onSubmit={handleSubmit}
-        variants={stagger(0.05, 0.08)}
+        variants={stagger(0.05, 0.15)}
         initial="hidden"
         animate="show"
-        className="mt-8 flex w-full flex-col gap-4"
+        className="mt-7 flex flex-col gap-5"
         aria-busy={isPending}
       >
         {isSignUp && (
           <motion.div variants={fadeUp(0, 8)}>
-            <FormField id="auth-nickname" label={auth.nickname} error={fieldError("nickname")} compact>
+            <FormField id="auth-nickname" label={auth.nickname} error={fieldError("nickname")}>
               <IconInput
                 id="auth-nickname"
                 icon={UserRound}
@@ -168,7 +201,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         )}
 
         <motion.div variants={fadeUp(0, 8)}>
-          <FormField id="auth-email" label={auth.email} error={fieldError("email")} compact>
+          <FormField id="auth-email" label={auth.email} error={fieldError("email")}>
             <IconInput
               id="auth-email"
               icon={Mail}
@@ -186,7 +219,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 
         {isSignUp && (
           <motion.div variants={fadeUp(0, 8)}>
-            <FormField id="auth-phone" label={auth.phone} error={fieldError("phone")} compact>
+            <FormField id="auth-phone" label={auth.phone} error={fieldError("phone")}>
               <IconInput
                 id="auth-phone"
                 icon={Phone}
@@ -204,7 +237,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         )}
 
         <motion.div variants={fadeUp(0, 8)}>
-          <FormField id="auth-password" label={auth.password} error={fieldError("password")} compact>
+          <FormField id="auth-password" label={auth.password} error={fieldError("password")}>
             <IconInput
               id="auth-password"
               icon={Lock}
@@ -221,7 +254,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 
         {isSignUp && (
           <motion.div variants={fadeUp(0, 8)}>
-            <FormField id="auth-confirm-password" label={auth.confirmPassword} error={fieldError("confirmPassword")} compact>
+            <FormField id="auth-confirm-password" label={auth.confirmPassword} error={fieldError("confirmPassword")}>
               <IconInput
                 id="auth-confirm-password"
                 icon={Lock}
@@ -237,55 +270,87 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
           </motion.div>
         )}
 
-        <motion.div variants={fadeUp(0, 8)} className="pt-2">
-          <Button type="submit" variant="auth" size="lg" disabled={isPending} aria-busy={isPending}>
+        {!isSignUp && (
+          <motion.div variants={fadeUp(0, 8)} className="-my-1.5 flex flex-wrap items-center justify-between gap-x-4">
+            <label htmlFor="auth-remember" className="inline-flex min-h-11 cursor-pointer select-none items-center gap-2.5 text-sm text-ink-soft">
+              <Checkbox
+                id="auth-remember"
+                name="remember"
+                checked={remember}
+                onCheckedChange={(state) => setRemember(state === true)}
+                className="h-[1.125rem] w-[1.125rem] rounded-[0.3125rem] border-line-strong bg-white shadow-none transition-colors duration-200 hover:border-teal-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 data-[state=checked]:border-primary [&_svg]:h-3 [&_svg]:w-3"
+              />
+              {auth.rememberMe}
+            </label>
+            <Link href="/support" className={`${LINK_CLASS} inline-flex min-h-11 items-center text-sm font-medium`}>
+              {auth.forgotPassword}
+            </Link>
+          </motion.div>
+        )}
+
+        <motion.div variants={fadeUp(0, 8)} className="pt-1">
+          <Button
+            type="submit"
+            variant="auth"
+            size="lg"
+            disabled={isPending}
+            aria-busy={isPending}
+            className="group min-h-[3.25rem] hover:shadow-[0_14px_28px_-12px_rgb(61_106_115/0.6)]"
+          >
             {isPending ? (
               <>
-                <Loader2 className="animate-spin" aria-hidden />
+                <LogoSpinner size={18} />
                 <span>{auth.processing}</span>
               </>
             ) : (
-              <span>{isSignUp ? auth.signUpButton : auth.signInButton}</span>
+              <>
+                <span>{isSignUp ? auth.signUpButton : auth.signInButton}</span>
+                <ArrowRight
+                  className="transition-transform duration-300 ease-out-soft group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
+                  aria-hidden
+                />
+              </>
             )}
           </Button>
         </motion.div>
-
-        {!isSignUp && (
-          <>
-            <motion.div variants={fadeUp(0, 8)}>
-              <Button type="button" variant="ghost" className="w-full">
-                {auth.magicLink}
-              </Button>
-            </motion.div>
-
-            <motion.div variants={fadeUp(0, 8)} className="flex items-center gap-4" aria-hidden>
-              <span className="h-px flex-1 bg-gradient-to-r from-transparent to-line-strong rtl:bg-gradient-to-l" />
-              <span className="text-xs font-medium text-ink-subtle">{auth.or}</span>
-              <span className="h-px flex-1 bg-gradient-to-l from-transparent to-line-strong rtl:bg-gradient-to-r" />
-            </motion.div>
-
-            <motion.div variants={fadeUp(0, 8)}>
-              <Button type="button" variant="outline" size="lg" className="w-full">
-                <Icon icon="logos:google-gmail" aria-hidden="true" />
-                {auth.gmailButton}
-              </Button>
-            </motion.div>
-          </>
-        )}
-
-        <motion.p variants={fadeUp(0, 8)} className="mt-2 px-2 text-center text-xs leading-5 text-ink-muted">
-          {auth.legal}
-        </motion.p>
       </motion.form>
 
-      {isSignUp && (
-        <p className="mt-6 border-t border-line pt-5 text-center text-sm text-ink-muted">
+      {/* ── ALTERNATIVES ─────────────────────────────────────────────── */}
+      {!isSignUp && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: DURATION.base, ease: EASE_OUT, delay: 0.45 }}
+          className="mt-7"
+        >
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1 bg-line" />
+            <span className="shrink-0 text-xs font-medium text-ink-muted">{auth.altAuth}</span>
+            <Separator className="flex-1 bg-line" />
+          </div>
+          <div className="mt-5 grid gap-2.5">
+            <Button type="button" variant="outline" size="lg" className="w-full gap-3 hover:text-ink">
+              <Icon icon="logos:google-icon" aria-hidden="true" />
+              {auth.gmailButton}
+            </Button>
+            <Button type="button" variant="ghost" className="w-full text-ink-soft hover:text-teal-800">
+              <Mail aria-hidden />
+              {auth.magicLink}
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── SWITCH + LEGAL ───────────────────────────────────────────── */}
+      <footer className="mt-7 border-t border-line pt-6 text-center">
+        <p className="text-sm text-ink-muted">
           {switchPrompt}{" "}
-          <Link href={switchHref} className="rounded-md font-semibold text-teal-700 underline-offset-4 hover:underline">
+          <Link href={switchHref} className={LINK_CLASS}>
             {switchLink}
           </Link>
         </p>
-      )}
-    </motion.div>
+        <p className="mx-auto mt-3 max-w-xs text-xs leading-5 text-ink-muted">{auth.legal}</p>
+      </footer>
+    </motion.section>
   );
 }

@@ -143,7 +143,7 @@ function Reveal({ start, delay, className, children }: { start: boolean; delay: 
 /* ───────────── the app window ───────────── */
 
 /**
- * A faithful, decorative miniature of the VitaMind app used as the hero's product shot:
+ * A faithful, decorative miniature of the MindWeave app used as the hero's product shot:
  * sidebar · live Mira assessment · wellbeing overview. Everything animates once, in sequence,
  * the first time it scrolls into view.
  */
@@ -169,7 +169,7 @@ export function ProductPreview() {
                 </div>
                 <div className="mx-auto flex h-7 w-full max-w-xs items-center justify-center gap-2 rounded-lg border border-line bg-white px-3" dir="ltr">
                     <Lock className="h-3 w-3 text-sage-700" />
-                    <span className="truncate text-[0.6875rem] text-ink-muted">vitamindspace.com/diagnostic</span>
+                    <span className="truncate text-[0.6875rem] text-ink-muted">MindWeave / diagnostic</span>
                 </div>
                 <span className="hidden w-[42px] sm:block" />
             </div>

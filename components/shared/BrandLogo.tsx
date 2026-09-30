@@ -19,13 +19,13 @@ type BrandLogoProps = {
 };
 
 /**
- * The single VitaMind logo used across every header, loader and footer.
+ * The single MindWeave logo used across every header, loader and footer.
  * The artwork already carries the wordmark, so no text is rendered beside it.
  */
 export function BrandLogo({ size = "md", href = "/", className, priority = true }: BrandLogoProps) {
   const image = (
     <Image
-      src="/logo-mark.png"
+      src="/assets/logo.svg"
       alt={BRAND.name}
       width={465}
       height={368}

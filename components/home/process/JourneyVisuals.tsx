@@ -168,8 +168,10 @@ function ActionCard({ progress, index, children }: { progress: MotionValue<numbe
           <motion.path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ pathLength: tick }} />
         </svg>
       </span>
-      <span className="min-w-0 text-sm font-medium text-ink">{children}</span>
-      <span className="ms-auto text-xs tabular-nums text-ink-subtle" dir="ltr">0{index + 1}</span>
+      {/* min-w-0 laisse le flex-item se rétrécir sans forcer un wrap lettre-par-lettre,
+          truncate coupe proprement avec "…" si vraiment il n'y a pas la place */}
+      <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{children}</span>
+      <span className="ms-auto shrink-0 text-xs tabular-nums text-ink-subtle" dir="ltr">0{index + 1}</span>
     </motion.li>
   );
 }
@@ -179,9 +181,9 @@ export function ActionVisual({ progress, details }: JourneyVisualProps) {
   const orbOpacity = useTransform(progress, [0, 0.2], [0, 1]);
 
   return (
-    <div className="grid h-full w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-8 px-2 xl:gap-12">
-      <motion.div style={{ opacity: orbOpacity }} className="relative flex h-44 w-44 items-center justify-center xl:h-52 xl:w-52">
-        {/* Breathing orb — the 4-4 rhythm of a calm breath. */}
+    <div className="grid h-full w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-6 px-2">
+      {/* orb réduit et sans bump xl : il laisse maintenant ~60-70% de largeur en plus à la liste */}
+      <motion.div style={{ opacity: orbOpacity }} className="relative flex h-24 w-24 shrink-0 items-center justify-center xl:h-28 xl:w-28">
         <motion.span
           aria-hidden
           className="absolute inset-0 rounded-full bg-[radial-gradient(circle,var(--color-teal-200),transparent_70%)]"
@@ -194,11 +196,11 @@ export function ActionVisual({ progress, details }: JourneyVisualProps) {
           animate={reduce ? undefined : { scale: [0.9, 1.12, 0.9] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
-        <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-primary text-white shadow-brand">
-          <HeartPulse className="h-9 w-9" strokeWidth={1.4} aria-hidden />
+        <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-brand xl:h-12 xl:w-12">
+          <HeartPulse className="h-5 w-5 xl:h-6 xl:w-6" strokeWidth={1.4} aria-hidden />
         </span>
       </motion.div>
-      <ul className="space-y-3">
+      <ul className="min-w-0 space-y-3">
         {details.map((detail, i) => (
           <ActionCard key={detail} progress={progress} index={i}>
             {detail}

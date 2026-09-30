@@ -84,6 +84,8 @@ export function setDisease(disease: DiseaseType): void {
 }
 
 // Subscription
+export const SUBSCRIPTION_STORAGE_KEY = KEYS.SUBSCRIPTION;
+
 export function getSubscription(): SubscriptionData | null {
   return getItem<SubscriptionData | null>(KEYS.SUBSCRIPTION, null);
 }

@@ -7,6 +7,14 @@ export type MiraSafety = {
   flags: string[];
 };
 
+export type MiraAttemptState = {
+  consumed: number;
+  max: number;
+  remaining: number;
+  isLastAttempt: boolean;
+  blocked: boolean;
+};
+
 export type MiraAssessmentResult = {
   assessment_complete: boolean;
   recommended_pathway: string;

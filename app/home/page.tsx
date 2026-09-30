@@ -3,6 +3,7 @@
 import { CinematicIntro, LoadingScreen, ProgressBar } from "@/components/home";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguageTransition } from "@/hooks/useLanguageTransition";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -23,6 +24,8 @@ export default function Home() {
   const { direction } = useLanguage();
   const [phase, setPhase] = useState<Phase>("loading");
   const [initialPhaseLoaded, setInitialPhaseLoaded] = useState(false);
+  // Content re-settles on language change; the fixed header and progress bar stay outside it.
+  const contentRef = useLanguageTransition<HTMLDivElement>();
   const HOME_INTRO_STORAGE_KEY = "mindsens_home_intro_seen";
 
   useEffect(() => {
@@ -79,14 +82,16 @@ export default function Home() {
             <SmoothScrollProvider>
               <ProgressBar />
               <Header />
-              <HeroSection />
-              <StatementSection />
-              <FeaturesSection />
-              <ConditionsSection />
-              <ProcessSection />
-              <PricingSection />
-              <CTASection />
-              <FooterSection />
+              <div ref={contentRef}>
+                <HeroSection />
+                <StatementSection />
+                <FeaturesSection />
+                <ConditionsSection />
+                <ProcessSection />
+                <PricingSection />
+                <CTASection />
+                <FooterSection />
+              </div>
             </SmoothScrollProvider>
           </motion.div>
         )}

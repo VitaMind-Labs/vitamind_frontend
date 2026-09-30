@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRef, type ReactNode } from "react";
 import { Magnetic, TextReveal } from "./AnimationUtilities";
 import { ProductPreview } from "./ProductPreview";
+import { ROUTES } from "@/lib/config/routes";
 
 /** A small floating card that drifts at its own depth while the product settles. */
 function Callout({ y, className, delay, children }: { y: MotionValue<number>; className: string; delay: number; children: ReactNode }) {
@@ -85,7 +86,7 @@ export const Hero = () => {
                     <motion.div variants={fadeUp(0.55)} className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
                         <Magnetic className="justify-center">
                             <Button asChild variant="hero" size="lg" className="group min-h-13 w-full px-7 sm:w-auto">
-                                <Link href="/diagnostic">
+                                <Link href={ROUTES.orientation}>
                                     {copy.primary}
                                     <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden />
                                 </Link>

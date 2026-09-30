@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 /*
- * VitaMind design tokens.
- * Color source: https://www.vitamindspace.com/ (teal #518591 / #4a7b82 / #3d6a73,
+ * MindWeave design tokens.
+ * Core palette: teal #518591 / #4a7b82 / #3d6a73,
  * ink #2c3e3b, sage #7da89e / #5a7d76, gold #e3b01c / #c49b0f, rose #b87070,
  * surfaces #f8f9fb / #f4f6f5). Only the palette is borrowed — never layout.
  */
@@ -108,6 +108,8 @@
 
   /* ===== LAYOUT ===== */
   --container-page: 76rem;
+  /* The Mira conversation uses the screen: rail + pane, without wide empty margins. */
+  --container-chat: 112rem;
   --container-reading: 42rem;
 
   /* Kept for existing screens (Tailwind radius scale overrides). */
@@ -115,6 +117,7 @@
   --radius-xl: 1.5rem;
   --radius-card: 1.5rem;
   --radius-control: 0.875rem;
+  --radius-panel: 1.75rem;
 
   /* ===== ELEVATION (ink-tinted, never pure black) ===== */
   --shadow-xs: 0 1px 2px rgb(44 62 59 / 0.05);
@@ -123,10 +126,272 @@
   --shadow-float: 0 4px 12px rgb(44 62 59 / 0.05), 0 28px 64px -28px rgb(44 62 59 / 0.28);
   --shadow-brand: 0 10px 24px -10px rgb(74 123 130 / 0.55);
   --shadow-focus: 0 0 0 4px rgb(81 133 145 / 0.16);
+  /* Soft 3D: a top-edge highlight over a wide, low-contrast drop. */
+  --shadow-soft: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 1px 2px rgb(44 62 59 / 0.04), 0 12px 32px -18px rgb(44 62 59 / 0.16);
+  --shadow-soft-hover: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 2px 6px rgb(44 62 59 / 0.05), 0 24px 48px -24px rgb(44 62 59 / 0.24);
+  --shadow-inset: inset 0 1px 2px rgb(44 62 59 / 0.06), inset 0 0 0 1px rgb(44 62 59 / 0.03);
 
   /* ===== MOTION ===== */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* shadcn Accordion open/close. */
+  --animate-accordion-down: accordion-down 320ms var(--ease-out-soft);
+  --animate-accordion-up: accordion-up 220ms var(--ease-out-soft);
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+
+    to {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+}
+
+/*
+ * ===== PATIENT TRACK THEMES =====
+ * The signed-in patient app tints itself to the patient's track (set on <html data-track>).
+ * Each palette is chosen to lower arousal rather than to decorate:
+ *  - default / unspecified : the brand teal + sage aurora;
+ *  - ADHD                  : clear, cool sky-blue with mint and a touch of peach (calm focus);
+ *  - BIPOLAR               : dusk lavender with soft teal and sand (steadying, low stimulation);
+ *  - SCHIZOPHRENIA / PSYCHOSIS : quiet sage, fog and linen, very low contrast and NO drifting motion.
+ * The teal ramp and the primary/ring tokens are overridden on <html>, so modals and popovers,
+ * which render outside the app shell, pick the palette up too.
+ */
+:root {
+  --lm-base: #f8f9fb;
+  --lm-g1: rgb(126 165 171 / 0.28);
+  --lm-g2: rgb(227 176 28 / 0.1);
+  --lm-g3: rgb(184 112 112 / 0.09);
+  --lm-g4: rgb(125 168 158 / 0.2);
+  --lm-rail-a: #223c41;
+  --lm-rail-b: #1a2d31;
+  --lm-hero-mid: #e3eeea;
+  --lm-hero-warm: rgb(248 235 194 / 0.85);
+}
+
+html[data-track="ADHD"] {
+  --color-teal-50: #f0f6fa;
+  --color-teal-100: #dfeaf3;
+  --color-teal-200: #c5d9ea;
+  --color-teal-300: #9fbfd8;
+  --color-teal-400: #77a1c2;
+  --color-teal-500: #5583ab;
+  --color-teal-600: #4a7398;
+  --color-teal-700: #3d5f80;
+  --color-teal-800: #314d68;
+  --color-teal-900: #243a4e;
+  --color-primary: #4a7398;
+  --color-ring: #5583ab;
+  --color-accent: #dfeaf3;
+  --color-accent-foreground: #3d5f80;
+  --lm-base: #f5f8fb;
+  --lm-g1: rgb(110 165 205 / 0.3);
+  --lm-g2: rgb(240 200 160 / 0.17);
+  --lm-g3: rgb(170 180 235 / 0.15);
+  --lm-g4: rgb(140 200 180 / 0.22);
+  --lm-rail-a: #1f3a52;
+  --lm-rail-b: #16283a;
+  --lm-hero-mid: #e2efee;
+  --lm-hero-warm: rgb(255 231 205 / 0.8);
+}
+
+html[data-track="BIPOLAR"] {
+  --color-teal-50: #f4f3fa;
+  --color-teal-100: #e8e6f4;
+  --color-teal-200: #d5d1ea;
+  --color-teal-300: #b7b0d8;
+  --color-teal-400: #9a91c4;
+  --color-teal-500: #7f78ae;
+  --color-teal-600: #6c6699;
+  --color-teal-700: #585381;
+  --color-teal-800: #464268;
+  --color-teal-900: #35324f;
+  --color-primary: #6c6699;
+  --color-ring: #7f78ae;
+  --color-accent: #e8e6f4;
+  --color-accent-foreground: #585381;
+  --lm-base: #f7f6fb;
+  --lm-g1: rgb(165 155 215 / 0.3);
+  --lm-g2: rgb(235 210 175 / 0.15);
+  --lm-g3: rgb(200 160 190 / 0.11);
+  --lm-g4: rgb(120 170 180 / 0.2);
+  --lm-rail-a: #37335c;
+  --lm-rail-b: #232a45;
+  --lm-hero-mid: #e6eaf1;
+  --lm-hero-warm: rgb(243 228 236 / 0.85);
+}
+
+html[data-track="SCHIZOPHRENIA"],
+html[data-track="PSYCHOSIS"] {
+  --color-teal-50: #f3f7f5;
+  --color-teal-100: #e4ede9;
+  --color-teal-200: #cddcd5;
+  --color-teal-300: #aec6bc;
+  --color-teal-400: #8eaea2;
+  --color-teal-500: #6f9587;
+  --color-teal-600: #5f8275;
+  --color-teal-700: #4f6b60;
+  --color-teal-800: #40564d;
+  --color-teal-900: #31433c;
+  --color-primary: #5f8275;
+  --color-ring: #6f9587;
+  --color-accent: #e4ede9;
+  --color-accent-foreground: #4f6b60;
+  --lm-base: #f6f8f6;
+  --lm-g1: rgb(150 185 170 / 0.26);
+  --lm-g2: rgb(235 225 205 / 0.2);
+  --lm-g3: rgb(185 200 220 / 0.16);
+  --lm-g4: rgb(170 190 180 / 0.2);
+  --lm-rail-a: #2f423d;
+  --lm-rail-b: #22302c;
+  --lm-hero-mid: #e9efeb;
+  --lm-hero-warm: rgb(245 238 222 / 0.85);
+}
+
+/* No drifting motion behind patients who may be sensitive to it. */
+html[data-track="SCHIZOPHRENIA"] .lm-canvas::before,
+html[data-track="PSYCHOSIS"] .lm-canvas::before {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lm-canvas::before {
+    animation: none;
+  }
+}
+
+/* ===== MOOD ATMOSPHERES =====
+ * The mood a patient picks (check-in, journal) re-colours the space around them:
+ * the stage's light and the brand ramp inside it, so buttons, rings and chips all
+ * follow. Scoped to [data-mood] subtrees — never the whole app. Level 3 ("okay")
+ * keeps the brand teal. Registered colours let the light cross-fade.
+ */
+@property --mood-a { syntax: "<color>"; inherits: true; initial-value: #e3eeef; }
+@property --mood-b { syntax: "<color>"; inherits: true; initial-value: #e3eeea; }
+@property --mood-c { syntax: "<color>"; inherits: true; initial-value: #f8ebc2; }
+
+[data-mood] {
+  --mood-a: #e3eeef;
+  --mood-b: #e3eeea;
+  --mood-c: #f8ebc2;
+}
+
+/* Low: a soft dusk — lavender and mist, slow and quiet. */
+[data-mood="1"] {
+  --mood-a: #e4e1f3;
+  --mood-b: #dfe6f1;
+  --mood-c: #f1e4ea;
+  --color-teal-50: #f4f3fa;
+  --color-teal-100: #e8e6f4;
+  --color-teal-200: #d5d1ea;
+  --color-teal-300: #b7b0d8;
+  --color-teal-400: #9a91c4;
+  --color-teal-500: #7f78ae;
+  --color-teal-600: #6c6699;
+  --color-teal-700: #585381;
+  --color-teal-800: #464268;
+  --color-teal-900: #35324f;
+  --color-primary: #6c6699;
+  --color-ring: #7f78ae;
+  --color-accent: #e8e6f4;
+  --shadow-brand: 0 10px 24px -10px rgb(108 102 153 / 0.55);
+}
+
+/* A little low: rain-washed blue, gentle and clear. */
+[data-mood="2"] {
+  --mood-a: #dce9f2;
+  --mood-b: #e6eef3;
+  --mood-c: #ece8f3;
+  --color-teal-50: #f0f6fa;
+  --color-teal-100: #dfeaf3;
+  --color-teal-200: #c5d9ea;
+  --color-teal-300: #9fbfd8;
+  --color-teal-400: #77a1c2;
+  --color-teal-500: #5583ab;
+  --color-teal-600: #4a7398;
+  --color-teal-700: #3d5f80;
+  --color-teal-800: #314d68;
+  --color-teal-900: #243a4e;
+  --color-primary: #4a7398;
+  --color-ring: #5583ab;
+  --color-accent: #dfeaf3;
+  --shadow-brand: 0 10px 24px -10px rgb(74 115 152 / 0.55);
+}
+
+/* Good: fresh sage with a warm edge of morning light. */
+[data-mood="4"] {
+  --mood-a: #dcebe4;
+  --mood-b: #f6ecd0;
+  --mood-c: #e6f0e4;
+  --color-teal-50: #f2f7f4;
+  --color-teal-100: #e1eee7;
+  --color-teal-200: #c8e0d3;
+  --color-teal-300: #a3c9b4;
+  --color-teal-400: #7fae95;
+  --color-teal-500: #5f937a;
+  --color-teal-600: #4f7f68;
+  --color-teal-700: #416a56;
+  --color-teal-800: #345546;
+  --color-teal-900: #284236;
+  --color-primary: #4f7f68;
+  --color-ring: #5f937a;
+  --color-accent: #e1eee7;
+  --shadow-brand: 0 10px 24px -10px rgb(79 127 104 / 0.55);
+}
+
+/* Very good: golden hour — warm amber and peach, bright but never loud. */
+[data-mood="5"] {
+  --mood-a: #fbe8b8;
+  --mood-b: #fbdcc8;
+  --mood-c: #e8f1e3;
+  --color-teal-50: #fdf8ec;
+  --color-teal-100: #faefd2;
+  --color-teal-200: #f4dea5;
+  --color-teal-300: #e9c46f;
+  --color-teal-400: #d9a93f;
+  --color-teal-500: #b98522;
+  --color-teal-600: #9c6f1a;
+  --color-teal-700: #825c16;
+  --color-teal-800: #684913;
+  --color-teal-900: #4f3810;
+  --color-primary: #9c6f1a;
+  --color-ring: #b98522;
+  --color-accent: #faefd2;
+  --shadow-brand: 0 10px 24px -10px rgb(156 111 26 / 0.5);
+}
+
+/* Lumina's drifting light stays still for patients sensitive to motion. */
+html[data-track="SCHIZOPHRENIA"] :is(.lm-mote, .lm-orbit),
+html[data-track="PSYCHOSIS"] :is(.lm-mote, .lm-orbit) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.lm-mote, .lm-orbit) {
+    animation: none;
+  }
+
+  .lm-mood-stage {
+    transition: none;
+  }
 }
 
 /* ===== BASE ===== */
@@ -237,6 +502,63 @@ html.lenis body {
     padding-block: clamp(4.5rem, 8vw, 8.5rem);
   }
 
+  /* One-sided variants: sections that hand off to a neighbour on the same surface. */
+  .section-pt {
+    padding-top: clamp(4.5rem, 8vw, 8.5rem);
+  }
+
+  .section-pb {
+    padding-bottom: clamp(4.5rem, 8vw, 8.5rem);
+  }
+
+  /* Small uppercase label shared by features, conditions, steps and plans. */
+  .home-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  /* Arabic letters must stay joined: no tracking on labels. */
+  [dir="rtl"] :is(.home-eyebrow, .home-label) {
+    letter-spacing: 0;
+  }
+
+  /* Quiet bordered surface — depth comes from the border, not a shadow. */
+  .home-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+
+  /* Fading hairline that opens a tinted section — the page's section transition. */
+  .home-divider {
+    background: linear-gradient(90deg, transparent, var(--color-line-strong) 20%, var(--color-line-strong) 80%, transparent);
+    height: 1px;
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+  }
+
+  /* Underline that draws in from the reading edge. */
+  .home-link-line {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    transition: background-size 300ms var(--ease-out-soft);
+  }
+
+  [dir="rtl"] .home-link-line {
+    background-position: 100% 100%;
+  }
+
+  :is(a, button):is(:hover, :focus-visible)>.home-link-line {
+    background-size: 100% 1px;
+  }
+
   /* Headline: ink lead, brand gradient on the accent phrase only. */
   .home-heading {
     color: var(--color-ink);
@@ -323,6 +645,27 @@ html.lenis body {
     box-shadow: var(--shadow-raised);
   }
 
+  /* Orientation (Mira) — a translucent pane over the misted canvas: rail and conversation. */
+  .orientation-glass {
+    backdrop-filter: blur(22px) saturate(1.15);
+    -webkit-backdrop-filter: blur(22px) saturate(1.15);
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.5));
+    border: 1px solid rgb(255 255 255 / 0.85);
+    border-radius: 1.75rem;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      0 1px 2px rgb(44 62 59 / 0.04),
+      0 24px 60px -32px rgb(44 62 59 / 0.28);
+  }
+
+  /* A quieter tile nested inside `.orientation-glass` (progress, focus, suggestions). */
+  .orientation-tile {
+    background: rgb(255 255 255 / 0.58);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-soft);
+  }
+
   /* Soft teal/gold light over the canvas, shared by focused flows (auth, checkout, support). */
   .canvas-glow {
     background:
@@ -370,22 +713,719 @@ html.lenis body {
     padding-inline: 1.5rem;
   }
 
+  .mood-tracker {
+    display: grid;
+    gap: clamp(0.375rem, 1.5vw, 0.75rem);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
   .mood-button {
     align-items: center;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 0.875rem;
+    background: linear-gradient(180deg, var(--color-surface), var(--color-surface-muted));
+    border: 1px solid var(--color-line);
+    border-radius: 1.125rem;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), var(--shadow-xs);
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-height: 5.5rem;
-    transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+    transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
   }
 
   .mood-button:hover,
   .mood-button.selected {
     background: var(--color-teal-50);
     border-color: var(--color-teal-200);
+  }
+
+  .mood-button.selected {
+    border-color: var(--color-teal-500);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), var(--shadow-focus);
+  }
+
+  /* ===== DASHBOARD ===== */
+
+  .dash-canvas {
+    background-color: var(--color-canvas);
+    background-image:
+      radial-gradient(60% 36rem at 85% -6rem, rgb(81 133 145 / 0.1), transparent 70%),
+      radial-gradient(40% 28rem at 0% 100%, rgb(125 168 158 / 0.08), transparent 70%);
+  }
+
+  .dash-sidebar {
+    background: rgb(255 255 255 / 0.9);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .dash-nav-link {
+    align-items: center;
+    border-radius: 0.875rem;
+    color: var(--color-ink-muted);
+    display: flex;
+    font-size: 0.875rem;
+    font-weight: 500;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.875rem;
+    transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .dash-nav-link:hover {
+    background: var(--color-surface-muted);
+    color: var(--color-ink);
+  }
+
+  /* Mobile: compact pills in a scrollable row. */
+  .dash-pill {
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    box-shadow: var(--shadow-xs);
+    color: var(--color-ink-muted);
+    display: inline-flex;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    min-height: 2.5rem;
+    padding-inline: 1rem;
+    transition: background-color 200ms ease, color 200ms ease;
+    white-space: nowrap;
+  }
+
+  :is(.dash-nav-link, .dash-pill)[aria-current="page"] {
+    background: linear-gradient(145deg, var(--color-teal-500), var(--color-teal-700));
+    border-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), var(--shadow-brand);
+    color: var(--color-primary-foreground);
+  }
+
+  .dash-section-title {
+    color: var(--color-ink);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+
+  /* Elevated dashboard card. */
+  .card-wellness {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: clamp(1.25rem, 0.9rem + 1vw, 1.75rem);
+    position: relative;
+    transition:
+      transform 300ms var(--ease-out-soft),
+      box-shadow 300ms var(--ease-out-soft),
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+
+  @media (hover: hover) {
+    .card-interactive:hover {
+      border-color: var(--color-line-strong);
+      box-shadow: var(--shadow-soft-hover);
+      transform: translateY(-2px);
+    }
+  }
+
+  /* Quiet card for archived items (past appointments). */
+  .card-quiet {
+    background: var(--color-surface-muted);
+    box-shadow: var(--shadow-xs);
+  }
+
+  /* Status bar on the reading edge of a card. */
+  .card-accent {
+    overflow: hidden;
+  }
+
+  .card-accent::before {
+    background: linear-gradient(180deg, var(--color-teal-500), var(--color-teal-700));
+    content: "";
+    inset-block: 0;
+    inset-inline-start: 0;
+    position: absolute;
+    width: 4px;
+  }
+
+  /* Light teal/gold halo in a card corner. */
+  .card-halo {
+    background-image:
+      radial-gradient(22rem 12rem at 100% 0%, rgb(81 133 145 / 0.1), transparent 70%),
+      radial-gradient(16rem 10rem at 0% 100%, rgb(227 176 28 / 0.07), transparent 70%);
+  }
+
+  [dir="rtl"] .card-halo {
+    background-image:
+      radial-gradient(22rem 12rem at 0% 0%, rgb(81 133 145 / 0.1), transparent 70%),
+      radial-gradient(16rem 10rem at 100% 100%, rgb(227 176 28 / 0.07), transparent 70%);
+  }
+
+  /* The single brand-filled highlight card per screen. */
+  .card-feature {
+    background:
+      radial-gradient(28rem 16rem at 100% 0%, rgb(255 255 255 / 0.14), transparent 60%),
+      linear-gradient(140deg, var(--color-teal-600), var(--color-teal-700) 55%, var(--color-teal-800));
+    border-color: var(--color-teal-700);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 24px 48px -24px rgb(47 83 90 / 0.55);
+    color: var(--color-primary-foreground);
+  }
+
+  /* Tactile icon tile — tone set by a modifier. */
+  .stat-tile {
+    --tile: var(--color-teal-600);
+    align-items: center;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--tile) 72%, white), var(--tile));
+    border-radius: 0.875rem;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 8px 16px -8px color-mix(in srgb, var(--tile) 70%, transparent);
+    color: var(--color-primary-foreground);
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 2.75rem;
+    justify-content: center;
+    width: 2.75rem;
+  }
+
+  .stat-tile-sage {
+    --tile: var(--color-sage-700);
+  }
+
+  .stat-tile-gold {
+    --tile: var(--color-gold-600);
+  }
+
+  .stat-tile-rose {
+    --tile: var(--color-rose-700);
+  }
+
+  .stat-value {
+    color: var(--color-ink);
+    font-size: clamp(1.5rem, 1.2rem + 0.8vw, 1.875rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  /* Recessed area for chart content. */
+  .chart-well {
+    background-color: var(--color-surface-muted);
+    background-image:
+      linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(227 238 239 / 0.45)),
+      linear-gradient(to bottom, transparent calc(100% - 1px), rgb(44 62 59 / 0.05) 1px);
+    background-size: 100% 100%, 100% 3rem;
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-inset);
+  }
+
+  /* Row inside a card: entries, goals, therapists, achievements. */
+  .list-row {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    padding: 1rem;
+    transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  @media (hover: hover) {
+    .list-row:hover {
+      background: rgb(241 246 246 / 0.6);
+      border-color: var(--color-teal-200);
+      box-shadow: var(--shadow-xs);
+    }
+  }
+
+  .chip {
+    align-items: center;
+    background: var(--color-teal-50);
+    border: 1px solid var(--color-teal-100);
+    border-radius: 9999px;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8);
+    color: var(--color-teal-700);
+    display: inline-flex;
+    font-size: 0.75rem;
+    font-weight: 500;
+    gap: 0.25rem;
+    line-height: 1.4;
+    padding: 0.25rem 0.625rem;
+    white-space: nowrap;
+  }
+
+  .chip-success {
+    background: var(--color-sage-50);
+    border-color: var(--color-sage-100);
+    color: var(--color-sage-700);
+  }
+
+  .chip-pending {
+    background: var(--color-gold-50);
+    border-color: var(--color-gold-100);
+    color: var(--color-gold-700);
+  }
+
+  .progress-track {
+    background: var(--color-surface-muted);
+    border-radius: 9999px;
+    box-shadow: var(--shadow-inset);
+    height: 0.5rem;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .progress-fill {
+    background-color: var(--color-primary);
+    background-image: linear-gradient(180deg, rgb(255 255 255 / 0.25), transparent);
+    border-radius: inherit;
+    height: 100%;
+  }
+
+  /* Pill track holding tab-like buttons. */
+  .segmented {
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    box-shadow: var(--shadow-inset);
+    display: flex;
+    gap: 0.25rem;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0.25rem;
+    scrollbar-width: none;
+    width: fit-content;
+  }
+
+  /* ===== LUMINA — patient app design system =====
+   * One system for the six patient screens: an aurora canvas built from the brand
+   * teal / sage / gold / rose, restrained glass, and a dark teal navigation rail.
+   */
+  .lm-canvas {
+    background-color: var(--lm-base);
+    background-image:
+      radial-gradient(48rem 30rem at 92% -8rem, var(--lm-g1), transparent 70%),
+      radial-gradient(38rem 26rem at 8% 0%, var(--lm-g2), transparent 70%),
+      radial-gradient(44rem 30rem at 100% 78%, var(--lm-g3), transparent 70%),
+      radial-gradient(40rem 28rem at 0% 100%, var(--lm-g4), transparent 70%);
+    background-attachment: fixed;
+    isolation: isolate;
+    position: relative;
+  }
+
+  /* A slow, breathing wash of the track's colours: soothing, never busy. */
+  .lm-canvas::before {
+    animation: lm-drift 52s ease-in-out infinite alternate;
+    background:
+      radial-gradient(34rem 26rem at 20% 30%, var(--lm-g1), transparent 70%),
+      radial-gradient(30rem 24rem at 80% 70%, var(--lm-g4), transparent 70%),
+      radial-gradient(26rem 20rem at 60% 15%, var(--lm-g2), transparent 70%);
+    content: "";
+    filter: blur(28px);
+    inset: -12%;
+    opacity: 0.85;
+    pointer-events: none;
+    position: fixed;
+    z-index: -1;
+  }
+
+  .lm-rail {
+    background:
+      radial-gradient(18rem 14rem at 100% 0%, var(--lm-g1), transparent 70%),
+      linear-gradient(180deg, var(--lm-rail-a), var(--lm-rail-b));
+    border: 1px solid rgb(255 255 255 / 0.06);
+    border-radius: var(--radius-panel);
+    box-shadow: 0 24px 48px -24px rgb(34 60 65 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.08);
+    color: rgb(255 255 255 / 0.72);
+  }
+
+  .lm-nav-link {
+    align-items: center;
+    border-radius: 0.875rem;
+    color: rgb(255 255 255 / 0.66);
+    display: flex;
+    font-size: 0.875rem;
+    font-weight: 500;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.875rem;
+    position: relative;
+    transition: background-color 200ms ease, color 200ms ease, transform 200ms var(--ease-out-soft);
+  }
+
+  .lm-nav-link:hover {
+    background: rgb(255 255 255 / 0.07);
+    color: #fff;
+  }
+
+  .lm-nav-link[aria-current="page"] {
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.06));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 8px 20px -10px rgb(0 0 0 / 0.5);
+    color: #fff;
+  }
+
+  .lm-nav-link:focus-visible,
+  .lm-tab:focus-visible {
+    outline: 2px solid var(--color-teal-300);
+    outline-offset: 2px;
+  }
+
+  /* Glass surface — used sparingly, always over the aurora canvas. */
+  .lm-glass {
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    backdrop-filter: blur(18px) saturate(1.35);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.58));
+    border: 1px solid rgb(255 255 255 / 0.8);
+    border-radius: var(--radius-card);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.95), 0 1px 2px rgb(44 62 59 / 0.04), 0 20px 44px -24px rgb(44 62 59 / 0.24);
+  }
+
+  .lm-card {
+    padding: clamp(1.25rem, 0.85rem + 1vw, 1.75rem);
+    position: relative;
+    transition: transform 300ms var(--ease-out-soft), box-shadow 300ms var(--ease-out-soft), background-color 200ms ease;
+  }
+
+  @media (hover: hover) {
+    .lm-card-lift:hover {
+      box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 2px 6px rgb(44 62 59 / 0.05), 0 26px 50px -24px rgb(44 62 59 / 0.3);
+      transform: translateY(-3px);
+    }
+  }
+
+  /* The one aurora hero per screen. */
+  .lm-hero {
+    background:
+      radial-gradient(22rem 14rem at 88% 8%, rgb(255 255 255 / 0.55), transparent 65%),
+      radial-gradient(26rem 16rem at 0% 100%, var(--lm-g2), transparent 70%),
+      radial-gradient(24rem 16rem at 100% 100%, var(--lm-g3), transparent 70%),
+      linear-gradient(135deg, var(--color-teal-100), var(--lm-hero-mid) 55%, var(--lm-hero-warm));
+    border: 1px solid rgb(255 255 255 / 0.8);
+    border-radius: var(--radius-card);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 24px 48px -26px rgb(61 106 115 / 0.4);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .lm-eyebrow {
+    color: var(--color-teal-700);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  [dir="rtl"] .lm-eyebrow {
+    letter-spacing: 0;
+  }
+
+  .lm-tab {
+    align-items: center;
+    border-radius: 9999px;
+    color: var(--color-ink-muted);
+    display: inline-flex;
+    font-size: 0.875rem;
+    font-weight: 500;
+    gap: 0.4rem;
+    min-height: 2.5rem;
+    padding-inline: 1rem;
+    transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    white-space: nowrap;
+  }
+
+  .lm-tab[aria-selected="true"],
+  .lm-tab[aria-pressed="true"] {
+    background: var(--color-surface);
+    box-shadow: var(--shadow-soft);
+    color: var(--color-teal-800);
+  }
+
+  /* Lumina's presence: a soft, breathing orb. Size comes from --orb. */
+  .lm-orb {
+    --orb: 3rem;
+    background:
+      radial-gradient(circle at 32% 28%, #fff 0, rgb(255 255 255 / 0.85) 8%, transparent 32%),
+      radial-gradient(circle at 70% 78%, rgb(227 176 28 / 0.55), transparent 55%),
+      radial-gradient(circle at 25% 80%, rgb(184 112 112 / 0.45), transparent 55%),
+      radial-gradient(circle at 50% 50%, var(--color-teal-400), var(--color-teal-600) 70%, var(--color-teal-800));
+    border-radius: 9999px;
+    box-shadow: inset 0 -6px 14px rgb(34 60 65 / 0.3), 0 0 calc(var(--orb) * 0.7) rgb(126 165 171 / 0.5);
+    flex-shrink: 0;
+    height: var(--orb);
+    position: relative;
+    width: var(--orb);
+  }
+
+  .lm-orb-breathe {
+    animation: lm-breathe 6s ease-in-out infinite;
+  }
+
+  .lm-bubble-lumina {
+    background: rgb(255 255 255 / 0.85);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    border-radius: 1.25rem;
+    border-start-start-radius: 0.375rem;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .lm-bubble-user {
+    background: linear-gradient(145deg, var(--color-teal-500), var(--color-teal-700));
+    border-radius: 1.25rem;
+    border-end-end-radius: 0.375rem;
+    box-shadow: var(--shadow-brand);
+    color: #fff;
+  }
+
+  .lm-skeleton {
+    background: linear-gradient(100deg, rgb(226 236 235 / 0.7) 30%, rgb(255 255 255 / 0.9) 50%, rgb(226 236 235 / 0.7) 70%);
+    background-size: 220% 100%;
+    animation: lm-shimmer 1.6s ease-in-out infinite;
+    border-radius: 0.75rem;
+  }
+
+  .lm-ring-track {
+    stroke: rgb(44 62 59 / 0.08);
+  }
+
+  /* Colour-following range slider (ScaleSlider). */
+  .lm-range {
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(90deg, var(--range-color) var(--pct), rgb(44 62 59 / 0.1) var(--pct));
+    border-radius: 9999px;
+    cursor: pointer;
+    height: 0.625rem;
+    outline: none;
+    width: 100%;
+  }
+
+  .lm-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #fff;
+    border: 3px solid var(--range-color);
+    border-radius: 9999px;
+    box-shadow: 0 4px 12px -2px rgb(44 62 59 / 0.35);
+    height: 1.75rem;
+    transition: transform 160ms var(--ease-out-soft);
+    width: 1.75rem;
+  }
+
+  .lm-range::-moz-range-thumb {
+    background: #fff;
+    border: 3px solid var(--range-color);
+    border-radius: 9999px;
+    box-shadow: 0 4px 12px -2px rgb(44 62 59 / 0.35);
+    height: 1.75rem;
+    width: 1.75rem;
+  }
+
+  .lm-range:active::-webkit-slider-thumb {
+    transform: scale(1.12);
+  }
+
+  .lm-range:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgb(81 133 145 / 0.3);
+  }
+
+  /* Lumina's mark: a white disc with a thin gold rim, and a warm halo behind it. */
+  .lm-logo-disc {
+    background: radial-gradient(circle at 34% 26%, #fff, #f6f8f8 72%);
+    box-shadow: 0 0 0 1.5px rgb(227 176 28 / 0.38), 0 14px 30px -14px rgb(47 83 90 / 0.5), inset 0 1px 0 #fff;
+  }
+
+  .lm-logo-halo {
+    background: radial-gradient(circle, rgb(227 176 28 / 0.32), rgb(81 133 145 / 0.16) 48%, transparent 72%);
+    filter: blur(10px);
+    pointer-events: none;
+  }
+
+  /* Page header shared by every patient screen. */
+  .lm-page-icon {
+    align-items: center;
+    background: linear-gradient(145deg, #fff, var(--color-teal-50));
+    border: 1px solid rgb(255 255 255 / 0.9);
+    border-radius: 0.875rem;
+    box-shadow: 0 8px 18px -10px rgb(47 83 90 / 0.45), inset 0 1px 0 #fff;
+    color: var(--color-teal-700);
+    display: inline-flex;
+    height: 2.25rem;
+    justify-content: center;
+    width: 2.25rem;
+  }
+
+  /* Lumina's conversation space: a quiet aurora, warm light from above where she sits. */
+  .lm-sanctuary {
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    backdrop-filter: blur(20px) saturate(1.3);
+    background:
+      radial-gradient(40rem 24rem at 50% -8rem, rgb(248 235 194 / 0.6), transparent 70%),
+      radial-gradient(40rem 26rem at 108% 108%, var(--lm-g1), transparent 70%),
+      radial-gradient(36rem 24rem at -8% 100%, var(--lm-g4), transparent 70%),
+      linear-gradient(180deg, rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.58));
+    border: 1px solid rgb(255 255 255 / 0.85);
+    border-radius: var(--radius-panel);
+    box-shadow: inset 0 1px 0 #fff, 0 30px 60px -34px rgb(44 62 59 / 0.38);
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Drifting motes of light — the star from Lumina's logo, scattered and slow. */
+  .lm-mote {
+    animation: lm-mote 18s ease-in-out infinite;
+    background: radial-gradient(circle, rgb(255 244 214 / 0.95), rgb(227 176 28 / 0.35) 45%, rgb(227 176 28 / 0) 72%);
+    border-radius: 9999px;
+    filter: blur(1px);
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+  }
+
+  /* A slow gold orbit around Lumina's mark in the empty conversation. */
+  .lm-orbit {
+    animation: lm-orbit 48s linear infinite;
+    border: 1.5px dashed rgb(227 176 28 / 0.45);
+    border-radius: 9999px;
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .lm-orbit-soft {
+    animation-direction: reverse;
+    animation-duration: 70s;
+    border: 1px solid rgb(81 133 145 / 0.16);
+  }
+
+  .lm-starter {
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.66));
+    border: 1px solid rgb(255 255 255 / 0.95);
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 2px rgb(44 62 59 / 0.04), 0 14px 30px -22px rgb(44 62 59 / 0.35);
+    transition: transform 300ms var(--ease-out-soft), box-shadow 300ms var(--ease-out-soft), border-color 200ms ease;
+  }
+
+  @media (hover: hover) {
+    .lm-starter:hover {
+      border-color: var(--color-teal-200);
+      box-shadow: 0 2px 6px rgb(44 62 59 / 0.05), 0 22px 40px -22px rgb(44 62 59 / 0.4);
+      transform: translateY(-3px);
+    }
+  }
+
+  /* The mood stage: the light behind the check-in and the journal page. */
+  .lm-mood-stage {
+    background:
+      radial-gradient(40rem 26rem at 100% 0%, var(--mood-a), transparent 72%),
+      radial-gradient(38rem 26rem at 0% 100%, var(--mood-b), transparent 72%),
+      radial-gradient(30rem 20rem at 25% 0%, var(--mood-c), transparent 72%),
+      radial-gradient(26rem 18rem at 100% 100%, var(--mood-c), transparent 72%),
+      linear-gradient(180deg, rgb(255 255 255 / 0.62), rgb(255 255 255 / 0.4));
+    border: 1px solid rgb(255 255 255 / 0.85);
+    border-radius: var(--radius-panel);
+    box-shadow: inset 0 1px 0 #fff, 0 26px 56px -32px rgb(44 62 59 / 0.32);
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+    transition: --mood-a 1.1s ease, --mood-b 1.1s ease, --mood-c 1.1s ease;
+  }
+
+  /* A journal page: soft ruled lines under the words, a margin in the day's colour. */
+  .lm-paper {
+    background-color: rgb(255 255 255 / 0.88);
+    background-image:
+      linear-gradient(90deg, transparent 2.75rem, color-mix(in srgb, var(--color-teal-300) 55%, transparent) 2.75rem, color-mix(in srgb, var(--color-teal-300) 55%, transparent) calc(2.75rem + 1px), transparent calc(2.75rem + 1px)),
+      repeating-linear-gradient(180deg, transparent 0, transparent calc(2rem - 1px), rgb(44 62 59 / 0.07) calc(2rem - 1px), rgb(44 62 59 / 0.07) 2rem);
+    background-position: 0 0, 0 0.9rem;
+    border: 1px solid rgb(255 255 255 / 0.95);
+    border-radius: 1.25rem;
+    box-shadow: inset 0 1px 0 #fff, 0 16px 34px -24px rgb(44 62 59 / 0.35);
+    line-height: 2rem;
+    padding: 0.9rem 1.25rem 1rem 3.5rem;
+  }
+
+  [dir="rtl"] .lm-paper {
+    background-image:
+      linear-gradient(270deg, transparent 2.75rem, color-mix(in srgb, var(--color-teal-300) 55%, transparent) 2.75rem, color-mix(in srgb, var(--color-teal-300) 55%, transparent) calc(2.75rem + 1px), transparent calc(2.75rem + 1px)),
+      repeating-linear-gradient(180deg, transparent 0, transparent calc(2rem - 1px), rgb(44 62 59 / 0.07) calc(2rem - 1px), rgb(44 62 59 / 0.07) 2rem);
+    padding: 0.9rem 3.5rem 1rem 1.25rem;
+  }
+
+  .lm-paper:focus-within {
+    box-shadow: inset 0 1px 0 #fff, 0 0 0 4px color-mix(in srgb, var(--color-teal-400) 18%, transparent), 0 16px 34px -24px rgb(44 62 59 / 0.35);
+  }
+
+  /* A slowly breathing circle for the "before you write" ritual. */
+  .lm-breath {
+    background: radial-gradient(circle at 40% 35%, #fff, var(--color-teal-100) 55%, var(--color-teal-200));
+    border-radius: 9999px;
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-teal-200) 35%, transparent), 0 14px 30px -14px rgb(47 83 90 / 0.4);
+  }
+
+  @keyframes lm-mote {
+    0%, 100% { opacity: 0.35; transform: translate3d(0, 0, 0) scale(1); }
+    50% { opacity: 0.95; transform: translate3d(14px, -28px, 0) scale(1.15); }
+  }
+
+  @keyframes lm-orbit {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes lm-drift {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); }
+    to { transform: translate3d(2%, 2%, 0) scale(1.06); }
+  }
+
+  @keyframes lm-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+
+  @keyframes lm-shimmer {
+    from { background-position: 120% 0; }
+    to { background-position: -120% 0; }
+  }
+
+  @keyframes lm-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes lm-pulse-ring {
+    0% { opacity: 0.55; transform: scale(0.9); }
+    100% { opacity: 0; transform: scale(1.7); }
+  }
+
+  .lm-rise {
+    animation: lm-rise 480ms var(--ease-out-soft) both;
+  }
+}
+
+/*
+ * Soft field for dashboard inputs and textareas. Declared as a utility so it
+ * wins over the base Input's shape; padding stays with the element.
+ */
+@layer utilities {
+  .field-soft {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-control);
+    box-shadow: inset 0 1px 2px rgb(44 62 59 / 0.05);
+    min-height: 2.75rem;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .field-soft:hover {
+    border-color: var(--color-teal-300);
+  }
+
+  .field-soft:focus-visible {
+    border-color: var(--color-teal-500);
+    box-shadow: inset 0 1px 2px rgb(44 62 59 / 0.05), var(--shadow-focus);
+    outline: none;
   }
 }
 
@@ -432,6 +1472,56 @@ html.lenis body {
   scrollbar-width: none;
 }
 
+/* ===== PRINT (downloaded orientation report) ===== */
+@media print {
+  /* The dark result hero prints as a clean ink-on-white header. */
+  .result-hero {
+    background: #fff !important;
+    border: 1px solid var(--color-line);
+    box-shadow: none !important;
+    color: var(--color-ink) !important;
+  }
+
+  /* Meter bars keep their own print:bg-* colours. */
+  .result-hero :is(p, h1, span):not([role="meter"] span) {
+    color: var(--color-ink) !important;
+    border-color: var(--color-line) !important;
+    background-color: transparent !important;
+  }
+
+  .surface-card,
+  .rounded-card {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Weekly report: print only the open report (body gets .printing-report first). */
+  body.printing-report > *:not(:has([data-patient-modal])) {
+    display: none !important;
+  }
+
+  body.printing-report [data-patient-overlay] {
+    display: none !important;
+  }
+
+  body.printing-report [data-patient-modal] {
+    display: block !important;
+    padding: 0 !important;
+    position: static !important;
+  }
+
+  body.printing-report [data-patient-modal] > * {
+    backdrop-filter: none !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    max-height: none !important;
+    max-width: none !important;
+    overflow: visible !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+}
+
 /* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -448,8 +1538,45 @@ html.lenis body {
   }
 
   /* Loading spinners remain meaningful feedback. */
-  .animate-spin {
+  .animate-spin,
+  .vm-loader-mark {
     animation-duration: 1.2s !important;
     animation-iteration-count: infinite !important;
   }
+
+  /* Under reduced motion the logo loader only breathes softly (no float, no halo). */
+  .vm-loader-mark {
+    animation-name: vm-loader-fade !important;
+    animation-duration: 1.8s !important;
+  }
+  .vm-loader-halo {
+    display: none;
+  }
+}
+
+/* ── 3D logo loader (components/shared/LogoLoader.tsx) ── */
+.vm-loader-mark {
+  animation: vm-loader-float 1.8s var(--ease-out-soft) infinite;
+  will-change: transform, opacity;
+}
+
+.vm-loader-halo {
+  background: radial-gradient(circle, rgb(227 176 28 / 0.28), rgb(81 133 145 / 0.2) 50%, transparent 72%);
+  animation: vm-loader-halo 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes vm-loader-float {
+  0%, 100% { opacity: 0.82; transform: translateY(0) scale(0.94); }
+  50% { opacity: 1; transform: translateY(-7%) scale(1.03); }
+}
+
+@keyframes vm-loader-halo {
+  0% { opacity: 0.7; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+
+@keyframes vm-loader-fade {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }

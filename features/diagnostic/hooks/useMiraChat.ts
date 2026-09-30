@@ -1,14 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { copy, type Lang } from "@/lib/i18n/config";
-import type { MiraAssessmentResult, MiraChapter, MiraMessage, MiraSafety } from "../types";
+import { copy, LANGUAGE_STORAGE_KEY, normalizeLanguage, type Lang } from "@/lib/i18n/config";
+import type { MiraAssessmentResult, MiraAttemptState, MiraChapter, MiraMessage, MiraSafety } from "../types";
+import { deriveChapter } from "../lib/chapters";
+import { fingerprintHeaders } from "../lib/fingerprint";
+import { storeDiagnosticClaimToken, storeDiagnosticSessionId } from "../lib/session";
 
 type StartResponse = {
   session_id: string;
   chapter: MiraChapter;
   assistant_message: string;
   language: Lang;
+  attempt?: MiraAttemptState;
+  /** One-time proof used to attach this anonymous session at signup. */
+  claim_token?: string;
 };
 
 type SendResponse = {
@@ -33,28 +39,69 @@ type SessionResponse = {
   language: Lang;
 };
 
+type HistoryResponse = {
+  session_id: string;
+  status: "ACTIVE" | "COMPLETED" | "ABANDONED" | "EXPIRED" | "BLOCKED";
+  language: Lang;
+  result: MiraAssessmentResult | null;
+  completed: boolean;
+  reportedAt: string | null;
+  messages: Array<{ role: "user" | "assistant"; content: string; chapter?: MiraChapter | null; chapterProgress?: number | null; createdAt: string }>;
+};
+
+/**
+ * The visitor's language preference at session start. During hydration the language
+ * context briefly reports the server (cookie) value, which can differ from the stored
+ * preference; auto-starting then would open the conversation in the wrong language.
+ */
+function preferredLanguage(fallback: Lang): Lang {
+  try {
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return stored ? normalizeLanguage(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/** What the visitor sees Mira doing while a reply is on its way. */
+export type MiraPhase = "reading" | "reflecting" | "typing";
+
+const READING_MS = 650;
+const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+
+/**
+ * Human-paced reply: a short "typing" beat scaled to the reply's length. When the
+ * service was already slow, the visitor has waited enough — only a brief beat remains.
+ */
+function typingDelay(text: string, waitedMs: number) {
+  const natural = Math.min(2600, Math.max(900, 450 + text.length * 11));
+  return waitedMs > 2500 ? Math.min(natural, 600) : Math.max(350, natural - waitedMs * 0.5);
+}
+
 function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+/** All Mira proxy calls carry the client fingerprint so anti-abuse can key on it. */
+function fpInit(init: RequestInit = {}): RequestInit {
+  return { ...init, headers: { ...(init.headers as Record<string, string>), ...fingerprintHeaders() } };
 }
 
 /**
  * useMiraChat — ACTIVE diagnostic hook.
  *
- * Talks REST-only to the Next proxy `/api/mira` (actions: start | message),
- * which forwards to Nest `MiraController` (`/mira/*`), which forwards to the
- * official Mira AI service (`/api/v1/mira/*`).
- *
- * It never uses the legacy processing-phase path: no socket.io `/chat`
- * namespace, no `POST /api/chat` button flow, no `show_report`/`question_id`
- * payloads. That legacy flow stays implemented in `useDiagnosticChat` +
- * `ChatExperience`/`ChatResult` as preserved-but-inactive code.
+ * REST-only to the Next proxy `/api/mira` (start | message | finalize + history/attempts),
+ * which forwards to Nest `MiraController` (/api/v1/mira/*), which forwards to the official Mira AI service.
+ * Mira's reasoning is never touched; chapter display is derived from progress here.
  */
-export function useMiraChat(chatId?: string | null, lang: Lang = "en") {
+/** API code: the caller is a signed-in patient, who has already completed the orientation. */
+export const ORIENTATION_COMPLETED = "ORIENTATION_COMPLETED";
+
+export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked = false }: { locked?: boolean } = {}) {
   const errors = copy[lang].diagnostic.errors;
   const storageKey = chatId ? `vitamind-mira-session:${chatId}` : null;
   const [messages, setMessages] = useState<MiraMessage[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [chapter, setChapter] = useState<MiraChapter>("MORNING");
   const [progress, setProgress] = useState(0);
   const [isSending, setIsSending] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
@@ -64,10 +111,25 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en") {
   const [result, setResult] = useState<MiraAssessmentResult | null>(null);
   const [sessionLanguage, setSessionLanguage] = useState<Lang | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
+  const [attempt, setAttempt] = useState<MiraAttemptState | null>(null);
+  const [blocked, setBlocked] = useState(false);
+  // Patients have already completed their orientation: no session is started or continued.
+  const [completed, setCompleted] = useState(locked);
+  const [isFinalizing, setIsFinalizing] = useState(false);
+  const [phase, setPhase] = useState<MiraPhase | null>(null);
 
   const sessionRef = useRef<string | null>(null);
   const sessionLanguageRef = useRef<Lang | null>(null);
   const startedRef = useRef(false);
+  const lockedRef = useRef(locked);
+  // Read at restore time only: a language switch must not re-run the restore effect.
+  const langRef = useRef(lang);
+  useEffect(() => {
+    langRef.current = lang;
+  }, [lang]);
+
+  // Chapter shown in the UI is derived from progress (the agent keeps its own at MORNING).
+  const chapter = deriveChapter(progress, { complete: Boolean(result), urgent: safety.level === "urgent" });
 
   const pushAssistant = useCallback((content: string, msgChapter?: MiraChapter) => {
     setMessages((prev) => [
@@ -77,26 +139,48 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en") {
   }, []);
 
   const start = useCallback(async (requestedLanguage: Lang = lang) => {
-    if (startedRef.current || isStarting) return;
+    if (startedRef.current || isStarting || lockedRef.current) return;
     startedRef.current = true;
     setIsStarting(true);
     setIsBotTyping(true);
+    setPhase("reflecting");
     setError(null);
+    const sentAt = performance.now();
     try {
-      const response = await fetch("/api/mira", {
+      const response = await fetch("/api/mira", fpInit({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "start", language: requestedLanguage }),
-      });
-      const data = (await response.json()) as StartResponse & { error?: string };
-      if (!response.ok) throw new Error(data.error || copy[requestedLanguage].diagnostic.errors.start);
+      }));
+      const data = (await response.json()) as StartResponse & { error?: string; code?: string; attempt?: MiraAttemptState };
+      if (response.ok) {
+        setPhase("typing");
+        await sleep(typingDelay(data.assistant_message ?? "", performance.now() - sentAt));
+      }
+      if (!response.ok) {
+        if (data.code === ORIENTATION_COMPLETED) {
+          lockedRef.current = true;
+          setCompleted(true);
+          return;
+        }
+        if (data.code === "ATTEMPTS_EXHAUSTED") {
+          setBlocked(true);
+          if (data.attempt) setAttempt(data.attempt);
+          startedRef.current = true; // stay blocked; don't auto-retry
+          return;
+        }
+        throw new Error(data.error || copy[requestedLanguage].diagnostic.errors.start);
+      }
       sessionRef.current = data.session_id;
       sessionLanguageRef.current = data.language;
       setSessionLanguage(data.language);
       setSessionReady(true);
+      setBlocked(false);
+      if (data.attempt) setAttempt(data.attempt);
       if (storageKey) window.localStorage.setItem(storageKey, data.session_id);
+      storeDiagnosticSessionId(data.session_id);
+      if (data.claim_token) storeDiagnosticClaimToken(data.session_id, data.claim_token);
       setSessionId(data.session_id);
-      setChapter(data.chapter);
       setProgress(0);
       pushAssistant(data.assistant_message, data.chapter);
     } catch (err) {
@@ -105,68 +189,121 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en") {
     } finally {
       setIsStarting(false);
       setIsBotTyping(false);
+      setPhase(null);
     }
   }, [isStarting, lang, pushAssistant, storageKey]);
 
+  // Restore an existing session (refresh / return): rebuild the FULL transcript from the
+  // database, not just the last message, and route completed sessions to their report.
   useEffect(() => {
+    if (lockedRef.current) return;
     const storedSessionId = storageKey ? window.localStorage.getItem(storageKey) : null;
     if (!storedSessionId) {
-      window.setTimeout(() => void start(), 0);
+      window.setTimeout(() => void start(preferredLanguage(langRef.current)), 0);
       return;
     }
     sessionRef.current = storedSessionId;
-    window.setTimeout(() => setSessionReady(false), 0);
-    window.setTimeout(() => setSessionId(storedSessionId), 0);
     startedRef.current = true;
-    void fetch(`/api/mira?sessionId=${encodeURIComponent(storedSessionId)}`, { cache: "no-store" })
-      .then(async (response) => {
-        const data = (await response.json()) as SessionResponse & { error?: string };
-        if (!response.ok) throw new Error(data.error || "session expired, please restart");
-        sessionLanguageRef.current = data.language;
-        setSessionLanguage(data.language);
-        setSessionReady(true);
-        setChapter(data.chapter);
-        setProgress(data.chapter_progress);
-        setSafety(data.safety);
-        if (data.assistant_message && data.assessment_complete === false) {
-          setMessages([{ id: uid("mira-resync"), role: "assistant", content: data.assistant_message, chapter: data.chapter, createdAt: new Date().toISOString() }]);
+
+    (async () => {
+      try {
+        // 1) Durable transcript + status from Postgres (works even if the agent forgot the session).
+        const historyRes = await fetch(`/api/mira?resource=history&sessionId=${encodeURIComponent(storedSessionId)}`, fpInit({ cache: "no-store" }));
+        const history = (await historyRes.json()) as HistoryResponse & { error?: string };
+        if (!historyRes.ok) throw new Error(history.error || "session expired");
+        setSessionId(storedSessionId);
+
+        sessionLanguageRef.current = history.language;
+        setSessionLanguage(history.language);
+
+        const restored: MiraMessage[] = history.messages.map((m) => ({
+          id: uid("hist"),
+          role: m.role,
+          content: m.content,
+          chapter: (m.chapter as MiraChapter) ?? undefined,
+          createdAt: m.createdAt,
+        }));
+        if (restored.length > 0) setMessages(restored);
+        const lastProgress = history.messages.reduce((acc, m) => (typeof m.chapterProgress === "number" ? m.chapterProgress : acc), 0);
+        setProgress(history.completed ? 1 : lastProgress);
+
+        if (history.completed && history.result) {
+          // Completed sessions never drop the visitor back into the chat flow.
+          setResult(history.result);
+          setSessionReady(true);
+          return;
         }
-        if (data.complete && data.result) setResult(data.result);
-      })
-      .catch(() => {
+
+        // 2) Confirm the agent can still resume this ACTIVE session (live safety/progress).
+        const liveRes = await fetch(`/api/mira?sessionId=${encodeURIComponent(storedSessionId)}`, fpInit({ cache: "no-store" }));
+        const live = (await liveRes.json()) as SessionResponse & { error?: string };
+        if (liveRes.ok) {
+          setProgress(live.chapter_progress);
+          setSafety(live.safety);
+          if (restored.length === 0 && live.assistant_message && live.assessment_complete === false) {
+            setMessages([{ id: uid("mira-resync"), role: "assistant", content: live.assistant_message, chapter: live.chapter, createdAt: new Date().toISOString() }]);
+          }
+          if (live.complete && live.result) setResult(live.result);
+          setSessionReady(true);
+        } else if (restored.length > 0) {
+          // Agent lost the session but we still have the transcript: show it, disable sending.
+          setSessionReady(false);
+          setError(errors.send);
+        } else {
+          throw new Error(live.error || "session expired");
+        }
+      } catch {
         if (storageKey) window.localStorage.removeItem(storageKey);
         sessionRef.current = null;
         sessionLanguageRef.current = null;
         setSessionLanguage(null);
         setSessionReady(false);
         setSessionId(null);
+        setMessages([]);
         startedRef.current = false;
         void start();
-      });
-  }, [start, storageKey]);
+      }
+    })();
+  }, [start, storageKey, errors.send]);
 
   const sendMessage = useCallback(
     async (content: string) => {
       const text = content.trim();
       const sid = sessionRef.current;
       const requestLanguage = sessionLanguageRef.current;
-      if (!text || !sid || !requestLanguage || !sessionReady || isSending || result) return;
+      if (!text || !sid || !requestLanguage || !sessionReady || isSending || result || lockedRef.current) return;
       setIsSending(true);
       setIsBotTyping(true);
+      setPhase("reading");
       setError(null);
+      const localId = uid("local");
       setMessages((prev) => [
         ...prev,
-        { id: uid("local"), role: "user", content: text, chapter, createdAt: new Date().toISOString() },
+        { id: localId, role: "user", content: text, chapter, createdAt: new Date().toISOString() },
       ]);
+      const sentAt = performance.now();
+      const reflectTimer = window.setTimeout(() => setPhase("reflecting"), READING_MS);
       try {
-        const response = await fetch("/api/mira", {
+        const response = await fetch("/api/mira", fpInit({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "message", sessionId: sid, text, language: requestLanguage }),
-        });
-        const data = (await response.json()) as SendResponse & { error?: string };
+        }));
+        const data = (await response.json()) as SendResponse & { error?: string; code?: string };
+        if (!response.ok && data.code === ORIENTATION_COMPLETED) {
+          lockedRef.current = true;
+          setCompleted(true);
+          setSessionReady(false);
+          setMessages((prev) => prev.filter((m) => m.id !== localId)); // it was never delivered
+          return;
+        }
         if (!response.ok) throw new Error(data.error || data.assistant_message || errors.send);
-        setChapter(data.chapter);
+        // Always read for a beat before "typing", then type for a length-proportional beat.
+        const waited = performance.now() - sentAt;
+        if (waited < READING_MS) await sleep(READING_MS - waited);
+        window.clearTimeout(reflectTimer);
+        setPhase("typing");
+        await sleep(typingDelay(data.assistant_message, performance.now() - sentAt));
         setProgress(data.chapter_progress);
         setSafety(data.safety);
         pushAssistant(data.assistant_message, data.chapter);
@@ -174,20 +311,46 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en") {
       } catch (err) {
         setError(err instanceof Error ? err.message : errors.send);
       } finally {
+        window.clearTimeout(reflectTimer);
         setIsSending(false);
         setIsBotTyping(false);
+        setPhase(null);
       }
     },
     [chapter, errors.send, isSending, pushAssistant, result, sessionReady],
   );
 
+  /** Finalize ("download report"): consumes one attempt. Idempotent; safe to call once per download. */
+  const finalize = useCallback(async (): Promise<MiraAttemptState | null> => {
+    const sid = sessionRef.current;
+    if (!sid) return null;
+    setIsFinalizing(true);
+    try {
+      const response = await fetch("/api/mira", fpInit({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "finalize", sessionId: sid }),
+      }));
+      const data = (await response.json()) as { attempt?: MiraAttemptState };
+      if (response.ok && data.attempt) {
+        setAttempt(data.attempt);
+        return data.attempt;
+      }
+    } catch {
+      /* finalize is best-effort from the client's perspective; the DB stamp is what counts */
+    } finally {
+      setIsFinalizing(false);
+    }
+    return null;
+  }, []);
+
   const restart = useCallback((nextLanguage?: Lang) => {
+    if (lockedRef.current) return;
     sessionRef.current = null;
     sessionLanguageRef.current = null;
     startedRef.current = false;
     setMessages([]);
     setSessionId(null);
-    setChapter("MORNING");
     setProgress(0);
     setSafety({ level: "routine", flags: [] });
     setResult(null);
@@ -207,11 +370,19 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en") {
     isSending,
     isBotTyping,
     isStarting,
+    isFinalizing,
+    /** Current pacing beat while Mira prepares a reply (null when idle). */
+    phase,
     error,
     safety,
     result,
+    attempt,
+    blocked,
+    /** Signed-in patient: orientation already completed, the chat is locked. */
+    completed,
     assessmentComplete: Boolean(result),
     sendMessage,
+    finalize,
     restart,
   };
 }

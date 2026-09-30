@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { DiagnosticHeader } from "./DiagnosticHeader";
+import { OrientationBackdrop } from "./OrientationBackdrop";
+import { OrientationSkeleton } from "./OrientationSkeleton";
 import { MiraChatExperience } from "./MiraChatExperience";
 import { createChatId } from "../lib/chat";
-import { ensureDiagnosticSession } from "../lib/session";
 import type { Lang } from "@/lib/i18n/config";
+import { ROUTES } from "@/lib/config/routes";
+import { hasValidSession } from "@/lib/api/tokens";
+
+const noSubscribe = () => () => {};
 
 export function DiagnosticPageClient() {
   const router = useRouter();
@@ -20,43 +23,28 @@ export function DiagnosticPageClient() {
     searchParams.get("sessionID") ||
     searchParams.get("diagnostic") ||
     searchParams.get("session");
-  const { dictionary, language } = useLanguage();
-  const diagnosticText = dictionary.diagnostic;
   const [languageSwitch, setLanguageSwitch] = useState<{ id: number; language: Lang } | null>(null);
+  // A signed-in patient has already completed the orientation (read after mount: the token
+  // lives in localStorage). Known before the chat mounts, so no session is ever started.
+  const isPatient = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
 
   useEffect(() => {
     if (chatId) return;
 
     const params = new URLSearchParams(searchParams.toString());
     params.set("chatId", createChatId());
-    router.replace(`/diagnostic?${params.toString()}`);
+    router.replace(`${ROUTES.orientation}?${params.toString()}`);
   }, [chatId, router, searchParams]);
 
-  useEffect(() => {
-    if (!chatId) return;
-
-    void ensureDiagnosticSession(chatId, language).catch((error) => {
-      console.warn("Diagnostic session could not be persisted yet", error);
-    });
-  }, [chatId, language]);
-
-  if (!chatId) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-surface-muted px-4" role="status">
-        <div className="inline-flex items-center gap-3 rounded-full border border-line bg-white px-5 py-3 text-sm font-medium text-ink shadow-card sm:px-6">
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-teal-600" aria-hidden />
-          <span className="text-center leading-snug">{diagnosticText.preparing || "Preparing your diagnostic session…"}</span>
-        </div>
-      </div>
-    );
-  }
+  if (!chatId || isPatient === null) return <OrientationSkeleton />;
 
   return (
     // One viewport-tall column: shared header in flow, experience fills the rest and owns the only scroll area.
-    <div className="flex h-dvh flex-col overflow-hidden bg-surface-muted">
+    <div className="relative flex h-dvh flex-col overflow-hidden">
+      <OrientationBackdrop />
       <DiagnosticHeader chatId={chatId} onLanguageChange={(nextLanguage) => setLanguageSwitch({ id: Date.now(), language: nextLanguage })} />
-      {/* ACTIVE: Mira v5 flow (REST /api/mira → Nest /mira/* → ai-service /api/v1/mira/*). */}
-      <MiraChatExperience chatId={chatId} languageSwitch={languageSwitch} />
+      {/* ACTIVE: Mira v5 flow (REST /api/mira → Nest /api/v1/mira/* → Mira agent /api/v1/mira/*). */}
+      <MiraChatExperience chatId={chatId} languageSwitch={languageSwitch} locked={isPatient} />
     </div>
   );
 }

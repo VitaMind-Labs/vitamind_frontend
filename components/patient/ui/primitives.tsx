@@ -1,0 +1,115 @@
+"use client";
+
+import Link from "next/link";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
+import { AlertCircle, Inbox, LockKeyhole, type LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { usePatientCopy } from "@/hooks/usePatientCopy";
+import { cn } from "@/lib/utils";
+
+/** Restrained glass over the aurora canvas. `lift` adds the hover raise for clickable cards. */
+export function GlassCard({
+  as: Tag = "section",
+  lift = false,
+  className,
+  ...props
+}: { as?: "section" | "div" | "aside" | "article"; lift?: boolean } & HTMLAttributes<HTMLElement>) {
+  return <Tag className={cn("lm-glass lm-card", lift && "lm-card-lift", className)} {...props} />;
+}
+
+/** Lumina's presence — a soft breathing orb. */
+export function LuminaOrb({ size = 48, breathe = true, className }: { size?: number; breathe?: boolean; className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn("lm-orb", breathe && "lm-orb-breathe", className)}
+      style={{ "--orb": `${size}px` } as CSSProperties}
+    />
+  );
+}
+
+export function Skeleton({ className, style }: { className?: string; style?: CSSProperties }) {
+  return <div aria-hidden className={cn("lm-skeleton", className)} style={style} />;
+}
+
+export function SectionTitle({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+  return (
+    <div className="mb-5 flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h2 className="text-[1.0625rem] font-semibold leading-snug tracking-tight text-ink sm:text-lg">{title}</h2>
+        {subtitle && <p className="mt-0.5 text-[0.8125rem] leading-snug text-muted-foreground">{subtitle}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+/**
+ * The one header every patient screen opens with: a small eyebrow with the screen's icon,
+ * the title, a line of context and (on the end edge) the screen's own actions.
+ */
+export function PageIntro({
+  title,
+  subtitle,
+  action,
+  eyebrow,
+  icon: Icon,
+  className,
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  action?: ReactNode;
+  eyebrow?: string;
+  icon?: LucideIcon;
+  className?: string;
+}) {
+  return (
+    <header className={cn("mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4", className)}>
+      <div className="min-w-0">
+        {eyebrow && (
+          <p className="lm-eyebrow mb-2.5 flex items-center gap-2.5">
+            {Icon && <span className="lm-page-icon"><Icon className="size-4" aria-hidden /></span>}
+            {eyebrow}
+          </p>
+        )}
+        <h1 className="text-[clamp(1.5rem,1.1rem+1.4vw,2.125rem)] font-semibold leading-tight tracking-tight text-ink">{title}</h1>
+        {subtitle && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-[0.9375rem]">{subtitle}</p>}
+      </div>
+      {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
+    </header>
+  );
+}
+
+export function EmptyState({ icon: Icon = Inbox, title, body, action }: { icon?: LucideIcon; title: string; body?: string; action?: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line-strong bg-white/40 px-6 py-10 text-center">
+      <span className="stat-tile stat-tile-sage"><Icon className="size-5" aria-hidden /></span>
+      <p className="text-sm font-semibold text-ink">{title}</p>
+      {body && <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">{body}</p>}
+      {action}
+    </div>
+  );
+}
+
+export function ErrorState({ message, onRetry }: { message?: string; onRetry?: () => void }) {
+  const copy = usePatientCopy();
+  return (
+    <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-100 bg-rose-50/80 px-4 py-3 text-sm text-rose-700">
+      <span className="inline-flex items-center gap-2"><AlertCircle className="size-4 shrink-0" aria-hidden />{message ?? copy.common.loadError}</span>
+      {onRetry && <Button variant="outline" size="sm" onClick={onRetry}>{copy.common.retry}</Button>}
+    </div>
+  );
+}
+
+/** Shown where a screen needs Lumina but the trial or plan has ended. */
+export function SubscriptionGate() {
+  const copy = usePatientCopy();
+  return (
+    <GlassCard className="mx-auto max-w-xl text-center">
+      <span className="stat-tile stat-tile-gold mx-auto"><LockKeyhole className="size-5" aria-hidden /></span>
+      <h2 className="mt-4 text-lg font-semibold text-ink">{copy.shell.subscription.title}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{copy.shell.subscription.body}</p>
+      <Button asChild className="mt-5"><Link href="/subscription">{copy.shell.subscription.cta}</Link></Button>
+    </GlassCard>
+  );
+}

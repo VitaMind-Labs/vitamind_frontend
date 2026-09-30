@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { ArrowUp, Loader2, Paperclip, Mic } from "lucide-react";
+import { ArrowUp, Paperclip, Mic } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import type { ChatOption } from "../types";
+import { LogoSpinner } from "@/components/shared/LogoLoader";
 
 interface ChatInputProps {
   value: string;
@@ -144,7 +145,7 @@ export function ChatInput({ value, onChange, onSend, loading, chatId, options, o
                className="me-0.5 h-9 w-9 shadow-md sm:h-10 sm:w-10"
              >
               {loading ? (
-                <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                <LogoSpinner size={18} />
                ) : (
                  <ArrowUp className="h-4.5 w-4.5" />
                )}

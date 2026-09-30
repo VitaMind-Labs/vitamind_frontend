@@ -145,7 +145,7 @@ class Plane {
 
           void main(void) {
             float opacity = (96.0 - length(vPosition)) / 256.0 * 0.6;
-            vec3 color = vec3(0.318, 0.522, 0.569); // VitaMind teal #518591
+            vec3 color = vec3(0.318, 0.522, 0.569); // MindWeave teal #518591
             gl_FragColor = vec4(color, opacity);
           }
         `,

@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { Check, Copy, House, ShieldCheck, Volume2, VolumeX } from "lucide-react";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAudio } from "@/contexts/AudioContext";
 import { stopAllSpeech } from "@/hooks/useSpeech";
+import { hasValidSession } from "@/lib/api/tokens";
 import type { Lang } from "@/lib/i18n/config";
+import { ROUTES } from "@/lib/config/routes";
 import { cn } from "@/lib/utils";
 import { stopDiagnosticVoice, warmUpDiagnosticVoice } from "../lib/voice";
 
@@ -19,6 +21,9 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
   const { isSoundEnabled, setIsSoundEnabled } = useAudio();
   const [copied, setCopied] = useState(false);
   const diagnostic = dictionary.diagnostic;
+  // A signed-in patient returns to their own space; a visitor to the public home.
+  const signedIn = useSyncExternalStore(() => () => undefined, hasValidSession, () => false);
+  const backLabel = signedIn ? dictionary.nav.backToDashboard : dictionary.nav.backHome;
 
   const handleCopySession = async () => {
     try {
@@ -44,9 +49,9 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
     <SiteHeader
       variant="app"
       center={
-        <div className="hidden items-center gap-2 lg:flex">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-sage-50 px-3 py-1.5 text-xs font-medium text-sage-700">
-            <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+        <div className="hidden items-center gap-3 lg:flex">
+          <span className="inline-flex min-h-11 items-center gap-2 rounded-full border border-teal-100/80 bg-teal-50/80 px-4 text-sm font-medium text-teal-800 shadow-xs">
+            <ShieldCheck className="h-4 w-4" aria-hidden />
             {diagnostic.confidential}
           </span>
           <button
@@ -54,11 +59,11 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
             onClick={handleCopySession}
             aria-label={`${diagnostic.copySession}: ${chatId}`}
             title={copied ? diagnostic.copiedMessage : diagnostic.copySession}
-            className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-white px-3 text-xs text-ink-muted transition-colors hover:border-teal-200 hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-teal-500"
+            className="inline-flex min-h-11 cursor-pointer items-center gap-2.5 rounded-full border border-white bg-white/80 px-4 text-sm text-ink-soft shadow-xs transition-[border-color,color,box-shadow] duration-200 hover:border-teal-200 hover:text-teal-800 hover:shadow-card focus-visible:outline-2 focus-visible:outline-teal-500"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden />
-            <span className="font-mono" dir="ltr">{chatId.slice(0, 8)}</span>
-            {copied ? <Check className="h-3.5 w-3.5 text-sage-700" aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />}
+            <span className="h-2 w-2 rounded-full bg-sage" aria-hidden />
+            <span dir="ltr">{chatId.slice(0, 8)}</span>
+            {copied ? <Check className="h-4 w-4 text-sage-700" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />}
           </button>
         </div>
       }
@@ -73,10 +78,10 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
             aria-label={isSoundEnabled ? diagnostic.mute : diagnostic.unmute}
             title={isSoundEnabled ? diagnostic.mute : diagnostic.unmute}
             className={cn(
-              "h-10 w-10 border",
+              "h-11 w-11 rounded-full border shadow-xs",
               isSoundEnabled
-                ? "border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100"
-                : "border-line bg-white text-ink-muted hover:text-ink",
+                ? "border-white bg-white/80 text-teal-800 hover:bg-white"
+                : "border-white bg-white/60 text-ink-muted hover:bg-white hover:text-ink",
             )}
           >
             {isSoundEnabled ? <Volume2 aria-hidden /> : <VolumeX aria-hidden />}
@@ -84,12 +89,12 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
 
           <LanguageSwitcher onChange={onLanguageChange} />
 
-          <span aria-hidden className="mx-0.5 hidden h-6 w-px bg-line sm:block" />
+          <span aria-hidden className="mx-1 hidden h-7 w-px bg-line-strong/70 sm:block" />
 
-          <Button asChild variant="outline" size="sm" className="min-h-10 border-line px-3 sm:px-4">
-            <Link href="/" aria-label={dictionary.nav.backHome}>
+          <Button asChild variant="outline" size="sm" className="min-h-11 rounded-full border-white bg-white/80 px-3 font-semibold text-ink shadow-xs hover:bg-white sm:px-5">
+            <Link href={signedIn ? ROUTES.dashboard : ROUTES.home} aria-label={backLabel}>
               <House aria-hidden />
-              <span className="hidden sm:inline">{dictionary.nav.backHome}</span>
+              <span className="hidden sm:inline">{backLabel}</span>
             </Link>
           </Button>
         </>
