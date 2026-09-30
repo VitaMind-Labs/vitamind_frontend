@@ -40,7 +40,7 @@ export default function HomePage() {
       <div className="grid gap-5 md:grid-cols-2 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(21rem,26rem)] xl:items-start">
         <div className="order-1 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-1 xl:row-start-1"><HeroCard /></div>
         <div className="order-2 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-1 xl:row-start-2"><WellbeingCard /></div>
-        <div className="order-3 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-3 xl:row-span-3 xl:row-start-1 xl:sticky xl:top-[5.5rem]"><HomeSidePanel /></div>
+        <div className="order-3 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-3 xl:row-span-3 xl:row-start-1 xl:sticky xl:top-4"><HomeSidePanel /></div>
         <div className="order-4 xl:order-none xl:col-start-2 xl:row-start-1"><TrendCard /></div>
         <div className="order-5 xl:order-none xl:col-start-1 xl:row-start-3"><PlanCard /></div>
         <div className="order-6 xl:order-none xl:col-start-2 xl:row-start-2"><SignalsCard /></div>

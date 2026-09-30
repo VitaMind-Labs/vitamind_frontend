@@ -9,7 +9,7 @@ export default function CheckinPage() {
   const copy = usePatientCopy();
   return (
     <div className="lm-rise">
-      <PageIntro eyebrow={copy.shell.eyebrows.checkin} icon={HeartPulse} title={copy.checkin.title} subtitle={copy.checkin.subtitle} />
+      <PageIntro eyebrow={copy.shell.eyebrows.checkin} icon={HeartPulse} title={copy.checkin.title} subtitle={copy.checkin.subtitle} hideTitle />
       <CheckinFlow />
     </div>
   );

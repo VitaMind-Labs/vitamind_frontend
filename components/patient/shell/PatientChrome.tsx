@@ -6,9 +6,7 @@ import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrandLogo } from "@/components/shared/BrandLogo";
-import { HEADER_HEIGHT } from "@/components/layout/site-header";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { LuminaLogo } from "@/components/patient/ui/LuminaLogo";
 import { NotificationBell } from "@/components/patient/shell/NotificationBell";
 import { isActive, PATIENT_NAV, visibleNav, type PatientNavKey } from "@/components/patient/shell/nav";
 import { usePatient } from "@/hooks/patient/usePatient";
@@ -29,11 +27,13 @@ export function PatientRail() {
 
   return (
     <aside className="lm-rail sticky top-4 m-4 me-0 hidden h-[calc(100dvh-2rem)] w-64 shrink-0 self-start lg:flex lg:flex-col">
-      <div className="px-5 pb-2 pt-6">
+      <div className="px-5 pb-3 pt-6">
         <span className="inline-flex rounded-2xl bg-white/90 px-3 py-1.5 shadow-sm">
           <BrandLogo size="sm" href={null} />
         </span>
       </div>
+
+      <RailProfile />
 
       <nav aria-label={copy.shell.navLabel} className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {main.map(({ key, href, icon: Icon }) => (
@@ -45,15 +45,6 @@ export function PatientRail() {
       </nav>
 
       <div className="space-y-3 px-3 pb-4">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3.5 backdrop-blur-sm">
-          <div className="flex items-center gap-3">
-            <LuminaLogo size={36} />
-            <div className="min-w-0">
-              <p className="text-[0.8125rem] font-semibold leading-tight text-white">{copy.shell.notAlone.title}</p>
-              <p className="mt-0.5 text-xs leading-snug text-white/60">{copy.shell.notAlone.body}</p>
-            </div>
-          </div>
-        </div>
         <div className="space-y-1 border-t border-white/10 pt-3">
           <Link href={settings.href} aria-current={isActive(pathname, settings.href) ? "page" : undefined} className="lm-nav-link">
             <settings.icon className="size-[1.125rem] shrink-0" aria-hidden />
@@ -77,30 +68,69 @@ export function PatientRail() {
   );
 }
 
-/** Top bar: brand on small screens, language, notifications and the profile shortcut. */
-export function PatientTopbar() {
-  const { name, refreshProfile } = usePatient();
+/** Language switch and notifications, shared by the desktop rail and the small-screen strip. */
+function PatientUtilities({ side }: { side: "rail" | "strip" }) {
+  const { refreshProfile } = usePatient();
+  // Lumina answers in the patient's profile language, so the switch updates it too.
+  return (
+    <>
+      <LanguageSwitcher onChange={(language) => void profileApi.update({ language: language === "ar" ? "AR" : "EN" }).then(refreshProfile, () => undefined)} />
+      <NotificationBell placement={side} />
+    </>
+  );
+}
+
+/** Rail header: the patient's avatar and name (a shortcut to settings), with language and notifications beneath. */
+function RailProfile() {
+  const { name } = usePatient();
   const copy = usePatientCopy();
   const initial = (name.trim()[0] ?? "V").toUpperCase();
 
   return (
-    <header className={cn("sticky top-0 z-30 flex items-center justify-between gap-3 bg-[color-mix(in_srgb,var(--lm-base)_72%,transparent)] px-4 backdrop-blur-md sm:px-6 lg:justify-end lg:px-8", HEADER_HEIGHT)}>
-      <div className="lg:hidden">
-        <BrandLogo size="md" href={null} />
+    <div className="mx-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3 backdrop-blur-sm">
+      <Link
+        href="/dashboard/settings"
+        aria-label={copy.shell.nav.settings}
+        className="flex items-center gap-3 rounded-xl p-1 transition-colors hover:bg-white/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70"
+      >
+        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-teal-700 text-base font-semibold text-white shadow-brand ring-2 ring-white/25">
+          {initial}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold leading-tight text-white" dir="auto">{name}</span>
+          <span className="mt-0.5 block text-xs text-white/60">{copy.shell.nav.settings}</span>
+        </span>
+      </Link>
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
+        <PatientUtilities side="rail" />
       </div>
+    </div>
+  );
+}
+
+/**
+ * Small screens have no rail, so the same brand, language switch and notifications sit in a slim
+ * strip at the top of the page. It scrolls away with the content: there is no fixed header.
+ */
+export function PatientMobileStrip() {
+  const { name } = usePatient();
+  const copy = usePatientCopy();
+  const initial = (name.trim()[0] ?? "V").toUpperCase();
+
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 pb-1 pt-4 sm:px-6 lg:hidden">
+      <BrandLogo size="md" href={null} />
       <div className="flex items-center gap-2.5">
-        {/* Lumina answers in the patient's profile language, so the switch updates it too. */}
-        <LanguageSwitcher onChange={(language) => void profileApi.update({ language: language === "ar" ? "AR" : "EN" }).then(refreshProfile, () => undefined)} />
-        <NotificationBell />
+        <PatientUtilities side="strip" />
         <Link
           href="/dashboard/settings"
           aria-label={copy.shell.nav.settings}
-          className="inline-flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-teal-800 text-sm font-semibold text-white shadow-brand transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+          className="inline-flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-teal-800 text-sm font-semibold text-white shadow-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
         >
           {initial}
         </Link>
       </div>
-    </header>
+    </div>
   );
 }
 

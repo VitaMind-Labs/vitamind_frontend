@@ -20,12 +20,14 @@ export default function ReportsPage() {
   const [openWeek, setOpenWeek] = useState<string | null>(null);
   const items = reports.data?.data ?? [];
   const open = items.find((item) => item.weekStart === openWeek);
+  // Until the first week is complete there is no ready report: the running week is shown, but cannot be opened.
+  const firstWeekPending = items.length > 0 && !items.some((item) => item.status === "READY");
 
   return (
     <div className="lm-rise">
-      <PageIntro eyebrow={copy.shell.eyebrows.reports} icon={History} title={copy.reports.title} subtitle={copy.reports.subtitle} />
+      <PageIntro eyebrow={copy.shell.eyebrows.reports} icon={History} title={copy.reports.title} subtitle={copy.reports.subtitle} hideTitle />
 
-      {items.length === 1 && items[0].status === "IN_PROGRESS" && (
+      {firstWeekPending && items.length === 1 && (
         <p role="note" className="mb-5 flex items-start gap-3 rounded-2xl border border-teal-100 bg-teal-50/80 px-4 py-3 text-sm text-teal-800">
           <CalendarClock className="mt-0.5 size-4 shrink-0" aria-hidden />
           {fill(copy.reports.firstOpens, { date: formatDay(addDaysLocal(parseDay(items[0].weekEnd), 1), language, { weekday: "long", month: "long", day: "numeric" }) })}
@@ -41,7 +43,7 @@ export default function ReportsPage() {
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {items.map((item) => (
-            <li key={item.weekStart} className="flex"><ReportCard item={item} onOpen={() => setOpenWeek(item.weekStart)} /></li>
+            <li key={item.weekStart} className="flex"><ReportCard item={item} locked={firstWeekPending && item.status === "IN_PROGRESS"} onOpen={() => setOpenWeek(item.weekStart)} /></li>
           ))}
         </ul>
       )}

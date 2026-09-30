@@ -3,19 +3,25 @@ import type { PatientTrack } from "@/lib/api/patient-types";
 
 /**
  * Home's right-hand panel adapts to the patient's track:
- *  - ADHD (and not yet oriented) → Lumina as a simple chat;
- *  - bipolar, schizophrenia, psychosis → articles picked for how they are doing.
+ *  - ADHD → Spark, a compact task list;
+ *  - anyone else not yet oriented → Lumina as a simple chat;
+ *  - bipolar, schizophrenia, psychosis → three articles picked for how they are doing.
  * "PSYCHOSIS" is accepted for the day Mira can orient to it; today it maps to the same content.
  *
  * The articles below are static. `ContentProvider` is the seam: swap `contentProvider` for one
  * that asks Lumina (or the backend) for personalised picks and nothing else changes.
  */
 export type HomeTrack = PatientTrack | "PSYCHOSIS";
-export type HomePanelMode = "chat" | "reads";
+export type HomePanelMode = "chat" | "reads" | "spark";
 
-export function homePanelMode(track: HomeTrack): HomePanelMode {
-  return track === "BIPOLAR" || track === "SCHIZOPHRENIA" || track === "PSYCHOSIS" ? "reads" : "chat";
+/** Bipolar / schizophrenia / psychosis read; ADHD (when the backend grants Spark) plans with Spark; anyone else gets Lumina's chat. */
+export function homePanelMode(track: HomeTrack, hasSpark = false): HomePanelMode {
+  if (track === "BIPOLAR" || track === "SCHIZOPHRENIA" || track === "PSYCHOSIS") return "reads";
+  return hasSpark ? "spark" : "chat";
 }
+
+/** Home shows exactly this many curated articles. */
+export const HOME_ARTICLE_COUNT = 3;
 
 export type Article = {
   id: string;
@@ -161,6 +167,6 @@ const PSYCHOSIS: Bilingual[] = [
 export const contentProvider: ContentProvider = {
   articlesFor(track, language) {
     const source = track === "BIPOLAR" ? MOOD : PSYCHOSIS;
-    return source.map((item) => item[language]);
+    return source.slice(0, HOME_ARTICLE_COUNT).map((item) => item[language]);
   },
 };

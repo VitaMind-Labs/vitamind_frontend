@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LockKeyhole, Save } from "lucide-react";
+import { AlertCircle, LockKeyhole, Save } from "lucide-react";
 import { MoodPicker } from "@/components/patient/ui/MoodPicker";
 import { ScaleSlider } from "@/components/patient/ui/ScaleSlider";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,11 @@ ${insert.text} ` : `${insert.text} ` }));
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setAttempted(true);
-    if (!values.content.trim()) return;
+    if (!values.content.trim()) {
+      // Nothing is sent: bring the patient back to the page they still need to write.
+      document.getElementById("journal-text")?.focus();
+      return;
+    }
     await onSubmit({ ...values, content: values.content.trim(), goalScore: goalTouched ? values.goalScore ?? 5 : null });
   }
 
@@ -219,6 +223,11 @@ ${insert.text} ` : `${insert.text} ` }));
         <Switch id="journal-private" checked={values.isPrivate} onCheckedChange={(checked) => update({ isPrivate: checked })} />
       </div>
 
+      {attempted && !values.content.trim() && (
+        <p role="alert" className="flex items-start gap-2.5 rounded-xl border border-gold-100 bg-gold-50 px-4 py-3 text-sm font-medium text-gold-700">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />{j.needText}
+        </p>
+      )}
       {error && <p role="alert" className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
 
       <div className="flex flex-wrap justify-end gap-2">

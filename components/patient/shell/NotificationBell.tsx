@@ -9,7 +9,7 @@ import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { cn } from "@/lib/utils";
 
 /** The in-app notification center; the daily check-in reminder lives here. */
-export function NotificationBell() {
+export function NotificationBell({ placement = "strip" }: { placement?: "rail" | "strip" }) {
   const copy = usePatientCopy();
   const { items, unreadCount, markRead, markAllRead } = useNotifications();
   const [open, setOpen] = useState(false);
@@ -31,7 +31,7 @@ export function NotificationBell() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="lm-glass w-[min(22rem,calc(100vw-2rem))] rounded-2xl p-2">
+      <PopoverContent align={placement === "rail" ? "start" : "end"} sideOffset={8} className="lm-glass w-[min(22rem,calc(100vw-2rem))] rounded-2xl p-2">
         <div className="flex items-center justify-between gap-3 px-3 py-2">
           <p className="text-sm font-semibold text-ink">{copy.shell.notifications.title}</p>
           {unreadCount > 0 && (

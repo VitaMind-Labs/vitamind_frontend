@@ -9,7 +9,9 @@ import type {
   JournalEntry,
   JournalInsights,
   LuminaChatReply,
+  LuminaConversation,
   LuminaMemory,
+  LuminaPage,
   LuminaState,
   LuminaTurn,
   Paginated,
@@ -17,6 +19,8 @@ import type {
   ReportDetail,
   ReportListItem,
   SparkChatReply,
+  SparkMemory,
+  SparkPatternProgress,
   SparkOutcomeName,
   SparkState,
   SparkTask,
@@ -113,10 +117,23 @@ export const journalApi = {
 };
 
 export const luminaApi = {
-  /** Reuse the same `clientMessageId` (UUID) when retrying so the turn is not duplicated. */
-  chat: (input: { text: string; deep?: boolean; clientMessageId?: string }) => api.post<LuminaChatReply>("/me/lumina/chat", input),
-  history: (query: { limit?: number; before?: string } = {}) =>
-    api.get<{ data: LuminaTurn[]; meta: { limit: number; nextBefore: string | null } }>("/me/lumina/history", query),
+  /**
+   * One turn. With `conversationId` it continues that thread; without one the backend opens a new
+   * thread (returned as `conversationId`). Reuse the same `clientMessageId` (UUID) when retrying.
+   */
+  chat: (input: { text: string; deep?: boolean; clientMessageId?: string; conversationId?: string }) =>
+    api.post<LuminaChatReply>("/me/lumina/chat", input),
+  /** Open a new thread with its first message (a thread never exists empty). */
+  startConversation: (input: { text: string; deep?: boolean; clientMessageId?: string }) =>
+    api.post<LuminaChatReply>("/me/lumina/conversations", input),
+  conversations: (query: { limit?: number; before?: string } = {}) =>
+    api.get<LuminaPage<LuminaConversation>>("/me/lumina/conversations", query),
+  /** One thread's turns, oldest first, with intervention cards and crisis resources restored. */
+  conversationMessages: (conversationId: string, query: { limit?: number; before?: string } = {}) =>
+    api.get<LuminaPage<LuminaChatReply> & { conversation: Omit<LuminaConversation, "turnCount"> }>(
+      `/me/lumina/conversations/${id(conversationId)}/messages`, query),
+  /** Every turn across threads, check-in replies included. */
+  history: (query: { limit?: number; before?: string } = {}) => api.get<LuminaPage<LuminaTurn>>("/me/lumina/history", query),
   state: () => api.get<LuminaState>("/me/lumina/state"),
   memories: () => api.get<{ data: LuminaMemory[] }>("/me/lumina/memories"),
   decideMemory: (memoryId: string, action: "CONFIRM" | "REJECT") =>
@@ -140,6 +157,11 @@ export const sparkApi = {
   completeTask: (taskId: string) => api.post<SparkTask>(`/me/spark/tasks/${id(taskId)}/complete`, {}),
   recordOutcome: (input: { outcome: SparkOutcomeName; taskId?: string; focusMinutes?: 5 | 10 | 15 | 25; localHour?: number; attemptId?: string }) =>
     api.post<{ id: string; attemptId: string; replayed: boolean }>("/me/spark/outcomes", input),
+  /** What Spark learned (ACTIVE) or proposes (CANDIDATE) - Spark's own memories only. */
+  memories: () => api.get<{ data: SparkMemory[]; progress?: SparkPatternProgress }>("/me/spark/memories"),
+  /** Confirming only activates a pattern; its evidence and confidence stay as Spark observed them. */
+  decideMemory: (memoryId: string, action: "CONFIRM" | "REJECT") =>
+    api.patch<{ id: string; status: string }>(`/me/spark/memories/${id(memoryId)}`, { action }),
 };
 
 export const careApi = {

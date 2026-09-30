@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { luminaApi, profileApi } from "@/lib/api/patient";
-import { fill } from "@/lib/i18n/patient";
+import { crisisBodyFor, fill } from "@/lib/i18n/patient";
 import { onboardingSteps, type OnboardingStep } from "@/lib/patient/onboarding";
 import { cn } from "@/lib/utils";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
@@ -56,6 +56,8 @@ function Onboarding() {
   const [done, setDone] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
+  /** The first conversation is one thread: the first free-text answer opens it, the next continues it. */
+  const thread = useRef<string | null>(null);
 
   const step = steps[index] as OnboardingStep | undefined;
   const stepCopy = step ? (copy.onboarding.steps[step.copyKey as keyof typeof copy.onboarding.steps] as StepCopy) : null;
@@ -118,7 +120,8 @@ function Onboarding() {
     let acknowledged = false;
     if (step.kind === "text") {
       try {
-        const reply = await luminaApi.chat({ text: value, clientMessageId: crypto.randomUUID() });
+        const reply = await luminaApi.chat({ text: value, clientMessageId: crypto.randomUUID(), conversationId: thread.current ?? undefined });
+        thread.current = reply.conversationId ?? thread.current;
         // Support wording (crisis) is shown whole; an ordinary reply becomes an acknowledgement.
         const text = reply.support.level === "CRISIS" ? reply.reply : acknowledgement(reply.reply, copy.onboarding.ack);
         setLines((current) => [...current, { id: `r:${step.key}`, role: "lumina", text, createdAt: new Date().toISOString() }]);
@@ -194,7 +197,7 @@ function Onboarding() {
               <ShieldAlert className="mt-0.5 size-5 shrink-0" aria-hidden />
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">{copy.chat.crisisTitle}</p>
-                <p className="mt-0.5">{copy.chat.crisisBody}</p>
+                <p className="mt-0.5">{crisisBodyFor(copy.chat, crisis)}</p>
                 {crisis.length > 0 && <ul className="mt-1.5 list-inside list-disc" dir="auto">{crisis.map((item) => <li key={item}>{item}</li>)}</ul>}
               </div>
             </div>
