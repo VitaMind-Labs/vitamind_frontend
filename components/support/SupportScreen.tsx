@@ -4,21 +4,20 @@ import { FormField, IconInput } from "@/components/shared/FormField";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MinimalFooter } from "@/components/layout/MinimalFooter";
+import { AmbientBackdrop } from "@/components/shared/AmbientBackdrop";
 import { SiteHeader } from "@/components/layout/site-header";
 import { EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { CheckCircle2, ChevronDown, Mail, MessageSquare, Send, UserRound } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock, Globe2, LifeBuoy, Lock, Mail, MessageSquare, Send, UserRound } from "lucide-react";
 import { Fragment, useState } from "react";
+import { cn } from "@/lib/utils";
 
 const rise = fadeUp(0, 10);
 const titleStagger = stagger(0.06, 0.1);
 const wordIn = { hidden: { y: "110%" }, show: { y: 0, transition: { duration: 0.7, ease: EASE_OUT } } };
 
-const orb = "pointer-events-none absolute -z-10 rounded-full blur-3xl";
-const drift = (x: number, y: number, duration: number) => ({
-    animate: { x: [0, x, 0], y: [0, y, 0] },
-    transition: { duration, repeat: Infinity, ease: "easeInOut" as const },
-});
+const CHANNEL_ICONS = [Clock, Lock, Globe2] as const;
+const MESSAGE_MAX = 2000;
 
 function FaqItem({ item, open, onToggle, index }: { item: { question: string; answer: string }; open: boolean; onToggle: () => void; index: number }) {
     return (
@@ -50,6 +49,9 @@ export function SupportScreen() {
     const copy = dictionary.support;
     const [openFaq, setOpenFaq] = useState(0);
     const [sent, setSent] = useState(false);
+    const [subject, setSubject] = useState("");
+    const [topic, setTopic] = useState<number | null>(null);
+    const [message, setMessage] = useState("");
 
     const fields = [
         { name: "name", label: copy.name, input: { icon: UserRound, type: "text", placeholder: copy.namePlaceholder, autoComplete: "name" } },
@@ -61,14 +63,15 @@ export function SupportScreen() {
         event.preventDefault();
         setSent(true);
         event.currentTarget.reset();
+        setSubject("");
+        setTopic(null);
+        setMessage("");
     }
 
     return (
         <MotionConfig reducedMotion="user">
             <div dir={direction} className="relative isolate flex min-h-dvh flex-col overflow-x-clip bg-canvas text-ink">
-                <div aria-hidden className="canvas-glow pointer-events-none absolute inset-0 -z-10" />
-                <motion.div aria-hidden {...drift(40, 24, 16)} className={`${orb} -top-24 start-[15%] h-72 w-72 bg-teal-200/30`} />
-                <motion.div aria-hidden {...drift(-30, 36, 20)} className={`${orb} top-1/3 end-[8%] h-80 w-80 bg-teal-100/40`} />
+                <AmbientBackdrop />
 
                 <SiteHeader variant="support" />
 
@@ -95,7 +98,22 @@ export function SupportScreen() {
                             <p className="home-body mx-auto mt-4 max-w-xl">{copy.description}</p>
                         </motion.header>
 
-                        <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)] lg:items-start lg:gap-8">
+                        <motion.ul variants={stagger(0.07, 0.1)} className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-3">
+                            {copy.channels.map((channel, i) => {
+                                const Icon = CHANNEL_ICONS[i] ?? Clock;
+                                return (
+                                    <motion.li key={channel.title} variants={rise} className="surface-glass flex items-start gap-3 p-4">
+                                        <span className="home-icon !size-10 !rounded-xl"><Icon className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.75} aria-hidden /></span>
+                                        <span className="min-w-0">
+                                            <span className="block text-sm font-semibold text-ink">{channel.title}</span>
+                                            <span className="mt-0.5 block text-[0.8125rem] leading-5 text-ink-muted">{channel.body}</span>
+                                        </span>
+                                    </motion.li>
+                                );
+                            })}
+                        </motion.ul>
+
+                        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)] lg:items-start lg:gap-8">
                             <motion.section variants={rise} whileHover={{ y: -3 }} transition={{ duration: 0.3, ease: EASE_OUT }} className="surface-glass p-5 sm:p-8" aria-labelledby="support-form-title">
                                 <div className="mb-6 flex items-start gap-3">
                                     <motion.span whileHover={{ rotate: -8, scale: 1.1 }} transition={{ type: "spring", stiffness: 300, damping: 14 }} className="home-icon">
@@ -108,10 +126,34 @@ export function SupportScreen() {
                                 </div>
 
                                 <motion.form onSubmit={handleSubmit} variants={stagger(0.07, 0.2)} className="grid gap-4 sm:grid-cols-2">
+                                    <motion.div variants={rise} className="sm:col-span-2">
+                                        <p id="support-topics" className="mb-2 text-[0.8125rem] font-medium text-ink-soft">{copy.topicLabel}</p>
+                                        <div role="group" aria-labelledby="support-topics" className="flex flex-wrap gap-2">
+                                            {copy.topics.map((label, i) => (
+                                                <button
+                                                    key={label}
+                                                    type="button"
+                                                    aria-pressed={topic === i}
+                                                    onClick={() => { setTopic(i); setSubject(label); }}
+                                                    className={cn(
+                                                        "min-h-9 cursor-pointer rounded-full border px-3.5 text-[0.8125rem] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500",
+                                                        topic === i ? "border-transparent bg-primary text-white shadow-brand" : "border-line-strong bg-white text-ink-soft hover:border-teal-300 hover:text-teal-800",
+                                                    )}
+                                                >
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+
                                     {fields.map((f) => (
                                         <motion.div key={f.name} variants={rise} className={"wide" in f ? "sm:col-span-2" : ""}>
                                             <FormField id={`support-${f.name}`} label={f.label} compact>
-                                                <IconInput id={`support-${f.name}`} name={f.name} required {...f.input} />
+                                                {f.name === "subject" ? (
+                                                    <IconInput id="support-subject" name="subject" required {...f.input} value={subject} onChange={(event) => { setSubject(event.target.value); setTopic(null); }} />
+                                                ) : (
+                                                    <IconInput id={`support-${f.name}`} name={f.name} required {...f.input} />
+                                                )}
                                             </FormField>
                                         </motion.div>
                                     ))}
@@ -122,10 +164,14 @@ export function SupportScreen() {
                                                 id="support-message"
                                                 name="message"
                                                 placeholder={copy.messagePlaceholder}
+                                                value={message}
+                                                onChange={(event) => setMessage(event.target.value)}
+                                                maxLength={MESSAGE_MAX}
                                                 className="min-h-32 w-full resize-y rounded-control border border-line-strong bg-white px-4 py-3 text-[0.9375rem] text-ink shadow-xs outline-none transition-[border-color,box-shadow] placeholder:text-ink-subtle hover:border-teal-300 focus:border-teal-500 focus:shadow-focus"
                                                 required
                                             />
                                         </FormField>
+                                        <p className="mt-1 text-end text-xs tabular-nums text-ink-subtle" dir="ltr">{copy.counter.replace("{n}", String(message.length)).replace("{max}", String(MESSAGE_MAX))}</p>
                                     </motion.div>
 
                                     <motion.div variants={rise} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} className="group sm:col-span-2 sm:justify-self-start">
@@ -159,6 +205,14 @@ export function SupportScreen() {
                                         <FaqItem key={item.question} item={item} index={i} open={openFaq === i} onToggle={() => setOpenFaq(openFaq === i ? -1 : i)} />
                                     ))}
                                 </div>
+
+                                <motion.aside variants={rise} role="note" className="mt-4 flex items-start gap-3 rounded-2xl border border-gold-100 bg-gold-50/90 p-4">
+                                    <LifeBuoy className="mt-0.5 h-5 w-5 shrink-0 text-gold-700" aria-hidden />
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-ink">{copy.urgentTitle}</p>
+                                        <p className="mt-0.5 text-[0.8125rem] leading-5 text-ink-soft">{copy.urgentBody}</p>
+                                    </div>
+                                </motion.aside>
                             </motion.section>
                         </div>
                     </motion.div>

@@ -9,7 +9,7 @@ import { ArrowRight, Check, Play, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRef, type ReactNode } from "react";
 import { Magnetic, TextReveal } from "./AnimationUtilities";
-import { ProductPreview } from "./ProductPreview";
+import { CareOrbit } from "./CareOrbit";
 import { ROUTES } from "@/lib/config/routes";
 
 /** A small floating card that drifts at its own depth while the product settles. */
@@ -129,7 +129,7 @@ export const Hero = () => {
                         style={{ rotateX, scale, y: deviceY, transformOrigin: "50% 0%", transformStyle: "preserve-3d" }}
                         className="will-change-transform"
                     >
-                        <ProductPreview />
+                        <CareOrbit />
                     </motion.div>
 
                     <Callout y={calloutNear} delay={1.4} className="absolute -top-5 end-2 z-20 hidden sm:block md:-end-2 lg:-end-6">

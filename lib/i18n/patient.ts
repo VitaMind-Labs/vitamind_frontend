@@ -7,6 +7,14 @@ import type { Lang } from "@/lib/i18n/config";
  * key fails the build. Placeholders use `{name}` — fill them with `fill()`.
  */
 
+/**
+ * The crisis wording for what there is to show: "You can also reach:" only leads into a list that exists.
+ * Without configured emergency numbers it would end on a dangling colon, in the one message that must be clear.
+ */
+export function crisisBodyFor(chat: { crisisBody: string; crisisBodyShort: string }, resources?: readonly string[]): string {
+  return resources && resources.length > 0 ? chat.crisisBody : chat.crisisBodyShort;
+}
+
 export function fill(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? ""));
 }
@@ -24,8 +32,8 @@ const en = {
     nav: { home: "Home", checkin: "Check-in", lumina: "Lumina", mira: "Mira", spark: "Spark", journal: "Smart Journal", reports: "Reports", settings: "Settings" },
     signOut: "Sign out",
     skipToContent: "Skip to content",
-    eyebrows: { home: "Your day", checkin: "Daily ritual", lumina: "Your companion", mira: "Guided orientation", spark: "Your planning ally", journal: "Your private space", reports: "Looking back", settings: "Your preferences" },
-    notAlone: { title: "You're not alone", body: "Lumina is always here for you." },
+    eyebrows: { home: "Your day", checkin: "Daily ritual", lumina: "Your companion", mira: "Guided orientation", spark: "Your momentum", journal: "Your private space", reports: "Your journey", settings: "Your preferences" },
+    notAlone: { title: "Every step counts", body: "Lumina is with you, today and always." },
     greeting: { morning: "Good morning, {name}", afternoon: "Good afternoon, {name}", evening: "Good evening, {name}", night: "Hello, {name}" },
     subscription: {
       title: "Lumina needs an active plan",
@@ -39,7 +47,7 @@ const en = {
     },
   },
   tracks: {
-    ADHD: "Focus & follow-through", BIPOLAR: "Rhythm & energy", SCHIZOPHRENIA: "Steadiness & connection", UNSPECIFIED: "Whole-person wellbeing",
+    ADHD: "Your wellbeing journey", BIPOLAR: "Your wellbeing journey", SCHIZOPHRENIA: "Your wellbeing journey", UNSPECIFIED: "Your wellbeing journey",
   },
   dimensions: {
     mood: "Mood", energy: "Energy", stress: "Stress", sleep: "Sleep", focus: "Focus", routine: "Routine", social: "Connection", tasks: "Follow-through",
@@ -59,14 +67,14 @@ const en = {
     ],
   },
   home: {
-    subtitle: "Here's how you're doing today. Take a moment — you're making progress.",
+    subtitle: "Small steps, taken daily, add up to real change. Here's your day at a glance.",
     mira: { title: "Talk with Mira", body: "A guided orientation conversation to put words to what's on your mind.", cta: "Open Mira" },
     hero: {
-      readyTitle: "Lumina is ready for you",
-      readyBody: "Your check-in takes about a minute and helps Lumina support you better today.",
+      readyTitle: "Your day starts with one minute",
+      readyBody: "A quick check-in lets Lumina tailor today's support to you.",
       readyCta: "Start today's check-in",
-      doneTitle: "Today's check-in is done",
-      doneBody: "Thank you for showing up. Lumina has what it needs for today.",
+      doneTitle: "Check-in complete — well done",
+      doneBody: "You showed up for yourself today. That is what progress looks like.",
       doneCta: "Talk with Lumina",
       safe: "Safe & steady",
       streak: "{n}-day streak",
@@ -89,7 +97,7 @@ const en = {
       assigned: "From your care team", suggested: "Suggested for you", markDone: "Mark done", completed: "Done today", start: "Start",
     },
     exercise: { title: "Recommended exercise", subtitle: "Based on your current state", start: "Start now", low: "Low effort", finish: "I finished", stop: "Close", inhale: "Breathe in", hold: "Hold", exhale: "Breathe out" },
-    progress: { title: "Your progress matters", body: "You've checked in {n} of the last 7 days. Keep going — consistency is what lets Lumina see your patterns.", moodTrend: "Mood trend" },
+    progress: { title: "Consistency builds clarity", body: "You've checked in {n} of the last 7 days. Each check-in sharpens your picture — keep the rhythm going.", moodTrend: "Mood trend" },
     lumina: {
       title: "Lumina", subtitle: "Your support companion", online: "Lumina is here",
       greeting: "Good to see you, {name}. What would feel helpful right now?",
@@ -103,7 +111,7 @@ const en = {
     },
   },
   spark: {
-    title: "Spark", subtitle: "Your ADHD planning assistant, working alongside Lumina", status: "Spark is here", thinking: "Spark is thinking…",
+    title: "Spark", role: "Planning assistant", subtitle: "Turn what is on your plate into clear, doable steps", status: "Spark is here", thinking: "Spark is thinking…",
     placeholder: "Tell me what you need to get done…",
     disclaimer: "Spark helps you organise tasks. It is not medical advice and not a diagnosis.",
     hint: "Enter to send · Spark keeps your tasks for you",
@@ -113,9 +121,17 @@ const en = {
       starters: ["I need to email James tomorrow", "Help me prioritize my day", "I can't get started", "I finished my last task"],
     },
     tasks: {
-      title: "Your tasks", empty: "Nothing open. Tell Spark what you need to do and it will keep track.",
+      title: "Your tasks", empty: "You're all clear. Add what's next and Spark will keep it in view.",
       today: "Today", tomorrow: "Tomorrow", due: "Due {date}", noDate: "No date", markDone: "Mark “{title}” done", done: "Done", postponed: "Moved {n}×",
       openCount: "{n} open", loadError: "We couldn't load your tasks.",
+    },
+    // Lumina hands a planning request to Spark, which keeps the list; Home shows what is open.
+    handoff: { cta: "Plan it in Spark", hint: "Spark saves these as tasks and orders them for you." },
+    homeCard: { subtitle: "What Spark is keeping for you", open: "Open Spark", more: "+{n} more", add: "Tell Spark what is on your plate" },
+    panel: {
+      title: "Spark", subtitle: "Your tasks, one small step at a time", placeholder: "Add a task or tell Spark what's on your plate…",
+      add: "Add", adding: "Spark is planning…", done: "Mark “{title}” as done", empty: "Nothing open right now. Add a task and Spark will plan it with you.",
+      next: "Next step", openSpark: "Open Spark", error: "Couldn't reach Spark. Your text is still here — try again.", count: "{n} open",
     },
     plan: {
       nextStep: "Your next step", focus: "Try a {n}-minute start", focusBasis: "A small, timed start — not an estimate of how long it takes.",
@@ -123,6 +139,14 @@ const en = {
     },
     errors: { unavailable: "Spark is taking a break. Your message is safe — try again in a moment.", crisisTitle: "You matter, and support is close", },
     memory: "What Spark has noticed about you is in your memories, where you decide what it may use.",
+    memoryPanel: {
+      title: "What Spark has noticed", subtitle: "Spark suggests patterns from your own focus attempts. Only the ones you confirm shape your plans.",
+      empty: "Nothing yet. After a few focus attempts Spark may suggest a pattern.", confirm: "Yes, use this", forget: "Forget",
+      candidate: "Spark noticed…", active: "In use", open: "Review",
+      progressTitle: "How Spark learns",
+      progress: "{a} of {na} focus attempts so far, on {d} of {nd} days. Spark only suggests a pattern once it has seen at least {na} attempts across {nd} days.",
+      howTo: "Ask Spark for a plan, try the small start it suggests, then tap “How did it go?” under it. Each tap counts as one attempt.",
+    },
   },
   checkin: {
     title: "Daily check-in", subtitle: "A quiet minute for you. There are no right answers.",
@@ -180,6 +204,7 @@ const en = {
     disclaimer: "Lumina is a supportive companion, not a clinician. In an emergency, contact local emergency services.",
     crisisTitle: "You matter — and you deserve support right now",
     crisisBody: "If you're in immediate danger, please contact emergency services. You can also reach:",
+    crisisBodyShort: "If you're in immediate danger, please contact your local emergency services now.",
     suggestion: "Lumina suggests", steps: "Steps", helped: "Did this help?",
     outcome: { EFFECTIVE: "Yes", PARTIALLY_EFFECTIVE: "A little", INEFFECTIVE: "Not really" },
     thanks: "Thanks — Lumina will remember.",
@@ -208,11 +233,16 @@ const en = {
       empty: "Nothing yet. As you talk, Lumina may suggest things to remember.", confirm: "Yes, remember", forget: "Forget", candidate: "Lumina thinks…",
       active: "Remembered", open: "Memory",
     },
+    threads: {
+      title: "Conversations", open: "Show conversations", close: "Hide conversations", newChat: "New conversation",
+      empty: "Your conversations will appear here.", earlier: "Earlier conversation", loadMore: "Show older",
+      newThread: "New conversation", error: "Your conversations couldn't be loaded.",
+    },
   },
   onboarding: {
     title: "Getting to know you", subtitle: "A short conversation so Lumina can support you well. Skip anything, any time.",
     skipAll: "Skip for now", skipOne: "Skip this question", type: "Type your answer…", send: "Send",
-    progress: "{a} of {b}", finishTitle: "That's a great start", finishBody: "I'll keep learning as we go. You can change or remove anything I remember in Settings.",
+    progress: "{a} of {b}", finishTitle: "A strong start", finishBody: "Every conversation helps me support you better. Let's build your routine, one day at a time.",
     finishCta: "Go to my Home", savingFail: "We couldn't save that answer, but we can keep going.", useNickname: "Keep \"{name}\"",
     another: "Use another name", namePlaceholder: "What should I call you?", ack: "Thank you — I'll keep that in mind.",
     steps: {
@@ -289,7 +319,7 @@ const en = {
     },
     goals: { title: "Goals achieved today", hint: "How much of what you intended did you get done?", low: "Barely anything", high: "Everything I planned", value: "{n} / 10" },
     private: { title: "Keep this entry private", body: "Private entries are never analyzed by Lumina or shared with your care team." },
-    save: "Keep this entry", saving: "Saving…", needText: "Write a few words to save your entry.",
+    save: "Keep this entry", saving: "Saving…", needText: "Write a few words in your journal before saving.",
     saved: "Entry saved.", saveError: "We couldn't save your entry. Your text is still here.",
     page: {
       feel: "How are you, really?", words: "In your own words", wordsHint: "There's no right way to do this. A single line is enough.",
@@ -360,7 +390,7 @@ const en = {
   reports: {
     title: "Weekly reports", subtitle: "A calm, structured look back at each week — built from what you shared.",
     inProgress: "In progress", ready: "Ready", weekOf: "Week of {range}", view: "View report",
-    inProgressBody: "Your report opens on {date}, once this week is complete.", firstEmpty: "Your first report arrives after your first full week.",
+    inProgressBody: "Your report opens on {date}, once this week is complete.", locked: "Opens {date}", lockedHint: "Keep checking in — your first report unlocks after your first full week.", firstEmpty: "Your first report arrives after your first full week.",
     firstOpens: "Your first report opens on {date}, once your first week is complete. Until then, this is your week so far.",
     dayOf: "Day {a} of 7", soFar: "So far this week",
     emptyTitle: "No reports yet", quietWeek: "A quiet week — not enough entries to read anything into.",
@@ -399,6 +429,7 @@ const en = {
       alerts: "Safety alerts", alertsBody: "Let my clinician know if Lumina notices I may need urgent support.", accept: "Accept and start sharing", saveError: "We couldn't update that choice.",
     },
     memory: { title: "Lumina's memory", body: "Review what Lumina remembers about you and remove anything you don't want it to keep.", manage: "Manage in chat" },
+    sparkMemory: { title: "Spark's memory", body: "Patterns Spark learned from your focus attempts. You decide which ones shape your plans." },
     subscription: { title: "Plan", status: "Status", manage: "Manage plan", none: "No active plan", statusLabels: { TRIAL: "Free trial", ACTIVE: "Active", EXPIRED: "Expired", CANCELLED: "Cancelled", SUSPENDED: "Paused" }, trialEnds: "Trial ends {date}", renews: "Runs until {date}" },
     session: { title: "Session", signOut: "Sign out of this device" },
   },
@@ -429,8 +460,8 @@ const ar: PatientCopy = {
     nav: { home: "الرئيسية", checkin: "الفحص اليومي", lumina: "لومينا", mira: "ميرا", spark: "سبارك", journal: "المفكرة الذكية", reports: "التقارير", settings: "الإعدادات" },
     signOut: "تسجيل الخروج",
     skipToContent: "تخطَّ إلى المحتوى",
-    eyebrows: { home: "يومك", checkin: "طقسك اليومي", lumina: "رفيقتك", mira: "التوجيه الموجَّه", spark: "حليفك في التخطيط", journal: "مساحتك الخاصة", reports: "نظرة إلى الوراء", settings: "تفضيلاتك" },
-    notAlone: { title: "لستَ وحدك", body: "لومينا معك دائمًا." },
+    eyebrows: { home: "يومك", checkin: "طقسك اليومي", lumina: "رفيقتك", mira: "التوجيه الموجَّه", spark: "زخمك اليومي", journal: "مساحتك الخاصة", reports: "رحلتك", settings: "تفضيلاتك" },
+    notAlone: { title: "كل خطوة لها قيمتها", body: "لومينا معك اليوم وكل يوم." },
     greeting: { morning: "صباح الخير، {name}", afternoon: "طاب يومك، {name}", evening: "مساء الخير، {name}", night: "مرحبًا، {name}" },
     subscription: {
       title: "لومينا يحتاج إلى خطة نشطة",
@@ -444,7 +475,7 @@ const ar: PatientCopy = {
     },
   },
   tracks: {
-    ADHD: "التركيز والإنجاز", BIPOLAR: "الإيقاع والطاقة", SCHIZOPHRENIA: "الاستقرار والتواصل", UNSPECIFIED: "العافية الشاملة",
+    ADHD: "رحلة عافيتك", BIPOLAR: "رحلة عافيتك", SCHIZOPHRENIA: "رحلة عافيتك", UNSPECIFIED: "رحلة عافيتك",
   },
   dimensions: {
     mood: "المزاج", energy: "الطاقة", stress: "التوتر", sleep: "النوم", focus: "التركيز", routine: "الروتين", social: "التواصل", tasks: "الإنجاز",
@@ -464,14 +495,14 @@ const ar: PatientCopy = {
     ],
   },
   home: {
-    subtitle: "هذه حالتك اليوم. خذ لحظة — أنت تحرز تقدمًا.",
+    subtitle: "خطوات صغيرة كل يوم تصنع فرقًا حقيقيًا. إليك يومك في لمحة.",
     mira: { title: "تحدّث مع ميرا", body: "محادثة توجيه موجَّهة لتضع كلمات لما يدور في ذهنك.", cta: "افتح ميرا" },
     hero: {
-      readyTitle: "لومينا جاهز لك",
-      readyBody: "فحصك اليومي يستغرق دقيقة تقريبًا ويساعد لومينا على دعمك بشكل أفضل اليوم.",
+      readyTitle: "يومك يبدأ بدقيقة واحدة",
+      readyBody: "فحص سريع يتيح للومينا تكييف دعم اليوم معك.",
       readyCta: "ابدأ فحص اليوم",
-      doneTitle: "اكتمل فحص اليوم",
-      doneBody: "شكرًا لحضورك. لدى لومينا ما يحتاجه لهذا اليوم.",
+      doneTitle: "اكتمل الفحص — أحسنت",
+      doneBody: "حضرتَ لأجل نفسك اليوم. هذا هو التقدم بعينه.",
       doneCta: "تحدّث مع لومينا",
       safe: "آمن ومستقر",
       streak: "{n} أيام متتالية",
@@ -494,7 +525,7 @@ const ar: PatientCopy = {
       assigned: "من فريق رعايتك", suggested: "مقترح لك", markDone: "تم", completed: "أُنجز اليوم", start: "ابدأ",
     },
     exercise: { title: "تمرين موصى به", subtitle: "بحسب حالتك الحالية", start: "ابدأ الآن", low: "جهد قليل", finish: "أنهيت التمرين", stop: "إغلاق", inhale: "شهيق", hold: "احبس", exhale: "زفير" },
-    progress: { title: "تقدمك مهم", body: "أجريتَ الفحص {n} من آخر 7 أيام. واصل — الانتظام هو ما يتيح للومينا رؤية أنماطك.", moodTrend: "اتجاه المزاج" },
+    progress: { title: "الانتظام يصنع الوضوح", body: "أجريتَ الفحص {n} من آخر 7 أيام. كل فحص يزيد صورتك وضوحًا — حافظ على الإيقاع.", moodTrend: "اتجاه المزاج" },
     lumina: {
       title: "لومينا", subtitle: "رفيقك الداعم", online: "لومينا معك",
       greeting: "سعيد برؤيتك، {name}. ما الذي قد يفيدك الآن؟",
@@ -508,7 +539,7 @@ const ar: PatientCopy = {
     },
   },
   spark: {
-    title: "سبارك", subtitle: "مساعدك لتنظيم المهام مع فرط الحركة وتشتت الانتباه، بجانب لومينا", status: "سبارك معك", thinking: "سبارك يفكّر…",
+    title: "سبارك", role: "مساعد التخطيط", subtitle: "حوّل ما على عاتقك إلى خطوات واضحة وسهلة التنفيذ", status: "سبارك معك", thinking: "سبارك يفكّر…",
     placeholder: "أخبرني بما تريد إنجازه…",
     disclaimer: "سبارك يساعدك على تنظيم المهام. ليس نصيحة طبية وليس تشخيصًا.",
     hint: "Enter للإرسال · سبارك يحتفظ بمهامك عنك",
@@ -518,9 +549,16 @@ const ar: PatientCopy = {
       starters: ["لازم أكلم البنك بكرة", "ساعدني أرتب يومي", "ما أقدر أبدأ", "خلصت آخر مهمة"],
     },
     tasks: {
-      title: "مهامك", empty: "لا توجد مهام مفتوحة. أخبر سبارك بما عليك وسيتابعه.",
+      title: "مهامك", empty: "كل شيء منجز. أضف ما يلي وسيبقيه سبارك أمامك.",
       today: "اليوم", tomorrow: "غدًا", due: "الموعد {date}", noDate: "بلا تاريخ", markDone: "إنهاء «{title}»", done: "تم", postponed: "أُجّلت {n}×",
       openCount: "{n} مفتوحة", loadError: "تعذّر تحميل مهامك.",
+    },
+    handoff: { cta: "رتّبها في سبارك", hint: "سبارك يحفظها كمهام ويرتّبها لك." },
+    homeCard: { subtitle: "ما يحتفظ به سبارك لك", open: "افتح سبارك", more: "+{n} أخرى", add: "أخبر سبارك بما عليك" },
+    panel: {
+      title: "سبارك", subtitle: "مهامك، خطوة صغيرة في كل مرة", placeholder: "أضف مهمة أو أخبر سبارك بما عليك…",
+      add: "إضافة", adding: "سبارك يخطّط…", done: "تحديد «{title}» كمنجزة", empty: "لا شيء مفتوحًا الآن. أضف مهمة وسيخطّط لها سبارك معك.",
+      next: "الخطوة التالية", openSpark: "افتح سبارك", error: "تعذّر الوصول إلى سبارك. نصّك ما زال هنا — حاول مجددًا.", count: "{n} مفتوحة",
     },
     plan: {
       nextStep: "خطوتك التالية", focus: "جرّب بداية لمدة {n} دقائق", focusBasis: "بداية صغيرة بوقت محدد — وليست تقديرًا لمدة إنجاز المهمة.",
@@ -528,6 +566,14 @@ const ar: PatientCopy = {
     },
     errors: { unavailable: "سبارك يأخذ استراحة. رسالتك بأمان — حاول بعد قليل.", crisisTitle: "أنت مهم، والدعم قريب", },
     memory: "ما لاحظه سبارك عنك موجود في ذكرياتك، وأنت من يقرّر ما يمكنه استخدامه.",
+    memoryPanel: {
+      title: "ما لاحظه سبارك", subtitle: "يقترح سبارك أنماطًا من محاولات التركيز الخاصة بك. وحدها التي تؤكّدها تشكّل خططك.",
+      empty: "لا شيء بعد. بعد بضع محاولات تركيز قد يقترح سبارك نمطًا.", confirm: "نعم، استخدم هذا", forget: "انسَ",
+      candidate: "لاحظ سبارك…", active: "قيد الاستخدام", open: "مراجعة",
+      progressTitle: "كيف يتعلّم سبارك",
+      progress: "{a} من {na} محاولات تركيز حتى الآن، في {d} من {nd} أيام. لا يقترح سبارك نمطًا إلا بعد أن يرى {na} محاولات على الأقل خلال {nd} أيام.",
+      howTo: "اطلب من سبارك خطة، وجرّب البداية الصغيرة التي يقترحها، ثم اضغط «كيف سار الأمر؟» تحتها. كل ضغطة تُحتسب محاولة واحدة.",
+    },
   },
   checkin: {
     title: "الفحص اليومي", subtitle: "دقيقة هادئة لك. لا توجد إجابات صحيحة.",
@@ -585,6 +631,7 @@ const ar: PatientCopy = {
     disclaimer: "لومينا رفيق داعم وليس معالجًا. في الطوارئ تواصل مع خدمات الطوارئ المحلية.",
     crisisTitle: "أنت مهم — وتستحق الدعم الآن",
     crisisBody: "إذا كنتَ في خطر مباشر فتواصل مع خدمات الطوارئ. يمكنك أيضًا الاتصال بـ:",
+    crisisBodyShort: "إذا كنتَ في خطر مباشر فتواصل مع خدمات الطوارئ المحلية الآن.",
     suggestion: "اقتراح من لومينا", steps: "الخطوات", helped: "هل ساعدك هذا؟",
     outcome: { EFFECTIVE: "نعم", PARTIALLY_EFFECTIVE: "قليلًا", INEFFECTIVE: "لا يبدو" },
     thanks: "شكرًا — سيتذكّر لومينا ذلك.",
@@ -613,11 +660,16 @@ const ar: PatientCopy = {
       empty: "لا شيء بعد. أثناء حديثك قد يقترح لومينا أمورًا لتذكّرها.", confirm: "نعم، تذكّر", forget: "انسَ", candidate: "لومينا يظن…",
       active: "مُتذكَّر", open: "الذاكرة",
     },
+    threads: {
+      title: "المحادثات", open: "إظهار المحادثات", close: "إخفاء المحادثات", newChat: "محادثة جديدة",
+      empty: "ستظهر محادثاتك هنا.", earlier: "محادثة سابقة", loadMore: "عرض الأقدم",
+      newThread: "محادثة جديدة", error: "تعذّر تحميل محادثاتك.",
+    },
   },
   onboarding: {
     title: "نتعرّف عليك", subtitle: "حديث قصير ليدعمك لومينا جيدًا. تخطَّ أي سؤال في أي وقت.",
     skipAll: "تخطَّ الآن", skipOne: "تخطَّ هذا السؤال", type: "اكتب إجابتك…", send: "إرسال",
-    progress: "{a} من {b}", finishTitle: "بداية رائعة", finishBody: "سأواصل التعلّم معك. يمكنك تعديل أي شيء أتذكّره أو حذفه من الإعدادات.",
+    progress: "{a} من {b}", finishTitle: "بداية قوية", finishBody: "كل محادثة تساعدني على دعمك بشكل أفضل. لنبنِ روتينك يومًا بعد يوم.",
     finishCta: "انتقل إلى الرئيسية", savingFail: "تعذّر حفظ هذه الإجابة، لكن يمكننا المتابعة.", useNickname: "أبقِ «{name}»",
     another: "استخدم اسمًا آخر", namePlaceholder: "بماذا أناديك؟", ack: "شكرًا — سأتذكّر ذلك.",
     steps: {
@@ -694,7 +746,7 @@ const ar: PatientCopy = {
     },
     goals: { title: "الأهداف المُنجزة اليوم", hint: "كم أنجزتَ مما نويتَه؟", low: "لا شيء تقريبًا", high: "كل ما خططتُ له", value: "{n} / 10" },
     private: { title: "أبقِ هذه التدوينة خاصة", body: "التدوينات الخاصة لا يحلّلها لومينا ولا تُشارَك مع فريق رعايتك." },
-    save: "احتفظ بهذه التدوينة", saving: "جارٍ الحفظ…", needText: "اكتب بضع كلمات لحفظ التدوينة.",
+    save: "احتفظ بهذه التدوينة", saving: "جارٍ الحفظ…", needText: "اكتب بضع كلمات في مذكراتك قبل الحفظ.",
     saved: "تم حفظ التدوينة.", saveError: "تعذّر حفظ التدوينة. نصّك ما زال هنا.",
     page: {
       feel: "كيف حالك حقًا؟", words: "بكلماتك", wordsHint: "لا توجد طريقة صحيحة لهذا. سطر واحد يكفي.",
@@ -765,7 +817,7 @@ const ar: PatientCopy = {
   reports: {
     title: "التقارير الأسبوعية", subtitle: "نظرة هادئة ومنظّمة على كل أسبوع — مبنية على ما شاركتَه.",
     inProgress: "قيد الإعداد", ready: "جاهز", weekOf: "أسبوع {range}", view: "عرض التقرير",
-    inProgressBody: "يُفتح تقريرك في {date}، بعد اكتمال هذا الأسبوع.", firstEmpty: "يصلك أول تقرير بعد أسبوعك الكامل الأول.",
+    inProgressBody: "يُفتح تقريرك في {date}، بعد اكتمال هذا الأسبوع.", locked: "يُفتح في {date}", lockedHint: "واصل الفحوص — يُفتح تقريرك الأول بعد أسبوعك الكامل الأول.", firstEmpty: "يصلك أول تقرير بعد أسبوعك الكامل الأول.",
     firstOpens: "يُفتح أول تقرير لك في {date}، بعد اكتمال أسبوعك الأول. وحتى ذلك الحين، هذا هو أسبوعك حتى الآن.",
     dayOf: "اليوم {a} من 7", soFar: "حتى الآن هذا الأسبوع",
     emptyTitle: "لا تقارير بعد", quietWeek: "أسبوع هادئ — لا بيانات كافية لقراءة شيء منه.",
@@ -804,6 +856,7 @@ const ar: PatientCopy = {
       alerts: "تنبيهات السلامة", alertsBody: "دع معالجي يعلم إذا لاحظ لومينا أنني قد أحتاج دعمًا عاجلًا.", accept: "قبول وبدء المشاركة", saveError: "تعذّر تحديث هذا الخيار.",
     },
     memory: { title: "ذاكرة لومينا", body: "راجع ما يتذكره لومينا عنك واحذف أي شيء لا تريده أن يحتفظ به.", manage: "إدارة في المحادثة" },
+    sparkMemory: { title: "ذاكرة سبارك", body: "أنماط تعلّمها سبارك من محاولات تركيزك. أنت من يقرّر أيّها يشكّل خططك." },
     subscription: { title: "الخطة", status: "الحالة", manage: "إدارة الخطة", none: "لا توجد خطة نشطة", statusLabels: { TRIAL: "فترة تجريبية", ACTIVE: "نشطة", EXPIRED: "منتهية", CANCELLED: "ملغاة", SUSPENDED: "موقوفة" }, trialEnds: "تنتهي التجربة في {date}", renews: "سارية حتى {date}" },
     session: { title: "الجلسة", signOut: "تسجيل الخروج من هذا الجهاز" },
   },

@@ -12,7 +12,7 @@ import { ApiError } from "@/lib/api/client";
 import type { JournalEntry } from "@/lib/api/patient-types";
 import { useJournalActions, useJournalInsights } from "@/hooks/patient/useJournal";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
-import { fill } from "@/lib/i18n/patient";
+import { crisisBodyFor, fill } from "@/lib/i18n/patient";
 import { EASE_OUT } from "@/lib/motion";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
 
@@ -56,7 +56,7 @@ export function JournalWrite({ onOpenInsights, insert }: { onOpenInsights: () =>
       <AnimatePresence>
         {saved && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, ease: EASE_OUT }}>
-            <SavedResult entry={saved} onDismiss={() => setSaved(null)} onOpenInsights={onOpenInsights} />
+            <SavedResult key={saved.id} entry={saved} onDismiss={() => setSaved(null)} onOpenInsights={onOpenInsights} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -119,7 +119,7 @@ function SavedResult({ entry, onDismiss, onOpenInsights }: { entry: JournalEntry
           <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
           <div>
             <p className="font-semibold">{copy.chat.crisisTitle}</p>
-            <p className="mt-0.5">{copy.chat.crisisBody}</p>
+            <p className="mt-0.5">{crisisBodyFor(copy.chat, current.support?.emergencyResources)}</p>
             {current.support?.emergencyResources?.length ? (
               <ul className="mt-1.5 list-inside list-disc" dir="auto">{current.support.emergencyResources.map((item) => <li key={item}>{item}</li>)}</ul>
             ) : null}

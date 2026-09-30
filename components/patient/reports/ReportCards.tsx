@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarClock, Eye, TrendingDown, TrendingUp } from "lucide-react";
+import { CalendarClock, Eye, LockKeyhole, TrendingDown, TrendingUp } from "lucide-react";
 import { Skeleton } from "@/components/patient/ui/primitives";
 import { Sparkline } from "@/components/patient/ui/TrendChart";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -33,7 +33,7 @@ export function ReportCardSkeleton() {
  * One week. Hovering or focusing reveals an eye cue; opening morphs the card into the report
  * (shared `layoutId` with the modal). Motion is subtle and switched off for reduced-motion.
  */
-export function ReportCard({ item, onOpen }: { item: ReportListItem; onOpen: () => void }) {
+export function ReportCard({ item, onOpen, locked = false }: { item: ReportListItem; onOpen: () => void; locked?: boolean }) {
   const copy = usePatientCopy();
   const { language } = useLanguage();
   const reduce = useReducedMotion();
@@ -41,6 +41,34 @@ export function ReportCard({ item, onOpen }: { item: ReportListItem; onOpen: () 
   const mood = moodFor(item.moodAverage);
   const up = item.moodDelta !== null && item.moodDelta >= 1;
   const down = item.moodDelta !== null && item.moodDelta <= -1;
+  const opensOn = formatDay(addDaysLocal(parseDay(item.weekEnd), 1), language, { weekday: "long", month: "short", day: "numeric" });
+
+  // The first week is still running: the card is a plain, disabled preview. No click, no focus, no request.
+  if (locked) {
+    return (
+      <div
+        aria-disabled="true"
+        className="lm-glass relative flex w-full cursor-not-allowed flex-col gap-4 overflow-hidden border-dashed border-teal-200 bg-white/45 p-5 text-start"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-ink">{fill(copy.reports.weekOf, { range: formatRange(item.weekStart, item.weekEnd, language) })}</p>
+            <span className="chip chip-pending mt-1.5">
+              <CalendarClock className="size-3" aria-hidden />
+              {copy.reports.inProgress} · {fill(copy.reports.dayOf, { a: dayOfPeriod(item.weekStart) })}
+            </span>
+          </div>
+          <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-full bg-teal-100 text-teal-700"><LockKeyhole className="size-4" /></span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          <span>{copy.reports.metrics.checkins}: <b className="font-semibold text-ink-soft">{item.checkinDays}/7</b></span>
+          <span className="ms-4">{copy.reports.metrics.journal}: <b className="font-semibold text-ink-soft">{item.journalEntries}</b></span>
+        </p>
+        <p className="text-sm font-medium text-teal-800">{fill(copy.reports.locked, { date: opensOn })}</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">{copy.reports.lockedHint}</p>
+      </div>
+    );
+  }
 
   return (
     <motion.button

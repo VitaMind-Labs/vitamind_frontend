@@ -54,6 +54,7 @@ export function PageIntro({
   action,
   eyebrow,
   icon: Icon,
+  hideTitle = false,
   className,
 }: {
   title: ReactNode;
@@ -61,6 +62,7 @@ export function PageIntro({
   action?: ReactNode;
   eyebrow?: string;
   icon?: LucideIcon;
+  hideTitle?: boolean;
   className?: string;
 }) {
   return (
@@ -72,7 +74,7 @@ export function PageIntro({
             {eyebrow}
           </p>
         )}
-        <h1 className="text-[clamp(1.5rem,1.1rem+1.4vw,2.125rem)] font-semibold leading-tight tracking-tight text-ink">{title}</h1>
+        <h1 className={cn("text-[clamp(1.5rem,1.1rem+1.4vw,2.125rem)] font-semibold leading-tight tracking-tight text-ink", hideTitle && "sr-only")}>{title}</h1>
         {subtitle && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-[0.9375rem]">{subtitle}</p>}
       </div>
       {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}

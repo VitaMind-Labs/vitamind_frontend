@@ -1,7 +1,7 @@
 "use client";
 
 import { SlidersHorizontal } from "lucide-react";
-import { MemorySection, PlanSection, PrivacySection, ProfileSection, ReminderSection, SessionSection } from "@/components/patient/settings/SettingsSections";
+import { PlanSection, PrivacySection, ProfileSection, ReminderSection, SessionSection } from "@/components/patient/settings/SettingsSections";
 import { PageIntro } from "@/components/patient/ui/primitives";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 
@@ -19,7 +19,6 @@ export default function SettingsPage() {
         </div>
         <div className="space-y-5">
           <PrivacySection />
-          <MemorySection />
         </div>
       </div>
     </div>

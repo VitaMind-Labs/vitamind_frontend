@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { FormField, IconInput } from "@/components/shared/FormField";
+import { defaultCountry, PhoneField, toE164, type PhoneValue } from "@/components/shared/PhoneField";
 import { DURATION, EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,8 +31,8 @@ function safeRedirect(redirect: string | null) {
 }
 
 const noSubscribe = () => () => {};
-type FormValues = { nickname: string; email: string; phone: string; password: string; confirmPassword: string };
-type FieldName = keyof FormValues;
+type FormValues = { nickname: string; email: string; password: string; confirmPassword: string };
+type FieldName = keyof FormValues | "phone";
 
 const LINK_CLASS =
   "rounded-md font-semibold text-teal-700 underline-offset-4 transition-colors duration-200 hover:text-teal-800 hover:underline";
@@ -66,7 +67,8 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
     if (signedIn) router.replace(safeRedirect(searchParams.get("redirect")));
   }, [signedIn, router, searchParams]);
 
-  const [values, setValues] = useState<FormValues>({ nickname: "", email: "", phone: "", password: "", confirmPassword: "" });
+  const [values, setValues] = useState<FormValues>({ nickname: "", email: "", password: "", confirmPassword: "" });
+  const [phone, setPhone] = useState<PhoneValue>(() => ({ country: defaultCountry(language), national: "" }));
   const [error, setError] = useState("");
   const [errorField, setErrorField] = useState<FieldName | null>(null);
   const [showPwd, setShowPwd] = useState(false);
@@ -84,7 +86,8 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
     e.preventDefault(); setError(""); setErrorField(null);
     if (isSignUp && !values.nickname.trim()) return fail("nickname", auth.errors.nickname);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return fail("email", auth.errors.email);
-    if (isSignUp && !/^[+\d][\d\s()-]{7,}$/.test(values.phone.trim())) return fail("phone", auth.errors.phone);
+    const e164 = isSignUp ? toE164(phone) : null;
+    if (isSignUp && !e164) return fail("phone", auth.errors.phone);
     if (values.password.length < 8) return fail("password", auth.errors.password);
     if (isSignUp && values.password !== values.confirmPassword) return fail("confirmPassword", auth.errors.confirmPassword);
 
@@ -97,7 +100,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
           let session: AuthTokens;
           if (isSignUp) {
             const res = await authApi.register({
-              nickname: values.nickname.trim(), email, phone: values.phone.trim(), password: values.password, lang: language,
+              nickname: values.nickname.trim(), email, phone: e164 ?? undefined, password: values.password, lang: language,
               diagnosticSessionId: sid, diagnosticClaimToken: claimToken,
             });
             session = res;
@@ -220,17 +223,16 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         {isSignUp && (
           <motion.div variants={fadeUp(0, 8)}>
             <FormField id="auth-phone" label={auth.phone} error={fieldError("phone")}>
-              <IconInput
+              <PhoneField
                 id="auth-phone"
-                icon={Phone}
-                type="tel"
-                inputMode="tel"
-                dir="ltr"
-                value={values.phone}
-                onChange={set("phone")}
+                value={phone}
+                onChange={(next) => { setPhone(next); if (errorField === "phone") { setError(""); setErrorField(null); } }}
+                language={language}
                 placeholder={auth.phonePlaceholder}
-                autoComplete="tel"
                 invalid={errorField === "phone"}
+                countryLabel={auth.countryCode}
+                searchPlaceholder={auth.countrySearch}
+                noResults={auth.countryNoResults}
               />
             </FormField>
           </motion.div>

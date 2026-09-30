@@ -131,6 +131,8 @@ export type JournalInsights = {
 
 export type LuminaTurn = {
   interactionId: string;
+  /** The thread this turn belongs to (null for check-in replies). */
+  conversationId: string | null;
   kind: "CHAT" | "CHECKIN" | string;
   message: string | null;
   reply: string;
@@ -145,6 +147,17 @@ export type LuminaChatReply = LuminaTurn & {
   intervention: { id: string; title: string | null; steps: string[] | null } | null;
   support: { level: SafetyLevel; emergencyResources?: string[] };
 };
+
+/** One chat thread in the history sidebar. `title` is the start of its first message (null for older chats). */
+export type LuminaConversation = {
+  id: string;
+  title: string | null;
+  createdAt: string;
+  lastMessageAt: string;
+  turnCount: number;
+};
+
+export type LuminaPage<T> = { data: T[]; meta: { limit: number; nextBefore: string | null } };
 
 // ---- Spark (ADHD assistant) - `/api/v1/me/spark/*`, ADHD patients only (403 SPARK_ADHD_ONLY otherwise)
 export type SparkTaskStatus = "TODO" | "DONE" | "DEFERRED";
@@ -214,6 +227,21 @@ export type LuminaMemory = {
   confidence: number;
   confirmedAt: string | null;
   updatedAt: string;
+};
+
+/** A pattern Spark learned from the patient's own attempts (`/me/spark/memories`). */
+export type SparkMemory = LuminaMemory & {
+  memoryKey: string;
+  value: string | null;
+  evidenceCount: number;
+};
+
+/** How many focus attempts Spark has seen against the floor it needs before suggesting a pattern. */
+export type SparkPatternProgress = {
+  attempts: number;
+  days: number;
+  neededAttempts: number;
+  neededDays: number;
 };
 
 export type Exercise = {

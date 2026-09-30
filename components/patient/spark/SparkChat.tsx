@@ -3,10 +3,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, CircleDashed, ShieldAlert, ShieldCheck, Target, Timer, X, Zap } from "lucide-react";
+import { Check, CircleDashed, ShieldAlert, Target, Timer, X, Zap } from "lucide-react";
 import {
   LuminaComposer, LuminaMessage, LuminaMotes, TrustRow, TypingRow,
 } from "@/components/patient/chat/LuminaParts";
+import { useTaskWhen } from "@/components/patient/spark/useTaskWhen";
 import { ErrorState, GlassCard, PageIntro, Skeleton, SubscriptionGate } from "@/components/patient/ui/primitives";
 import { Button } from "@/components/ui/button";
 import { AudioProvider } from "@/contexts/AudioContext";
@@ -15,8 +16,8 @@ import { usePatient } from "@/hooks/patient/usePatient";
 import { useSparkChat, type SparkMessage } from "@/hooks/patient/useSpark";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { SparkOutcomeName, SparkTask } from "@/lib/api/patient-types";
-import { fill } from "@/lib/i18n/patient";
-import { formatDay, localDay } from "@/lib/patient/format";
+import { crisisBodyFor, fill } from "@/lib/i18n/patient";
+import { dayPart, formatDay, localDay } from "@/lib/patient/format";
 
 const FRAME = "h-[calc(100dvh-12.5rem)] min-h-[34rem] lg:h-[calc(100dvh-7.75rem)]";
 const COLUMN = "mx-auto w-full max-w-3xl";
@@ -28,15 +29,15 @@ const OUTCOMES: SparkOutcomeName[] = ["DONE", "PARTIAL", "TOO_HARD", "INTERRUPTE
  * conversation and the small "next step" card under each plan. Everything shown is restored from
  * the backend - nothing lives in this component or in the agent.
  */
-export function SparkChat() {
+export function SparkChat({ initialPrompt }: { initialPrompt?: string }) {
   return (
     <AudioProvider>
-      <SparkScreen />
+      <SparkScreen initialPrompt={initialPrompt} />
     </AudioProvider>
   );
 }
 
-function SparkScreen() {
+function SparkScreen({ initialPrompt }: { initialPrompt?: string }) {
   const copy = usePatientCopy();
   const { language } = useLanguage();
   const router = useRouter();
@@ -44,7 +45,17 @@ function SparkScreen() {
   const chat = useSparkChat();
   const [draft, setDraft] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
+  const sentInitial = useRef(false);
   const { messages, isLoading, isSending, notAllowed } = chat;
+
+  // A plan request handed over from Lumina (or Home) is sent once the history has loaded, so it lands
+  // after the conversation it continues rather than racing it. The URL is cleaned so a reload does not resend it.
+  useEffect(() => {
+    if (!initialPrompt || sentInitial.current || isLoading || chat.loadError || notAllowed) return;
+    sentInitial.current = true;
+    void chat.send(initialPrompt);
+    router.replace("/dashboard/spark");
+  }, [initialPrompt, isLoading, chat, notAllowed, router]);
 
   // The backend refused Spark for this patient (their track is not ADHD): leave, and re-read the profile.
   useEffect(() => {
@@ -82,7 +93,14 @@ function SparkScreen() {
 
   return (
     <div className={`lm-rise flex flex-col ${FRAME}`}>
-      <PageIntro className="mb-4" eyebrow={copy.shell.eyebrows.spark} icon={Zap} title={copy.spark.title} subtitle={copy.spark.subtitle} />
+      <PageIntro
+        className="mb-4"
+        eyebrow={copy.shell.eyebrows.spark}
+        icon={Zap}
+        title={copy.spark.title}
+        subtitle={copy.spark.subtitle}
+        hideTitle
+      />
 
       <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section aria-label={copy.spark.title} className="lm-sanctuary flex min-h-0 flex-col">
@@ -97,7 +115,7 @@ function SparkScreen() {
                 <Skeleton className="ms-auto h-12 w-1/2" />
               </div>
             ) : empty ? (
-              <Welcome disabled={isSending} onStart={(prompt) => send(prompt)} />
+              <Welcome />
             ) : (
               <div className={`${COLUMN} space-y-7 px-4 py-6 sm:px-6 sm:py-8`}>
                 {chat.hasMore && (
@@ -110,7 +128,7 @@ function SparkScreen() {
                         {dayKey === localDay() ? copy.chat.today : formatDay(new Date(message.createdAt), language, { weekday: "short", month: "short", day: "numeric" })}
                       </p>
                     )}
-                    <LuminaMessage message={message} index={index} onRetry={() => void chat.retry(message.id)} />
+                    <LuminaMessage message={message} index={index} agentLabel={{ title: copy.spark.title, role: copy.spark.role }} onRetry={() => void chat.retry(message.id)} />
                     {message.id === latestPlanId && <PlanCard message={message} onOutcome={(outcome) => chat.recordOutcome(message.id, outcome)} />}
                   </div>
                 ))}
@@ -128,7 +146,7 @@ function SparkScreen() {
                   <ShieldAlert className="mt-0.5 size-5 shrink-0 text-rose-700" aria-hidden />
                   <div className="min-w-0 flex-1 text-sm text-rose-700">
                     <p className="font-semibold">{copy.chat.crisisTitle}</p>
-                    <p className="mt-0.5">{copy.chat.crisisBody}</p>
+                    <p className="mt-0.5">{crisisBodyFor(copy.chat, chat.support.emergencyResources)}</p>
                     {chat.support.emergencyResources.length > 0 && (
                       <ul className="mt-1.5 list-inside list-disc" dir="auto">{chat.support.emergencyResources.map((resource) => <li key={resource}>{resource}</li>)}</ul>
                     )}
@@ -148,30 +166,19 @@ function SparkScreen() {
 
         <TaskPanel tasks={chat.tasks} loading={isLoading} onComplete={(id) => void chat.completeTask(id)} />
       </div>
+
     </div>
   );
 }
 
-function Welcome({ onStart, disabled }: { onStart: (prompt: string) => void; disabled: boolean }) {
+/** The empty Spark pane: its mark and a greeting for the time of day. Spark answers when the patient writes. */
+function Welcome() {
   const copy = usePatientCopy();
+  const { name } = usePatient();
   return (
     <div className={`${COLUMN} flex flex-1 flex-col items-center justify-center px-4 py-10 text-center`}>
-      <span className="mb-4 inline-flex size-14 items-center justify-center rounded-full bg-gold-50 text-gold-700"><Zap className="size-6" aria-hidden /></span>
-      <h2 className="text-xl font-semibold text-ink">{copy.spark.welcome.title}</h2>
-      <p className="mt-2 max-w-md text-sm text-ink-muted">{copy.spark.welcome.body}</p>
-      <div className="mt-6 grid w-full max-w-xl gap-2 sm:grid-cols-2">
-        {copy.spark.welcome.starters.map((prompt) => (
-          <button
-            key={prompt}
-            type="button"
-            disabled={disabled}
-            onClick={() => onStart(prompt)}
-            className="rounded-2xl border border-white/90 bg-white/70 px-4 py-3 text-start text-sm font-medium text-ink-soft shadow-soft transition-colors hover:bg-white hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-teal-500 disabled:opacity-50"
-          >
-            {prompt}
-          </button>
-        ))}
-      </div>
+      <span className="mb-5 inline-flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-gold-100 to-gold-50 text-gold-700 ring-4 ring-gold-100/60"><Zap className="size-7" aria-hidden /></span>
+      <h2 className="text-[clamp(1.375rem,1.05rem+1.4vw,2rem)] font-semibold leading-tight text-teal-800">{fill(copy.shell.greeting[dayPart()], { name })}</h2>
     </div>
   );
 }
@@ -220,21 +227,7 @@ function PlanCard({ message, onOutcome }: { message: SparkMessage; onOutcome: (o
 /** The patient's open tasks, straight from the database. */
 function TaskPanel({ tasks, loading, onComplete }: { tasks: SparkTask[]; loading: boolean; onComplete: (id: string) => void }) {
   const copy = usePatientCopy();
-  const { language } = useLanguage();
-  const { today, tomorrow } = useMemo(() => {
-    const now = new Date();
-    const next = new Date(now);
-    next.setDate(now.getDate() + 1);
-    return { today: localDay(now), tomorrow: localDay(next) };
-  }, []);
-
-  function when(task: SparkTask) {
-    const day = task.scheduledDate ?? task.deadline;
-    if (!day) return copy.spark.tasks.noDate;
-    if (day === today) return copy.spark.tasks.today;
-    if (day === tomorrow) return copy.spark.tasks.tomorrow;
-    return formatDay(day, language);
-  }
+  const when = useTaskWhen();
 
   return (
     <aside aria-label={copy.spark.tasks.title} className="lm-glass flex min-h-0 flex-col rounded-3xl p-4 max-lg:max-h-72">
@@ -260,7 +253,7 @@ function TaskPanel({ tasks, loading, onComplete }: { tasks: SparkTask[]; loading
                   <Check className="size-3" aria-hidden />
                 </button>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-ink" dir="auto">{task.title}</p>
+                  <p className="text-sm font-medium text-ink first-letter:uppercase" dir="auto">{task.title}</p>
                   <p className="mt-0.5 text-xs text-ink-muted">
                     {when(task)}{task.startTime ? ` · ${task.startTime.slice(0, 5)}` : ""}{task.postponedCount > 0 ? ` · ${fill(copy.spark.tasks.postponed, { n: task.postponedCount })}` : ""}
                   </p>
@@ -270,7 +263,6 @@ function TaskPanel({ tasks, loading, onComplete }: { tasks: SparkTask[]; loading
           </ul>
         )}
       </div>
-      <p className="mt-3 flex items-center gap-1.5 text-[0.6875rem] text-ink-muted"><ShieldCheck className="size-3.5 shrink-0" aria-hidden />{copy.spark.memory}</p>
     </aside>
   );
 }

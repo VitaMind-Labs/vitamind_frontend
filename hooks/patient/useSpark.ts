@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { sparkApi } from "@/lib/api/patient";
 import type { SafetyLevel, SparkOutcomeName, SparkTask, SparkTurn } from "@/lib/api/patient-types";
-import { invalidatePatientData } from "@/hooks/usePatientResource";
+import { invalidatePatientData, usePatientResource } from "@/hooks/usePatientResource";
 import { localDay } from "@/lib/patient/format";
 
 export type SparkMessage = {
@@ -18,6 +18,11 @@ export type SparkMessage = {
   /** Spark's plan for this reply: the next step and the focus block it suggests. */
   turn?: SparkTurn;
 };
+
+/** What Spark is keeping open for the patient (Home). Pass `enabled: false` off the ADHD track: no request is made. */
+export function useSparkTasks({ enabled = true }: { enabled?: boolean } = {}) {
+  return usePatientResource<SparkTask[]>(enabled ? "spark:tasks" : null, async () => (await sparkApi.tasks("TODO")).data, { staleMs: 15_000 });
+}
 
 export type SparkSupport = { emergencyResources: string[] } | null;
 const PAGE = 30;
@@ -125,7 +130,8 @@ export function useSparkChat() {
       ]);
       setTasks(reply.tasks);
       setSupport(reply.support.level === "CRISIS" ? { emergencyResources: reply.support.emergencyResources ?? [] } : null);
-      invalidatePatientData("lumina:memories");
+      invalidatePatientData("spark:memories");
+      invalidatePatientData("spark:tasks");
     } catch (caught) {
       if (!mounted.current) return;
       setMessages((current) => current.map((message) => (message.id === userId ? { ...message, status: "failed" } : message)));
@@ -161,6 +167,7 @@ export function useSparkChat() {
     setTasks((current) => current.filter((task) => task.id !== taskId));
     try {
       await sparkApi.completeTask(taskId);
+      invalidatePatientData("spark:tasks");
     } catch (caught) {
       if (mounted.current) {
         setTasks(before);
@@ -187,6 +194,7 @@ export function useSparkChat() {
         });
         // A DONE attempt closes the task on the next turn; refresh the list now.
         const state = await sparkApi.state();
+        invalidatePatientData("spark:tasks");
         if (mounted.current) setTasks(state.tasks);
       } catch (caught) {
         inspect(caught);

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { LuminaOrb } from "@/components/patient/ui/primitives";
-import { PatientRail, PatientTabBar, PatientTopbar } from "@/components/patient/shell/PatientChrome";
+import { PatientMobileStrip, PatientRail, PatientTabBar } from "@/components/patient/shell/PatientChrome";
 import { LogoLoader } from "@/components/shared/LogoLoader";
 import { Button } from "@/components/ui/button";
 import { PatientProvider } from "@/hooks/patient/usePatient";
@@ -38,7 +38,7 @@ export function PatientGate({ children }: { children: ReactNode }) {
   );
 }
 
-/** The signed-in patient's frame: navigation rail, top bar, mobile tab bar and a skip link. */
+/** The signed-in patient's frame: navigation rail (profile, language, notifications), mobile tab bar and a skip link. */
 export function PatientChrome({ children }: { children: ReactNode }) {
   const copy = usePatientCopy();
   return (
@@ -52,8 +52,8 @@ export function PatientChrome({ children }: { children: ReactNode }) {
         </a>
         <PatientRail />
         <div className="min-w-0 flex-1">
-          <PatientTopbar />
-          <main id="patient-main" className="mx-auto w-full max-w-[88rem] px-4 pb-28 pt-2 sm:px-6 lg:px-8 lg:pb-10">
+          <PatientMobileStrip />
+          <main id="patient-main" className="mx-auto w-full max-w-[88rem] px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
             {children}
           </main>
         </div>

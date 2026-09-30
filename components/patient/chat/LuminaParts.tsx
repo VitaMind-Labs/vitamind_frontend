@@ -4,21 +4,22 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  Brain, Check, Compass, Copy, Feather, Heart, HeartPulse, ListChecks, Lock, Mic, MicOff, Moon, RotateCcw,
-  SendHorizontal, ShieldCheck, Sparkle, Sparkles, Square, TrendingUp, Volume2, VolumeX, X,
+  Check, Copy, Heart, HeartPulse, Lock, Mic, MicOff, RotateCcw,
+  SendHorizontal, ShieldCheck, Sparkle, Sparkles, Square, TrendingUp, Volume2, VolumeX, X, Zap,
 } from "lucide-react";
+import { TypedText, useTypewriter } from "@/components/patient/chat/Typewriter";
 import { LuminaLogo } from "@/components/patient/ui/LuminaLogo";
 import { RichText } from "@/features/diagnostic/components/RichText";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTodayCheckin } from "@/hooks/patient/useCheckin";
-import { useLuminaMemories, type ChatMessage } from "@/hooks/patient/useLumina";
+import { type ChatMessage } from "@/hooks/patient/useLumina";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { useSpeech } from "@/hooks/useSpeech";
 import type { InterventionResult } from "@/lib/api/patient";
 import { LANGS } from "@/lib/i18n/config";
 import { fill } from "@/lib/i18n/patient";
 import { getSpeechRecognition, type Recognizer } from "@/lib/patient/dictation";
-import { formatTime } from "@/lib/patient/format";
+import { dayPart, formatTime } from "@/lib/patient/format";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
@@ -40,6 +41,14 @@ function Waveform() {
 const ACTION_CLASS =
   "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-3 text-sm font-medium text-ink-soft transition-[background-color,color] duration-200 hover:bg-white/80 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4";
 
+type RevealProps = {
+  /** Type this reply out (the reply that just arrived). Never set for crisis replies. */
+  reveal?: boolean;
+  onRevealed?: () => void;
+  /** Called as the typed text grows, so the thread can keep the newest line in view. */
+  onRevealProgress?: () => void;
+};
+
 /**
  * One message, in the Mira reading style: Lumina gets its mark, a quiet frosted card and
  * Listen / Copy actions; the patient gets a teal bubble on the end edge. `plain` drops the
@@ -51,14 +60,23 @@ export function LuminaMessage({
   plain = false,
   onRetry,
   onOutcome,
+  agentLabel,
+  handoff,
+  ...reveal
 }: {
   message: Pick<ChatMessage, "id" | "role" | "text" | "createdAt"> & Partial<ChatMessage>;
   index?: number;
   plain?: boolean;
   onRetry?: () => void;
   onOutcome?: (result: InterventionResult) => void;
-}) {
-  return message.role === "user" ? <UserBubble message={message} onRetry={onRetry} /> : <LuminaBubble message={message} index={index} plain={plain} onOutcome={onOutcome} />;
+  /** Another agent speaking in this pane (Spark) names itself instead of Lumina. */
+  agentLabel?: { title: string; role: string };
+  /** A way to continue this reply in another agent (Lumina -> Spark for planning, ADHD track only). */
+  handoff?: Handoff;
+} & RevealProps) {
+  return message.role === "user"
+    ? <UserBubble message={message} onRetry={onRetry} />
+    : <LuminaBubble message={message} index={index} plain={plain} onOutcome={onOutcome} agentLabel={agentLabel} handoff={handoff} {...reveal} />;
 }
 
 function UserBubble({ message, onRetry }: { message: Pick<ChatMessage, "text" | "createdAt"> & Partial<ChatMessage>; onRetry?: () => void }) {
@@ -84,23 +102,36 @@ function UserBubble({ message, onRetry }: { message: Pick<ChatMessage, "text" | 
   );
 }
 
+export type Handoff = { href: string; label: string; hint: string };
+
 function LuminaBubble({
   message,
   index,
   plain,
   onOutcome,
+  agentLabel,
+  handoff,
+  reveal = false,
+  onRevealed,
+  onRevealProgress,
 }: {
   message: Pick<ChatMessage, "text" | "createdAt"> & Partial<ChatMessage>;
   index: number;
   plain: boolean;
   onOutcome?: (result: InterventionResult) => void;
-}) {
+  agentLabel?: { title: string; role: string };
+  handoff?: Handoff;
+} & RevealProps) {
   const copy = usePatientCopy();
   const c = copy.chat;
+  const [doneSteps, setDoneSteps] = useState<ReadonlySet<string>>(new Set());
   const { language } = useLanguage();
   const { state: speech, toggle } = useSpeech(message.text, language);
   const [copied, setCopied] = useState(false);
   const speaking = speech === "speaking" || speech === "loading";
+  // Decided once, on mount: a reply that arrived live keeps its typed structure (see TypedText).
+  const [typed] = useState(reveal);
+  const { shown, typing } = useTypewriter(message.text, reveal, onRevealed, onRevealProgress);
 
   useEffect(() => {
     if (!copied) return;
@@ -119,7 +150,7 @@ function LuminaBubble({
 
   return (
     <motion.article
-      aria-label={c.title}
+      aria-label={agentLabel?.title ?? c.title}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: Math.min(index * 0.04, 0.2), ease: EASE_OUT }}
@@ -128,23 +159,51 @@ function LuminaBubble({
       <LuminaLogo size={40} className="mt-0.5" />
       <div className="min-w-0 max-w-[92%] flex-1 sm:max-w-[85%]">
         <p className="flex flex-wrap items-baseline gap-x-2.5 px-1 pt-1">
-          <span className="text-base font-semibold text-ink sm:text-[1.0625rem]">{c.title}</span>
-          <span className="text-xs text-ink-muted sm:text-[0.8125rem]">{c.role}</span>
+          <span className="text-base font-semibold text-ink sm:text-[1.0625rem]">{agentLabel?.title ?? c.title}</span>
+          <span className="text-xs text-ink-muted sm:text-[0.8125rem]">{agentLabel?.role ?? c.role}</span>
           <time className="text-xs tabular-nums text-ink-subtle sm:text-[0.8125rem]">{formatTime(message.createdAt, language)}</time>
         </p>
 
-        <div className="mt-2 rounded-[1.375rem] rounded-ss-md border border-white/90 bg-white/70 px-5 py-4 shadow-soft backdrop-blur-sm sm:px-6">
-          <div dir="auto"><RichText content={message.text} className="break-words text-base leading-7 text-ink-soft sm:text-[1.0625rem] sm:leading-8" /></div>
+        <div
+          onClick={typing ? onRevealed : undefined}
+          className={cn("relative mt-2 overflow-hidden rounded-[1.375rem] rounded-ss-md border border-teal-100/70 bg-white/85 px-5 py-4 ps-6 shadow-soft backdrop-blur-sm before:absolute before:inset-y-3 before:start-0 before:w-[3px] before:rounded-full before:bg-gradient-to-b before:from-gold before:via-sage before:to-teal-500 sm:px-6 sm:ps-7", typing && "cursor-pointer")}
+        >
+          <div dir="auto">
+            <TypedText text={message.text} shown={shown} typed={typed}>
+              {(value) => <RichText content={value} className="break-words text-base leading-7 text-ink-soft sm:text-[1.0625rem] sm:leading-8" />}
+            </TypedText>
+          </div>
         </div>
 
-        {message.intervention && (
-          <div className="mt-3 rounded-2xl border border-gold-100 bg-gradient-to-br from-gold-50/90 to-teal-50/70 p-4">
+        {message.intervention && !typing && (
+          <motion.div
+            initial={typed ? { opacity: 0, y: 6 } : false}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: EASE_OUT }}
+            className="mt-3 rounded-2xl border border-gold-100 bg-gradient-to-br from-gold-50/90 to-teal-50/70 p-4"
+          >
             <p className="flex items-center gap-1.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-gold-700 rtl:tracking-normal"><Sparkles className="size-3" aria-hidden />{c.suggestion}</p>
             {message.intervention.title && <p className="mt-1 text-sm font-semibold text-ink" dir="auto">{message.intervention.title}</p>}
-            {message.intervention.steps && message.intervention.steps.length > 0 && (
-              <ol className="mt-2 list-inside list-decimal space-y-1 text-sm text-ink-soft" dir="auto">
-                {message.intervention.steps.map((step) => <li key={step}>{step}</li>)}
-              </ol>
+            {message.intervention.steps && message.intervention.steps.some((step) => !message.text.includes(step)) && (
+              <ul className="mt-2 space-y-1.5 text-sm text-ink-soft" dir="auto">
+                {message.intervention.steps.filter((step) => !message.text.includes(step)).map((step) => {
+                  const done = doneSteps.has(step);
+                  return (
+                    <li key={step}>
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={done}
+                        onClick={() => setDoneSteps((current) => { const next = new Set(current); if (done) next.delete(step); else next.add(step); return next; })}
+                        className="flex w-full cursor-pointer items-start gap-2.5 rounded-lg text-start transition-colors hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                      >
+                        <span className={cn("mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full border-2 border-teal-500", done ? "bg-teal-500 text-white" : "text-transparent")}><Check className="size-2.5" aria-hidden /></span>
+                        <span className={cn(done && "text-ink-muted line-through")}>{step}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {message.outcome ? (
@@ -160,10 +219,19 @@ function LuminaBubble({
                 </>
               ) : null}
             </div>
+          </motion.div>
+        )}
+
+        {handoff && !typing && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 px-1">
+            <Link href={handoff.href} className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-teal-200 bg-white px-4 text-sm font-medium text-teal-800 shadow-xs transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500">
+              <Zap className="size-3.5" aria-hidden />{handoff.label}
+            </Link>
+            <span className="text-xs text-ink-muted">{handoff.hint}</span>
           </div>
         )}
 
-        {!plain && (
+        {!plain && !typing && (
           <div className="mt-2 flex flex-wrap items-center gap-1">
             <button type="button" onClick={toggle} disabled={speech === "unsupported"} aria-label={speaking ? c.stopListening : c.listen} className={cn(ACTION_CLASS, speaking && "bg-white text-teal-800")}>
               {speech === "loading" ? <LogoSpinner size={18} /> : speaking ? <Waveform /> : <Volume2 aria-hidden />}
@@ -390,66 +458,34 @@ export function TrustRow() {
   );
 }
 
-const STARTER_ICONS = [Compass, Feather, ListChecks, Moon];
-
 /**
- * The empty conversation: Lumina's mark inside a slow gold orbit, a warm greeting, and four
- * gentle ways to begin. A starter is sent as the patient's first message.
+ * The empty conversation: Lumina's mark inside a slow gold orbit and a greeting for the time of
+ * day, nothing more. Lumina speaks first only when the patient does.
  */
-export function LuminaWelcome({ name, onStart, disabled = false }: { name: string; onStart: (prompt: string) => void; disabled?: boolean }) {
+export function LuminaWelcome({ name }: { name: string }) {
   const copy = usePatientCopy();
-  const h = copy.chat.hero;
   const reduce = useReducedMotion();
   return (
-    <div className="my-auto flex flex-col items-center px-4 py-6 text-center">
+    <div className="my-auto flex flex-col items-center px-4 py-10 text-center">
       <motion.div
         initial={{ opacity: 0, scale: reduce ? 1 : 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: EASE_OUT }}
-        className="relative grid size-28 shrink-0 place-items-center sm:size-36"
+        className="relative grid size-36 shrink-0 place-items-center sm:size-44"
       >
         <span className="lm-orbit" />
         <span className="lm-orbit lm-orbit-soft inset-[-16%]" />
         <Sparkle className="absolute end-[6%] top-[4%] size-4 fill-gold text-gold motion-safe:animate-pulse" aria-hidden />
-        <LuminaLogo size={76} glow presence />
+        <LuminaLogo size={92} glow presence />
       </motion.div>
-
       <motion.h2
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.15, ease: EASE_OUT }}
-        className="mt-4 text-[clamp(1.375rem,1.05rem+1.4vw,2.125rem)] font-semibold leading-tight tracking-tight text-ink"
+        className="mt-6 text-[clamp(1.5rem,1.1rem+1.6vw,2.375rem)] font-semibold leading-tight tracking-tight text-teal-800"
       >
-        <span className="text-teal-700">{fill(h.greeting, { name })}</span>
-        <br />
-        {h.question}
+        {fill(copy.shell.greeting[dayPart()], { name })}
       </motion.h2>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-2 hidden max-w-md text-[0.9375rem] leading-relaxed text-ink-soft sm:block">
-        {h.body}
-      </motion.p>
-
-      <p className="lm-eyebrow mt-6">{h.startersTitle}</p>
-      <ul className="mt-3 grid w-full max-w-3xl grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
-        {h.starters.map((starter, index) => {
-          const Icon = STARTER_ICONS[index] ?? Sparkle;
-          return (
-            <motion.li key={starter.title} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.35 + index * 0.07, ease: EASE_OUT }}>
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() => onStart(starter.prompt)}
-                className="lm-starter group flex h-full w-full cursor-pointer items-start gap-3 p-3.5 text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <span className="stat-tile hidden size-10 shrink-0 transition-transform duration-300 group-hover:scale-105 sm:inline-flex"><Icon className="size-[1.125rem]" aria-hidden /></span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-ink">{starter.title}</span>
-                  <span className="mt-0.5 hidden text-xs leading-snug text-ink-muted sm:block">{starter.body}</span>
-                </span>
-              </button>
-            </motion.li>
-          );
-        })}
-      </ul>
     </div>
   );
 }
@@ -477,35 +513,22 @@ export function LuminaMotes() {
   );
 }
 
-/** The page header's actions: today's check-in status and what Lumina remembers. */
-export function ChatSpaceActions({ onOpenMemory }: { onOpenMemory: () => void }) {
+/** Today's check-in status: a quiet pill in the conversation header. */
+export function ChatSpaceActions() {
   const copy = usePatientCopy();
   const s = copy.chat.space;
   const today = useTodayCheckin();
-  const memories = useLuminaMemories();
   const done = Boolean(today.data);
-  const active = (memories.data ?? []).filter((item) => item.status === "ACTIVE").length;
   return (
-    <>
-      <Link
-        href="/dashboard/check-in"
-        className={cn(
-          "inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500",
-          done ? "border-sage-100 bg-sage-50/90 text-sage-700" : "border-gold-100 bg-gold-50/90 text-gold-700 hover:bg-gold-100",
-        )}
-      >
-        {done ? <Check className="size-4" aria-hidden /> : <HeartPulse className="size-4" aria-hidden />}
-        {done ? s.checkinDone : s.checkinPending}
-      </Link>
-      <button
-        type="button"
-        onClick={onOpenMemory}
-        className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-white/90 bg-white/75 px-3.5 text-sm font-medium text-ink-soft shadow-xs transition-colors hover:bg-white hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
-      >
-        <Brain className="size-4" aria-hidden />
-        {s.memory}
-        {active > 0 && <span className="rounded-full bg-teal-100 px-1.5 text-xs font-semibold tabular-nums text-teal-800">{active}</span>}
-      </button>
-    </>
+    <Link
+      href="/dashboard/check-in"
+      className={cn(
+        "inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500",
+        done ? "border-sage-100 bg-sage-50/90 text-sage-700" : "border-gold-100 bg-gold-50/90 text-gold-700 hover:bg-gold-100",
+      )}
+    >
+      {done ? <Check className="size-4" aria-hidden /> : <HeartPulse className="size-4" aria-hidden />}
+      {done ? s.checkinDone : s.checkinPending}
+    </Link>
   );
 }

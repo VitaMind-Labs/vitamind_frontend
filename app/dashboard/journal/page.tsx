@@ -48,7 +48,7 @@ export default function JournalPage() {
 
   return (
     <div className="lm-rise">
-      <PageIntro eyebrow={copy.shell.eyebrows.journal} icon={BookHeart} title={copy.journal.title} subtitle={copy.journal.subtitle} action={tabs} />
+      <PageIntro eyebrow={copy.shell.eyebrows.journal} icon={BookHeart} title={copy.journal.title} subtitle={copy.journal.subtitle} action={tabs} hideTitle />
 
       <div id={`journal-panel-${tab}`} role="tabpanel" aria-labelledby={`journal-tab-${tab}`}>
         {tab === "write" && (

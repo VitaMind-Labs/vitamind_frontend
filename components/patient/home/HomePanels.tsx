@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, Clock, Leaf, Send, Sparkles, Sun } from "lucide-react";
 import { LuminaLogo } from "@/components/patient/ui/LuminaLogo";
 import { GlassCard, Skeleton } from "@/components/patient/ui/primitives";
+import { SparkPanel } from "@/components/patient/spark/SparkPanel";
 import { PatientModal } from "@/components/patient/ui/PatientModal";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,13 +19,14 @@ import { cn } from "@/lib/utils";
 
 /**
  * Home's right column. What it shows follows the patient's track (see `homePanelMode`):
- * a simple Lumina chat for ADHD and not-yet-oriented patients, curated reads for bipolar,
- * schizophrenia and psychosis. Both are static for now and sit behind small seams
+ * Spark's compact task list for ADHD, three curated reads for bipolar, schizophrenia and
+ * psychosis, and a simple Lumina chat for anyone not yet oriented. Both are static for now and sit behind small seams
  * (`contentProvider`, the chat hand-off) so Lumina can drive them later.
  */
 export function HomeSidePanel() {
   const { profile } = usePatient();
-  return homePanelMode(profile.track) === "reads" ? <ReadsPanel /> : <LuminaChatPanel />;
+  const mode = homePanelMode(profile.track, profile.hasSpark);
+  return mode === "reads" ? <ReadsPanel /> : mode === "spark" ? <SparkPanel /> : <LuminaChatPanel />;
 }
 
 function PanelHeader({ title, subtitle, badge }: { title: string; subtitle: string; badge?: string }) {
@@ -44,7 +46,6 @@ function PanelHeader({ title, subtitle, badge }: { title: string; subtitle: stri
 function LuminaChatPanel() {
   const copy = usePatientCopy();
   const router = useRouter();
-  const { name } = usePatient();
   const today = useTodayCheckin();
   const [text, setText] = useState("");
   const chat = copy.home.lumina;
@@ -67,25 +68,12 @@ function LuminaChatPanel() {
       </p>
 
       <div className="flex flex-1 flex-col gap-3">
-        <div className="lm-bubble-lumina max-w-[92%] px-4 py-3 text-sm leading-relaxed text-ink">{fill(chat.greeting, { name })}</div>
         {today.data?.luminaMessage && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="lm-bubble-lumina max-w-[92%] px-4 py-3 text-sm leading-relaxed text-ink">
             <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-wide text-teal-700 rtl:tracking-normal">{chat.lastFromLumina}</p>
             <p className="line-clamp-6 whitespace-pre-wrap" dir="auto">{today.data.luminaMessage}</p>
           </motion.div>
         )}
-        <div className="mt-1 flex flex-wrap justify-end gap-2">
-          {chat.prompts.map((prompt) => (
-            <button
-              key={prompt}
-              type="button"
-              onClick={() => open(prompt)}
-              className="rounded-full border border-teal-200 bg-white/70 px-3.5 py-2 text-[0.8125rem] font-medium text-teal-800 transition-all hover:-translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
-            >
-              {prompt}
-            </button>
-          ))}
-        </div>
       </div>
 
       <Button variant="default" size="lg" className="w-full" onClick={() => open()}>

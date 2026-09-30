@@ -168,10 +168,8 @@
  * ===== PATIENT TRACK THEMES =====
  * The signed-in patient app tints itself to the patient's track (set on <html data-track>).
  * Each palette is chosen to lower arousal rather than to decorate:
- *  - default / unspecified : the brand teal + sage aurora;
- *  - ADHD                  : clear, cool sky-blue with mint and a touch of peach (calm focus);
- *  - BIPOLAR               : dusk lavender with soft teal and sand (steadying, low stimulation);
- *  - SCHIZOPHRENIA / PSYCHOSIS : quiet sage, fog and linen, very low contrast and NO drifting motion.
+ *  - Lumina teal + gold for everyone, tuned per track (see `html[data-track]` below);
+ *  - SCHIZOPHRENIA / PSYCHOSIS additionally get NO drifting motion.
  * The teal ramp and the primary/ring tokens are overridden on <html>, so modals and popovers,
  * which render outside the app shell, pick the palette up too.
  */
@@ -187,83 +185,116 @@
   --lm-hero-warm: rgb(248 235 194 / 0.85);
 }
 
+/*
+ * The patient app wears Lumina's colours: deep teal with a warm gold (the ring and star of the logo).
+ * Every screen of one patient uses the same theme. The teal is tuned per track to lower arousal,
+ * and so is the sidebar, so two patients do not share the same surroundings:
+ *  - default / unspecified : Lumina teal;
+ *  - ADHD                  : cooler teal-blue, clear and focused;
+ *  - BIPOLAR               : dusk indigo-slate, steadying and low-stimulation;
+ *  - SCHIZOPHRENIA / PSYCHOSIS : quiet sage-teal, very soft contrast.
+ * Set on <html>, so modals and popovers (rendered outside the shell) match too.
+ */
+html[data-track] {
+  --color-teal-50: #eef7f8;
+  --color-teal-100: #d7ecee;
+  --color-teal-200: #b0d8dc;
+  --color-teal-300: #7fbcc3;
+  --color-teal-400: #4d9ea8;
+  --color-teal-500: #2f8792;
+  --color-teal-600: #257580;
+  --color-teal-700: #1f5f69;
+  --color-teal-800: #194b54;
+  --color-teal-900: #133a41;
+  --color-primary: #257580;
+  --color-ring: #2f8792;
+  --color-accent: #d7ecee;
+  --color-accent-foreground: #1f5f69;
+  --color-gold: #d9ab45;
+  --color-gold-50: #fcf7e8;
+  --color-gold-100: #f7ebc6;
+  --color-gold-300: #e3c57e;
+  --color-gold-600: #b98c22;
+  --color-gold-700: #86620f;
+  --lm-base: #f5f9fa;
+  --lm-g1: rgb(47 135 146 / 0.26);
+  --lm-g2: rgb(217 171 69 / 0.14);
+  --lm-g3: rgb(184 112 112 / 0.08);
+  --lm-g4: rgb(125 168 158 / 0.2);
+  --lm-rail-a: #1f5f69;
+  --lm-rail-b: #12333a;
+  --lm-hero-mid: #e3f0f1;
+  --lm-hero-warm: rgb(247 235 198 / 0.8);
+}
+
 html[data-track="ADHD"] {
-  --color-teal-50: #f0f6fa;
-  --color-teal-100: #dfeaf3;
-  --color-teal-200: #c5d9ea;
-  --color-teal-300: #9fbfd8;
-  --color-teal-400: #77a1c2;
-  --color-teal-500: #5583ab;
-  --color-teal-600: #4a7398;
-  --color-teal-700: #3d5f80;
-  --color-teal-800: #314d68;
-  --color-teal-900: #243a4e;
-  --color-primary: #4a7398;
-  --color-ring: #5583ab;
-  --color-accent: #dfeaf3;
-  --color-accent-foreground: #3d5f80;
+  --color-teal-50: #eef5f9;
+  --color-teal-100: #d9eaf2;
+  --color-teal-200: #b4d5e5;
+  --color-teal-300: #83b7d0;
+  --color-teal-400: #519bbb;
+  --color-teal-500: #2f82a8;
+  --color-teal-600: #266f93;
+  --color-teal-700: #1f5b7a;
+  --color-teal-800: #194862;
+  --color-teal-900: #13374b;
+  --color-primary: #266f93;
+  --color-ring: #2f82a8;
+  --color-accent: #d9eaf2;
+  --color-accent-foreground: #1f5b7a;
   --lm-base: #f5f8fb;
-  --lm-g1: rgb(110 165 205 / 0.3);
-  --lm-g2: rgb(240 200 160 / 0.17);
-  --lm-g3: rgb(170 180 235 / 0.15);
-  --lm-g4: rgb(140 200 180 / 0.22);
-  --lm-rail-a: #1f3a52;
-  --lm-rail-b: #16283a;
-  --lm-hero-mid: #e2efee;
-  --lm-hero-warm: rgb(255 231 205 / 0.8);
+  --lm-g1: rgb(47 130 168 / 0.28);
+  --lm-g4: rgb(100 170 190 / 0.22);
+  --lm-rail-a: #1d5876;
+  --lm-rail-b: #10293a;
+  --lm-hero-mid: #e2eef3;
 }
 
 html[data-track="BIPOLAR"] {
-  --color-teal-50: #f4f3fa;
-  --color-teal-100: #e8e6f4;
-  --color-teal-200: #d5d1ea;
-  --color-teal-300: #b7b0d8;
-  --color-teal-400: #9a91c4;
-  --color-teal-500: #7f78ae;
-  --color-teal-600: #6c6699;
-  --color-teal-700: #585381;
-  --color-teal-800: #464268;
-  --color-teal-900: #35324f;
-  --color-primary: #6c6699;
-  --color-ring: #7f78ae;
-  --color-accent: #e8e6f4;
-  --color-accent-foreground: #585381;
-  --lm-base: #f7f6fb;
-  --lm-g1: rgb(165 155 215 / 0.3);
-  --lm-g2: rgb(235 210 175 / 0.15);
-  --lm-g3: rgb(200 160 190 / 0.11);
-  --lm-g4: rgb(120 170 180 / 0.2);
-  --lm-rail-a: #37335c;
-  --lm-rail-b: #232a45;
-  --lm-hero-mid: #e6eaf1;
-  --lm-hero-warm: rgb(243 228 236 / 0.85);
+  --color-teal-50: #f1f4fa;
+  --color-teal-100: #e0e6f3;
+  --color-teal-200: #c3cde6;
+  --color-teal-300: #9dabd2;
+  --color-teal-400: #7886bb;
+  --color-teal-500: #5a69a3;
+  --color-teal-600: #4d5b92;
+  --color-teal-700: #3f4b78;
+  --color-teal-800: #333d61;
+  --color-teal-900: #272f4a;
+  --color-primary: #4d5b92;
+  --color-ring: #5a69a3;
+  --color-accent: #e0e6f3;
+  --color-accent-foreground: #3f4b78;
+  --lm-base: #f6f7fb;
+  --lm-g1: rgb(90 105 163 / 0.26);
+  --lm-g4: rgb(110 160 175 / 0.2);
+  --lm-rail-a: #3a4680;
+  --lm-rail-b: #1e2540;
+  --lm-hero-mid: #e6eaf3;
 }
 
 html[data-track="SCHIZOPHRENIA"],
 html[data-track="PSYCHOSIS"] {
-  --color-teal-50: #f3f7f5;
-  --color-teal-100: #e4ede9;
-  --color-teal-200: #cddcd5;
-  --color-teal-300: #aec6bc;
-  --color-teal-400: #8eaea2;
-  --color-teal-500: #6f9587;
-  --color-teal-600: #5f8275;
-  --color-teal-700: #4f6b60;
-  --color-teal-800: #40564d;
-  --color-teal-900: #31433c;
-  --color-primary: #5f8275;
-  --color-ring: #6f9587;
-  --color-accent: #e4ede9;
-  --color-accent-foreground: #4f6b60;
-  --lm-base: #f6f8f6;
-  --lm-g1: rgb(150 185 170 / 0.26);
-  --lm-g2: rgb(235 225 205 / 0.2);
-  --lm-g3: rgb(185 200 220 / 0.16);
-  --lm-g4: rgb(170 190 180 / 0.2);
-  --lm-rail-a: #2f423d;
-  --lm-rail-b: #22302c;
-  --lm-hero-mid: #e9efeb;
-  --lm-hero-warm: rgb(245 238 222 / 0.85);
+  --color-teal-50: #f1f7f5;
+  --color-teal-100: #dfeee9;
+  --color-teal-200: #bfdcd3;
+  --color-teal-300: #94c3b6;
+  --color-teal-400: #68a898;
+  --color-teal-500: #4a8e7d;
+  --color-teal-600: #3f7b6c;
+  --color-teal-700: #336257;
+  --color-teal-800: #2a4e46;
+  --color-teal-900: #213d37;
+  --color-primary: #3f7b6c;
+  --color-ring: #4a8e7d;
+  --color-accent: #dfeee9;
+  --color-accent-foreground: #336257;
+  --lm-base: #f6f9f8;
+  --lm-g1: rgb(74 142 125 / 0.22);
+  --lm-g4: rgb(150 190 175 / 0.2);
+  --lm-rail-a: #2d6558;
+  --lm-rail-b: #182f2a;
+  --lm-hero-mid: #e6f0ec;
 }
 
 /* No drifting motion behind patients who may be sensitive to it. */
@@ -433,18 +464,22 @@ html[dir="rtl"] body {
   letter-spacing: 0 !important;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  text-wrap: balance;
-  overflow-wrap: break-word;
-}
+/* Element defaults live in the base layer so utilities (`truncate`, `whitespace-nowrap`) can
+   override them; unlayered, `text-wrap` here beat every utility and a truncated line still wrapped. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
 
-p,
-li {
-  text-wrap: pretty;
-  overflow-wrap: break-word;
+  p,
+  li {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
 }
 
 .tabular-nums,
@@ -649,13 +684,27 @@ html.lenis body {
   .orientation-glass {
     backdrop-filter: blur(22px) saturate(1.15);
     -webkit-backdrop-filter: blur(22px) saturate(1.15);
-    background: linear-gradient(160deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.5));
-    border: 1px solid rgb(255 255 255 / 0.85);
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.86), rgb(255 255 255 / 0.66));
+    border: 1px solid rgb(255 255 255 / 0.95);
     border-radius: 1.75rem;
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      inset 0 1px 0 rgb(255 255 255 / 0.95),
       0 1px 2px rgb(44 62 59 / 0.04),
-      0 24px 60px -32px rgb(44 62 59 / 0.28);
+      0 28px 64px -30px rgb(47 83 90 / 0.3);
+    position: relative;
+  }
+
+  /* The home page's teal-to-gold hairline across the top of each pane. */
+  .orientation-glass::before {
+    background: linear-gradient(90deg, transparent, var(--color-teal-400), var(--color-gold), transparent);
+    border-radius: 9999px;
+    content: "";
+    height: 2px;
+    inset-block-start: 0;
+    inset-inline: 12%;
+    opacity: 0.75;
+    pointer-events: none;
+    position: absolute;
   }
 
   /* A quieter tile nested inside `.orientation-glass` (progress, focus, suggestions). */
@@ -1064,6 +1113,17 @@ html.lenis body {
     background: linear-gradient(135deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.06));
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 8px 20px -10px rgb(0 0 0 / 0.5);
     color: #fff;
+  }
+
+  /* The logo's amber, as a small leaf-green-to-gold marker on the current page. */
+  .lm-nav-link[aria-current="page"]::before {
+    background: linear-gradient(180deg, var(--color-gold), var(--color-sage));
+    border-radius: 9999px;
+    content: "";
+    inset-block: 0.75rem;
+    inset-inline-start: 0.25rem;
+    position: absolute;
+    width: 3px;
   }
 
   .lm-nav-link:focus-visible,
@@ -1579,4 +1639,80 @@ html.lenis body {
 @keyframes vm-loader-fade {
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
+}
+
+/* ===== AMBIENT BACKDROP — drifting colour reflections (AmbientBackdrop) ===== */
+.vm-reflet {
+  border-radius: 9999px;
+  filter: blur(72px);
+  position: absolute;
+  will-change: transform;
+}
+
+.vm-reflet-teal {
+  animation: vm-reflet-a 24s ease-in-out infinite;
+  background: radial-gradient(closest-side, rgb(81 133 145 / 0.42), transparent 72%);
+  height: 46rem;
+  inset-block-start: -14rem;
+  inset-inline-start: -12rem;
+  width: 46rem;
+}
+
+.vm-reflet-gold {
+  animation: vm-reflet-b 30s ease-in-out infinite;
+  background: radial-gradient(closest-side, rgb(227 176 28 / 0.3), transparent 72%);
+  height: 38rem;
+  inset-block-end: -12rem;
+  inset-inline-end: -8rem;
+  width: 38rem;
+}
+
+.vm-reflet-sage {
+  animation: vm-reflet-c 27s ease-in-out infinite;
+  background: radial-gradient(closest-side, rgb(125 168 158 / 0.4), transparent 72%);
+  height: 34rem;
+  inset-block-start: 30%;
+  inset-inline-end: 12%;
+  width: 34rem;
+}
+
+.vm-sheen {
+  animation: vm-sheen 70s linear infinite;
+  background: conic-gradient(from 0deg at 50% 50%, rgb(81 133 145 / 0.14), rgb(227 176 28 / 0.1), rgb(125 168 158 / 0.16), rgb(81 133 145 / 0.14));
+  filter: blur(64px);
+  height: 120vmax;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  margin: -60vmax 0 0 -60vmax;
+  opacity: 0.7;
+  position: absolute;
+  width: 120vmax;
+  will-change: transform;
+}
+
+@keyframes vm-reflet-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(18%, 14%, 0) scale(1.18); }
+}
+
+@keyframes vm-reflet-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50% { transform: translate3d(-22%, -16%, 0) scale(0.9); }
+}
+
+@keyframes vm-reflet-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.95); }
+  33% { transform: translate3d(-18%, 12%, 0) scale(1.12); }
+  66% { transform: translate3d(10%, -14%, 0) scale(1); }
+}
+
+@keyframes vm-sheen {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vm-reflet,
+  .vm-sheen {
+    animation: none;
+  }
 }
