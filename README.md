@@ -1,434 +1,252 @@
 # VitaMind Frontend
 
-The web frontend for **VitaMind** — an AI-powered mental health platform designed to provide continuous, personalized, and human-centered support while facilitating collaboration with mental health professionals.
+A premium mental wellness and digital care frontend built with Next.js, TypeScript, and modern UI tooling. The application is designed to support guided experiences across onboarding, diagnostic journeys, dashboards, clinical guidance, subscriptions, and help flows in a calm, accessible format.
 
-> **VitaMind is designed to support, not replace, qualified mental health professionals.**
+> This README has been written without personal or user-identifying information.
 
 ## Overview
 
-The VitaMind frontend provides the user-facing web experience for the VitaMind ecosystem, including:
+VitaMind is structured as a modern web application focused on:
 
-- AI-powered conversations and orientation
-- Mental health assessments and guided experiences
-- Personalized user experiences
-- Wellbeing and progress tracking
-- Patient information and history
-- Subscription and account management
-- Professional care workflows
-- Bilingual **English / Arabic** experience
-- Responsive and accessible web interfaces
+- patient-facing onboarding and authentication
+- mental wellness diagnostics and guided flows
+- account dashboard and progress tracking
+- educational clinical guidance content
+- subscription and payment experiences
+- multilingual support and responsive accessibility
 
-The frontend focuses on presentation, interaction, user experience, and communication with the VitaMind backend. Sensitive business logic, AI orchestration, authorization, and data access remain backend responsibilities.
+The frontend is built to feel polished, trustworthy, and clinically aware while remaining flexible enough for future feature expansion. VitaMind supports care and does not replace qualified mental health professionals.
 
----
+## Architecture and Safety Boundaries
 
-## Application Architecture
+The frontend presents conversations, assessments, loading and error states, and user-facing progress. Authentication, authorization, clinical decisions, AI orchestration, tool execution, validation, and protected data access belong to the backend. The frontend must not execute privileged tools or access protected data sources directly.
 
-```text
-┌──────────────────────┐
-│        User          │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│  VitaMind Frontend   │
-│      Next.js         │
-└──────────┬───────────┘
-           │ HTTPS / API
-           ▼
-┌──────────────────────┐
-│   VitaMind Backend   │
-│       NestJS         │
-├──────────────────────┤
-│ Authentication       │
-│ Authorization        │
-│ Business Logic       │
-│ AI Services          │
-│ Agent Orchestration  │
-│ Tool Calling         │
-│ Data Access          │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────────────┐
-│ External Services / Database │
-│ AI Providers / Data Sources  │
-└──────────────────────────────┘
-```
+AI responses are presented as support, not as a diagnosis or a replacement for professional care.
 
----
+## Tech Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Radix UI primitives
+- Recharts and charting utilities
+- Socket.IO client
+- GSAP and Lenis for motion and smooth scrolling
+- ESLint and Next.js linting
 
 ## Project Structure
 
 ```text
 vitamind_frontend/
-│
-├── app/                    # Next.js application routes and pages
-├── components/             # Reusable UI components
-├── contexts/               # Global React contexts
-├── hooks/                  # Reusable React hooks
-├── lib/                    # Shared utilities and frontend services
-├── public/                 # Static assets
-│
-├── AGENTS.md               # AI coding-agent instructions
-├── next.config.ts          # Next.js configuration
-├── tsconfig.json           # TypeScript configuration
-├── eslint.config.mjs       # ESLint configuration
-├── postcss.config.mjs      # PostCSS configuration
-└── package.json            # Dependencies and scripts
+├── app/
+│   ├── api/
+│   ├── auth/
+│   ├── clinical-guide/
+│   ├── dashboard/
+│   ├── diagnostic/
+│   ├── home/
+│   ├── subscription/
+│   ├── support/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── auth/
+│   ├── clinical-guide/
+│   ├── dashboard/
+│   ├── diagnostic/
+│   ├── home/
+│   ├── layout/
+│   ├── providers/
+│   ├── shared/
+│   ├── subscription/
+│   ├── support/
+│   └── ui/
+├── contexts/
+│   ├── AudioContext.tsx
+│   ├── definitions.ts
+│   ├── LanguageContext.tsx
+│   └── ThemeContext.tsx
+├── doc/
+├── features/
+├── hooks/
+├── lib/
+│   ├── api/
+│   ├── config/
+│   ├── diseases/
+│   ├── i18n/
+│   ├── socket/
+│   ├── storage/
+│   └── utils.ts
+├── public/
+├── .env.local.example
+├── .gitignore
+├── AGENTS.md
+├── CLAUDE.md
+├── components.json
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── postcss.config.mjs
+├── README.md
+├── tsconfig.json
+└── ...
 ```
 
-The architecture follows a modular approach so that UI components, application logic, reusable hooks, and shared utilities remain separated and maintainable.
+## Key Areas
 
----
+### App layer
+The `app/` directory contains the route structure and global app shell. It includes the main application pages and Next.js App Router conventions.
 
-## AI-Powered Experience
+### Components
+Reusable UI and feature components live under `components/` and are grouped by domain: authentication, dashboard, diagnostics, home, subscriptions, and support.
 
-VitaMind uses AI-powered experiences while keeping the frontend and backend responsibilities clearly separated.
+### Contexts and state
+Shared app state and locale/theme logic are centralized under `contexts/`, making it easier to manage language switching and cross-feature behavior.
 
-### Frontend Responsibilities
+### Libraries and utilities
+The `lib/` directory contains domain logic, API helpers, configuration, storage, i18n setup, and shared utilities.
 
-The frontend is responsible for:
+### Motion and experience layer
+The frontend uses cinematic motion patterns, premium gradients, and design-system-driven transitions to create a calming, modern healthcare experience.
 
-- Conversational interfaces
-- User input and interaction
-- Assessment interfaces
-- AI response presentation
-- Loading and error states
-- Conversation history
-- Visual feedback and interaction states
-- Responsive user experiences
+## Prerequisites
 
-### Backend Responsibilities
+Before starting, ensure you have:
 
-The backend is responsible for:
+- Node.js 20 or later
+- npm, pnpm, or yarn
+- A modern browser
 
-- AI provider communication
-- Agent orchestration
-- Tool calling
-- Authentication and authorization
-- Business logic
-- Data access
-- Validation
-- Security-sensitive operations
+## Installation
 
-### Tool Calling Architecture
-
-```text
-User Question
-      │
-      ▼
-   Frontend
-      │
-      ▼
-Backend / Agent Orchestrator
-      │
-      ▼
-     LLM
-      │
-      │  Tool required?
-      ▼
- Tool Call
-(tool + parameters)
-      │
-      ▼
-Backend Tool Router / Executor
-      │
-      ├──────────────► Database
-      │
-      ├──────────────► External API
-      │
-      └──────────────► Other Data Source
-      │
-      ▼
-   Tool Result
-      │
-      ▼
-     LLM
-      │
-      ▼
-Final Response
-      │
-      ▼
-   Frontend
-```
-
-**Core principle:**
-
-> **The LLM decides. The backend controls and executes.**
-
-The frontend should never be responsible for executing privileged tools or directly accessing protected data sources.
-
----
-
-## Technology Stack
-
-### Core
-
-- **Next.js**
-- **React**
-- **TypeScript**
-
-### UI & Styling
-
-- **Tailwind CSS**
-- **Radix UI**
-- **Lucide React**
-- **Iconify**
-
-### Animation & Interaction
-
-- **Framer Motion**
-- **GSAP**
-
-### Forms & Validation
-
-- **React Hook Form**
-- **Zod**
-
-### Data Visualization & Real-Time
-
-- **Recharts**
-- **Socket.IO Client**
-
-### 3D & Interactive Experiences
-
-- **Three.js**
-- **React Three Fiber**
-
----
-
-## Language
-
-The VitaMind frontend currently supports:
-
-- **English**
-- **Arabic**
-
-The application is designed with bilingual support, including **right-to-left (RTL)** experiences for Arabic where applicable.
-
----
-
-## Getting Started
-
-### Requirements
-
-Make sure the following are installed:
-
-- Node.js
-- npm
-- Git
-
-### Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/VitaMind-Labs/vitamind_frontend.git
-```
-
-Navigate to the project:
+1. Open a terminal in the frontend folder:
 
 ```bash
 cd vitamind_frontend
 ```
 
-Install dependencies:
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
----
-
-## Environment Variables
-
-Create a local environment file:
+3. Create environment variables if needed:
 
 ```bash
-cp .env.example .env.local
+cp .env.local.example .env.local
 ```
 
-Example:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
-
-Environment variables containing secrets or private credentials must never be committed to the repository.
-
----
-
-## Development
-
-Start the development server:
+4. Start the local development server:
 
 ```bash
 npm run dev
 ```
 
-The application will be available at:
+5. Open the app in your browser:
 
 ```text
 http://localhost:3000
 ```
 
----
+## Environment Variables
 
-## Production
+Create a `.env.local` file for local configuration. The repository includes `.env.local.example` as a template. Use placeholders only and do not commit real secrets or production credentials.
 
-Build the application:
+Example:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+NEXT_PUBLIC_APP_ENV=development
+```
+
+Update values based on your backend and deployment configuration.
+
+## Available Scripts
+
+```bash
+npm run dev      # start the Next.js development server
+npm run build    # create a production build
+npm run start    # run the production server
+npm run lint     # run ESLint checks
+```
+
+## Development Notes
+
+- The app uses the App Router pattern from Next.js.
+- Global styling and theme configuration are managed in `app/globals.css`.
+- Route-level modules are organized by feature domain for maintainability.
+- Shared UI primitives and design-system patterns are centralized in the `components/ui` folder.
+- Language-aware and accessibility-oriented behavior is handled at the app shell and context layer.
+
+## Feature Modules
+
+### Authentication
+User sign-in and registration flows, along with shared auth layout components and branding.
+
+### Diagnostic experience
+Clinical assessment and diagnostic modules for guided patient interactions and structured evaluation pathways.
+
+### Dashboard
+User-facing overview, progress tracking, and account management screens.
+
+### Clinical guidance
+Educational and informational pages tailored to wellness and treatment support.
+
+### Subscription experience
+Pricing, plans, and checkout flow presentation.
+
+### Support and help
+Support pages and customer assistance structures.
+
+## Styling and Design System
+
+The project uses a component-based design system with:
+
+- consistent spacing and typography rules
+- re-usable UI primitives
+- modern card and panel layouts
+- premium gradients and soft motion treatment
+- responsive layouts for mobile and desktop experiences
+
+## Build and Deployment
+
+Production builds can be created with:
 
 ```bash
 npm run build
 ```
 
-Start the production server:
+Then serve the production build locally:
 
 ```bash
 npm run start
 ```
 
----
+For deployment, use the hosting platform best suited for your environment, such as Vercel or a container-based deployment pipeline. Ensure all environment variables are managed securely outside the source repository.
 
-## Code Quality
+## Privacy and Data Handling
 
-Run the linter:
+- No personal data is included in this repository documentation.
+- Avoid committing real user records, credentials, tokens, or private identifiers.
+- Keep environment and deployment settings in secure secret stores rather than source-controlled files.
 
-```bash
-npm run lint
-```
+## Contributing
 
-Before opening a pull request, verify:
-
-- TypeScript errors are resolved
-- ESLint passes
-- Components remain reusable
-- API responsibilities remain separated from UI responsibilities
-- Sensitive logic stays on the backend
-- English and Arabic interfaces remain consistent
-- Arabic RTL behavior is preserved where applicable
-- Loading, error, and empty states are handled
-
----
-
-## Design Principles
-
-VitaMind follows a human-centered product philosophy.
-
-### Human-Centered
-
-Interfaces should feel supportive, understandable, and respectful.
-
-### Calm
-
-Visual design should avoid unnecessary visual noise and create a reassuring experience.
-
-### Clear
-
-Information hierarchy should make important information easy to understand.
-
-### Accessible
-
-Interfaces should remain usable across different devices, screen sizes, and interaction needs.
-
-### Consistent
-
-Components, spacing, typography, colors, interactions, and states should follow a coherent design system.
-
-### Responsible AI
-
-AI should support the user and healthcare professionals without presenting itself as a replacement for qualified clinical care.
-
----
-
-## Development Guidelines
-
-When contributing to the frontend:
-
-- Prefer reusable components over duplicated UI
-- Keep components focused on a single responsibility
-- Extract repeated logic into custom hooks
-- Keep API communication separated from presentation components
-- Avoid placing sensitive business logic in the frontend
-- Use TypeScript types consistently
-- Validate user input
-- Handle loading, error, and empty states
-- Preserve accessibility
-- Preserve English/Arabic support and RTL behavior
-- Follow the existing design system before introducing new patterns
-
----
-
-## Git Commit Convention
-
-Use clear and consistent commit prefixes:
-
-```text
-feat:     New functionality
-fix:      Bug fix
-refactor: Code restructuring
-style:    UI or formatting changes
-docs:     Documentation
-chore:    Maintenance
-```
-
-Examples:
-
-```text
-feat: add patient assessment interface
-fix: resolve Arabic RTL layout issue
-refactor: extract reusable assessment components
-docs: update frontend architecture
-```
-
----
-
-## VitaMind Ecosystem
-
-The frontend is part of a larger VitaMind ecosystem:
-
-```text
-                    VitaMind Ecosystem
-                           │
-          ┌────────────────┼────────────────┐
-          │                │                │
-          ▼                ▼                ▼
-   Patient Frontend   Professional UI   Administration
-      Next.js            Next.js           Next.js
-          │                │                │
-          └────────────────┼────────────────┘
-                           │
-                           ▼
-                    VitaMind Backend
-                        NestJS
-                           │
-             ┌─────────────┼─────────────┐
-             │             │             │
-             ▼             ▼             ▼
-        AI Services    Data Layer    External APIs
-```
-
----
-
-## Project Status
-
-**Status: Active Development**
-
-The frontend architecture and product experience are continuously evolving as VitaMind's AI, clinical, and professional workflows are developed.
-
----
-
-## Repository
-
-**GitHub:** `VitaMind-Labs/vitamind_frontend`
-
-VitaMind Labs — Building a more continuous, human-centered mental health experience.
-
----
+1. Create a feature branch.
+2. Keep changes focused and domain-based.
+3. Maintain consistent component and folder conventions.
+4. Run linting before submitting changes.
+5. Ensure no sensitive or personal data is added to the project.
 
 ## License
 
-This project is maintained by **VitaMind Labs**.
+This project does not currently declare a public license in the repository. Before public distribution or external sharing, define the appropriate licensing terms for your organization or client.
 
-All rights reserved.
+## Support
+
+For project-specific setup questions, contact the appropriate team maintainer through your internal project channels rather than exposing personal contact details in the repository.

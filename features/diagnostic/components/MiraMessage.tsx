@@ -1,0 +1,189 @@
+"use client";
+
+import Image from "next/image";
+import { Check, Copy, Volume2, VolumeX } from "lucide-react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { MIRA_MARK_SRC } from "@/components/layout/site-header/AgentAvatar";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LANGS } from "@/lib/i18n/config";
+import { EASE_OUT } from "@/lib/motion";
+import { useSpeech } from "@/hooks/useSpeech";
+import { cn } from "@/lib/utils";
+import { RichText } from "./RichText";
+import { LogoSpinner } from "@/components/shared/LogoLoader";
+
+interface MiraMessageProps {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+  index: number;
+  language: "en" | "ar";
+}
+
+/** Rendered size (px) of Mira's mark per avatar size. */
+const AVATAR_SIZES = {
+  sm: "size-9",
+  md: "size-11",
+  lg: "size-12 sm:size-[3.25rem]",
+  xl: "size-14",
+} as const;
+
+/** Mira's 3D mark on a luminous white disc. `presence` adds a calm "here with you" dot. */
+export function MiraAvatar({
+  className,
+  size = "sm",
+  presence = false,
+}: {
+  className?: string;
+  size?: keyof typeof AVATAR_SIZES;
+  presence?: boolean;
+}) {
+  return (
+    <span aria-hidden className={cn("relative inline-flex shrink-0", className)}>
+      <span className={cn("lm-logo-disc flex items-center justify-center rounded-full", AVATAR_SIZES[size])}>
+        <Image src={MIRA_MARK_SRC} alt="" width={112} height={112} className="size-[86%] object-contain" />
+      </span>
+      {presence && (
+        <span className="absolute -bottom-0.5 -end-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white">
+          <span className="absolute h-2.5 w-2.5 animate-ping rounded-full bg-sage opacity-50 motion-reduce:hidden" />
+          <span className="relative h-2.5 w-2.5 rounded-full bg-sage" />
+        </span>
+      )}
+    </span>
+  );
+}
+
+function Waveform() {
+  return (
+    <span className="flex h-3 items-center gap-[2px]" aria-hidden>
+      {[0, 1, 2, 3].map((i) => (
+        <motion.span
+          key={i}
+          className="w-[2px] rounded-full bg-teal-600"
+          animate={{ height: [4, 11, 4] }}
+          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+        />
+      ))}
+    </span>
+  );
+}
+
+const ACTION_CLASS =
+  "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-3 text-sm font-medium text-ink-soft transition-[background-color,color] duration-200 hover:bg-white/80 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:h-4 [&_svg]:w-4";
+
+/**
+ * Conversation message.
+ * Mira: avatar + a quiet white card (the question) + read-aloud / copy actions.
+ * Visitor: a brand-teal answer bubble aligned to the end edge.
+ */
+export function MiraMessage({ content, role, createdAt, index, language }: MiraMessageProps) {
+  const { dictionary } = useLanguage();
+  const diagnostic = dictionary.diagnostic;
+  const isUser = role === "user";
+  const { state: speech, toggle } = useSpeech(content, language);
+  const [copied, setCopied] = useState(false);
+
+  const time = (() => {
+    if (!createdAt) return "";
+    const date = new Date(createdAt);
+    if (Number.isNaN(date.getTime())) return "";
+    const locale = LANGS.find((l) => l.code === language)?.bcp47 ?? "en-US";
+    return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", numberingSystem: "latn" });
+  })();
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(t);
+  }, [copied]);
+
+  async function copyText() {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  const speaking = speech === "speaking" || speech === "loading";
+
+  if (isUser) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: EASE_OUT }}
+        className="flex w-full justify-end"
+      >
+        <div className="flex max-w-[92%] flex-col items-end gap-1 sm:max-w-[84%]">
+          <span className="px-1 text-[0.6875rem] font-medium text-ink-muted">
+            {diagnostic.youLabel}
+            {time && <time className="ms-1.5 tabular-nums text-ink-subtle">{time}</time>}
+          </span>
+          <div className="max-w-full rounded-[1.375rem] rounded-se-md bg-[linear-gradient(135deg,var(--color-teal-600),var(--color-teal-800))] px-5 py-3 text-white shadow-[0_12px_28px_-14px_rgb(47_83_90/0.65)]">
+            <RichText content={content} className="text-[0.9375rem] leading-7 break-words sm:text-base" />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.article
+      aria-label={diagnostic.miraLabel}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: Math.min(index * 0.04, 0.2), ease: EASE_OUT }}
+      className="flex w-full gap-3 sm:gap-4"
+    >
+      <MiraAvatar size="lg" />
+      <div className="min-w-0 max-w-[95%] flex-1 sm:max-w-[90%] lg:max-w-[min(84%,60rem)]">
+        <p className="flex flex-wrap items-baseline gap-x-2.5 px-1 pt-1">
+          <span className="text-base font-semibold text-ink sm:text-[1.0625rem]">{diagnostic.miraLabel}</span>
+          <span className="text-xs text-ink-muted sm:text-[0.8125rem]">{diagnostic.aiGuide}</span>
+          {time && <time className="text-xs tabular-nums text-ink-subtle sm:text-[0.8125rem]">{time}</time>}
+        </p>
+
+        <div className="mt-2 rounded-[1.375rem] rounded-ss-md border border-white/90 bg-white/70 px-5 py-4 shadow-soft backdrop-blur-sm sm:px-6">
+          <RichText content={content} className="text-base leading-7 text-ink-soft break-words sm:text-[1.0625rem] sm:leading-8" />
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            onClick={toggle}
+            disabled={speech === "unsupported"}
+            aria-label={speaking ? diagnostic.stopListening : diagnostic.listen}
+            className={cn(ACTION_CLASS, speaking && "bg-white text-teal-800")}
+          >
+            {speech === "loading" ? (
+              <LogoSpinner size={18} />
+            ) : speaking ? (
+              <Waveform />
+            ) : (
+              <Volume2 aria-hidden />
+            )}
+            <span aria-live="polite">
+              {speech === "loading" ? diagnostic.voiceLoading : speaking ? diagnostic.listening : diagnostic.listen}
+            </span>
+            {speech === "speaking" && <VolumeX className="opacity-60" aria-hidden />}
+          </button>
+
+          <button type="button" onClick={copyText} className={ACTION_CLASS} aria-label={copied ? diagnostic.copiedMessage : diagnostic.copyMessage}>
+            {copied ? <Check className="text-sage-700" aria-hidden /> : <Copy aria-hidden />}
+            <span className="hidden sm:inline">{copied ? diagnostic.copiedMessage : diagnostic.copyMessage}</span>
+          </button>
+        </div>
+
+        {speech === "error" && (
+          <p role="alert" className="mt-1 px-1 text-xs text-rose-700">
+            {diagnostic.voiceError}
+          </p>
+        )}
+      </div>
+    </motion.article>
+  );
+}

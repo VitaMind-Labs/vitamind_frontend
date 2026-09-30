@@ -1,37 +1,27 @@
+import {
+  getVoiceApiKey,
+  getVoiceApiUrl,
+  getVoiceId,
+  type VoiceLanguage,
+} from "@/lib/config/voice";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ELEVENLABS_API_URL = "https://api.elevenlabs.io/v1/text-to-speech";
-const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
-
 type VoiceBody = {
   text?: string;
-  language?: "en" | "ar";
+  language?: VoiceLanguage;
 };
-
-function getApiKey() {
-  return (
-    process.env.ELEVENLABS_API_KEY ||
-    process.env.VITAMIND_VOICE ||
-    process.env.VitaMind_voice ||
-    process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY
-  );
-}
-
-function getVoiceId(language: VoiceBody["language"]) {
-  if (language === "ar") return process.env.ELEVENLABS_VOICE_ID_AR || process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
-  return process.env.ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
-}
 
 export async function GET() {
   return Response.json({
-    enabled: Boolean(getApiKey()),
+    enabled: Boolean(getVoiceApiKey()),
     provider: "elevenlabs",
   });
 }
 
 export async function POST(request: Request) {
-  const apiKey = getApiKey();
+  const apiKey = getVoiceApiKey();
 
   if (!apiKey) {
     return Response.json({ error: "ElevenLabs API key is not configured" }, { status: 503 });
@@ -49,8 +39,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Text is required" }, { status: 400 });
   }
 
-  const voiceId = getVoiceId(body.language);
-  const response = await fetch(`${ELEVENLABS_API_URL}/${voiceId}`, {
+  const response = await fetch(`${getVoiceApiUrl()}/${getVoiceId(body.language)}`, {
     method: "POST",
     headers: {
       "xi-api-key": apiKey,

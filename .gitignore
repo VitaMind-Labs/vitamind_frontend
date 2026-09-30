@@ -1,6 +1,8 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ==========================================
+# VitaMind Frontend — Git Ignore Configuration
+# ==========================================
 
-# dependencies
+# 1. Dependencies & Package Managers
 /node_modules
 /.pnp
 .pnp.*
@@ -10,34 +12,46 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# 2. Build & Export Outputs
 /.next/
 /out/
+/build/
+/dist/
 
-# production
-/build
+# 3. Environment & Secret Files
+.env*
+!.env.example
+!.env.sample
 
-# misc
-.DS_Store
-*.pem
-
-# debug
+# 4. Logs & Debugging
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# 5. Testing & Code Quality
+/coverage/
 
-# vercel
-.vercel
-
-# typescript
+# 6. TypeScript Cache & Generated Types
 *.tsbuildinfo
 next-env.d.ts
 
+# 7. Deployment Platforms
+.vercel
+
+# 8. OS & Editor Specific Files
+.DS_Store
+*.pem
+.idea/
+.vscode/
+
+# 9. Local AI Caches & Local Directories
 /doc
+.claude/
+.kilo/
+
+# Do NOT Ignore (Critical Config & Guidelines Files)
+CLAUDE.md
+AGENTS.md
+.claudeignore

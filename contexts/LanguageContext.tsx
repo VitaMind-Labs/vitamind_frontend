@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { LANGS, copy, getDirection, type Lang } from "@/lib/i18n";
+import { LANGS, LANGUAGE_STORAGE_KEY, copy, getDirection, normalizeLanguage, type Lang } from "@/lib/i18n/config";
 
 type LanguageContextValue = {
   language: Lang;
@@ -17,18 +17,21 @@ type LanguageContextValue = {
   dictionary: (typeof copy)[Lang];
 };
 
-const STORAGE_KEY = "vitamind-language";
-const DEFAULT_LANGUAGE: Lang = "en";
+const STORAGE_KEY = LANGUAGE_STORAGE_KEY;
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-function normalizeStoredLanguage(value: string | null): Lang {
-  return value === "ar" ? "ar" : DEFAULT_LANGUAGE;
+function readStoredLanguage(): string | null {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
 }
 
-function getLanguageSnapshot(): Lang {
-  if (typeof window === "undefined") return DEFAULT_LANGUAGE;
-  return normalizeStoredLanguage(window.localStorage.getItem(STORAGE_KEY));
+function writeLanguageCookie(language: Lang) {
+  document.cookie = `${STORAGE_KEY}=${language}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
 }
 
 function subscribeToLanguageChange(callback: () => void) {
@@ -41,15 +44,18 @@ function subscribeToLanguageChange(callback: () => void) {
   };
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const language = useSyncExternalStore(
-    subscribeToLanguageChange,
-    getLanguageSnapshot,
-    () => DEFAULT_LANGUAGE,
-  );
+export function LanguageProvider({ children, initialLanguage = "en" }: { children: ReactNode; initialLanguage?: Lang }) {
+  // The server renders `initialLanguage` (from the cookie); the client keeps localStorage as its source of truth.
+  const getSnapshot = useCallback(() => {
+    const stored = readStoredLanguage();
+    return stored === null ? initialLanguage : normalizeLanguage(stored);
+  }, [initialLanguage]);
+
+  const language = useSyncExternalStore(subscribeToLanguageChange, getSnapshot, () => initialLanguage);
 
   const setLanguage = useCallback((nextLanguage: Lang) => {
     window.localStorage.setItem(STORAGE_KEY, nextLanguage);
+    writeLanguageCookie(nextLanguage);
     window.dispatchEvent(new Event("vitamind-language-change"));
   }, []);
 
@@ -57,7 +63,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const selected = LANGS.find((item) => item.code === language);
     document.documentElement.lang = selected?.bcp47 ?? language;
     document.documentElement.dir = selected?.dir ?? "ltr";
-  }, [language]);
+    // Keep the cookie aligned for visitors whose preference predates the cookie.
+    if (language !== initialLanguage) writeLanguageCookie(language);
+  }, [language, initialLanguage]);
 
   const value = {
     language,

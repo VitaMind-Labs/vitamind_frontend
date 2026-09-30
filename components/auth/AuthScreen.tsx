@@ -1,460 +1,356 @@
 "use client";
 
-import Image from "next/image";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { clearDiagnosticClaim, fingerprintHeaders, getDiagnosticClaimToken, getStoredDiagnosticSessionId } from "@/features/diagnostic";
+import { authApi } from "@/lib/api/auth";
+import { hasValidSession, type AuthTokens } from "@/lib/api/tokens";
+import { AuthLoading } from "@/components/auth/AuthLayout";
+import { setUser } from "@/lib/storage/storage";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { FormField, IconInput } from "@/components/shared/FormField";
+import { DURATION, EASE_OUT, fadeUp, stagger } from "@/lib/motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition } from "react";
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Phone, Shield, Brain, Heart, UserRound } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getStoredDiagnosticSessionId } from "@/lib/diagnosticSession";
-import { setUser } from "@/lib/storage";
+import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { LogoSpinner } from "@/components/shared/LogoLoader";
 
-// ─── TYPES & CONSTANTES ───────────────────────────────────────────────────────
 type AuthMode = "signin" | "signup";
+
+/**
+ * Funnel: signup → subscription → dashboard. Honour internal redirects to the
+ * subscription/payment or dashboard areas; ignore anything else (open-redirect safe).
+ */
+function safeRedirect(redirect: string | null) {
+  return redirect && /^\/(subscription|dashboard)(\/|\?|$)/.test(redirect) ? redirect : "/dashboard";
+}
+
+const noSubscribe = () => () => {};
 type FormValues = { nickname: string; email: string; phone: string; password: string; confirmPassword: string };
+type FieldName = keyof FormValues;
 
-const T = {
-  titleSignIn: "Welcome back", titleSignUp: "Create your sanctuary",
-  subtitleSignIn: "Sign in to continue your guided diagnostic journey.",
-  subtitleSignUp: "Build your account and start a calmer, more personalized experience.",
-  nickname: "Nickname", nicknamePlaceholder: "Choose your nickname",
-  email: "Email", emailPlaceholder: "hello@example.com",
-  phone: "Phone number", phonePlaceholder: "+1 555 123 4567",
-  password: "Password", passwordPlaceholder: "••••••••",
-  confirmPassword: "Confirm password", confirmPasswordPlaceholder: "••••••••",
-  signInButton: "Enter VitaMind", signUpButton: "Create my account",
-  legal: "By continuing, you agree to use this experience responsibly.",
-  switchToSignIn: "Already have an account?", switchToSignUp: "Need an account?",
-  switchSignInLink: "Sign in", switchSignUpLink: "Sign up",
-  errors: { nickname: "Nickname is required.", email: "Please enter a valid email address.", phone: "Please enter a valid phone number.", password: "Password must contain at least 8 characters.", confirmPassword: "Passwords do not match." },
-};
+const LINK_CLASS =
+  "rounded-md font-semibold text-teal-700 underline-offset-4 transition-colors duration-200 hover:text-teal-800 hover:underline";
 
-const TRUST = [{ icon: Shield, label: "HIPAA & GDPR compliant" }, { icon: Brain, label: "AI-powered insights" }, { icon: Heart, label: "Human-centered care" }];
-const FV = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } } };
-const CV = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } } };
-
-// ─── SOUS-COMPOSANTS ──────────────────────────────────────────────────────────
-function AuthInput({ icon: Icon, right, ...p }: React.InputHTMLAttributes<HTMLInputElement> & { icon: React.ElementType; right?: React.ReactNode }) {
+function VisibilityToggle({ show, toggle, label }: { show: boolean; toggle: () => void; label: string }) {
   return (
-    <div className="relative group">
-      <Icon className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-all duration-200 group-focus-within:text-[#518591] group-focus-within:scale-110" style={{ color: "#B0BEC5" }} />
-      <input {...p} className="w-full rounded-xl py-3 pl-11 pr-11 font-body text-[15px] outline-none transition-all duration-300 placeholder:text-[#B0BEC5]"
-        style={{ border: "1.5px solid rgba(81,133,145,0.15)", background: "rgba(255,255,255,0.85)", color: "#2c3e3b", boxShadow: "inset 0 1px 3px rgba(0,0,0,0.02)" }}
-        onFocus={e => { e.currentTarget.style.border = "1.5px solid rgba(81,133,145,0.55)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(81,133,145,0.10)"; p.onFocus?.(e); }}
-        onBlur={e => { e.currentTarget.style.border = "1.5px solid rgba(81,133,145,0.15)"; e.currentTarget.style.boxShadow = "inset 0 1px 3px rgba(0,0,0,0.02)"; p.onBlur?.(e); }} />
-      {right && <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{right}</div>}
-    </div>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      aria-label={label}
+      aria-pressed={show}
+      onClick={toggle}
+      className="h-9 w-9 min-h-9 rounded-full text-ink-subtle hover:bg-teal-50 hover:text-teal-700"
+    >
+      {show ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
+    </Button>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <motion.div variants={FV} className="flex flex-col gap-1.5">
-      <label className="font-body text-[13px] font-semibold" style={{ color: "rgba(44,62,59,0.72)" }}>{label}</label>
-      {children}
-    </motion.div>
-  );
-}
-
-function EyeBtn({ show, toggle }: { show: boolean; toggle: () => void }) {
-  return <button type="button" onClick={toggle} className="hover:scale-110 transition-transform" style={{ color: "#B0BEC5" }}>{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>;
-}
-
-
-
-// ─── COMPOSANT PRINCIPAL ──────────────────────────────────────────────────────
 export function AuthScreen({ mode }: { mode: AuthMode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const { dictionary, direction } = useLanguage();
-  const auth = (dictionary.auth ?? T) as typeof T;
+  const { dictionary, direction, language } = useLanguage();
+  const auth = dictionary.auth;
   const isSignUp = mode === "signup";
+  // Already signed in with a live session: skip the form and go straight to the patient space.
+  const signedIn = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
+
+  useEffect(() => {
+    if (signedIn) router.replace(safeRedirect(searchParams.get("redirect")));
+  }, [signedIn, router, searchParams]);
 
   const [values, setValues] = useState<FormValues>({ nickname: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
+  const [errorField, setErrorField] = useState<FieldName | null>(null);
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const set = (f: keyof FormValues) => (e: React.ChangeEvent<HTMLInputElement>) => setValues(p => ({ ...p, [f]: e.target.value }));
+  // UI preference only — session persistence is unchanged until the backend exposes it.
+  const [remember, setRemember] = useState(true);
+
+  const set = (f: FieldName) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValues(p => ({ ...p, [f]: e.target.value }));
+    if (errorField === f) { setError(""); setErrorField(null); }
+  };
+  const fail = (field: FieldName, message: string) => { setErrorField(field); setError(message); };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); setError("");
-    if (isSignUp && !values.nickname.trim()) return setError(auth.errors.nickname);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return setError(auth.errors.email);
-    if (isSignUp && !/^[+\d][\d\s()-]{7,}$/.test(values.phone.trim())) return setError(auth.errors.phone);
-    if (values.password.length < 8) return setError(auth.errors.password);
-    if (isSignUp && values.password !== values.confirmPassword) return setError(auth.errors.confirmPassword);
+    e.preventDefault(); setError(""); setErrorField(null);
+    if (isSignUp && !values.nickname.trim()) return fail("nickname", auth.errors.nickname);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return fail("email", auth.errors.email);
+    if (isSignUp && !/^[+\d][\d\s()-]{7,}$/.test(values.phone.trim())) return fail("phone", auth.errors.phone);
+    if (values.password.length < 8) return fail("password", auth.errors.password);
+    if (isSignUp && values.password !== values.confirmPassword) return fail("confirmPassword", auth.errors.confirmPassword);
+
     startTransition(() => {
       (async () => {
-        const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
         const sid = searchParams.get("sessionId") || getStoredDiagnosticSessionId();
+        const claimToken = sid ? getDiagnosticClaimToken(sid) : null;
+        const email = values.email.trim();
         try {
-          const res = await fetch(`${base.replace(/\/$/, "")}${isSignUp ? "/auth/register" : "/auth/login"}`, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(isSignUp ? { nickname: values.nickname.trim(), email: values.email.trim(), phone: values.phone.trim(), password: values.password, diagnosticSessionId: sid } : { email: values.email.trim(), password: values.password }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message ?? data.error ?? "Authentication failed");
-          if (data.user) setUser({ id: data.user.id ?? "", fullName: data.user.nickname ?? values.email.trim(), email: values.email.trim(), password: "", disease: "ADHD", createdAt: new Date().toISOString() });
-          if (data.access_token) localStorage.setItem("vitamind_token", data.access_token);
-          if (data.refresh_token) localStorage.setItem("vitamind_refresh_token", data.refresh_token);
-          if (data.user) localStorage.setItem("vitamind_user", JSON.stringify(data.user));
-          const redirect = searchParams.get("redirect");
-          const uid = data?.user?.id;
-
-          router.push(
-            uid
-              ? redirect?.startsWith("/dashboard")
-                ? `/dashboard/${uid}/overview`
-                : redirect || `/dashboard/${uid}/overview`
-              : "/"
-          );
+          let session: AuthTokens;
+          if (isSignUp) {
+            const res = await authApi.register({
+              nickname: values.nickname.trim(), email, phone: values.phone.trim(), password: values.password, lang: language,
+              diagnosticSessionId: sid, diagnosticClaimToken: claimToken,
+            });
+            session = res;
+            if (sid && res.diagnostic?.claimed) clearDiagnosticClaim(sid);
+          } else {
+            session = await authApi.login(email, values.password);
+            // Returning visitor who ran Mira anonymously: attach that session now (best-effort).
+            if (sid) {
+              await authApi.claimDiagnostic(sid, claimToken, fingerprintHeaders())
+                .then((claim) => claim.claimed && clearDiagnosticClaim(sid))
+                .catch(() => undefined);
+            }
+          }
+          if (session.user) setUser({ id: session.user.id, fullName: session.user.nickname || email, email, password: "", disease: "ADHD", createdAt: new Date().toISOString() });
+          router.push(safeRedirect(searchParams.get("redirect")));
         } catch (err) { setError(err instanceof Error ? err.message : "Authentication failed"); }
       })();
     });
   };
 
+  const fieldError = (field: FieldName) => (errorField === field ? error : null);
+  const formError = error && !errorField ? error : "";
+  const switchHref = isSignUp ? "/auth/signin" : "/auth/signup";
+  const switchPrompt = isSignUp ? auth.switchToSignIn : auth.subtitleSignIn;
+  const switchLink = isSignUp ? auth.switchSignInLink : auth.subtitleSignInLink;
+
+  if (signedIn !== false) return <AuthLoading />;
+
   return (
-    <div
+    <motion.section
       dir={direction}
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f8f9fb] px-4 py-10"
+      aria-labelledby="auth-title"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: 0.1 }}
+      className="relative w-full sm:rounded-[1.75rem] sm:border sm:border-white/90 sm:bg-white/85 sm:px-9 sm:py-10 sm:shadow-raised sm:backdrop-blur-xl lg:px-10 lg:py-11"
     >
-      {/* BACKGROUND */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-      >
-        {/* glow top */}
-        <div
-          className="absolute left-1/2 top-[-220px] h-[520px] w-[520px] -translate-x-1/2 rounded-full blur-[140px]"
-          style={{
-            background: "rgba(81,133,145,0.10)",
-          }}
-        />
-
-        {/* glow bottom */}
-        <div
-          className="absolute bottom-[-180px] right-[-120px] h-[420px] w-[420px] rounded-full blur-[130px]"
-          style={{
-            background: "rgba(227,176,28,0.07)",
-          }}
-        />
-
-        {/* texture */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at center, #000 1px, transparent 1px)",
-            backgroundSize: "22px 22px",
-          }}
-        />
-      </div>
-
-      {/* FORM CONTAINER */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.7,
-          ease: [0.22, 1, 0.36, 1],
-        }}
-        className="relative z-10 w-full max-w-[540px]"
-      >
-
-        {/* CARD */}
-        <div
-          className="relative overflow-hidden rounded-[34px] border p-7 sm:p-10"
-          style={{
-            background:
-              "linear-gradient(to bottom right, rgba(255,255,255,0.94), rgba(255,255,255,0.82))",
-            borderColor: "rgba(81,133,145,0.10)",
-            backdropFilter: "blur(28px)",
-            boxShadow:
-              "0 20px 70px rgba(15,23,42,0.08)",
-          }}
+      {/* ── HEADING ──────────────────────────────────────────────────── */}
+      <header>
+        <p className="inline-flex items-center gap-1.5 rounded-full border border-teal-100 bg-teal-50/80 px-2.5 py-1 text-xs font-medium text-teal-700">
+          <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+          {auth.badge}
+        </p>
+        <h1
+          id="auth-title"
+          className="mt-5 text-[clamp(1.75rem,1.2vw+1.4rem,2.25rem)] font-light leading-[1.15] tracking-[-0.025em] text-ink rtl:font-normal"
         >
-          {/* internal glow */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(circle at top right, rgba(81,133,145,0.08), transparent 30%)",
-            }}
-          />
+          {isSignUp ? auth.titleSignUpA : auth.titleSignInA}{" "}
+          <span className="home-heading-accent font-normal rtl:font-medium">{isSignUp ? auth.titleSignUpB : auth.titleSignInB}</span>
+        </h1>
+        <p className="mt-2.5 text-[0.9375rem] leading-6 text-ink-muted">
+          {isSignUp ? auth.subtitleSignUp : auth.subtitleWelcome}
+        </p>
+      </header>
 
-          <div className="relative z-10">
-            {/* HEADER */}
-            <div className="mb-8 text-center">
-              <span
-                className="mb-3 block font-body text-[11px] font-semibold uppercase tracking-[0.32em]"
-                style={{
-                  color: "#518591",
-                }}
-              >
-                {isSignUp
-                  ? "Create Account"
-                  : "Welcome Back"}
-              </span>
-
-              <h1
-                className="font-display font-light tracking-[-0.05em]"
-                style={{
-                  fontSize: "clamp(34px,4vw,48px)",
-                  lineHeight: 1,
-                  color: "#0f172a",
-                }}
-              >
-                {isSignUp
-                  ? auth.titleSignUp
-                  : auth.titleSignIn}
-              </h1>
-
-              <p
-                className="mx-auto mt-4 max-w-[360px] font-body text-[14px] leading-[1.8]"
-                style={{
-                  color: "rgba(44,62,59,0.58)",
-                }}
-              >
-                {isSignUp
-                  ? auth.subtitleSignUp
-                  : auth.subtitleSignIn}
-              </p>
+      {/* ── SERVER ERROR ─────────────────────────────────────────────── */}
+      <AnimatePresence initial={false}>
+        {formError && (
+          <motion.div
+            role="alert"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
+            className="overflow-hidden"
+          >
+            <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-rose-100 bg-rose-50 px-3.5 py-3">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-700" aria-hidden />
+              <p className="text-[0.8125rem] leading-5 text-rose-700">{formError}</p>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* FORM */}
-            <AnimatePresence mode="wait">
-              <motion.form
-                key={mode}
-                onSubmit={handleSubmit}
-                variants={CV}
-                initial="hidden"
-                animate="visible"
-                className="flex flex-col gap-5"
-              >
-                {/* ERROR */}
-                <AnimatePresence>
-                  {error && (
-                    <motion.div
-                      initial={{
-                        opacity: 0,
-                        y: -10,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                      }}
-                      exit={{
-                        opacity: 0,
-                        y: -10,
-                      }}
-                      className="flex items-start gap-3 rounded-2xl border p-4"
-                      style={{
-                        borderColor:
-                          "rgba(239,68,68,0.15)",
-                        background:
-                          "rgba(254,242,242,0.70)",
-                      }}
-                    >
-                      <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-500" />
+      {/* ── PRIMARY: CREDENTIALS ─────────────────────────────────────── */}
+      <motion.form
+        key={mode}
+        noValidate
+        onSubmit={handleSubmit}
+        variants={stagger(0.05, 0.15)}
+        initial="hidden"
+        animate="show"
+        className="mt-7 flex flex-col gap-5"
+        aria-busy={isPending}
+      >
+        {isSignUp && (
+          <motion.div variants={fadeUp(0, 8)}>
+            <FormField id="auth-nickname" label={auth.nickname} error={fieldError("nickname")}>
+              <IconInput
+                id="auth-nickname"
+                icon={UserRound}
+                type="text"
+                value={values.nickname}
+                onChange={set("nickname")}
+                placeholder={auth.nicknamePlaceholder}
+                autoComplete="nickname"
+                invalid={errorField === "nickname"}
+              />
+            </FormField>
+          </motion.div>
+        )}
 
-                      <p className="font-body text-[13px] leading-[1.7] text-red-700">
-                        {error}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+        <motion.div variants={fadeUp(0, 8)}>
+          <FormField id="auth-email" label={auth.email} error={fieldError("email")}>
+            <IconInput
+              id="auth-email"
+              icon={Mail}
+              type="email"
+              inputMode="email"
+              dir="ltr"
+              value={values.email}
+              onChange={set("email")}
+              placeholder={auth.emailPlaceholder}
+              autoComplete="email"
+              invalid={errorField === "email"}
+            />
+          </FormField>
+        </motion.div>
 
-                {isSignUp && (
-                  <Field label={auth.nickname}>
-                    <AuthInput
-                      icon={UserRound}
-                      type="text"
-                      value={values.nickname}
-                      onChange={set("nickname")}
-                      placeholder={
-                        auth.nicknamePlaceholder
-                      }
-                      autoComplete="nickname"
-                    />
-                  </Field>
-                )}
+        {isSignUp && (
+          <motion.div variants={fadeUp(0, 8)}>
+            <FormField id="auth-phone" label={auth.phone} error={fieldError("phone")}>
+              <IconInput
+                id="auth-phone"
+                icon={Phone}
+                type="tel"
+                inputMode="tel"
+                dir="ltr"
+                value={values.phone}
+                onChange={set("phone")}
+                placeholder={auth.phonePlaceholder}
+                autoComplete="tel"
+                invalid={errorField === "phone"}
+              />
+            </FormField>
+          </motion.div>
+        )}
 
-                <Field label={auth.email}>
-                  <AuthInput
-                    icon={Mail}
-                    type="email"
-                    value={values.email}
-                    onChange={set("email")}
-                    placeholder={
-                      auth.emailPlaceholder
-                    }
-                    autoComplete="email"
-                  />
-                </Field>
+        <motion.div variants={fadeUp(0, 8)}>
+          <FormField id="auth-password" label={auth.password} error={fieldError("password")}>
+            <IconInput
+              id="auth-password"
+              icon={Lock}
+              type={showPwd ? "text" : "password"}
+              value={values.password}
+              onChange={set("password")}
+              placeholder={auth.passwordPlaceholder}
+              autoComplete={isSignUp ? "new-password" : "current-password"}
+              invalid={errorField === "password"}
+              trailing={<VisibilityToggle show={showPwd} toggle={() => setShowPwd((p) => !p)} label={showPwd ? auth.hidePassword : auth.showPassword} />}
+            />
+          </FormField>
+        </motion.div>
 
-                {isSignUp && (
-                  <Field label={auth.phone}>
-                    <AuthInput
-                      icon={Phone}
-                      type="tel"
-                      value={values.phone}
-                      onChange={set("phone")}
-                      placeholder={
-                        auth.phonePlaceholder
-                      }
-                      autoComplete="tel"
-                    />
-                  </Field>
-                )}
+        {isSignUp && (
+          <motion.div variants={fadeUp(0, 8)}>
+            <FormField id="auth-confirm-password" label={auth.confirmPassword} error={fieldError("confirmPassword")}>
+              <IconInput
+                id="auth-confirm-password"
+                icon={Lock}
+                type={showConfirm ? "text" : "password"}
+                value={values.confirmPassword}
+                onChange={set("confirmPassword")}
+                placeholder={auth.confirmPasswordPlaceholder}
+                autoComplete="new-password"
+                invalid={errorField === "confirmPassword"}
+                trailing={<VisibilityToggle show={showConfirm} toggle={() => setShowConfirm((p) => !p)} label={showConfirm ? auth.hideConfirm : auth.showConfirm} />}
+              />
+            </FormField>
+          </motion.div>
+        )}
 
-                <Field label={auth.password}>
-                  <AuthInput
-                    icon={Lock}
-                    type={
-                      showPwd ? "text" : "password"
-                    }
-                    value={values.password}
-                    onChange={set("password")}
-                    placeholder={
-                      auth.passwordPlaceholder
-                    }
-                    autoComplete={
-                      isSignUp
-                        ? "new-password"
-                        : "current-password"
-                    }
-                    right={
-                      <EyeBtn
-                        show={showPwd}
-                        toggle={() =>
-                          setShowPwd((p) => !p)
-                        }
-                      />
-                    }
-                  />
-                </Field>
+        {!isSignUp && (
+          <motion.div variants={fadeUp(0, 8)} className="-my-1.5 flex flex-wrap items-center justify-between gap-x-4">
+            <label htmlFor="auth-remember" className="inline-flex min-h-11 cursor-pointer select-none items-center gap-2.5 text-sm text-ink-soft">
+              <Checkbox
+                id="auth-remember"
+                name="remember"
+                checked={remember}
+                onCheckedChange={(state) => setRemember(state === true)}
+                className="h-[1.125rem] w-[1.125rem] rounded-[0.3125rem] border-line-strong bg-white shadow-none transition-colors duration-200 hover:border-teal-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 data-[state=checked]:border-primary [&_svg]:h-3 [&_svg]:w-3"
+              />
+              {auth.rememberMe}
+            </label>
+            <Link href="/support" className={`${LINK_CLASS} inline-flex min-h-11 items-center text-sm font-medium`}>
+              {auth.forgotPassword}
+            </Link>
+          </motion.div>
+        )}
 
-                {isSignUp && (
-                  <Field
-                    label={auth.confirmPassword}
-                  >
-                    <AuthInput
-                      icon={Lock}
-                      type={
-                        showConfirm
-                          ? "text"
-                          : "password"
-                      }
-                      value={values.confirmPassword}
-                      onChange={set(
-                        "confirmPassword"
-                      )}
-                      placeholder={
-                        auth.confirmPasswordPlaceholder
-                      }
-                      autoComplete="new-password"
-                      right={
-                        <EyeBtn
-                          show={showConfirm}
-                          toggle={() =>
-                            setShowConfirm(
-                              (p) => !p
-                            )
-                          }
-                        />
-                      }
-                    />
-                  </Field>
-                )}
+        <motion.div variants={fadeUp(0, 8)} className="pt-1">
+          <Button
+            type="submit"
+            variant="auth"
+            size="lg"
+            disabled={isPending}
+            aria-busy={isPending}
+            className="group min-h-[3.25rem] hover:shadow-[0_14px_28px_-12px_rgb(61_106_115/0.6)]"
+          >
+            {isPending ? (
+              <>
+                <LogoSpinner size={18} />
+                <span>{auth.processing}</span>
+              </>
+            ) : (
+              <>
+                <span>{isSignUp ? auth.signUpButton : auth.signInButton}</span>
+                <ArrowRight
+                  className="transition-transform duration-300 ease-out-soft group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
+                  aria-hidden
+                />
+              </>
+            )}
+          </Button>
+        </motion.div>
+      </motion.form>
 
-                {/* CTA */}
-                <motion.button
-                  variants={FV}
-                  type="submit"
-                  disabled={isPending}
-                  whileHover={
-                    isPending
-                      ? {}
-                      : { scale: 1.015 }
-                  }
-                  whileTap={
-                    isPending
-                      ? {}
-                      : { scale: 0.985 }
-                  }
-                  className="group relative mt-2 flex h-[58px] w-full items-center justify-center gap-3 overflow-hidden rounded-2xl font-body text-[15px] font-semibold text-white"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #518591 0%, #2c3e3b 55%, #e3b01c 100%)",
-                    boxShadow:
-                      "0 16px 40px rgba(81,133,145,0.20)",
-                    opacity: isPending ? 0.75 : 1,
-                  }}
-                >
-                  <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-                  {isPending ? (
-                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  ) : (
-                    <>
-                      {isSignUp
-                        ? auth.signUpButton
-                        : auth.signInButton}
-
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </>
-                  )}
-                </motion.button>
-
-                {/* LEGAL */}
-                <motion.p
-                  variants={FV}
-                  className="pt-1 text-center font-body text-[12px] leading-[1.8]"
-                  style={{
-                    color:
-                      "rgba(44,62,59,0.42)",
-                  }}
-                >
-                  {auth.legal}
-                </motion.p>
-              </motion.form>
-            </AnimatePresence>
-
-            {/* FOOTER */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="mt-8 text-center font-body text-[14px]"
-              style={{
-                color: "rgba(44,62,59,0.55)",
-              }}
-            >
-              {isSignUp
-                ? auth.switchToSignIn
-                : auth.switchToSignUp}{" "}
-              <Link
-                href={
-                  isSignUp
-                    ? "/auth/signin"
-                    : "/auth/signup"
-                }
-                className="font-semibold underline underline-offset-4 transition-all duration-300 hover:text-[#e3b01c]"
-                style={{
-                  color: "#518591",
-                }}
-              >
-                {isSignUp
-                  ? auth.switchSignInLink
-                  : auth.switchSignUpLink}
-              </Link>
-            </motion.p>
+      {/* ── ALTERNATIVES ─────────────────────────────────────────────── */}
+      {!isSignUp && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: DURATION.base, ease: EASE_OUT, delay: 0.45 }}
+          className="mt-7"
+        >
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1 bg-line" />
+            <span className="shrink-0 text-xs font-medium text-ink-muted">{auth.altAuth}</span>
+            <Separator className="flex-1 bg-line" />
           </div>
-        </div>
-      </motion.div>
-    </div>
+          <div className="mt-5 grid gap-2.5">
+            <Button type="button" variant="outline" size="lg" className="w-full gap-3 hover:text-ink">
+              <Icon icon="logos:google-icon" aria-hidden="true" />
+              {auth.gmailButton}
+            </Button>
+            <Button type="button" variant="ghost" className="w-full text-ink-soft hover:text-teal-800">
+              <Mail aria-hidden />
+              {auth.magicLink}
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── SWITCH + LEGAL ───────────────────────────────────────────── */}
+      <footer className="mt-7 border-t border-line pt-6 text-center">
+        <p className="text-sm text-ink-muted">
+          {switchPrompt}{" "}
+          <Link href={switchHref} className={LINK_CLASS}>
+            {switchLink}
+          </Link>
+        </p>
+        <p className="mx-auto mt-3 max-w-xs text-xs leading-5 text-ink-muted">{auth.legal}</p>
+      </footer>
+    </motion.section>
   );
 }

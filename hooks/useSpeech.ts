@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LANGS, type Lang } from "@/lib/i18n";
+import { LANGS, type Lang } from "@/lib/i18n/config";
 import { useAudio } from "@/contexts/AudioContext";
 
 export type SpeechState = "idle" | "loading" | "speaking" | "error" | "unsupported";
@@ -57,24 +57,24 @@ export function useSpeech(text: string, lang: Lang) {
   const textRef = useRef(text);
   const langRef = useRef(lang);
   const stateRef = useRef<SpeechState>("idle");
-  textRef.current = text;
-  langRef.current = lang;
+
+  useEffect(() => {
+    textRef.current = text;
+    langRef.current = lang;
+  }, [lang, text]);
 
   useEffect(() => {
     ensureLangStop();
+    const speakerId = idRef.current;
     return () => {
-      if (activeSpeaker === idRef.current) stopAllSpeech();
+      if (activeSpeaker === speakerId) stopAllSpeech();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Master voice switch off → stop and reset, so header control and
-  // message controls never disagree.
   useEffect(() => {
     if (!isSoundEnabled) {
       if (activeSpeaker === idRef.current) stopAllSpeech();
       stateRef.current = "idle";
-      setState("idle");
     }
   }, [isSoundEnabled]);
 
@@ -163,5 +163,5 @@ export function useSpeech(text: string, lang: Lang) {
     else speak();
   }, [speak, stop]);
 
-  return { state, speak, stop, toggle };
+  return { state: isSoundEnabled ? state : "idle", speak, stop, toggle };
 }
