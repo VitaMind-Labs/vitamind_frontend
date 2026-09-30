@@ -15,7 +15,13 @@ VitaMind is structured as a modern web application focused on:
 - subscription and payment experiences
 - multilingual support and responsive accessibility
 
-The frontend is built to feel polished, trustworthy, and clinically aware while remaining flexible enough for future feature expansion.
+The frontend is built to feel polished, trustworthy, and clinically aware while remaining flexible enough for future feature expansion. VitaMind supports care and does not replace qualified mental health professionals.
+
+## Architecture and Safety Boundaries
+
+The frontend presents conversations, assessments, loading and error states, and user-facing progress. Authentication, authorization, clinical decisions, AI orchestration, tool execution, validation, and protected data access belong to the backend. The frontend must not execute privileged tools or access protected data sources directly.
+
+AI responses are presented as support, not as a diagnosis or a replacement for professional care.
 
 ## Tech Stack
 
