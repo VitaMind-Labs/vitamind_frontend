@@ -3,12 +3,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, CircleDashed, ShieldAlert, Target, Timer, X, Zap } from "lucide-react";
+import { Check, CircleDashed, Target, Timer, X, Zap } from "lucide-react";
 import {
   LuminaComposer, LuminaMessage, LuminaMotes, TrustRow, TypingRow,
 } from "@/components/patient/chat/LuminaParts";
 import { useTaskWhen } from "@/components/patient/spark/useTaskWhen";
 import { ErrorState, GlassCard, PageIntro, Skeleton, SubscriptionGate } from "@/components/patient/ui/primitives";
+import { SupportCard } from "@/components/patient/ui/SupportCard";
 import { Button } from "@/components/ui/button";
 import { AudioProvider } from "@/contexts/AudioContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -16,8 +17,9 @@ import { usePatient } from "@/hooks/patient/usePatient";
 import { useSparkChat, type SparkMessage } from "@/hooks/patient/useSpark";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { SparkOutcomeName, SparkTask } from "@/lib/api/patient-types";
-import { crisisBodyFor, fill } from "@/lib/i18n/patient";
+import { fill } from "@/lib/i18n/patient";
 import { dayPart, formatDay, localDay } from "@/lib/patient/format";
+import { failureMessage } from "@/lib/patient/turn-errors";
 
 const FRAME = "h-[calc(100dvh-12.5rem)] min-h-[34rem] lg:h-[calc(100dvh-7.75rem)]";
 const COLUMN = "mx-auto w-full max-w-3xl";
@@ -45,8 +47,9 @@ function SparkScreen({ initialPrompt }: { initialPrompt?: string }) {
   const chat = useSparkChat();
   const [draft, setDraft] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
   const sentInitial = useRef(false);
-  const { messages, isLoading, isSending, notAllowed } = chat;
+  const { messages, isLoading, isSending, isStreaming, notAllowed } = chat;
 
   // A plan request handed over from Lumina (or Home) is sent once the history has loaded, so it lands
   // after the conversation it continues rather than racing it. The URL is cleaned so a reload does not resend it.
@@ -66,7 +69,13 @@ function SparkScreen({ initialPrompt }: { initialPrompt?: string }) {
 
   useLayoutEffect(() => {
     bottom.current?.scrollIntoView({ block: "end", behavior: "smooth" });
-  }, [messages.length, isSending]);
+  }, [messages.length, isSending, isStreaming]);
+
+  // While a reply is written, keep its newest line in view - unless the patient scrolled up to read.
+  function followStream() {
+    const el = scroller.current;
+    if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 160) el.scrollTop = el.scrollHeight;
+  }
 
   const rows = useMemo(
     () =>
@@ -106,7 +115,7 @@ function SparkScreen({ initialPrompt }: { initialPrompt?: string }) {
         <section aria-label={copy.spark.title} className="lm-sanctuary flex min-h-0 flex-col">
           <LuminaMotes />
 
-          <div role="log" aria-live="polite" aria-label={copy.spark.title} tabIndex={0} className="diagnostic-scroll-area flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal-500">
+          <div ref={scroller} role="log" aria-live="polite" aria-label={copy.spark.title} tabIndex={0} className="diagnostic-scroll-area flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal-500">
             {chat.loadError && <div className={`${COLUMN} p-4`}><ErrorState onRetry={() => void chat.reload()} /></div>}
 
             {isLoading ? (
@@ -122,43 +131,42 @@ function SparkScreen({ initialPrompt }: { initialPrompt?: string }) {
                   <div className="flex justify-center"><Button variant="ghost" size="sm" onClick={() => void chat.loadOlder()}>{copy.chat.older}</Button></div>
                 )}
                 {rows.map(({ message, dayKey, showDay }, index) => (
-                  <div key={message.id} className="space-y-4">
+                  <div key={message.renderKey ?? message.id} className="space-y-4">
                     {showDay && (
                       <p className="flex items-center gap-3 text-xs font-medium text-muted-foreground before:h-px before:flex-1 before:bg-ink/10 after:h-px after:flex-1 after:bg-ink/10">
                         {dayKey === localDay() ? copy.chat.today : formatDay(new Date(message.createdAt), language, { weekday: "short", month: "short", day: "numeric" })}
                       </p>
                     )}
-                    <LuminaMessage message={message} index={index} agentLabel={{ title: copy.spark.title, role: copy.spark.role }} onRetry={() => void chat.retry(message.id)} />
+                    <LuminaMessage message={message} index={index} agentLabel={{ title: copy.spark.title, role: copy.spark.role }} onRetry={() => void chat.retry(message.id)} onRevealProgress={followStream} />
                     {message.id === latestPlanId && <PlanCard message={message} onOutcome={(outcome) => chat.recordOutcome(message.id, outcome)} />}
                   </div>
                 ))}
-                <AnimatePresence>{isSending && <TypingRow key="typing" />}</AnimatePresence>
+                <AnimatePresence>{isSending && !isStreaming && <TypingRow key="typing" />}</AnimatePresence>
                 {chat.unavailable && <p role="status" className="text-sm text-ink-muted">{copy.spark.errors.unavailable}</p>}
                 <div ref={bottom} />
               </div>
             )}
           </div>
 
+          {chat.support && (
+            <div className={`${COLUMN} px-3 pb-1 sm:px-6`}>
+              <SupportCard resources={chat.support.emergencyResources} labels={copy.live.support} onHide={chat.dismissSupport} />
+            </div>
+          )}
+
           <AnimatePresence>
-            {chat.support && (
-              <motion.div role="alert" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className={`${COLUMN} overflow-hidden px-3 sm:px-6`}>
-                <div className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50/95 px-4 py-3.5">
-                  <ShieldAlert className="mt-0.5 size-5 shrink-0 text-rose-700" aria-hidden />
-                  <div className="min-w-0 flex-1 text-sm text-rose-700">
-                    <p className="font-semibold">{copy.chat.crisisTitle}</p>
-                    <p className="mt-0.5">{crisisBodyFor(copy.chat, chat.support.emergencyResources)}</p>
-                    {chat.support.emergencyResources.length > 0 && (
-                      <ul className="mt-1.5 list-inside list-disc" dir="auto">{chat.support.emergencyResources.map((resource) => <li key={resource}>{resource}</li>)}</ul>
-                    )}
-                  </div>
-                  <button type="button" onClick={chat.dismissSupport} aria-label={copy.common.close} className="rounded-full p-1 text-rose-700 hover:bg-rose-100"><X className="size-4" aria-hidden /></button>
-                </div>
+            {chat.failure && failureMessage(chat.failure, copy.live, copy.common.genericError) && (
+              <motion.div role="status" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className={`${COLUMN} overflow-hidden px-3 sm:px-6`}>
+                <p className="flex items-start gap-3 rounded-2xl border border-teal-100 bg-teal-50/80 px-4 py-3 text-sm text-teal-900">
+                  <span className="min-w-0 flex-1">{failureMessage(chat.failure, copy.live, copy.common.genericError)}</span>
+                  <button type="button" onClick={chat.dismissFailure} aria-label={copy.common.close} className="-m-1.5 inline-flex size-9 items-center justify-center rounded-full text-teal-800 hover:bg-teal-100 focus-visible:outline-2 focus-visible:outline-teal-500"><X className="size-4" aria-hidden /></button>
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
 
           <div className={`${COLUMN} px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-5`}>
-            <LuminaComposer value={draft} onChange={setDraft} onSend={() => send()} busy={isSending} placeholder={copy.spark.placeholder} hint={copy.spark.hint} />
+            <LuminaComposer value={draft} onChange={setDraft} onSend={() => send()} busy={isSending} onStop={chat.stop} placeholder={copy.spark.placeholder} hint={copy.spark.hint} />
             <p className="mt-2 px-2 text-[0.6875rem] leading-snug text-muted-foreground">{copy.spark.disclaimer}</p>
             <TrustRow />
           </div>

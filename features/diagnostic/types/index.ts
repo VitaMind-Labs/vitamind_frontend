@@ -38,6 +38,12 @@ export type MiraMessage = {
   content: string;
   chapter?: MiraChapter;
   createdAt: string;
+  /** The reply is still being written: text grows as it arrives. */
+  streaming?: boolean;
+  /** An unfinished reply that was kept (stopped by the visitor, or cut short by the connection). */
+  partial?: "stopped" | "interrupted";
+  /** Stable React key: a streamed reply keeps it from its first word to its final form. */
+  renderKey?: string;
 };
 
 export type ChatOption = {

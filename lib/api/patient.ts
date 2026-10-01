@@ -1,4 +1,5 @@
-import { api } from "./client";
+import { AGENT_TIMEOUT_MS, api } from "./client";
+import { streamWithFallback } from "./stream";
 import type {
   AssignedExercise,
   Checkin,
@@ -92,23 +93,23 @@ export const profileApi = {
   update: (input: { nickname?: string; language?: "EN" | "AR" }) => api.patch<Profile>("/me", input),
   saveAnswers: (answers: { key: OnboardingKey; value: string }[]) =>
     api.post<{ saved: number }>("/me/onboarding/answers", { answers }),
-  completeOnboarding: () => api.post<Profile>("/me/onboarding/complete"),
+  completeOnboarding: () => api.post<Profile>("/me/onboarding/complete", undefined, { timeoutMs: AGENT_TIMEOUT_MS }),
 };
 
 export const checkinsApi = {
-  create: (input: CheckinInput) => api.post<CheckinResult>("/me/checkins", input),
+  create: (input: CheckinInput) => api.post<CheckinResult>("/me/checkins", input, { timeoutMs: AGENT_TIMEOUT_MS }),
   plan: (date?: LocalDay) => api.get<{ data: CheckinPlan }>("/me/checkins/plan", { date }),
   today: (date?: LocalDay) => api.get<{ data: Checkin | null }>("/me/checkins/today", { date }),
   list: (range: DayRange = {}) => api.get<{ data: Checkin[]; meta: { from: string; to: string; count: number } }>("/me/checkins", range),
 };
 
 export const journalApi = {
-  create: (input: JournalEntryInput) => api.post<JournalEntry>("/me/journal", input),
+  create: (input: JournalEntryInput) => api.post<JournalEntry>("/me/journal", input, { timeoutMs: AGENT_TIMEOUT_MS }),
   list: (query: DayRange & { page?: number; limit?: number } = {}) => api.get<Paginated<JournalEntry>>("/me/journal", query),
   insights: (days = 30) => api.get<{ data: JournalInsights }>("/me/journal/insights", { days }),
   get: (entryId: string) => api.get<JournalEntry>(`/me/journal/${id(entryId)}`),
   update: (entryId: string, input: Partial<JournalEntryInput>) => api.patch<JournalEntry>(`/me/journal/${id(entryId)}`, input),
-  analyze: (entryId: string) => api.post<JournalEntry>(`/me/journal/${id(entryId)}/analyze`),
+  analyze: (entryId: string) => api.post<JournalEntry>(`/me/journal/${id(entryId)}/analyze`, undefined, { timeoutMs: AGENT_TIMEOUT_MS }),
   remove: (entryId: string) => api.delete<{ success: boolean }>(`/me/journal/${id(entryId)}`),
   /** The excerpt must be copied verbatim from the entry. */
   shareExcerpt: (entryId: string, excerpt: string) =>
@@ -122,10 +123,25 @@ export const luminaApi = {
    * thread (returned as `conversationId`). Reuse the same `clientMessageId` (UUID) when retrying.
    */
   chat: (input: { text: string; deep?: boolean; clientMessageId?: string; conversationId?: string }) =>
-    api.post<LuminaChatReply>("/me/lumina/chat", input),
+    api.post<LuminaChatReply>("/me/lumina/chat", input, { timeoutMs: AGENT_TIMEOUT_MS }),
+  /**
+   * The same turn, streamed: text arrives through `onDelta`, the resolved body is the final reply. If the
+   * stream cannot open the synchronous endpoints answer instead; the retry is safe (same `clientMessageId`).
+   */
+  chatStream: (
+    input: { text: string; deep?: boolean; clientMessageId?: string; conversationId?: string },
+    handlers: { onDelta?: (text: string) => void; signal?: AbortSignal } = {},
+  ) =>
+    streamWithFallback<LuminaChatReply>({
+      path: "/me/lumina/chat/stream",
+      body: input,
+      ...handlers,
+      resumable: true,
+      sync: () => (input.conversationId ? luminaApi.chat(input) : luminaApi.startConversation(input)),
+    }),
   /** Open a new thread with its first message (a thread never exists empty). */
   startConversation: (input: { text: string; deep?: boolean; clientMessageId?: string }) =>
-    api.post<LuminaChatReply>("/me/lumina/conversations", input),
+    api.post<LuminaChatReply>("/me/lumina/conversations", input, { timeoutMs: AGENT_TIMEOUT_MS }),
   conversations: (query: { limit?: number; before?: string } = {}) =>
     api.get<LuminaPage<LuminaConversation>>("/me/lumina/conversations", query),
   /** One thread's turns, oldest first, with intervention cards and crisis resources restored. */
@@ -149,7 +165,19 @@ export const luminaApi = {
 export const sparkApi = {
   /** Reuse the same `clientMessageId` (UUID) when retrying so the turn is not duplicated. */
   chat: (input: { text: string; clientMessageId?: string; localDate?: LocalDay; localTime?: string; availableMinutes?: number }) =>
-    api.post<SparkChatReply>("/me/spark/chat", input),
+    api.post<SparkChatReply>("/me/spark/chat", input, { timeoutMs: AGENT_TIMEOUT_MS }),
+  /** The same turn, streamed (see `luminaApi.chatStream`). */
+  chatStream: (
+    input: { text: string; clientMessageId?: string; localDate?: LocalDay; localTime?: string; availableMinutes?: number },
+    handlers: { onDelta?: (text: string) => void; signal?: AbortSignal } = {},
+  ) =>
+    streamWithFallback<SparkChatReply>({
+      path: "/me/spark/chat/stream",
+      body: input,
+      ...handlers,
+      resumable: true,
+      sync: () => sparkApi.chat(input),
+    }),
   state: () => api.get<SparkState>("/me/spark/state"),
   history: (query: { limit?: number; before?: string } = {}) =>
     api.get<{ data: SparkTurn[]; meta: { limit: number; nextBefore: string | null } }>("/me/spark/history", query),

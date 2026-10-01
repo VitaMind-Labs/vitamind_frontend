@@ -3,11 +3,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ShieldAlert, ShieldCheck, X } from "lucide-react";
+import { ShieldCheck, X } from "lucide-react";
 import {
   ChatSpaceActions, LuminaComposer, LuminaLogo, LuminaMessage, LuminaMotes, LuminaWelcome, TrustRow, TypingRow,
 } from "@/components/patient/chat/LuminaParts";
 import { ErrorState, Skeleton, SubscriptionGate } from "@/components/patient/ui/primitives";
+import { SupportCard } from "@/components/patient/ui/SupportCard";
 import { Button } from "@/components/ui/button";
 import { AudioProvider } from "@/contexts/AudioContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,8 +16,8 @@ import { usePatient } from "@/hooks/patient/usePatient";
 import { ThreadHeaderActions, ThreadRail, ThreadSheet } from "@/components/patient/chat/LuminaThreads";
 import { useLuminaChat, useLuminaConversations } from "@/hooks/patient/useLumina";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
-import { crisisBodyFor } from "@/lib/i18n/patient";
 import { formatDay, localDay } from "@/lib/patient/format";
+import { failureMessage } from "@/lib/patient/turn-errors";
 
 /** Full view: the conversation takes the whole height beside the rail (and sits above the tab bar on small screens). */
 const FRAME = "h-[calc(100dvh-9.5rem)] min-h-[32rem] lg:h-[calc(100dvh-4rem)]";
@@ -62,7 +63,8 @@ function ChatScreen({ initialPrompt }: { initialPrompt?: string }) {
   const scroller = useRef<HTMLDivElement>(null);
   const bottom = useRef<HTMLDivElement>(null);
   const sentInitial = useRef(false);
-  const { messages, isLoadingThread, isSending } = chat;
+  // The conversation as shown includes the reply that is still being written.
+  const { displayMessages: messages, isLoadingThread, isSending, isStreaming } = chat;
 
   useEffect(() => {
     const timer = window.setTimeout(() => setRailOpen(readRail()), 0);
@@ -88,7 +90,7 @@ function ChatScreen({ initialPrompt }: { initialPrompt?: string }) {
 
   useLayoutEffect(() => {
     bottom.current?.scrollIntoView({ block: "end", behavior: "smooth" });
-  }, [messages.length, isSending]);
+  }, [messages.length, isSending, isStreaming]);
 
   // While a reply is typed out, keep its newest line in view - unless the patient scrolled up to read.
   function followReveal() {
@@ -198,7 +200,7 @@ function ChatScreen({ initialPrompt }: { initialPrompt?: string }) {
                   <div className="flex justify-center"><Button variant="ghost" size="sm" onClick={() => void chat.loadOlder()}>{copy.chat.older}</Button></div>
                 )}
                 {rows.map(({ message, dayKey, showDay }, index) => (
-                  <div key={message.id} className="space-y-8">
+                  <div key={message.renderKey ?? message.id} className="space-y-8">
                     {showDay && (
                       <p className="flex items-center gap-3 text-xs font-medium text-ink-muted before:h-px before:flex-1 before:bg-gradient-to-r before:from-transparent before:to-ink/10 after:h-px after:flex-1 after:bg-gradient-to-l after:from-transparent after:to-ink/10">
                         <span className="rounded-full border border-white/90 bg-white/70 px-3 py-1 shadow-xs">
@@ -218,26 +220,25 @@ function ChatScreen({ initialPrompt }: { initialPrompt?: string }) {
                     />
                   </div>
                 ))}
-                <AnimatePresence>{isSending && <TypingRow key="typing" />}</AnimatePresence>
+                <AnimatePresence>{isSending && !isStreaming && <TypingRow key="typing" />}</AnimatePresence>
                 <div ref={bottom} />
               </div>
             )}
           </div>
 
+          {chat.support && (
+            <div className={`${COLUMN} px-3 pb-1 sm:px-6`}>
+              <SupportCard resources={chat.support.emergencyResources} labels={copy.live.support} onHide={chat.dismissSupport} />
+            </div>
+          )}
+
           <AnimatePresence>
-            {chat.support && (
-              <motion.div role="alert" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className={`${COLUMN} overflow-hidden px-3 sm:px-6`}>
-                <div className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50/95 px-4 py-3.5">
-                  <ShieldAlert className="mt-0.5 size-5 shrink-0 text-rose-700" aria-hidden />
-                  <div className="min-w-0 flex-1 text-sm text-rose-700">
-                    <p className="font-semibold">{copy.chat.crisisTitle}</p>
-                    <p className="mt-0.5">{crisisBodyFor(copy.chat, chat.support.emergencyResources)}</p>
-                    {chat.support.emergencyResources.length > 0 && (
-                      <ul className="mt-1.5 list-inside list-disc" dir="auto">{chat.support.emergencyResources.map((resource) => <li key={resource}>{resource}</li>)}</ul>
-                    )}
-                  </div>
-                  <button type="button" onClick={chat.dismissSupport} aria-label={copy.common.close} className="rounded-full p-1 text-rose-700 hover:bg-rose-100"><X className="size-4" aria-hidden /></button>
-                </div>
+            {chat.failure && failureMessage(chat.failure, copy.live, copy.common.genericError) && (
+              <motion.div role="status" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className={`${COLUMN} overflow-hidden px-3 sm:px-6`}>
+                <p className="flex items-start gap-3 rounded-2xl border border-teal-100 bg-teal-50/80 px-4 py-3 text-sm text-teal-900">
+                  <span className="min-w-0 flex-1">{failureMessage(chat.failure, copy.live, copy.common.genericError)}</span>
+                  <button type="button" onClick={chat.dismissFailure} aria-label={copy.common.close} className="-m-1.5 inline-flex size-9 items-center justify-center rounded-full text-teal-800 hover:bg-teal-100 focus-visible:outline-2 focus-visible:outline-teal-500"><X className="size-4" aria-hidden /></button>
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -248,6 +249,7 @@ function ChatScreen({ initialPrompt }: { initialPrompt?: string }) {
               onChange={setDraft}
               onSend={send}
               busy={isSending}
+              onStop={chat.stop}
               deep={deep}
               onDeepChange={setDeep}
               placeholder={copy.chat.placeholder}

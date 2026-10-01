@@ -18,6 +18,7 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { prefetchPatientHome } from "@/lib/patient/prefetch";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
 
 type AuthMode = "signin" | "signup";
@@ -64,8 +65,16 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   const signedIn = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
 
   useEffect(() => {
-    if (signedIn) router.replace(safeRedirect(searchParams.get("redirect")));
+    if (!signedIn) return;
+    const target = safeRedirect(searchParams.get("redirect"));
+    if (target.startsWith("/dashboard")) prefetchPatientHome();
+    router.replace(target);
   }, [signedIn, router, searchParams]);
+
+  // Sign-in is the way into the dashboard: fetch its code while the patient types, so arriving there is instant.
+  useEffect(() => {
+    router.prefetch("/dashboard");
+  }, [router]);
 
   const [values, setValues] = useState<FormValues>({ nickname: "", email: "", password: "", confirmPassword: "" });
   const [phone, setPhone] = useState<PhoneValue>(() => ({ country: defaultCountry(language), national: "" }));
@@ -98,6 +107,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         const email = values.email.trim();
         try {
           let session: AuthTokens;
+          const target = safeRedirect(searchParams.get("redirect"));
           if (isSignUp) {
             const res = await authApi.register({
               nickname: values.nickname.trim(), email, phone: e164 ?? undefined, password: values.password, lang: language,
@@ -107,15 +117,21 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
             if (sid && res.diagnostic?.claimed) clearDiagnosticClaim(sid);
           } else {
             session = await authApi.login(email, values.password);
-            // Returning visitor who ran Mira anonymously: attach that session now (best-effort).
-            if (sid) {
-              await authApi.claimDiagnostic(sid, claimToken, fingerprintHeaders())
-                .then((claim) => claim.claimed && clearDiagnosticClaim(sid))
-                .catch(() => undefined);
-            }
+            // Returning visitor who ran Mira anonymously: attach that session (best-effort). The claim carries the
+            // orientation onto the account, which the profile's track is read from, so it still finishes before the
+            // profile is fetched; with nothing to claim, nothing waits.
+            const claiming = sid
+              ? authApi.claimDiagnostic(sid, claimToken, fingerprintHeaders())
+                  .then((claim) => claim.claimed && clearDiagnosticClaim(sid))
+                  .catch(() => undefined)
+              : null;
+            router.prefetch(target);
+            await claiming;
           }
           if (session.user) setUser({ id: session.user.id, fullName: session.user.nickname || email, email, password: "", disease: "ADHD", createdAt: new Date().toISOString() });
-          router.push(safeRedirect(searchParams.get("redirect")));
+          // The first screens' data loads in parallel with the navigation itself.
+          if (target.startsWith("/dashboard")) prefetchPatientHome();
+          router.push(target);
         } catch (err) { setError(err instanceof Error ? err.message : "Authentication failed"); }
       })();
     });

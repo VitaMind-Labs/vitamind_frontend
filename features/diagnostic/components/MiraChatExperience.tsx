@@ -33,12 +33,14 @@ import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { useMiraChat, type MiraPhase } from "../hooks/useMiraChat";
 import { questionPosition } from "../lib/chapters";
+import { MIRA_STREAM_COPY } from "../lib/stream-copy";
 import { useVisitorName } from "../lib/visitor";
 import { MiraAvatar, MiraMessage } from "./MiraMessage";
 import { NameIntake } from "./NameIntake";
 import { CompactProgress, SessionRail } from "./SessionProgress";
 import { TypingIndicator } from "./TypingIndicator";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
+import { SupportCard } from "@/components/patient/ui/SupportCard";
 
 type IconType = ComponentType<{ className?: string }>;
 
@@ -159,6 +161,12 @@ export function MiraChatExperience({
     isSending,
     isBotTyping,
     isStarting,
+    isStreaming,
+    stop,
+    retry,
+    failure,
+    support,
+    dismissSupport,
     phase,
     error,
     safety,
@@ -180,6 +188,13 @@ export function MiraChatExperience({
   const conversationLanguage = language;
   const dictionary = copy[language];
   const diagnostic = dictionary.diagnostic;
+  const streamCopy = MIRA_STREAM_COPY[language];
+  const failureText =
+    failure === "offline" ? streamCopy.offline
+    : failure === "rateLimited" ? streamCopy.rateLimited
+    : failure === "timeout" ? streamCopy.slow
+    : failure === "interrupted" ? streamCopy.interrupted
+    : null;
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -211,8 +226,9 @@ export function MiraChatExperience({
   };
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, isBotTyping, phase, result]);
+    // While a reply is being written, follow it without queueing smooth scrolls.
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: isStreaming ? "auto" : "smooth" });
+  }, [messages, isBotTyping, phase, result, isStreaming]);
 
   useEffect(() => {
     return () => {
@@ -432,7 +448,10 @@ export function MiraChatExperience({
 
                   {messages.map((message, index) => (
                     <MiraMessage
-                      key={message.id}
+                      key={message.renderKey ?? message.id}
+                      streaming={message.streaming}
+                      partial={message.partial}
+                      onRetry={retry}
                       id={message.id}
                       role={message.role}
                       content={message.content}
@@ -442,12 +461,34 @@ export function MiraChatExperience({
                     />
                   ))}
 
-                  <AnimatePresence>{busy && <MiraTyping key="typing" phase={phase} language={conversationLanguage} />}</AnimatePresence>
+                  <AnimatePresence>{busy && !isStreaming && <MiraTyping key="typing" phase={phase} language={conversationLanguage} />}</AnimatePresence>
                 </div>
               </div>
 
               {/* ── Composer ── */}
               <div className="px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 sm:px-6 sm:pb-5">
+                {support && (
+                  <SupportCard resources={support} labels={streamCopy.support} onHide={dismissSupport} className="mb-3" />
+                )}
+
+                <AnimatePresence initial={false}>
+                  {failureText && !error && (
+                    <motion.p
+                      role="status"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: EASE_OUT }}
+                      className="mb-3 flex flex-wrap items-center justify-between gap-2 overflow-hidden rounded-2xl border border-teal-100 bg-teal-50/80 px-3.5 py-2 text-[0.8125rem] text-teal-900"
+                    >
+                      <span className="min-w-0 flex-1">{failureText}</span>
+                      <Button type="button" variant="outline" size="sm" onClick={retry} className="rounded-full">
+                        {streamCopy.tryAgain}
+                      </Button>
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
                 <AnimatePresence initial={false}>
                   {error && (
                     <motion.div
@@ -464,7 +505,7 @@ export function MiraChatExperience({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => input.trim() && handleSend()}
+                          onClick={() => (input.trim() ? handleSend() : retry())}
                           className="border-rose-100 text-rose-700 hover:border-rose hover:bg-white hover:text-rose-700"
                         >
                           {diagnostic.retry}
@@ -628,6 +669,18 @@ export function MiraChatExperience({
                     {dictating ? <Square className="fill-current" aria-hidden /> : dictationSupported ? <Mic aria-hidden /> : <MicOff aria-hidden />}
                   </Button>
 
+                  {isSending && !isStarting ? (
+                    <motion.button
+                      type="button"
+                      onClick={stop}
+                      whileTap={{ scale: 0.92 }}
+                      aria-label={streamCopy.stop}
+                      title={streamCopy.stop}
+                      className="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-teal-200 bg-white text-teal-800 shadow-[0_0_0_5px_rgb(81_133_145/0.1)] transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                    >
+                      <Square className="h-4 w-4 fill-current" aria-hidden />
+                    </motion.button>
+                  ) : (
                   <motion.button
                     type="button"
                     onClick={handleSend}
@@ -646,6 +699,7 @@ export function MiraChatExperience({
                   >
                     <SendHorizontal className="h-5 w-5 rtl:-scale-x-100" aria-hidden />
                   </motion.button>
+                  )}
                 </div>
 
                 <div className={cn("mt-2.5 flex items-center justify-between gap-3 px-2 text-xs text-ink-muted", completed && "hidden")}>

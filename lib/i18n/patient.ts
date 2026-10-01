@@ -239,6 +239,23 @@ const en = {
       newThread: "New conversation", error: "Your conversations couldn't be loaded.",
     },
   },
+  live: {
+    report: { title: "Your weekly report is ready", body: "A calm look back at your week is waiting for you.", open: "Open reports", dismiss: "Dismiss" },
+    connection: { reconnecting: "Reconnecting…", offline: "You're offline. We'll catch up as soon as you're back.", back: "Back online" },
+    analysis: { running: "Lumina is reading your entry…", done: "Lumina finished reading your entry.", failed: "Lumina couldn't read this one just now. You can try again." },
+    stream: {
+      stop: "Stop", stopping: "Stopping…", stopped: "You stopped this reply.", interrupted: "The connection dropped before the reply was finished.",
+      tryAgain: "Try again", slow: "This is taking a little longer than usual. Your message is safe.", writing: "Writing",
+      offlineSend: "You're offline. Your message is kept — send it again once you're back.", rateLimited: "Lots of messages at once. Let's pause a moment, then try again.",
+      validation: "That message couldn't be sent. Try shortening it a little.", conflict: "That message was already sent. Reload to see the latest.",
+    },
+    support: {
+      title: "You're not alone — support is right here", body: "If you might be in danger, please reach out to someone now. These people are ready to listen:",
+      bodyShort: "If you might be in danger, please contact your local emergency services now. You deserve support.",
+      call: "Call {resource}", copy: "Copy", copied: "Copied", emergency: "Call emergency services", stay: "Stay with this message",
+      hide: "I have what I need", hideConfirm: "Tap again to hide this", region: "Support resources",
+    },
+  },
   onboarding: {
     title: "Getting to know you", subtitle: "A short conversation so Lumina can support you well. Skip anything, any time.",
     skipAll: "Skip for now", skipOne: "Skip this question", type: "Type your answer…", send: "Send",
@@ -664,6 +681,23 @@ const ar: PatientCopy = {
       title: "المحادثات", open: "إظهار المحادثات", close: "إخفاء المحادثات", newChat: "محادثة جديدة",
       empty: "ستظهر محادثاتك هنا.", earlier: "محادثة سابقة", loadMore: "عرض الأقدم",
       newThread: "محادثة جديدة", error: "تعذّر تحميل محادثاتك.",
+    },
+  },
+  live: {
+    report: { title: "تقريرك الأسبوعي جاهز", body: "نظرة هادئة على أسبوعك بانتظارك.", open: "فتح التقارير", dismiss: "إخفاء" },
+    connection: { reconnecting: "جارٍ إعادة الاتصال…", offline: "أنت غير متصل. سنلحق بك فور عودتك.", back: "عاد الاتصال" },
+    analysis: { running: "لومينا تقرأ مدخلتك…", done: "أنهت لومينا قراءة مدخلتك.", failed: "تعذّر على لومينا قراءة هذه المدخلة الآن. يمكنك المحاولة مرة أخرى." },
+    stream: {
+      stop: "إيقاف", stopping: "جارٍ الإيقاف…", stopped: "أوقفتَ هذا الرد.", interrupted: "انقطع الاتصال قبل اكتمال الرد.",
+      tryAgain: "حاول مرة أخرى", slow: "الأمر يستغرق وقتًا أطول قليلًا من المعتاد. رسالتك بأمان.", writing: "جارٍ الكتابة",
+      offlineSend: "أنت غير متصل. رسالتك محفوظة — أعد إرسالها عند عودة الاتصال.", rateLimited: "رسائل كثيرة دفعة واحدة. لنتوقف لحظة ثم نحاول مجددًا.",
+      validation: "تعذّر إرسال هذه الرسالة. جرّب اختصارها قليلًا.", conflict: "أُرسلت هذه الرسالة من قبل. أعد التحميل لرؤية الأحدث.",
+    },
+    support: {
+      title: "لستَ وحدك — الدعم هنا", body: "إذا كنتَ قد تكون في خطر فتواصل مع أحدهم الآن. هؤلاء مستعدون للإصغاء إليك:",
+      bodyShort: "إذا كنتَ قد تكون في خطر فتواصل مع خدمات الطوارئ المحلية الآن. أنت تستحق الدعم.",
+      call: "اتصل بـ {resource}", copy: "نسخ", copied: "تم النسخ", emergency: "اتصل بالطوارئ", stay: "ابقَ مع هذه الرسالة",
+      hide: "لديّ ما أحتاجه", hideConfirm: "اضغط مرة أخرى للإخفاء", region: "جهات الدعم",
     },
   },
   onboarding: {

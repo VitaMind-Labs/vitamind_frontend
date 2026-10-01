@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ApiError } from "@/lib/api/client";
 import { luminaApi, type InterventionResult } from "@/lib/api/patient";
 import type { LuminaChatReply, LuminaConversation, LuminaPage, LuminaState, SafetyLevel } from "@/lib/api/patient-types";
 import { useAgentMemories } from "@/hooks/patient/useMemories";
+import { useTurnStream } from "@/hooks/patient/useTurnStream";
+import { classifyTurnFailure, type TurnFailureKind } from "@/lib/patient/turn-errors";
 import { invalidatePatientData, usePatientResource } from "@/hooks/usePatientResource";
 
 /** Latest longitudinal state (descriptive, never diagnostic). */
@@ -21,8 +22,8 @@ export type ChatMessage = {
   role: "user" | "lumina";
   text: string;
   createdAt: string;
-  /** Only for the patient's own messages. */
-  status?: "sending" | "sent" | "failed";
+  /** Only for the patient's own messages. "stopped": the patient stopped the reply before any of it arrived. */
+  status?: "sending" | "sent" | "failed" | "stopped";
   clientMessageId?: string;
   deep?: boolean;
   interactionId?: string;
@@ -33,6 +34,12 @@ export type ChatMessage = {
   safetyLevel?: SafetyLevel;
   /** A check-in reply rather than a chat turn. */
   isCheckin?: boolean;
+  /** The reply is still being written: text grows as it arrives. */
+  streaming?: boolean;
+  /** An unfinished reply that was kept (stopped by the patient, or cut short by the connection). */
+  partial?: "stopped" | "interrupted";
+  /** Stable React key: a streamed reply keeps it from its first word to its final form, so it never remounts. */
+  renderKey?: string;
 };
 
 export type ChatSupport = { emergencyResources: string[] } | null;
@@ -116,6 +123,11 @@ export function useLuminaChat() {
   const [subscriptionRequired, setSubscriptionRequired] = useState(false);
   /** The reply being revealed by the typewriter; every other reply renders whole. */
   const [revealingId, setRevealingId] = useState<string | null>(null);
+  /** The calm, inline reason the last turn did not complete (never raw error text). */
+  const [failure, setFailure] = useState<TurnFailureKind | null>(null);
+  const { text: streamText, begin: beginStream, finish: finishStream, stop: stopStream, snapshot: streamSnapshot, hide: hideStream } = useTurnStream();
+  /** The reply being written (stable key + when it began); null when nothing is streaming. */
+  const [writing, setWriting] = useState<{ key: string; startedAt: string } | null>(null);
   const mounted = useRef(true);
   /** Bumped whenever the open thread changes; a response for an older epoch is stale. */
   const epoch = useRef(0);
@@ -128,6 +140,14 @@ export function useLuminaChat() {
     };
   }, []);
 
+  const displayMessages = useMemo<ChatMessage[]>(
+    () =>
+      writing && streamText
+        ? [...messages, { id: writing.key, renderKey: writing.key, role: "lumina", text: streamText, createdAt: writing.startedAt, streaming: true }]
+        : messages,
+    [messages, writing, streamText],
+  );
+
   const switchTo = useCallback((next: string | null) => {
     epoch.current += 1;
     current.current = next;
@@ -136,8 +156,12 @@ export function useLuminaChat() {
     setNextBefore(null);
     setThreadError(false);
     setRevealingId(null);
+    setFailure(null);
+    // A turn still running for the thread we left keeps going, unseen.
+    hideStream();
+    setWriting(null);
     return epoch.current;
-  }, []);
+  }, [hideStream]);
 
   const loadThread = useCallback(async (id: string, at: number) => {
     setLoadingThread(true);
@@ -184,13 +208,26 @@ export function useLuminaChat() {
   const deliver = useCallback(async (localId: string, text: string, deep: boolean, clientMessageId: string) => {
     const at = epoch.current;
     const thread = current.current;
+    const key = `stream:${clientMessageId}`;
+    // Only the thread the patient is looking at paints the text as it arrives.
+    const live = beginStream(() => at === epoch.current);
+    let streamed = false;
     setSending(true);
     setRevealingId(null);
+    setFailure(null);
     setMessages((list) => list.map((message) => (message.id === localId ? { ...message, status: "sending" } : message)));
     try {
-      const reply = thread
-        ? await luminaApi.chat({ text, deep, clientMessageId, conversationId: thread })
-        : await luminaApi.startConversation({ text, deep, clientMessageId });
+      const reply = await luminaApi.chatStream(
+        { text, deep, clientMessageId, ...(thread ? { conversationId: thread } : {}) },
+        {
+          signal: live.signal,
+          onDelta: (delta) => {
+            if (!streamed && at === epoch.current) setWriting({ key, startedAt: new Date().toISOString() });
+            streamed = true;
+            live.onDelta(delta);
+          },
+        },
+      );
       if (!mounted.current) return;
       const crisis = reply.support.level === "CRISIS";
       // Safety first: support shows even if the patient has moved to another thread meanwhile.
@@ -200,6 +237,7 @@ export function useLuminaChat() {
           current.current = reply.conversationId;
           setConversationId(reply.conversationId);
         }
+        // The final body is the source of truth for the finished message; a streamed reply keeps its key so it never remounts.
         setMessages((list) => [
           ...list.map((message) => (message.id === localId ? { ...message, status: "sent" as const } : message)),
           {
@@ -211,10 +249,12 @@ export function useLuminaChat() {
             intervention: reply.intervention,
             strategy: reply.strategy,
             safetyLevel: reply.safetyLevel,
+            renderKey: streamed ? key : undefined,
           },
         ]);
-        // Crisis wording and resources appear at once, never typed out; a replay was already read.
-        setRevealingId(crisis || reply.replayed ? null : reply.interactionId);
+        // Crisis wording and resources appear at once, never typed out. A reply that already streamed in, or a
+        // replay, was read; one that came whole (no deltas) is revealed gently, exactly as before.
+        setRevealingId(crisis || reply.replayed || streamed ? null : reply.interactionId);
         if (!crisis) setSupport(null);
       }
       invalidatePatientData(THREADS_KEY);
@@ -222,18 +262,33 @@ export function useLuminaChat() {
       invalidatePatientData("lumina:memories");
     } catch (caught) {
       if (!mounted.current) return;
+      const stopped = live.signal.aborted;
+      const problem = classifyTurnFailure(caught);
+      // Whatever was already written stays on screen, so the patient never loses what they read.
+      const partialText = (streamSnapshot() || problem.partialText).trim();
       if (at === epoch.current) {
-        setMessages((list) => list.map((message) => (message.id === localId ? { ...message, status: "failed" } : message)));
+        setMessages((list) => {
+          const settled = list.map((message) =>
+            message.id === localId ? { ...message, status: partialText ? ("sent" as const) : stopped ? ("stopped" as const) : ("failed" as const) } : message,
+          );
+          return partialText
+            ? [...settled, { id: key, renderKey: key, role: "lumina" as const, text: partialText, createdAt: new Date().toISOString(), partial: stopped ? ("stopped" as const) : ("interrupted" as const) }]
+            : settled;
+        });
       }
-      if (caught instanceof ApiError) {
-        const payload = caught.payload as { code?: string; emergencyResources?: string[] } | undefined;
-        if (payload?.code === "SUBSCRIPTION_REQUIRED") setSubscriptionRequired(true);
-        if (payload?.code === "LUMINA_UNAVAILABLE") setSupport({ emergencyResources: payload.emergencyResources ?? [] });
+      if (!stopped) {
+        if (problem.kind === "subscription") setSubscriptionRequired(true);
+        else if (problem.kind === "support") setSupport({ emergencyResources: problem.emergencyResources });
+        else setFailure(problem.kind);
       }
     } finally {
-      if (mounted.current) setSending(false);
+      finishStream();
+      if (mounted.current) {
+        setWriting(null);
+        setSending(false);
+      }
     }
-  }, []);
+  }, [beginStream, finishStream, streamSnapshot]);
 
   const send = useCallback(
     async (raw: string, options: { deep?: boolean } = {}) => {
@@ -250,11 +305,18 @@ export function useLuminaChat() {
     [deliver, isSending],
   );
 
+  /** Send the same message again: from its failed/stopped bubble, or from the unfinished reply that followed it. */
   const retry = useCallback(
     async (id: string) => {
-      const message = messages.find((item) => item.id === id);
-      if (!message?.clientMessageId || isSending) return;
-      await deliver(id, message.text, Boolean(message.deep), message.clientMessageId);
+      if (isSending) return;
+      const index = messages.findIndex((item) => item.id === id);
+      const target = messages[index];
+      if (!target) return;
+      const message = target.role === "user" ? target : [...messages.slice(0, index)].reverse().find((item) => item.role === "user");
+      if (!message?.clientMessageId) return;
+      // The unfinished reply is replaced by the new attempt.
+      if (target.partial) setMessages((list) => list.filter((item) => item.id !== id));
+      await deliver(message.id, message.text, Boolean(message.deep), message.clientMessageId);
     },
     [deliver, isSending, messages],
   );
@@ -275,6 +337,13 @@ export function useLuminaChat() {
     threadError,
     hasMore: Boolean(nextBefore),
     isSending,
+    /** Words of the reply are arriving (the typing indicator gives way to the text). */
+    isStreaming: displayMessages.length > messages.length,
+    /** The conversation as shown: what was said, plus the reply that is still being written. */
+    displayMessages,
+    failure,
+    dismissFailure: () => setFailure(null),
+    stop: stopStream,
     support,
     dismissSupport: () => setSupport(null),
     subscriptionRequired,

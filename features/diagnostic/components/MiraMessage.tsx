@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Copy, Volume2, VolumeX } from "lucide-react";
-import { motion } from "framer-motion";
+import { Check, Copy, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { MIRA_MARK_SRC } from "@/components/layout/site-header/AgentAvatar";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,6 +10,7 @@ import { LANGS } from "@/lib/i18n/config";
 import { EASE_OUT } from "@/lib/motion";
 import { useSpeech } from "@/hooks/useSpeech";
 import { cn } from "@/lib/utils";
+import { MIRA_STREAM_COPY } from "../lib/stream-copy";
 import { RichText } from "./RichText";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
 
@@ -20,6 +21,11 @@ interface MiraMessageProps {
   createdAt: string;
   index: number;
   language: "en" | "ar";
+  /** The reply is still being written. */
+  streaming?: boolean;
+  /** An unfinished reply that was kept; `onRetry` offers to send the visitor's message again. */
+  partial?: "stopped" | "interrupted";
+  onRetry?: () => void;
 }
 
 /** Rendered size (px) of Mira's mark per avatar size. */
@@ -78,8 +84,27 @@ const ACTION_CLASS =
  * Mira: avatar + a quiet white card (the question) + read-aloud / copy actions.
  * Visitor: a brand-teal answer bubble aligned to the end edge.
  */
-export function MiraMessage({ content, role, createdAt, index, language }: MiraMessageProps) {
+/** Three soft dots in the card's own padding: no layout change when they leave. Still under reduced motion. */
+function StreamingDots() {
+  const reduce = useReducedMotion();
+  return (
+    <span className="pointer-events-none absolute bottom-1.5 end-5 flex items-center gap-1" role="presentation">
+      {[0, 1, 2].map((dot) => (
+        <motion.span
+          key={dot}
+          aria-hidden
+          className="size-1 rounded-full bg-teal-500/80"
+          animate={reduce ? { opacity: 0.7 } : { opacity: [0.25, 1, 0.25] }}
+          transition={reduce ? undefined : { duration: 1.2, repeat: Infinity, delay: dot * 0.18 }}
+        />
+      ))}
+    </span>
+  );
+}
+
+export function MiraMessage({ content, role, createdAt, index, language, streaming = false, partial, onRetry }: MiraMessageProps) {
   const { dictionary } = useLanguage();
+  const streamCopy = MIRA_STREAM_COPY[language];
   const diagnostic = dictionary.diagnostic;
   const isUser = role === "user";
   const { state: speech, toggle } = useSpeech(content, language);
@@ -147,11 +172,29 @@ export function MiraMessage({ content, role, createdAt, index, language }: MiraM
           {time && <time className="text-xs tabular-nums text-ink-subtle sm:text-[0.8125rem]">{time}</time>}
         </p>
 
-        <div className="mt-2 rounded-[1.375rem] rounded-ss-md border border-white/90 bg-white/70 px-5 py-4 shadow-soft backdrop-blur-sm sm:px-6">
-          <RichText content={content} className="text-base leading-7 text-ink-soft break-words sm:text-[1.0625rem] sm:leading-8" />
+        <div className="relative mt-2 rounded-[1.375rem] rounded-ss-md border border-white/90 bg-white/70 px-5 py-4 shadow-soft backdrop-blur-sm sm:px-6">
+          {/* Polite live region, busy while the reply is being written: assistive tech reads it once it is complete. */}
+          <div aria-live="polite" aria-busy={streaming || undefined}>
+            <RichText content={content} className="text-base leading-7 text-ink-soft break-words sm:text-[1.0625rem] sm:leading-8" />
+          </div>
+          {streaming && <StreamingDots />}
         </div>
 
-        <div className="mt-2 flex flex-wrap items-center gap-1">
+        {partial && onRetry && (
+          <p role="status" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-ink-muted">
+            <span>{partial === "stopped" ? streamCopy.stopped : streamCopy.interrupted}</span>
+            <button
+              type="button"
+              onClick={onRetry}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-teal-200 bg-white px-3.5 text-xs font-medium text-teal-800 transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+            >
+              <RotateCcw className="size-3" aria-hidden />
+              {streamCopy.tryAgain}
+            </button>
+          </p>
+        )}
+
+        <div className={cn("mt-2 flex flex-wrap items-center gap-1", (streaming || partial) && "hidden")}>
           <button
             type="button"
             onClick={toggle}

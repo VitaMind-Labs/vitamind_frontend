@@ -76,7 +76,7 @@ export function LuminaMessage({
 } & RevealProps) {
   return message.role === "user"
     ? <UserBubble message={message} onRetry={onRetry} />
-    : <LuminaBubble message={message} index={index} plain={plain} onOutcome={onOutcome} agentLabel={agentLabel} handoff={handoff} {...reveal} />;
+    : <LuminaBubble message={message} index={index} plain={plain} onOutcome={onOutcome} onRetry={onRetry} agentLabel={agentLabel} handoff={handoff} {...reveal} />;
 }
 
 function UserBubble({ message, onRetry }: { message: Pick<ChatMessage, "text" | "createdAt"> & Partial<ChatMessage>; onRetry?: () => void }) {
@@ -92,6 +92,11 @@ function UserBubble({ message, onRetry }: { message: Pick<ChatMessage, "text" | 
         <div className={cn("max-w-full rounded-[1.375rem] rounded-se-md bg-[linear-gradient(135deg,var(--color-teal-600),var(--color-teal-800))] px-5 py-3 text-white shadow-[0_12px_28px_-14px_rgb(47_83_90/0.65)]", message.status === "sending" && "opacity-70")}>
           <div dir="auto"><RichText content={message.text} className="break-words text-[0.9375rem] leading-7 sm:text-base" /></div>
         </div>
+        {message.status === "stopped" && onRetry && (
+          <button type="button" onClick={onRetry} className="inline-flex min-h-9 items-center gap-1 px-1 text-xs font-medium text-teal-800 hover:underline">
+            <RotateCcw className="size-3" aria-hidden />{copy.live.stream.stopped} {copy.live.stream.tryAgain}
+          </button>
+        )}
         {message.status === "failed" && onRetry && (
           <button type="button" onClick={onRetry} className="inline-flex items-center gap-1 px-1 text-xs font-medium text-rose-700 hover:underline">
             <RotateCcw className="size-3" aria-hidden />{copy.chat.failed} {copy.chat.retry}
@@ -109,6 +114,7 @@ function LuminaBubble({
   index,
   plain,
   onOutcome,
+  onRetry,
   agentLabel,
   handoff,
   reveal = false,
@@ -119,6 +125,7 @@ function LuminaBubble({
   index: number;
   plain: boolean;
   onOutcome?: (result: InterventionResult) => void;
+  onRetry?: () => void;
   agentLabel?: { title: string; role: string };
   handoff?: Handoff;
 } & RevealProps) {
@@ -132,6 +139,15 @@ function LuminaBubble({
   // Decided once, on mount: a reply that arrived live keeps its typed structure (see TypedText).
   const [typed] = useState(reveal);
   const { shown, typing } = useTypewriter(message.text, reveal, onRevealed, onRevealProgress);
+  const streaming = Boolean(message.streaming);
+  const progress = useRef(onRevealProgress);
+  useEffect(() => {
+    progress.current = onRevealProgress;
+  });
+  // A reply that is being written keeps its newest line in view (unless the patient scrolled up to read).
+  useEffect(() => {
+    if (streaming) progress.current?.();
+  }, [streaming, message.text]);
 
   useEffect(() => {
     if (!copied) return;
@@ -168,12 +184,23 @@ function LuminaBubble({
           onClick={typing ? onRevealed : undefined}
           className={cn("relative mt-2 overflow-hidden rounded-[1.375rem] rounded-ss-md border border-teal-100/70 bg-white/85 px-5 py-4 ps-6 shadow-soft backdrop-blur-sm before:absolute before:inset-y-3 before:start-0 before:w-[3px] before:rounded-full before:bg-gradient-to-b before:from-gold before:via-sage before:to-teal-500 sm:px-6 sm:ps-7", typing && "cursor-pointer")}
         >
-          <div dir="auto">
+          {/* Polite live region, busy while the reply is being written: assistive tech reads it once it is complete. */}
+          <div dir="auto" aria-live="polite" aria-busy={streaming || undefined}>
             <TypedText text={message.text} shown={shown} typed={typed}>
               {(value) => <RichText content={value} className="break-words text-base leading-7 text-ink-soft sm:text-[1.0625rem] sm:leading-8" />}
             </TypedText>
           </div>
+          {streaming && <StreamingDots label={c.thinking} />}
         </div>
+
+        {message.partial && onRetry && (
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-ink-muted" role="status">
+            <span>{message.partial === "stopped" ? copy.live.stream.stopped : copy.live.stream.interrupted}</span>
+            <button type="button" onClick={onRetry} className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-teal-200 bg-white px-3.5 text-xs font-medium text-teal-800 transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500">
+              <RotateCcw className="size-3" aria-hidden />{copy.live.stream.tryAgain}
+            </button>
+          </p>
+        )}
 
         {message.intervention && !typing && (
           <motion.div
@@ -231,7 +258,7 @@ function LuminaBubble({
           </div>
         )}
 
-        {!plain && !typing && (
+        {!plain && !typing && !streaming && !message.partial && (
           <div className="mt-2 flex flex-wrap items-center gap-1">
             <button type="button" onClick={toggle} disabled={speech === "unsupported"} aria-label={speaking ? c.stopListening : c.listen} className={cn(ACTION_CLASS, speaking && "bg-white text-teal-800")}>
               {speech === "loading" ? <LogoSpinner size={18} /> : speaking ? <Waveform /> : <Volume2 aria-hidden />}
@@ -247,6 +274,24 @@ function LuminaBubble({
         {speech === "error" && <p role="alert" className="mt-1 px-1 text-xs text-rose-700">{c.voiceError}</p>}
       </div>
     </motion.article>
+  );
+}
+
+/** Three soft dots in the bubble's own padding: no layout change when they leave. Still under reduced motion. */
+function StreamingDots({ label }: { label: string }) {
+  const reduce = useReducedMotion();
+  return (
+    <span className="pointer-events-none absolute bottom-1.5 end-5 flex items-center gap-1" role="presentation" title={label}>
+      {[0, 1, 2].map((dot) => (
+        <motion.span
+          key={dot}
+          aria-hidden
+          className="size-1 rounded-full bg-teal-500/80"
+          animate={reduce ? { opacity: 0.7 } : { opacity: [0.25, 1, 0.25] }}
+          transition={reduce ? undefined : { duration: 1.2, repeat: Infinity, delay: dot * 0.18 }}
+        />
+      ))}
+    </span>
   );
 }
 
@@ -278,6 +323,7 @@ export function LuminaComposer({
   placeholder,
   maxLength = 4000,
   hint,
+  onStop,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -288,6 +334,8 @@ export function LuminaComposer({
   placeholder: string;
   maxLength?: number;
   hint?: ReactNode;
+  /** While a reply is being written, the send button becomes "Stop" (the partial reply is kept). */
+  onStop?: () => void;
 }) {
   const copy = usePatientCopy();
   const { language } = useLanguage();
@@ -401,6 +449,18 @@ export function LuminaComposer({
         >
           {dictating ? <Square className="size-4 fill-current" aria-hidden /> : supported ? <Mic className="size-5" aria-hidden /> : <MicOff className="size-5" aria-hidden />}
         </button>
+        {busy && onStop ? (
+          <motion.button
+            type="button"
+            onClick={onStop}
+            whileTap={{ scale: 0.92 }}
+            aria-label={copy.live.stream.stop}
+            title={copy.live.stream.stop}
+            className="inline-flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-teal-200 bg-white text-teal-800 shadow-[0_0_0_5px_rgb(227_176_28/0.12)] transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+          >
+            <Square className="size-4 fill-current" aria-hidden />
+          </motion.button>
+        ) : (
         <motion.button
           type="button"
           onClick={() => canSend && onSend()}
@@ -417,6 +477,7 @@ export function LuminaComposer({
         >
           {busy ? <LogoSpinner size={20} /> : <SendHorizontal className="size-5 rtl:-scale-x-100" aria-hidden />}
         </motion.button>
+        )}
       </div>
 
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-ink-muted">
