@@ -19,6 +19,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { prefetchPatientHome } from "@/lib/patient/prefetch";
+import { ACCENT_LIGHT, DISPLAY_M, LABEL } from "@/components/home/typography";
+import { cn } from "@/lib/utils";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
 
 type AuthMode = "signin" | "signup";
@@ -47,7 +49,7 @@ function VisibilityToggle({ show, toggle, label }: { show: boolean; toggle: () =
       aria-label={label}
       aria-pressed={show}
       onClick={toggle}
-      className="h-9 w-9 min-h-9 rounded-full text-ink-subtle hover:bg-teal-50 hover:text-teal-700"
+      className="size-9 min-h-9 rounded-full text-ink-muted hover:bg-teal-50 hover:text-teal-700"
     >
       {show ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
     </Button>
@@ -152,22 +154,22 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: 0.1 }}
-      className="relative w-full sm:rounded-[1.75rem] sm:border sm:border-white/90 sm:bg-white/85 sm:px-9 sm:py-10 sm:shadow-raised sm:backdrop-blur-xl lg:px-10 lg:py-11"
+      className="relative w-full rounded-panel border border-line bg-white p-6 shadow-[var(--shadow-soft)] sm:p-9 lg:p-10"
     >
       {/* ── HEADING ──────────────────────────────────────────────────── */}
       <header>
-        <p className="inline-flex items-center gap-1.5 rounded-full border border-teal-100 bg-teal-50/80 px-2.5 py-1 text-xs font-medium text-teal-700">
-          <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+        <p className={cn(LABEL, "inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-3 py-1.5 text-teal-700")}>
+          <ShieldCheck className="size-3.5" aria-hidden />
           {auth.badge}
         </p>
         <h1
           id="auth-title"
-          className="mt-5 text-[clamp(1.75rem,1.2vw+1.4rem,2.25rem)] font-light leading-[1.15] tracking-[-0.025em] text-ink rtl:font-normal"
+          className={cn(DISPLAY_M, "mt-6 text-[clamp(2rem,1.6vw+1.5rem,2.75rem)] text-ink")}
         >
           {isSignUp ? auth.titleSignUpA : auth.titleSignInA}{" "}
-          <span className="home-heading-accent font-normal rtl:font-medium">{isSignUp ? auth.titleSignUpB : auth.titleSignInB}</span>
+          <span className={ACCENT_LIGHT}>{isSignUp ? auth.titleSignUpB : auth.titleSignInB}</span>
         </h1>
-        <p className="mt-2.5 text-[0.9375rem] leading-6 text-ink-muted">
+        <p className="mt-3 text-[1rem] leading-7 text-ink-soft">
           {isSignUp ? auth.subtitleSignUp : auth.subtitleWelcome}
         </p>
       </header>
@@ -290,7 +292,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 
         {!isSignUp && (
           <motion.div variants={fadeUp(0, 8)} className="-my-1.5 flex flex-wrap items-center justify-between gap-x-4">
-            <label htmlFor="auth-remember" className="inline-flex min-h-11 cursor-pointer select-none items-center gap-2.5 text-sm text-ink-soft">
+            <label htmlFor="auth-remember" className="inline-flex min-h-11 cursor-pointer select-none items-center gap-2.5 text-[0.9375rem] text-ink-soft">
               <Checkbox
                 id="auth-remember"
                 name="remember"
@@ -300,7 +302,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
               />
               {auth.rememberMe}
             </label>
-            <Link href="/support" className={`${LINK_CLASS} inline-flex min-h-11 items-center text-sm font-medium`}>
+            <Link href="/support" className={`${LINK_CLASS} inline-flex min-h-11 items-center text-[0.9375rem] font-medium`}>
               {auth.forgotPassword}
             </Link>
           </motion.div>
@@ -313,7 +315,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
             size="lg"
             disabled={isPending}
             aria-busy={isPending}
-            className="group min-h-[3.25rem] hover:shadow-[0_14px_28px_-12px_rgb(61_106_115/0.6)]"
+            className="group min-h-14 bg-ink shadow-[0_18px_36px_-16px_rgb(34_60_65/0.75)] hover:bg-teal-900 hover:shadow-[0_18px_36px_-14px_rgb(34_60_65/0.85)]"
           >
             {isPending ? (
               <>
@@ -343,7 +345,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         >
           <div className="flex items-center gap-3">
             <Separator className="flex-1 bg-line" />
-            <span className="shrink-0 text-xs font-medium text-ink-muted">{auth.altAuth}</span>
+            <span className="shrink-0 text-[0.8125rem] font-medium text-ink-soft">{auth.altAuth}</span>
             <Separator className="flex-1 bg-line" />
           </div>
           <div className="mt-5 grid gap-2.5">
@@ -361,13 +363,13 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 
       {/* ── SWITCH + LEGAL ───────────────────────────────────────────── */}
       <footer className="mt-7 border-t border-line pt-6 text-center">
-        <p className="text-sm text-ink-muted">
+        <p className="text-[0.9375rem] text-ink-soft">
           {switchPrompt}{" "}
           <Link href={switchHref} className={LINK_CLASS}>
             {switchLink}
           </Link>
         </p>
-        <p className="mx-auto mt-3 max-w-xs text-xs leading-5 text-ink-muted">{auth.legal}</p>
+        <p className="mx-auto mt-3 max-w-xs text-[0.8125rem] leading-5 text-ink-soft">{auth.legal}</p>
       </footer>
     </motion.section>
   );

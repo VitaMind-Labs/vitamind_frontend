@@ -2,12 +2,13 @@
 
 import { motion } from "framer-motion";
 import { BadgeCheck, CircleAlert } from "lucide-react";
-import { PlanTag } from "@/components/pricing/PlanColumn";
+import { DISPLAY_S, LABEL, SERIF } from "@/components/home/typography";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { MySubscription, SubscriptionStatus } from "@/lib/api/billing";
 import { formatMoney, tierCopyKey } from "@/lib/config/plans";
 import { LANGS } from "@/lib/i18n/config";
 import { EASE_OUT } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /**
  * What the patient's subscription really is right now. The stored status can say ACTIVE or
@@ -21,7 +22,7 @@ function effectiveStatus(subscription: MySubscription): SubscriptionStatus {
   return stored;
 }
 
-/** The patient's subscription, in the same surface language as the plan card. */
+/** The patient's subscription, as a white sheet with a hairline status edge. */
 export function CurrentSubscription({ subscription }: { subscription: MySubscription }) {
   const { dictionary, language } = useLanguage();
   const copy = dictionary.subscription;
@@ -47,50 +48,53 @@ export function CurrentSubscription({ subscription }: { subscription: MySubscrip
   return (
     <motion.section
       aria-labelledby="current-subscription-title"
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: EASE_OUT, delay: 0.15 }}
-      className="relative mx-auto mt-10 w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-line bg-white sm:mt-12"
+      transition={{ duration: 0.8, ease: EASE_OUT, delay: 0.2 }}
+      className="relative mx-auto mt-12 w-full max-w-4xl overflow-hidden rounded-panel border border-line bg-white shadow-[var(--shadow-soft)] sm:mt-14"
     >
-      <span aria-hidden className={`absolute inset-y-0 start-0 w-0.5 ${running ? "bg-sage" : "bg-rose"}`} />
-      <div className="grid gap-5 p-5 sm:p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-10 md:px-8">
-        <div className="flex min-w-0 items-center gap-4">
-          <span
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${running ? "bg-sage-50 text-sage-700" : "bg-rose-50 text-rose-700"}`}
-          >
-            {running ? <BadgeCheck className="h-5 w-5" strokeWidth={1.75} aria-hidden /> : <CircleAlert className="h-5 w-5" strokeWidth={1.75} aria-hidden />}
+      <span aria-hidden className={cn("absolute inset-y-0 start-0 w-1", running ? "bg-[linear-gradient(180deg,var(--color-sage),var(--color-gold))]" : "bg-rose")} />
+      <div className="grid gap-6 p-6 sm:p-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-12 md:px-10">
+        <div className="flex min-w-0 items-center gap-5">
+          <span className={cn("flex size-12 shrink-0 items-center justify-center rounded-2xl", running ? "bg-sage-50 text-sage-700" : "bg-rose-50 text-rose-700")}>
+            {running ? <BadgeCheck className="size-6" strokeWidth={1.5} aria-hidden /> : <CircleAlert className="size-6" strokeWidth={1.5} aria-hidden />}
           </span>
           <div className="min-w-0">
-            <h2 id="current-subscription-title" className="home-label text-ink-muted">
+            <h2 id="current-subscription-title" className={cn(LABEL, "text-ink-soft")}>
               {copy.yourSubscription}
             </h2>
-            <p className="mt-1 flex flex-wrap items-center gap-2 text-lg font-semibold text-ink">
-              {planName}
-              {running ? (
-                <PlanTag tone="current">{copy.subscriptionStatus[status]}</PlanTag>
-              ) : (
-                <span className="home-label inline-flex items-center gap-1.5 rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-rose-700">
-                  {copy.subscriptionStatus[status]}
-                </span>
-              )}
+            <p className="mt-2 flex flex-wrap items-center gap-3">
+              <span className={cn(DISPLAY_S, "text-ink")}>{planName}</span>
+              <span
+                className={cn(
+                  LABEL,
+                  "inline-flex items-center gap-2 rounded-full border px-3 py-1.5",
+                  running ? "border-sage-100 bg-sage-50 text-sage-700" : "border-rose-100 bg-rose-50 text-rose-700",
+                )}
+              >
+                <span aria-hidden className={cn("size-1.5 rounded-full", running ? "bg-sage-700" : "bg-rose")} />
+                {copy.subscriptionStatus[status]}
+              </span>
             </p>
           </div>
         </div>
 
-        <dl className="grid grid-cols-2 gap-6 text-sm sm:flex sm:gap-10">
+        <dl className="grid grid-cols-2 gap-8 sm:flex sm:gap-12">
           {plan ? (
             <div className="min-w-0">
-              <dt className="text-ink-muted">{copy.priceLabel}</dt>
-              <dd className="mt-1 font-semibold text-ink">
-                <span dir="ltr" className="tabular-nums">{formatMoney(plan.price, plan.currency, locale)}</span>{" "}
-                <span className="font-normal text-ink-muted">{copy.perMonth}</span>
+              <dt className="text-[0.875rem] text-ink-soft">{copy.priceLabel}</dt>
+              <dd className="mt-1.5">
+                <span dir="ltr" className={cn(SERIF, "text-[1.75rem] font-light tracking-[-0.03em] tabular-nums text-ink")}>
+                  {formatMoney(plan.price, plan.currency, locale)}
+                </span>{" "}
+                <span className="text-[0.875rem] text-ink-soft">{copy.perMonth}</span>
               </dd>
             </div>
           ) : null}
           {formattedDate ? (
             <div className="min-w-0">
-              <dt className="text-ink-muted">{dateLabel}</dt>
-              <dd className="mt-1 font-semibold text-ink">{formattedDate}</dd>
+              <dt className="text-[0.875rem] text-ink-soft">{dateLabel}</dt>
+              <dd className="mt-1.5 text-[1.0625rem] font-semibold text-ink">{formattedDate}</dd>
             </div>
           ) : null}
         </dl>

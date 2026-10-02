@@ -41,11 +41,11 @@ export function CardPreview({ number, name, expiry, planName, holderLabel, expir
         animate={{ opacity: 1, rotateX: 0, y: 0 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="relative isolate aspect-[1.586] overflow-hidden rounded-[1.25rem] bg-[linear-gradient(145deg,var(--color-teal-700),var(--color-ink)_60%,#1d2b29)] p-5 text-white shadow-float sm:p-6"
+        className="relative isolate aspect-[1.586] overflow-hidden rounded-[1.5rem] border border-gold-300/30 bg-[linear-gradient(145deg,var(--color-teal-800),var(--color-teal-900)_55%,var(--color-ink))] p-5 text-white shadow-float sm:p-6"
         dir="ltr"
       >
         <span className="pointer-events-none absolute -top-16 -right-10 -z-10 h-48 w-48 rounded-full bg-teal-400/40 blur-3xl" />
-        <span className="pointer-events-none absolute -bottom-20 -left-10 -z-10 h-44 w-44 rounded-full bg-gold/25 blur-3xl" />
+        <span className="pointer-events-none absolute -bottom-20 -left-10 -z-10 h-44 w-44 rounded-full bg-gold/30 blur-3xl" />
         <motion.span
           style={{ left: shineX }}
           className="pointer-events-none absolute inset-y-0 -z-10 w-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
@@ -72,11 +72,11 @@ export function CardPreview({ number, name, expiry, planName, holderLabel, expir
 
           <div className="flex items-end justify-between gap-4 text-xs">
             <div className="min-w-0">
-              <p className="text-[0.625rem] uppercase tracking-[0.16em] text-white/55">{holderLabel}</p>
+              <p className="text-[0.6875rem] uppercase tracking-[0.16em] text-white/70">{holderLabel}</p>
               <p className="mt-0.5 truncate text-sm font-medium uppercase tracking-wide">{name || "—"}</p>
             </div>
             <div className="shrink-0 text-end">
-              <p className="text-[0.625rem] uppercase tracking-[0.16em] text-white/55">{expiryLabel}</p>
+              <p className="text-[0.6875rem] uppercase tracking-[0.16em] text-white/70">{expiryLabel}</p>
               <p className="mt-0.5 font-mono text-sm">{expiry || "MM/YY"}</p>
             </div>
           </div>

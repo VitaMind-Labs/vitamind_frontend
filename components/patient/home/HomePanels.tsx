@@ -127,7 +127,7 @@ function ReadsPanel() {
               <button
                 type="button"
                 onClick={() => setOpen(article)}
-                className="group flex w-full items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-3.5 text-start transition-all hover:-translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                className="group flex w-full items-start gap-3.5 lm-inset p-3.5 text-start"
               >
                 <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br", TONE_BG[article.tone])}>
                   <Icon className="size-5" aria-hidden />

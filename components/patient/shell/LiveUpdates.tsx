@@ -110,7 +110,7 @@ export function LiveUpdates() {
                 <Link
                   href="/dashboard/reports"
                   onClick={() => setNotice(null)}
-                  className="mt-2 inline-flex min-h-9 items-center rounded-full bg-teal-700 px-4 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                  className="mt-2 inline-flex min-h-9 items-center rounded-full bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
                 >
                   {live.report.open}
                 </Link>

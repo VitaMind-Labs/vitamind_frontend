@@ -16,8 +16,8 @@ export type MoodLevel = {
 };
 
 export const MOOD_LEVELS: readonly MoodLevel[] = [
-  { level: 1, score: 2, emoji: "😔", color: "#7f78ae", soft: "#e8e6f4" },
-  { level: 2, score: 4, emoji: "🙁", color: "#5583ab", soft: "#dfeaf3" },
+  { level: 1, score: 2, emoji: "😔", color: "#8a7a8c", soft: "#eee9ee" },
+  { level: 2, score: 4, emoji: "🙁", color: "#678780", soft: "#e4ebe9" },
   { level: 3, score: 6, emoji: "😐", color: "#518591", soft: "#e3eeef" },
   { level: 4, score: 8, emoji: "🙂", color: "#5f937a", soft: "#e1eee7" },
   { level: 5, score: 10, emoji: "😊", color: "#b98522", soft: "#faefd2" },

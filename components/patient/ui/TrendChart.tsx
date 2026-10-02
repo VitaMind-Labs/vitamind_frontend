@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { cn } from "@/lib/utils";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export type TrendPoint = { label: string; value: number | null };
@@ -15,16 +16,18 @@ export function TrendChart({
   height = 180,
   domain = [0, 10],
   unit,
+  className,
 }: {
   data: TrendPoint[];
   color?: string;
   height?: number;
   domain?: [number, number];
   unit?: string;
+  className?: string;
 }) {
   const gradientId = useId().replace(/:/g, "");
   return (
-    <div dir="ltr" style={{ height }} className="w-full">
+    <div dir="ltr" style={{ height }} className={cn("w-full", className)}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 12, left: -6, bottom: 0 }}>
           <defs>

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 import { useEffect, useState, type ReactNode } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT } from "@/lib/motion";
@@ -25,6 +25,39 @@ export function useScrolled(threshold = 12) {
   return scrolled;
 }
 
+/**
+ * Smart header: tucks away while the reader scrolls down, returns the moment they scroll up.
+ * Always visible near the top, and whenever `locked` (a menu is open).
+ */
+function useHeaderHidden(enabled: boolean, locked: boolean) {
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let last = window.scrollY;
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const delta = y - last;
+        if (y < 160) setHidden(false);
+        else if (delta > 10) setHidden(true);
+        else if (delta < -10) setHidden(false);
+        last = y;
+        frame = 0;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [enabled]);
+
+  return enabled && hidden && !locked;
+}
+
 type HeaderShellProps = {
   children: ReactNode;
   /** `fixed` floats over hero media; `sticky` reserves its own space; `static` stays in flow. */
@@ -32,9 +65,11 @@ type HeaderShellProps = {
   /**
    * `edge` — full-width, part of the page at the top; a hairline surface fades in on scroll (marketing, checkout).
    * `bar`  — floating pill surface (application chrome).
+   * `capsule` — marketing: wide and open at the top, condenses into a floating glass capsule on scroll,
+   *            tucks away while reading down and returns on the way up.
    * `bare` — same metrics, no surface.
    */
-  surface?: "edge" | "bar" | "bare";
+  surface?: "edge" | "bar" | "bare" | "capsule";
   /** Force the scrolled surface (e.g. while a menu is open). */
   solid?: boolean;
   className?: string;
@@ -49,6 +84,44 @@ export function HeaderShell({ children, position = "sticky", surface = "edge", s
   const { direction } = useLanguage();
   const scrolled = useScrolled();
   const raised = scrolled || solid;
+  const hidden = useHeaderHidden(surface === "capsule", solid);
+  const { scrollYProgress } = useScroll();
+
+  if (surface === "capsule") {
+    return (
+      <motion.header
+        dir={direction}
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: hidden ? "-140%" : 0 }}
+        transition={{ duration: 0.55, ease: EASE_OUT }}
+        className={cn(
+          "pointer-events-none z-50 w-full px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 sm:pt-4",
+          position === "fixed" && "fixed inset-x-0 top-0",
+          position === "sticky" && "sticky top-0",
+          position === "static" && "relative",
+          className,
+        )}
+      >
+        <div
+          className={cn(
+            HEADER_HEIGHT,
+            "pointer-events-auto relative mx-auto flex w-full items-center gap-2 rounded-full border px-3 transition-[max-width,background-color,border-color,box-shadow] duration-500 ease-out-soft sm:gap-3 sm:px-4",
+            raised ? "max-w-[64rem] border-white/70 bg-white/80 shadow-float ring-1 ring-line/50 backdrop-blur-xl" : "max-w-page border-transparent bg-transparent",
+            innerClassName,
+          )}
+        >
+          {children}
+          {/* Reading progress, drawn along the capsule's lower edge once it has condensed */}
+          <span
+            aria-hidden
+            className={cn("pointer-events-none absolute inset-x-8 -bottom-px h-px overflow-hidden transition-opacity duration-500", raised ? "opacity-100" : "opacity-0")}
+          >
+            <motion.span style={{ scaleX: scrollYProgress }} className="block h-full origin-left bg-[linear-gradient(90deg,var(--color-teal-500),var(--color-gold))] rtl:origin-right" />
+          </span>
+        </div>
+      </motion.header>
+    );
+  }
 
   if (surface === "edge") {
     return (

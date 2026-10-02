@@ -1,29 +1,70 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { GLSLHills } from "@/components/home/GLSLHills";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ROUTES } from "@/lib/config/routes";
 import { EASE_OUT, fadeUp, stagger } from "@/lib/motion";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Check, Play, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useRef, type ReactNode } from "react";
-import { Magnetic, TextReveal } from "./AnimationUtilities";
+import { useRef } from "react";
+import { Magnetic, WordReveal } from "./AnimationUtilities";
+import { Grain } from "./Atmosphere";
 import { CareOrbit } from "./CareOrbit";
-import { ROUTES } from "@/lib/config/routes";
+import { GLSLHills } from "./GLSLHills";
+import { Marquee } from "./Interactions";
+import { ACCENT_LIGHT, BODY, DISPLAY_XL } from "./typography";
 
-/** A small floating card that drifts at its own depth while the product settles. */
-function Callout({ y, className, delay, children }: { y: MotionValue<number>; className: string; delay: number; children: ReactNode }) {
+/** "deserves better care" → plain lead + the last two words as the olive-gold accent. */
+function splitAccent(text: string, accentWords = 2) {
+    const words = text.split(" ");
+    const cut = Math.max(0, words.length - accentWords);
+    return { lead: words.slice(0, cut).join(" "), accent: words.slice(cut).join(" ") };
+}
+
+/** Motes of light rising through the landscape: [left %, size px, seconds, delay, gold?]. */
+const MOTES = [
+    [8, 4, 13, 0, true], [16, 3, 16, 3, false], [24, 5, 12, 6, true], [33, 3, 18, 1, false],
+    [41, 4, 14, 8, true], [52, 3, 17, 4, false], [60, 5, 12, 9, true], [69, 3, 15, 2, false],
+    [77, 4, 13, 7, true], [85, 3, 19, 5, false], [92, 5, 14, 10, true],
+] as const;
+
+function Motes() {
+    const reduce = useReducedMotion();
+    if (reduce) return null;
     return (
-        <motion.div style={{ y }} className={className} aria-hidden>
-            <motion.div
-                initial={{ opacity: 0, scale: 0.94 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, delay, ease: EASE_OUT }}
-            >
-                {children}
-            </motion.div>
-        </motion.div>
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 top-1/3 -z-10 overflow-hidden">
+            {MOTES.map(([left, size, seconds, delay, gold]) => (
+                <motion.span
+                    key={left}
+                    className={cn("absolute bottom-0 rounded-full", gold ? "bg-gold shadow-[0_0_14px_3px_rgb(227_176_28/0.45)]" : "bg-teal-300 shadow-[0_0_12px_3px_rgb(126_165_171/0.45)]")}
+                    style={{ left: `${left}%`, width: size, height: size }}
+                    initial={{ y: 0, opacity: 0 }}
+                    animate={{ y: [0, -420], opacity: [0, 0.9, 0] }}
+                    transition={{ duration: seconds, delay, repeat: Infinity, ease: "easeOut" }}
+                />
+            ))}
+        </div>
+    );
+}
+
+/** A single brush stroke drawn under the accent phrase once the headline has landed. */
+function Swash() {
+    return (
+        <svg aria-hidden viewBox="0 0 400 16" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 -bottom-[0.14em] h-[0.16em] w-full overflow-visible text-gold">
+            <motion.path
+                d="M2 10 C 70 2, 150 15, 230 7 S 350 11, 398 4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 0.9 }}
+                transition={{ duration: 1.4, delay: 1.7, ease: EASE_OUT }}
+            />
+        </svg>
     );
 }
 
@@ -32,126 +73,156 @@ export const Hero = () => {
     const copy = dictionary.homeLanding.hero;
     const home = dictionary.home;
     const reduce = useReducedMotion();
+    const { lead, accent } = splitAccent(copy.titleB);
 
-    const copyRef = useRef<HTMLDivElement>(null);
-    const deviceRef = useRef<HTMLDivElement>(null);
+    const heroRef = useRef<HTMLElement>(null);
+    const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "70% start"] });
 
-    // Headline drifts up and softens as the reader leaves it.
-    const { scrollYProgress: copyProgress } = useScroll({ target: copyRef, offset: ["start start", "end start"] });
-    const copyY = useTransform(copyProgress, [0, 1], [0, reduce ? 0 : -90]);
-    const copyOpacity = useTransform(copyProgress, [0, 0.85], [1, reduce ? 1 : 0.15]);
-    const landscapeY = useTransform(copyProgress, [0, 1], [0, reduce ? 0 : 140]);
+    // Leaving the hero: the headline recedes, the camera glides forward over the hills.
+    const copyY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -110]);
+    const copyScale = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 0.94]);
+    const copyOpacity = useTransform(scrollYProgress, [0, 0.85], [1, reduce ? 1 : 0]);
+    const hillsY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 90]);
 
-    // The product rises from a tilted, receding plane to face the reader.
-    const { scrollYProgress: deviceProgress } = useScroll({ target: deviceRef, offset: ["start end", "start 0.18"] });
-    const settle = useSpring(deviceProgress, { stiffness: 110, damping: 28, mass: 0.35 });
-    const rotateX = useTransform(settle, [0, 1], [reduce ? 0 : 24, 0]);
-    const scale = useTransform(settle, [0, 1], [reduce ? 1 : 0.88, 1]);
-    const deviceY = useTransform(settle, [0, 1], [reduce ? 0 : 60, 0]);
-    const glowOpacity = useTransform(settle, [0, 1], [0.25, 0.9]);
-    const calloutNear = useTransform(settle, [0, 1], [reduce ? 0 : 140, 0]);
-    const calloutFar = useTransform(settle, [0, 1], [reduce ? 0 : 90, 0]);
+    // A soft light follows the pointer across the mist.
+    const mx = useMotionValue(50);
+    const my = useMotionValue(36);
+    const sx = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.6 });
+    const sy = useSpring(my, { stiffness: 60, damping: 20, mass: 0.6 });
+    const spotlight = useMotionTemplate`radial-gradient(38rem circle at ${sx}% ${sy}%, rgb(255 255 255 / 0.95), rgb(227 176 28 / 0.07) 45%, transparent 70%)`;
+
+    const onPointerMove = (event: React.PointerEvent<HTMLElement>) => {
+        if (reduce || event.pointerType !== "mouse" || !heroRef.current) return;
+        const rect = heroRef.current.getBoundingClientRect();
+        mx.set(((event.clientX - rect.left) / rect.width) * 100);
+        my.set(((event.clientY - rect.top) / Math.min(rect.height, 900)) * 100);
+    };
 
     return (
-        <section id="home" className="relative overflow-hidden bg-white">
-            {/* Landscape backdrop — spans the headline and the top of the product. */}
-            <motion.div style={{ y: landscapeY }} className="absolute inset-x-0 top-0 -z-0 h-[115svh] min-h-[48rem]" aria-hidden>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.8, ease: "easeOut" }} className="absolute inset-0">
-                    <GLSLHills />
+        <section
+            ref={heroRef}
+            id="home"
+            onPointerMove={onPointerMove}
+            className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,var(--color-teal-50)_62%,#ffffff_100%)]"
+        >
+            <Grain tone="light" />
+            <motion.div aria-hidden style={{ background: spotlight }} className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[100svh] min-h-[44rem]" />
+
+            {/* The landscape — WebGL hills that drift with the pointer and advance as you scroll */}
+            <motion.div style={{ y: hillsY }} aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[100svh] min-h-[44rem] [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_78%,transparent)]">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 2.6, ease: "easeOut" }} className="absolute inset-0">
+                    <GLSLHills progress={scrollYProgress} cameraZ={118} />
                 </motion.div>
-                <div className="absolute inset-0 bg-[radial-gradient(65%_50%_at_50%_32%,rgb(255_255_255/0.95),rgb(255_255_255/0.6)_55%,transparent_80%)]" />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white via-white/80 to-transparent" />
             </motion.div>
+            <Motes />
 
-            {/* ===== Headline ===== */}
-            <motion.div
-                ref={copyRef}
-                style={{ y: copyY, opacity: copyOpacity }}
-                className="relative z-10 flex min-h-[min(46rem,82svh)] flex-col items-center justify-center px-4 pb-10 pt-32 text-center sm:px-6 sm:pt-36 lg:px-8"
-            >
-                <motion.div variants={stagger(0.1, 0.15)} initial="hidden" animate="show" className="w-full max-w-4xl">
-                   
-
-                    <h1 className="home-heading mx-auto mt-7 max-w-4xl text-display font-light">
-                        <TextReveal delay={0.3}>{copy.titleA}</TextReveal>{" "}
-                        <TextReveal delay={0.44}>
-                            <span className="home-heading-accent font-normal">{copy.titleB}</span>
-                        </TextReveal>
-                    </h1>
-
-                    <motion.p variants={fadeUp(0.45)} className="home-body mx-auto mt-6 max-w-2xl">
-                        {copy.subtitle}
-                    </motion.p>
-
-                    <motion.div variants={fadeUp(0.55)} className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-                        <Magnetic className="justify-center">
-                            <Button asChild variant="hero" size="lg" className="group min-h-13 w-full px-7 sm:w-auto">
-                                <Link href={ROUTES.orientation}>
-                                    {copy.primary}
-                                    <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden />
-                                </Link>
-                            </Button>
-                        </Magnetic>
-                        <Button asChild variant="outline" size="lg" className="group min-h-13 bg-white/85 px-5 backdrop-blur">
-                            <a href="#how-it-works">
-                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-teal-700 transition-transform duration-300 group-hover:scale-105">
-                                    <Play className="h-3.5 w-3.5 fill-current rtl:-scale-x-100" aria-hidden />
+            {/* ===== First screen ===== */}
+            <div className="relative z-10 flex min-h-[100svh] flex-col">
+                <motion.div
+                    style={{ y: copyY, scale: copyScale, opacity: copyOpacity }}
+                    className="flex flex-1 flex-col items-center justify-center px-4 pb-8 pt-32 text-center sm:px-6 sm:pt-36 lg:px-8"
+                >
+                    <div className="w-full max-w-6xl">
+                        <h1 className={cn(DISPLAY_XL, "mx-auto text-ink")}>
+                            <span className="block">
+                                <WordReveal delay={0.3}>{copy.titleA}</WordReveal>
+                            </span>
+                            <span className="block">
+                                {lead ? (
+                                    <>
+                                        <WordReveal delay={0.5}>{lead}</WordReveal>{" "}
+                                    </>
+                                ) : null}
+                                <span className="relative inline-block">
+                                    <WordReveal className={ACCENT_LIGHT} delay={0.75}>
+                                        {accent}
+                                    </WordReveal>
+                                    <Swash />
                                 </span>
-                                {copy.demo}
-                            </a>
-                        </Button>
-                    </motion.div>
+                            </span>
+                        </h1>
 
-                    <motion.ul variants={fadeUp(0.65)} className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-2" aria-label="Screening references">
-                        {home.chips.map((chip) => (
-                            <li key={chip} className="rounded-full border border-line bg-white/85 px-3 py-1 text-xs text-ink-muted backdrop-blur" dir="auto">
-                                {chip}
-                            </li>
-                        ))}
-                    </motion.ul>
+                        <motion.div variants={stagger(0.12, 1.1)} initial="hidden" animate="show">
+                            <motion.p variants={fadeUp(0, 16)} className={cn(BODY, "mx-auto mt-10 max-w-2xl")}>
+                                {copy.subtitle}
+                            </motion.p>
+
+                            <motion.div variants={fadeUp(0, 16)} className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+                                <Magnetic className="justify-center" strength={0.22}>
+                                    <Button asChild variant="hero" size="lg" className="group min-h-14 w-full px-8 sm:w-auto">
+                                        <Link href={ROUTES.orientation}>
+                                            {copy.primary}
+                                            <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden />
+                                        </Link>
+                                    </Button>
+                                </Magnetic>
+                                <Magnetic className="justify-center" strength={0.12}>
+                                    <Button asChild variant="outline" size="lg" className="group min-h-14 w-full border-line-strong bg-white/70 px-6 backdrop-blur sm:w-auto">
+                                        <a href="#how-it-works">
+                                            <span className="flex size-8 items-center justify-center rounded-full bg-teal-50 text-teal-700 transition-transform duration-300 group-hover:scale-110">
+                                                <Play className="size-3.5 fill-current rtl:-scale-x-100" aria-hidden />
+                                            </span>
+                                            {copy.demo}
+                                        </a>
+                                    </Button>
+                                </Magnetic>
+                            </motion.div>
+                        </motion.div>
+                    </div>
                 </motion.div>
-            </motion.div>
+
+                {/* Bottom of the first screen: a cue to keep going, and the screening references drifting by */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 2 }} className="pb-7">
+                    <a href="#care" className="group mx-auto mb-6 flex w-fit flex-col items-center gap-3 rounded-md text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-ink-soft transition-colors hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500 rtl:tracking-normal">
+                        {copy.discover}
+                        <span aria-hidden className="relative h-10 w-px overflow-hidden bg-line-strong">
+                            <motion.span
+                                className="absolute inset-x-0 top-0 h-1/2 bg-gold"
+                                animate={reduce ? undefined : { y: ["-100%", "200%"] }}
+                                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                            />
+                        </span>
+                    </a>
+                    <div role="group" aria-label="Screening references" className="border-y border-line/80 bg-white/40 py-3.5 backdrop-blur-sm">
+                        <Marquee seconds={36}>
+                            {home.chips.map((chip) => (
+                                <span key={chip} className="inline-flex items-center gap-3 whitespace-nowrap px-5 text-[0.875rem] font-medium text-ink-soft" dir="auto">
+                                    <span aria-hidden className="size-1.5 rounded-full bg-gold" />
+                                    {chip}
+                                </span>
+                            ))}
+                        </Marquee>
+                    </div>
+                </motion.div>
+            </div>
 
             {/* ===== Product stage ===== */}
-            <div className="relative z-10 pb-20 md:pb-32">
-                <div ref={deviceRef} className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8" style={{ perspective: "1800px" }}>
-                    {/* Brand glow the product settles onto */}
-                    <motion.div
-                        style={{ opacity: glowOpacity }}
-                        aria-hidden
-                        className="pointer-events-none absolute inset-x-[8%] top-[18%] -z-10 h-[70%] rounded-[50%] bg-[radial-gradient(closest-side,rgb(81_133_145/0.35),rgb(227_176_28/0.12)_60%,transparent)] blur-2xl"
-                    />
+            <div id="care" className="relative z-10 pb-24 pt-16 md:pb-36 md:pt-24">
+                <motion.div
+                    initial={reduce ? false : { opacity: 0, y: 48, clipPath: "inset(10% 5% 0% 5% round 2.5rem)" }}
+                    whileInView={{ opacity: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 1.75rem)" }}
+                    viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+                    transition={{ duration: 1.3, ease: EASE_OUT }}
+                    className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
+                >
+                    <CareOrbit />
 
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1, delay: 0.7, ease: EASE_OUT }}
-                        style={{ rotateX, scale, y: deviceY, transformOrigin: "50% 0%", transformStyle: "preserve-3d" }}
-                        className="will-change-transform"
-                    >
-                        <CareOrbit />
-                    </motion.div>
-
-                    <Callout y={calloutNear} delay={1.4} className="absolute -top-5 end-2 z-20 hidden sm:block md:-end-2 lg:-end-6">
-                        <div className="flex items-center gap-2.5 rounded-2xl border border-line bg-white/95 p-3 pe-4 shadow-raised backdrop-blur">
-                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sage-100 text-sage-700">
-                                <Check className="h-4 w-4" />
+                    {/* What the orb stands for — a quiet line beneath it, never a card over it */}
+                    <ul className="mx-auto mt-9 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-[0.9375rem] text-ink-soft">
+                        <li className="flex items-center gap-2.5">
+                            <span className="flex size-7 items-center justify-center rounded-full bg-sage-100 text-sage-700">
+                                <Check className="size-3.5" strokeWidth={2.25} aria-hidden />
                             </span>
-                            <div>
-                                <div className="text-xs font-semibold text-ink">{copy.insight}</div>
-                                <div className="text-[0.6875rem] text-ink-muted">{copy.pattern}</div>
-                            </div>
-                        </div>
-                    </Callout>
-
-                    <Callout y={calloutFar} delay={1.6} className="absolute -bottom-5 start-6 z-20 md:start-0 lg:-start-6">
-                        <div className="flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-white shadow-raised">
-                            <ShieldCheck className="h-4 w-4 text-sage" />
-                            <span className="text-xs font-semibold">{copy.encrypted}</span>
-                        </div>
-                    </Callout>
-
-                </div>
+                            <span className="font-medium text-ink">{copy.insight}</span>
+                            <span aria-hidden className="h-3.5 w-px bg-line-strong" />
+                            <span>{copy.pattern}</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                            <ShieldCheck className="size-[1.125rem] text-teal-700" aria-hidden />
+                            <span>{copy.encrypted}</span>
+                        </li>
+                    </ul>
+                </motion.div>
             </div>
         </section>
     );

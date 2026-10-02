@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { WordReveal } from "./AnimationUtilities";
+import { ACCENT_DARK, ACCENT_LIGHT, BODY, DISPLAY_L, LABEL } from "./typography";
 
 type SectionHeaderProps = {
   /** Heading id — referenced by the section's `aria-labelledby`. */
@@ -16,13 +18,31 @@ type SectionHeaderProps = {
   layout?: "stack" | "split";
   /** `h1` when the header opens a page (e.g. /subscription) rather than a home section. */
   as?: "h1" | "h2";
+  /** `editorial` is the home-page treatment: serif display, quiet label. Other pages keep `classic`. */
+  variant?: "classic" | "editorial";
+  /** Surface the header sits on (editorial only). */
+  tone?: "light" | "dark";
   className?: string;
 };
 
 /** Gold rule + eyebrow, two-tone heading, intro — revealed together. Shared by every home section. */
-export function SectionHeader({ id, eyebrow, titleA, titleB, intro, align = "start", layout = "stack", as = "h2", className }: SectionHeaderProps) {
+export function SectionHeader({
+  id,
+  eyebrow,
+  titleA,
+  titleB,
+  intro,
+  align = "start",
+  layout = "stack",
+  as = "h2",
+  variant = "classic",
+  tone = "light",
+  className,
+}: SectionHeaderProps) {
   const centered = align === "center";
   const split = layout === "split" && !centered;
+  const editorial = variant === "editorial";
+  const dark = tone === "dark";
   const Heading = as === "h1" ? motion.h1 : motion.h2;
 
   return (
@@ -32,30 +52,54 @@ export function SectionHeader({ id, eyebrow, titleA, titleB, intro, align = "sta
       whileInView="show"
       viewport={REVEAL_VIEWPORT}
       className={cn(
-        split ? "grid gap-5 lg:grid-cols-12 lg:items-end lg:gap-10" : "max-w-3xl",
+        split ? "grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-10" : editorial ? "max-w-4xl" : "max-w-3xl",
         centered && "mx-auto text-center",
         className,
       )}
     >
       <div className={cn(split && "lg:col-span-7")}>
-        <motion.p variants={fadeUp()} className={cn("home-eyebrow flex items-center gap-3", centered && "justify-center")}>
-          <span aria-hidden className="h-px w-8 shrink-0 bg-gold" />
+        <motion.p
+          variants={fadeUp()}
+          className={cn(editorial ? LABEL : "home-eyebrow", "flex items-center gap-3", centered && "justify-center", editorial && (dark ? "text-teal-200" : "text-teal-700"))}
+        >
+          <span aria-hidden className={cn("h-px w-8 shrink-0", dark ? "bg-gold-300" : "bg-gold")} />
           {eyebrow}
         </motion.p>
-        <Heading id={id} variants={fadeUp()} className="home-heading mt-5">
-          {titleA}
-          {titleB ? (
-            <>
-              {" "}
-              <span className="home-heading-accent">{titleB}</span>
-            </>
-          ) : null}
-        </Heading>
+
+        {editorial ? (
+          <Heading id={id} className={cn(DISPLAY_L, "mt-6", dark ? "text-white" : "text-ink")}>
+            <WordReveal>{titleA}</WordReveal>
+            {titleB ? (
+              <>
+                {" "}
+                <WordReveal className={dark ? ACCENT_DARK : ACCENT_LIGHT} delay={0.12}>
+                  {titleB}
+                </WordReveal>
+              </>
+            ) : null}
+          </Heading>
+        ) : (
+          <Heading id={id} variants={fadeUp()} className="home-heading mt-5">
+            {titleA}
+            {titleB ? (
+              <>
+                {" "}
+                <span className="home-heading-accent">{titleB}</span>
+              </>
+            ) : null}
+          </Heading>
+        )}
       </div>
+
       {intro ? (
         <motion.p
           variants={fadeUp()}
-          className={cn("home-body max-w-2xl", split ? "lg:col-span-5 lg:col-start-8 lg:pb-1.5" : "mt-5", centered && "mx-auto")}
+          className={cn(
+            editorial ? cn(BODY, dark && "text-teal-100") : "home-body",
+            "max-w-2xl",
+            split ? "lg:col-span-5 lg:col-start-8 lg:pb-2" : editorial ? "mt-7" : "mt-5",
+            centered && "mx-auto",
+          )}
         >
           {intro}
         </motion.p>

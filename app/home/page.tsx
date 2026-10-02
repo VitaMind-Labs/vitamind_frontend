@@ -1,9 +1,12 @@
 "use client";
 
 import { CinematicIntro, LoadingScreen, ProgressBar } from "@/components/home";
+import { SectionRail } from "@/components/home/SectionRail";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageTransition } from "@/hooks/useLanguageTransition";
+import { homeSerif } from "@/components/home/fonts";
+import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -62,7 +65,7 @@ export default function Home() {
   return (
     <main
       dir={direction}
-      className="home-page min-h-dvh w-full overflow-x-clip bg-white text-ink"
+      className={cn(homeSerif.variable, "home-page min-h-dvh w-full overflow-x-clip bg-white text-ink selection:bg-teal-200 selection:text-ink")}
     >
       <AnimatePresence mode="wait">
         {phase === "loading" && (
@@ -82,6 +85,7 @@ export default function Home() {
             <SmoothScrollProvider>
               <ProgressBar />
               <Header />
+              <SectionRail />
               <div ref={contentRef}>
                 <HeroSection />
                 <StatementSection />

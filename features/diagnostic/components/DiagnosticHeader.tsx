@@ -50,8 +50,8 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
       variant="app"
       center={
         <div className="hidden items-center gap-3 lg:flex">
-          <span className="inline-flex min-h-11 items-center gap-2 rounded-full border border-teal-100/80 bg-teal-50/80 px-4 text-sm font-medium text-teal-800 shadow-xs">
-            <ShieldCheck className="h-4 w-4" aria-hidden />
+          <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-4 text-[0.875rem] font-medium text-teal-800">
+            <ShieldCheck className="size-4" aria-hidden />
             {diagnostic.confidential}
           </span>
           <button
@@ -59,11 +59,11 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
             onClick={handleCopySession}
             aria-label={`${diagnostic.copySession}: ${chatId}`}
             title={copied ? diagnostic.copiedMessage : diagnostic.copySession}
-            className="inline-flex min-h-11 cursor-pointer items-center gap-2.5 rounded-full border border-white bg-white/80 px-4 text-sm text-ink-soft shadow-xs transition-[border-color,color,box-shadow] duration-200 hover:border-teal-200 hover:text-teal-800 hover:shadow-card focus-visible:outline-2 focus-visible:outline-teal-500"
+            className="inline-flex min-h-10 cursor-pointer items-center gap-2.5 rounded-full border border-line bg-white px-4 text-[0.875rem] text-ink-soft transition-[border-color,color,box-shadow] duration-300 ease-out-soft hover:border-teal-200 hover:text-teal-800 hover:shadow-card focus-visible:outline-2 focus-visible:outline-teal-500"
           >
-            <span className="h-2 w-2 rounded-full bg-sage" aria-hidden />
-            <span dir="ltr">{chatId.slice(0, 8)}</span>
-            {copied ? <Check className="h-4 w-4 text-sage-700" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />}
+            <span className="size-2 rounded-full bg-sage" aria-hidden />
+            <span dir="ltr" className="font-mono text-[0.8125rem]">{chatId.slice(0, 8)}</span>
+            {copied ? <Check className="size-4 text-sage-700" aria-hidden /> : <Copy className="size-4" aria-hidden />}
           </button>
         </div>
       }
@@ -78,10 +78,10 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
             aria-label={isSoundEnabled ? diagnostic.mute : diagnostic.unmute}
             title={isSoundEnabled ? diagnostic.mute : diagnostic.unmute}
             className={cn(
-              "h-11 w-11 rounded-full border shadow-xs",
+              "size-10 min-h-10 rounded-full border",
               isSoundEnabled
-                ? "border-white bg-white/80 text-teal-800 hover:bg-white"
-                : "border-white bg-white/60 text-ink-muted hover:bg-white hover:text-ink",
+                ? "border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100"
+                : "border-line bg-white text-ink-soft hover:border-teal-200 hover:text-ink",
             )}
           >
             {isSoundEnabled ? <Volume2 aria-hidden /> : <VolumeX aria-hidden />}
@@ -89,14 +89,16 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
 
           <LanguageSwitcher onChange={onLanguageChange} />
 
-          <span aria-hidden className="mx-1 hidden h-7 w-px bg-line-strong/70 sm:block" />
+          <span aria-hidden className="mx-1 hidden h-6 w-px bg-line-strong/70 sm:block" />
 
-          <Button asChild variant="outline" size="sm" className="min-h-11 rounded-full border-white bg-white/80 px-3 font-semibold text-ink shadow-xs hover:bg-white sm:px-5">
-            <Link href={signedIn ? ROUTES.dashboard : ROUTES.home} aria-label={backLabel}>
-              <House aria-hidden />
-              <span className="hidden sm:inline">{backLabel}</span>
-            </Link>
-          </Button>
+          <Link
+            href={signedIn ? ROUTES.dashboard : ROUTES.home}
+            aria-label={backLabel}
+            className="group inline-flex min-h-10 items-center gap-2.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgb(34_60_65/0.7)] transition-[background-color,transform] duration-300 ease-out-soft hover:bg-teal-800 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 sm:px-5"
+          >
+            <House className="size-4 transition-transform duration-300 ease-out-soft group-hover:-translate-y-0.5" aria-hidden />
+            <span className="hidden sm:inline">{backLabel}</span>
+          </Link>
         </>
       }
     />

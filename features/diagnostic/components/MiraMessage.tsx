@@ -10,6 +10,7 @@ import { LANGS } from "@/lib/i18n/config";
 import { EASE_OUT } from "@/lib/motion";
 import { useSpeech } from "@/hooks/useSpeech";
 import { cn } from "@/lib/utils";
+import { SERIF } from "@/components/home/typography";
 import { MIRA_STREAM_COPY } from "../lib/stream-copy";
 import { RichText } from "./RichText";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
@@ -77,7 +78,7 @@ function Waveform() {
 }
 
 const ACTION_CLASS =
-  "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-3 text-sm font-medium text-ink-soft transition-[background-color,color] duration-200 hover:bg-white/80 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:h-4 [&_svg]:w-4";
+  "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-3 text-sm font-medium text-ink-soft transition-[background-color,color] duration-200 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:h-4 [&_svg]:w-4";
 
 /**
  * Conversation message.
@@ -144,11 +145,11 @@ export function MiraMessage({ content, role, createdAt, index, language, streami
         className="flex w-full justify-end"
       >
         <div className="flex max-w-[92%] flex-col items-end gap-1 sm:max-w-[84%]">
-          <span className="px-1 text-[0.6875rem] font-medium text-ink-muted">
+          <span className="px-1 text-[0.75rem] font-medium text-ink-soft">
             {diagnostic.youLabel}
-            {time && <time className="ms-1.5 tabular-nums text-ink-subtle">{time}</time>}
+            {time && <time className="ms-1.5 tabular-nums text-ink-muted">{time}</time>}
           </span>
-          <div className="max-w-full rounded-[1.375rem] rounded-se-md bg-[linear-gradient(135deg,var(--color-teal-600),var(--color-teal-800))] px-5 py-3 text-white shadow-[0_12px_28px_-14px_rgb(47_83_90/0.65)]">
+          <div className="max-w-full rounded-[1.375rem] rounded-se-md bg-[linear-gradient(135deg,var(--color-teal-700),var(--color-teal-900))] px-5 py-3.5 text-white shadow-[0_14px_30px_-16px_rgb(34_60_65/0.7)]">
             <RichText content={content} className="text-[0.9375rem] leading-7 break-words sm:text-base" />
           </div>
         </div>
@@ -167,12 +168,12 @@ export function MiraMessage({ content, role, createdAt, index, language, streami
       <MiraAvatar size="lg" />
       <div className="min-w-0 max-w-[95%] flex-1 sm:max-w-[90%] lg:max-w-[min(84%,60rem)]">
         <p className="flex flex-wrap items-baseline gap-x-2.5 px-1 pt-1">
-          <span className="text-base font-semibold text-ink sm:text-[1.0625rem]">{diagnostic.miraLabel}</span>
-          <span className="text-xs text-ink-muted sm:text-[0.8125rem]">{diagnostic.aiGuide}</span>
-          {time && <time className="text-xs tabular-nums text-ink-subtle sm:text-[0.8125rem]">{time}</time>}
+          <span className={cn(SERIF, "text-[1.1875rem] font-normal tracking-[-0.01em] text-ink rtl:tracking-normal sm:text-[1.3125rem]")}>{diagnostic.miraLabel}</span>
+          <span className="text-[0.8125rem] text-ink-soft">{diagnostic.aiGuide}</span>
+          {time && <time className="text-[0.8125rem] tabular-nums text-ink-muted">{time}</time>}
         </p>
 
-        <div className="relative mt-2 rounded-[1.375rem] rounded-ss-md border border-white/90 bg-white/70 px-5 py-4 shadow-soft backdrop-blur-sm sm:px-6">
+        <div className="relative mt-2 rounded-[1.375rem] rounded-ss-md border border-teal-100 bg-teal-50/70 px-5 py-4 sm:px-6">
           {/* Polite live region, busy while the reply is being written: assistive tech reads it once it is complete. */}
           <div aria-live="polite" aria-busy={streaming || undefined}>
             <RichText content={content} className="text-base leading-7 text-ink-soft break-words sm:text-[1.0625rem] sm:leading-8" />
@@ -181,7 +182,7 @@ export function MiraMessage({ content, role, createdAt, index, language, streami
         </div>
 
         {partial && onRetry && (
-          <p role="status" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-ink-muted">
+          <p role="status" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-[0.8125rem] text-ink-soft">
             <span>{partial === "stopped" ? streamCopy.stopped : streamCopy.interrupted}</span>
             <button
               type="button"

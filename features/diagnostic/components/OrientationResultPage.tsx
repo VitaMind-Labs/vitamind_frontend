@@ -17,6 +17,9 @@ import { OrientationBackdrop } from "./OrientationBackdrop";
 import { ResultNextSteps, ResultStickyCta } from "./ResultNextSteps";
 import { ROUTES } from "@/lib/config/routes";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
+import { homeSerif } from "@/components/home/fonts";
+import { DISPLAY_M } from "@/components/home/typography";
+import { cn } from "@/lib/utils";
 
 type HistoryResponse = {
   session_id: string;
@@ -106,46 +109,43 @@ export function OrientationResultPage() {
 
   return (
     <AudioProvider>
-      <div className="relative flex min-h-dvh flex-col print:bg-white">
+      <div className={cn(homeSerif.variable, "relative flex min-h-dvh flex-col print:bg-white")}>
         <OrientationBackdrop />
         <div className="relative z-10 print:hidden">
           <DiagnosticHeader chatId={sessionId ?? ""} />
         </div>
-        <main className={`relative flex-1 px-4 pt-4 sm:px-6 sm:pt-8 lg:px-8 lg:pb-16 ${showConversion ? "pb-28" : "pb-10"}`}>
+        <main className={cn("relative flex-1 px-4 pt-6 sm:px-6 sm:pt-10 lg:px-8 lg:pb-20", showConversion ? "pb-28" : "pb-12")}>
           {state.phase === "loading" && (
             <div className="relative mx-auto w-full max-w-5xl space-y-5" role="status" aria-live="polite">
-              <div className="relative overflow-hidden rounded-[1.75rem] border border-line bg-white shadow-float">
-                <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--color-teal-600),var(--color-sage),var(--color-gold))]" />
-                <div className="p-6 sm:p-9">
-                  <div className="h-6 w-44 animate-pulse rounded-full bg-teal-50" />
-                  <div className="mt-6 h-4 w-64 max-w-full animate-pulse rounded-full bg-surface-muted" />
-                  <div className="mt-6 h-9 w-[28rem] max-w-full animate-pulse rounded-xl bg-surface-muted" />
-                  <div className="mt-8 flex items-center gap-2.5 text-sm text-ink-muted">
-                    <LogoSpinner size={16} />
-                    {diagnostic.resultPage.loading}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 border-t border-line lg:grid-cols-4">
-                  {[0, 1, 2, 3].map((i) => (
-                    <div key={i} className="space-y-3 border-line p-6 [&:not(:last-child)]:border-e">
-                      <div className="h-3 w-24 animate-pulse rounded-full bg-surface-muted" />
-                      <div className="h-6 w-16 animate-pulse rounded-lg bg-surface-muted" />
-                    </div>
-                  ))}
+              <div className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_95%)] p-7 pb-16 text-white shadow-float sm:p-11 sm:pb-20">
+                <div className="h-7 w-48 animate-pulse rounded-full bg-white/10" />
+                <div className="mt-9 h-5 w-64 max-w-full animate-pulse rounded-full bg-white/10" />
+                <div className="mt-6 h-12 w-[30rem] max-w-full animate-pulse rounded-2xl bg-white/10" />
+                <div className="mt-9 flex items-center gap-3 text-[0.9375rem] text-teal-100">
+                  <LogoSpinner size={18} />
+                  {diagnostic.resultPage.loading}
                 </div>
               </div>
+              <div className="relative z-10 -mt-14 grid grid-cols-2 overflow-hidden rounded-panel border border-line bg-white shadow-float sm:mx-6 sm:-mt-16 lg:mx-10 lg:grid-cols-4">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-3 border-line p-6 [&:not(:last-child)]:border-e">
+                    <div className="h-3 w-24 animate-pulse rounded-full bg-teal-50" />
+                    <div className="h-9 w-16 animate-pulse rounded-lg bg-teal-50" />
+                  </div>
+                ))}
+              </div>
               <div className="grid gap-5 md:grid-cols-2">
-                <div className="h-44 animate-pulse rounded-card border border-line bg-white/80" />
-                <div className="h-44 animate-pulse rounded-card border border-line bg-white/80" />
+                <div className="h-44 animate-pulse rounded-panel border border-line bg-white/80" />
+                <div className="h-44 animate-pulse rounded-panel border border-line bg-white/80" />
               </div>
             </div>
           )}
 
           {state.phase === "missing" && (
             <div className="relative mx-auto flex min-h-[24rem] max-w-lg items-center">
-              <div className="w-full rounded-[1.75rem] border border-line bg-white p-6 text-center shadow-float sm:p-8">
-                <h1 className="text-xl font-semibold text-ink">{diagnostic.resultPage.missingTitle}</h1>
-                <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-muted">{diagnostic.resultPage.missingBody}</p>
+              <div className="w-full rounded-panel border border-line bg-white p-7 text-center shadow-float sm:p-10">
+                <h1 className={cn(DISPLAY_M, "text-ink")}>{diagnostic.resultPage.missingTitle}</h1>
+                <p className="mx-auto mt-3 max-w-sm text-[1rem] leading-7 text-ink-soft">{diagnostic.resultPage.missingBody}</p>
                 <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
                   <Button asChild variant="default" size="lg">
                     <Link href={ROUTES.orientation}>{diagnostic.resultPage.backToChat}</Link>

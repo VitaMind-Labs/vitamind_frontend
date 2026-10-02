@@ -7,6 +7,7 @@ import { copy, type Lang } from "@/lib/i18n/config";
 import { fill } from "@/lib/i18n/format";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { ACCENT_LIGHT, LABEL, SERIF } from "@/components/home/typography";
 import { CHAPTER_SEQUENCE, questionPosition } from "../lib/chapters";
 import type { MiraChapter } from "../types";
 import { ChapterIcon } from "./ChapterIcon";
@@ -41,12 +42,12 @@ function QuestionRing({ answered, total, percent, size = "lg" }: { answered: num
   const circumference = 2 * Math.PI * radius;
   const large = size === "lg";
   return (
-    <span className={cn("relative inline-flex shrink-0 items-center justify-center rounded-full bg-white shadow-[0_8px_24px_-12px_rgb(74_123_130/0.45)]", large ? "h-24 w-24" : "h-12 w-12")}>
+    <span className={cn("relative inline-flex shrink-0 items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-14px_rgb(74_123_130/0.5)] ring-1 ring-teal-100", large ? "size-24" : "size-12")}>
       <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="var(--color-teal-600)" />
-            <stop offset="100%" stopColor="var(--color-sage)" />
+            <stop offset="100%" stopColor="var(--color-gold)" />
           </linearGradient>
         </defs>
         <circle cx="50" cy="50" r={radius} fill="none" stroke="var(--color-teal-100)" strokeWidth={large ? 5 : 7} />
@@ -64,7 +65,7 @@ function QuestionRing({ answered, total, percent, size = "lg" }: { answered: num
           transition={{ duration: 0.9, ease: EASE_OUT }}
         />
       </svg>
-      <span className={cn("relative font-semibold tabular-nums text-ink", large ? "text-xl" : "text-[0.6875rem]")} dir="ltr">
+      <span className={cn("relative tabular-nums text-ink", large ? cn(SERIF, "text-[1.625rem] font-light tracking-[-0.03em]") : "text-[0.75rem] font-semibold")} dir="ltr">
         {answered}/{total}
       </span>
     </span>
@@ -79,10 +80,10 @@ function LinearProgress({ percent, label }: { percent: number; label: string }) 
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={percent}
-      className="h-1.5 w-full overflow-hidden rounded-full bg-teal-100/80"
+      className="h-1.5 w-full overflow-hidden rounded-full bg-teal-100"
     >
       <motion.span
-        className="block h-full origin-left rounded-full bg-[linear-gradient(90deg,var(--color-teal-600),var(--color-sage))] rtl:origin-right"
+        className="block h-full origin-left rounded-full bg-[linear-gradient(90deg,var(--color-teal-600),var(--color-gold))] rtl:origin-right"
         initial={false}
         animate={{ scaleX: Math.max(0.04, percent / 100) }}
         transition={{ duration: 0.8, ease: EASE_OUT }}
@@ -97,6 +98,10 @@ export function SessionRail(props: ProgressProps) {
   const rail = diagnostic.rail;
   const [journeyOpen, setJourneyOpen] = useState(false);
   const journeyId = useId();
+  // Title: the last word carries the olive-gold accent, as on the home page.
+  const titleWords = rail.title.split(" ");
+  const titleLead = titleWords.slice(0, -1).join(" ");
+  const titleAccent = titleWords.slice(-1).join(" ");
 
   return (
     <aside
@@ -105,12 +110,16 @@ export function SessionRail(props: ProgressProps) {
     >
       <div className="flex items-center gap-3.5">
         <MiraAvatar size="xl" presence />
-        <p className="min-w-0 text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-ink-muted rtl:tracking-normal">{rail.eyebrow}</p>
+        <p className={cn(LABEL, "flex min-w-0 items-center gap-2.5 text-teal-700")}>
+          <span aria-hidden className="h-px w-5 shrink-0 bg-gold" />
+          {rail.eyebrow}
+        </p>
       </div>
-      <h1 className="mt-5 text-[clamp(1.75rem,1.1vw+1.2rem,2.25rem)] font-light leading-[1.15] tracking-[-0.02em] text-teal-900 rtl:font-normal">
-        {rail.title}
+      <h1 className={cn(SERIF, "mt-6 text-[clamp(2rem,1.4vw+1.5rem,2.75rem)] font-light leading-[1.05] tracking-[-0.035em] text-ink rtl:leading-[1.3] rtl:tracking-normal")}>
+        {titleLead ? <>{titleLead} </> : null}
+        <span className={ACCENT_LIGHT}>{titleAccent}</span>
       </h1>
-      <p className="mt-4 text-[0.9375rem] leading-7 text-ink-muted">{rail.body}</p>
+      <p className="mt-5 text-[0.9375rem] leading-7 text-ink-soft">{rail.body}</p>
 
       {/* Questions */}
       <div className="orientation-tile mt-6 flex items-center gap-4 p-4">
@@ -124,7 +133,7 @@ export function SessionRail(props: ProgressProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.25, ease: EASE_OUT }}
-              className="mt-0.5 text-[0.8125rem] text-ink-muted"
+              className="mt-0.5 text-[0.875rem] text-ink-soft"
               aria-live="polite"
             >
               {stage}
@@ -145,12 +154,12 @@ export function SessionRail(props: ProgressProps) {
           aria-controls={journeyId}
           className="group flex w-full cursor-pointer items-start gap-3.5 p-4 text-start transition-colors duration-200 hover:bg-white/50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal-500"
         >
-          <span aria-hidden className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-teal-700 shadow-xs">
-            <Sparkles className="h-5 w-5" />
+          <span aria-hidden className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-gold-700 shadow-xs ring-1 ring-gold-100">
+            <Sparkles className="h-5 w-5" strokeWidth={1.5} />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-[0.9375rem] font-semibold text-ink">{rail.focusTitle}</span>
-            <span className="mt-1 block text-[0.8125rem] leading-5 text-ink-muted">{rail.focusBody}</span>
+            <span className="mt-1 block text-[0.875rem] leading-6 text-ink-soft">{rail.focusBody}</span>
           </span>
           <ChevronRight
             aria-hidden
@@ -172,7 +181,7 @@ export function SessionRail(props: ProgressProps) {
               transition={{ duration: 0.35, ease: EASE_OUT }}
               className="overflow-hidden border-t border-white/80 px-4"
             >
-              <li className="pt-3 text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-ink-subtle rtl:tracking-normal">{rail.journeyTitle}</li>
+              <li className={cn(LABEL, "pt-3 text-ink-muted")}>{rail.journeyTitle}</li>
               {CHAPTER_SEQUENCE.map((step, i) => {
                 const done = i < activeIndex;
                 const current = i === activeIndex;
@@ -190,12 +199,12 @@ export function SessionRail(props: ProgressProps) {
                       {done ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ChapterIcon chapter={step} className="h-3.5 w-3.5" />}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className={cn("block text-sm", current ? "font-semibold text-ink" : done ? "text-ink-soft" : "text-ink-muted")}>
+                      <span className={cn("block text-[0.9375rem]", current ? "font-semibold text-ink" : "text-ink-soft")}>
                         {diagnostic.chapters[step]}
                       </span>
-                      <span className="block text-xs text-ink-subtle">{diagnostic.chapterHints[step as keyof typeof diagnostic.chapterHints]}</span>
+                      <span className="block text-[0.8125rem] text-ink-muted">{diagnostic.chapterHints[step as keyof typeof diagnostic.chapterHints]}</span>
                     </span>
-                    {current && <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[0.625rem] font-semibold text-teal-700">{diagnostic.chapterNow}</span>}
+                    {current && <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[0.75rem] font-semibold text-teal-700">{diagnostic.chapterNow}</span>}
                   </li>
                 );
               })}
@@ -206,10 +215,10 @@ export function SessionRail(props: ProgressProps) {
 
       {/* Privacy */}
       <div className="mt-auto flex items-center gap-3.5 pt-6">
-        <span aria-hidden className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/80 text-teal-700 shadow-xs">
-          <ShieldCheck className="h-5 w-5" />
+        <span aria-hidden className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-teal-700">
+          <ShieldCheck className="h-5 w-5" strokeWidth={1.5} />
         </span>
-        <p className="text-[0.8125rem] leading-5 text-ink-soft">{diagnostic.privateNote}</p>
+        <p className="text-[0.875rem] leading-6 text-ink-soft">{diagnostic.privateNote}</p>
       </div>
     </aside>
   );
@@ -220,13 +229,13 @@ export function CompactProgress(props: ProgressProps) {
   const { diagnostic, percent, position, stage } = useProgressModel(props);
 
   return (
-    <div className={cn("orientation-glass flex items-center gap-3.5 rounded-[1.25rem] px-4 py-3", props.className)}>
+    <div className={cn("orientation-glass flex items-center gap-3.5 !rounded-[1.25rem] px-4 py-3", props.className)}>
       <QuestionRing answered={position.answered} total={position.total} percent={percent} size="sm" />
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-sm font-semibold text-ink">
           <span className="sr-only">{diagnostic.title} — </span>
           {diagnostic.rail.questions}
-          <span className="font-normal text-ink-muted"> · {stage}</span>
+          <span className="font-normal text-ink-soft"> · {stage}</span>
         </h1>
         <div className="mt-2">
           <LinearProgress percent={percent} label={diagnostic.progressLabel} />

@@ -1,13 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  Activity, ArrowRight, BatteryMedium, Brain, CalendarCheck2, Check, ChevronRight, Clock, Flame, HeartPulse, House,
+  Activity, BatteryMedium, Brain, CalendarCheck2, Check, ChevronRight, Clock, Flame, HeartPulse, House,
   Link2, Moon, Repeat, Target, TrendingUp, Users, Wind, Zap,
 } from "lucide-react";
-import { LuminaLogo } from "@/components/patient/ui/LuminaLogo";
 import { ErrorState, GlassCard, SectionTitle, Skeleton } from "@/components/patient/ui/primitives";
 import { ExerciseSession } from "@/components/patient/ui/ExerciseSession";
 import { ScoreRing } from "@/components/patient/ui/ScoreRing";
@@ -41,62 +39,6 @@ const TONE_CLASS: Record<SignalTone, string> = {
   attention: "bg-gold-100 text-gold-700",
 };
 
-/** The aurora hero: Lumina's welcome to the day, with the one action that matters now. */
-export function HeroCard() {
-  const copy = usePatientCopy();
-  const today = useTodayCheckin();
-  const history = useCheckinHistory(30);
-  const state = useLuminaState();
-  const checkedIn = Boolean(today.data);
-  const capacity = state.data?.data?.capacity;
-  const hero = copy.home.hero;
-
-  return (
-    <section aria-labelledby="hero-title" className="lm-hero">
-      <div className="relative flex flex-col gap-6 p-6 sm:p-8">
-        <div className="relative z-10 flex items-start gap-4">
-          <LuminaLogo size={72} presence float className="shrink-0" />
-          <div className="min-w-0">
-            {today.isLoading ? (
-              <>
-                <Skeleton className="h-6 w-48" />
-                <Skeleton className="mt-2 h-4 w-64 max-w-full" />
-              </>
-            ) : (
-              <>
-                <h2 id="hero-title" className="text-xl font-semibold leading-tight tracking-tight text-ink sm:text-2xl">
-                  {checkedIn ? hero.doneTitle : hero.readyTitle}
-                </h2>
-                <p className="mt-1.5 max-w-md text-sm leading-relaxed text-ink-soft">{checkedIn ? hero.doneBody : hero.readyBody}</p>
-              </>
-            )}
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {capacity && capacity !== "UNKNOWN" && (
-                <span className="chip chip-success">{copy.capacity[capacity as keyof typeof copy.capacity] ?? capacity}</span>
-              )}
-              {history.streak >= 2 && (
-                <span className="chip chip-pending"><Flame className="size-3" aria-hidden />{fill(hero.streak, { n: history.streak })}</span>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="relative z-10">
-          <Button asChild size="lg" disabled={today.isLoading}>
-            <Link href={checkedIn ? "/dashboard/lumina" : "/dashboard/check-in"}>
-              {checkedIn ? hero.doneCta : hero.readyCta}
-              <ArrowRight className="rtl:-scale-x-100" aria-hidden />
-            </Link>
-          </Button>
-        </div>
-        <svg aria-hidden viewBox="0 0 400 90" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-0 h-16 w-full opacity-70">
-          <path d="M0 60 C60 30 110 80 180 55 S300 20 400 50 V90 H0Z" fill="rgb(255 255 255 / 0.45)" />
-          <path d="M0 75 C80 50 140 90 220 68 S330 45 400 70 V90 H0Z" fill="rgb(255 255 255 / 0.55)" />
-        </svg>
-      </div>
-    </section>
-  );
-}
-
 /** Today's four rings, chosen for the patient's track. */
 export function WellbeingCard() {
   const copy = usePatientCopy();
@@ -111,7 +53,7 @@ export function WellbeingCard() {
       {today.error ? (
         <ErrorState onRetry={() => void today.refresh()} />
       ) : (
-        <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-4">
+        <div className="lm-soft grid grid-cols-2 gap-x-3 gap-y-6 px-3 py-6 sm:grid-cols-4 sm:px-4">
           {keys.map((key) => {
             const reading = readWellbeing(key, today.data ?? null);
             const Icon = DIM_ICON[key];
@@ -185,9 +127,9 @@ export function TrendCard() {
       ) : history.isLoading ? (
         <Skeleton className="h-44 w-full" />
       ) : hasData ? (
-        <TrendChart data={series} height={190} />
+        <TrendChart data={series} height={190} className="lm-soft px-2 pb-1 pt-3" />
       ) : (
-        <p className="rounded-xl bg-white/60 px-4 py-10 text-center text-sm text-muted-foreground">{copy.home.trend.empty}</p>
+        <p className="lm-inset px-4 py-10 text-center text-sm text-muted-foreground">{copy.home.trend.empty}</p>
       )}
     </GlassCard>
   );
@@ -207,7 +149,7 @@ export function SignalsCard() {
       {loading ? (
         <div className="space-y-3"><Skeleton className="h-12" /><Skeleton className="h-12" /><Skeleton className="h-12" /></div>
       ) : signals.length ? (
-        <ul className="space-y-2.5">
+        <ul className="lm-soft space-y-2 p-2.5">
           {signals.map((signal, index) => {
             const Icon = DIM_ICON[signal.dimension];
             return (
@@ -216,7 +158,7 @@ export function SignalsCard() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.06, duration: 0.35 }}
-                className="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/70 px-3.5 py-3"
+                className="flex items-center gap-3 lm-inset px-3.5 py-3"
               >
                 <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl", TONE_CLASS[signal.tone])}><Icon className="size-4" aria-hidden /></span>
                 <p className="min-w-0 text-sm leading-snug text-ink">{signal.text}</p>
@@ -225,7 +167,7 @@ export function SignalsCard() {
           })}
         </ul>
       ) : (
-        <p className="rounded-xl bg-white/60 px-4 py-6 text-center text-sm text-muted-foreground">{copy.home.signals.empty}</p>
+        <p className="lm-inset px-4 py-6 text-center text-sm text-muted-foreground">{copy.home.signals.empty}</p>
       )}
     </GlassCard>
   );
@@ -264,7 +206,7 @@ export function PlanCard() {
       {loading ? (
         <div className="space-y-3"><Skeleton className="h-16" /><Skeleton className="h-16" /><Skeleton className="h-16" /></div>
       ) : rows.length ? (
-        <ul className="space-y-2.5">
+        <ul className="lm-soft space-y-2 p-2.5">
           {rows.map((row) => {
             const item = localizeExercise(row.exercise, language);
             const Icon = EXERCISE_ICON[row.exercise.type];
@@ -277,7 +219,7 @@ export function PlanCard() {
                     setActive(row);
                     setOpen(true);
                   }}
-                  className="group flex w-full items-center gap-3 rounded-2xl border border-white/80 bg-white/70 px-3.5 py-3 text-start transition-all hover:-translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                  className="group flex w-full items-center gap-3 lm-inset px-3.5 py-3 text-start"
                 >
                   <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", done ? "bg-sage-100 text-sage-700" : "bg-teal-100 text-teal-700")}>
                     {done ? <Check className="size-4" aria-hidden /> : <Icon className="size-[1.125rem]" aria-hidden />}
@@ -296,7 +238,7 @@ export function PlanCard() {
           })}
         </ul>
       ) : (
-        <p className="rounded-xl bg-white/60 px-4 py-6 text-center text-sm text-muted-foreground">{copy.home.plan.empty}</p>
+        <p className="lm-inset px-4 py-6 text-center text-sm text-muted-foreground">{copy.home.plan.empty}</p>
       )}
       <ExerciseSession
         exercise={localized}

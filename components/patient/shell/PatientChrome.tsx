@@ -10,6 +10,7 @@ import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { NotificationBell } from "@/components/patient/shell/NotificationBell";
 import { isActive, PATIENT_NAV, visibleNav, type PatientNavKey } from "@/components/patient/shell/nav";
 import { usePatient } from "@/hooks/patient/usePatient";
+import { useCalmTrack } from "@/hooks/useCalmTrack";
 import { profileApi } from "@/lib/api/patient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { SPRING_SOFT } from "@/lib/motion";
@@ -93,7 +94,7 @@ function RailProfile() {
         aria-label={copy.shell.nav.settings}
         className="flex items-center gap-3 rounded-xl p-1 transition-colors hover:bg-white/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70"
       >
-        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-teal-700 text-base font-semibold text-white shadow-brand ring-2 ring-white/25">
+        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-300 to-teal-700 text-base font-semibold text-white shadow-brand ring-2 ring-white/25">
           {initial}
         </span>
         <span className="min-w-0">
@@ -118,14 +119,14 @@ export function PatientMobileStrip() {
   const initial = (name.trim()[0] ?? "V").toUpperCase();
 
   return (
-    <div className="flex items-center justify-between gap-3 px-4 pb-1 pt-4 sm:px-6 lg:hidden">
+    <div className="lm-topbar flex items-center justify-between gap-3 px-4 pb-3 pt-4 sm:px-6 lg:hidden">
       <BrandLogo size="md" href={null} />
       <div className="flex items-center gap-2.5">
         <PatientUtilities side="strip" />
         <Link
           href="/dashboard/settings"
           aria-label={copy.shell.nav.settings}
-          className="inline-flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-teal-800 text-sm font-semibold text-white shadow-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+          className="inline-flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-teal-800 text-sm font-semibold text-white shadow-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
         >
           {initial}
         </Link>
@@ -139,6 +140,8 @@ export function PatientTabBar() {
   const pathname = usePathname();
   const copy = usePatientCopy();
   const { profile } = usePatient();
+  // Schizophrenia / psychosis tracks: the active pill fades in place instead of sliding between tabs.
+  const calm = useCalmTrack();
   const tabs = (profile.hasSpark
     ? ["home", "checkin", "lumina", "spark", "journal", "reports"]
     : ["home", "checkin", "lumina", "journal", "reports"]) as ReadonlyArray<Exclude<PatientNavKey, "settings">>;
@@ -147,7 +150,7 @@ export function PatientTabBar() {
     <nav
       aria-label={copy.shell.navLabel}
       className={cn(
-        "lm-glass fixed inset-x-3 bottom-3 z-40 grid items-end rounded-[1.75rem] px-1.5 pb-1.5 pt-1.5 shadow-lg lg:hidden",
+        "lm-glass lm-tabbar fixed inset-x-3 bottom-3 z-40 grid items-end rounded-[1.75rem] px-1.5 pb-1.5 pt-1.5 lg:hidden",
         tabs.length === 6 ? "grid-cols-6" : "grid-cols-5",
       )}
       style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
@@ -169,12 +172,16 @@ export function PatientTabBar() {
             )}
           >
             {active && !center && (
-              <motion.span layoutId="tab-pill" transition={SPRING_SOFT} className="absolute inset-0 rounded-2xl bg-teal-100/80" aria-hidden />
+              calm ? (
+                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="absolute inset-0 rounded-2xl bg-teal-100/80" aria-hidden />
+              ) : (
+                <motion.span layoutId="tab-pill" transition={SPRING_SOFT} className="absolute inset-0 rounded-2xl bg-teal-100/80" aria-hidden />
+              )
             )}
             <span
               className={cn(
                 "relative flex items-center justify-center",
-                center && "size-12 rounded-full bg-gradient-to-br from-teal-400 to-teal-700 text-white shadow-brand ring-4 ring-white/70",
+                center && "size-12 rounded-full bg-gradient-to-br from-teal-300 to-teal-700 text-white shadow-brand ring-4 ring-white/70",
               )}
             >
               <Icon className={center ? "size-5" : "size-[1.15rem]"} aria-hidden />

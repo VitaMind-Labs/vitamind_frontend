@@ -15,9 +15,11 @@ import {
 import { Check } from "lucide-react";
 import { useRef, useState } from "react";
 import { pad } from "./accents";
+import { Grain } from "./Atmosphere";
 import { HomeSection } from "./HomeSection";
 import { JOURNEY_VISUALS } from "./process/JourneyVisuals";
 import { SectionHeader } from "./SectionHeader";
+import { DISPLAY_S, LABEL, SERIF } from "./typography";
 
 type Step = readonly [string, string, readonly string[]];
 type StepState = "done" | "active" | "upcoming";
@@ -30,9 +32,9 @@ function StepVisual({ index, total, progress, details }: { index: number; total:
 }
 
 const MARKER: Record<StepState, string> = {
-    active: "scale-110 border-teal-500 bg-teal-500 text-white shadow-brand",
+    active: "border-teal-700 bg-teal-700 text-white shadow-brand",
     done: "border-teal-200 bg-teal-50 text-teal-700",
-    upcoming: "border-line-strong bg-white text-ink-muted",
+    upcoming: "border-line-strong bg-white text-ink-soft",
 };
 
 function ProcessStep({ step, index, state, stepLabel }: { step: Step; index: number; state: StepState; stepLabel: string }) {
@@ -44,32 +46,32 @@ function ProcessStep({ step, index, state, stepLabel }: { step: Step; index: num
             viewport={REVEAL_VIEWPORT}
             transition={{ duration: 0.6, ease: EASE_OUT }}
             aria-current={active ? "step" : undefined}
-            className="relative ps-14 pb-12 last:pb-0 sm:ps-16 lg:min-h-[clamp(15rem,34vh,20rem)] lg:pb-16"
+            className="relative ps-16 pb-14 last:pb-0 sm:ps-20 lg:min-h-[clamp(16rem,38vh,22rem)] lg:pb-20"
         >
             <span
                 aria-hidden
                 className={cn(
-                    "absolute start-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold tabular-nums transition-[background-color,border-color,color,transform,box-shadow] duration-500 ease-out-soft",
+                    "absolute start-0 top-0 flex size-12 items-center justify-center rounded-full border text-[0.9375rem] font-medium tabular-nums transition-[background-color,border-color,color,box-shadow] duration-700 ease-out-soft",
                     MARKER[state],
                 )}
             >
                 {state === "done" ? <Check className="h-4 w-4" strokeWidth={2.25} /> : pad(index + 1)}
             </span>
 
-            <p className="home-label pt-0.5 text-gold-700">
+            <p className={cn(LABEL, "pt-1 text-gold-700")}>
                 {stepLabel} {pad(index + 1)}
             </p>
-            <h3 className={cn("mt-2 text-title font-medium tracking-[-0.02em] transition-colors duration-500", active ? "text-ink" : "text-ink-soft")}>
+            <h3 className={cn(DISPLAY_S, "mt-3 text-[clamp(1.75rem,1.4vw+1.3rem,2.5rem)] transition-colors duration-700", active ? "text-ink" : "text-ink-soft")}>
                 {step[0]}
             </h3>
-            <p className="mt-3 max-w-lg text-base leading-7 text-ink-muted">{step[1]}</p>
-            <ul className="mt-5 flex flex-wrap gap-2">
+            <p className="mt-4 max-w-lg text-[1.0625rem] leading-8 text-ink-soft">{step[1]}</p>
+            <ul className="mt-6 flex flex-wrap gap-2.5">
                 {step[2].map((detail) => (
                     <li
                         key={detail}
                         className={cn(
-                            "rounded-full border px-3 py-1 text-xs font-medium transition-colors duration-500",
-                            active ? "border-teal-200 bg-teal-50 text-teal-800" : "border-line bg-white text-ink-soft",
+                            "rounded-full border px-3.5 py-1.5 text-[0.8125rem] font-medium transition-colors duration-700",
+                            active ? "border-teal-200 bg-teal-50 text-teal-800" : "border-line bg-white/70 text-ink-soft",
                         )}
                     >
                         {detail}
@@ -105,27 +107,41 @@ export const HowItWorks = () => {
                 {/* ── Context column: sticky on desktop ─────────────────────── */}
                 <div className="lg:col-span-5">
                     <div className="lg:sticky lg:top-28">
-                        <SectionHeader id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
+                        <SectionHeader variant="editorial" id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
 
-                        <div className="mt-10 hidden items-center gap-4 lg:flex" aria-hidden>
-                            <span className="text-sm font-semibold tabular-nums text-ink">{pad(active + 1)}</span>
-                            <span className="relative h-px flex-1 overflow-hidden bg-line">
-                                <motion.span style={{ scaleX: progress }} className="absolute inset-0 origin-left bg-teal-500 rtl:origin-right" />
+                        <div className="mt-12 hidden items-center gap-5 lg:flex" aria-hidden>
+                            <span className={cn(SERIF, "text-2xl font-light tabular-nums text-ink")}>{pad(active + 1)}</span>
+                            <span className="relative h-px flex-1 overflow-hidden bg-line-strong">
+                                <motion.span style={{ scaleX: progress }} className="absolute inset-0 origin-left bg-gold rtl:origin-right" />
                             </span>
-                            <span className="text-sm tabular-nums text-ink-muted">{pad(total)}</span>
+                            <span className={cn(SERIF, "text-2xl font-light tabular-nums text-ink-soft")}>{pad(total)}</span>
                         </div>
 
                         <div
                             aria-hidden
-                            className="relative mt-6 hidden h-[clamp(16rem,calc(100vh-26rem),24rem)] overflow-hidden rounded-card border border-line bg-[linear-gradient(160deg,#ffffff,var(--color-teal-50))] lg:block"
+                            className="relative isolate mt-6 hidden h-[clamp(17rem,calc(100vh-24rem),26rem)] overflow-hidden rounded-panel border border-line bg-[radial-gradient(80%_70%_at_20%_0%,var(--color-teal-100),transparent_70%),linear-gradient(160deg,#ffffff,var(--color-teal-50))] shadow-[var(--shadow-soft)] lg:block"
                         >
+                            <Grain tone="light" />
+                            {/* The step number, enormous and faint, changes with the step */}
+                            <AnimatePresence mode="popLayout" initial={false}>
+                                <motion.span
+                                    key={`ghost-${active}`}
+                                    initial={{ opacity: 0, y: 36 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -36 }}
+                                    transition={{ duration: 0.8, ease: EASE_OUT }}
+                                    className={cn(SERIF, "pointer-events-none absolute -bottom-8 end-6 select-none text-[11rem] font-extralight leading-none tabular-nums text-teal-700/10")}
+                                >
+                                    {pad(active + 1)}
+                                </motion.span>
+                            </AnimatePresence>
                             <AnimatePresence mode="popLayout" initial={false}>
                                 <motion.div
                                     key={active}
                                     initial={{ opacity: 0, scale: 0.97 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 1.02 }}
-                                    transition={{ duration: 0.5, ease: EASE_OUT }}
+                                    transition={{ duration: 0.8, ease: EASE_OUT }}
                                     className="absolute inset-0 p-8"
                                 >
                                     <StepVisual index={active} total={total} progress={progress} details={steps[active][2]} />

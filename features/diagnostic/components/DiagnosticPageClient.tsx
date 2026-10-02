@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { homeSerif } from "@/components/home/fonts";
+import { cn } from "@/lib/utils";
 import { DiagnosticHeader } from "./DiagnosticHeader";
 import { OrientationBackdrop } from "./OrientationBackdrop";
 import { OrientationSkeleton } from "./OrientationSkeleton";
@@ -40,7 +42,7 @@ export function DiagnosticPageClient() {
 
   return (
     // One viewport-tall column: shared header in flow, experience fills the rest and owns the only scroll area.
-    <div className="relative flex h-dvh flex-col overflow-hidden">
+    <div className={cn(homeSerif.variable, "relative flex h-dvh flex-col overflow-hidden")}>
       <OrientationBackdrop />
       <DiagnosticHeader chatId={chatId} onLanguageChange={(nextLanguage) => setLanguageSwitch({ id: Date.now(), language: nextLanguage })} />
       {/* ACTIVE: Mira v5 flow (REST /api/mira → Nest /api/v1/mira/* → Mira agent /api/v1/mira/*). */}

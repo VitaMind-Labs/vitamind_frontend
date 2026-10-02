@@ -1,10 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { homeSerif } from "@/components/home/fonts";
 import { MinimalFooter } from "@/components/layout/MinimalFooter";
 import { SiteHeader } from "@/components/layout/site-header";
+import { CalmBackdrop } from "@/components/shared/CalmBackdrop";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageTransition } from "@/hooks/useLanguageTransition";
+import { cn } from "@/lib/utils";
 
 type CheckoutLayoutProps = {
   backHref: string;
@@ -13,22 +16,27 @@ type CheckoutLayoutProps = {
   children: ReactNode;
 };
 
-/** Focused shell for /subscription/*: Back · logo · language, calm canvas, a reassurance line instead of a marketing footer. */
+/**
+ * Focused shell for /subscription/*: a floating capsule header (Back · logo · language), the calm animated
+ * canvas shared with Mira, and a reassurance line instead of a marketing footer.
+ */
 export function CheckoutLayout({ backHref, backLabel, footerNote, children }: CheckoutLayoutProps) {
   const { direction } = useLanguage();
   const scope = useLanguageTransition<HTMLElement>();
 
   return (
-    <div dir={direction} className="relative isolate flex min-h-dvh flex-col overflow-x-clip bg-canvas text-ink">
-      <div aria-hidden className="canvas-glow pointer-events-none absolute inset-0 -z-10" />
+    <div dir={direction} className={cn(homeSerif.variable, "relative isolate flex min-h-dvh flex-col overflow-x-clip bg-canvas text-ink")}>
+      <CalmBackdrop />
 
       <SiteHeader variant="checkout" backHref={backHref} backLabel={backLabel} />
 
-      <main ref={scope} className="page-container flex-1 pb-16 pt-6 sm:pt-10 lg:pb-24">
+      <main ref={scope} className="page-container relative flex-1 pb-20 pt-8 sm:pt-12 lg:pb-28">
         {children}
       </main>
 
-      <MinimalFooter note={footerNote} showLanguage={false} className="border-t border-line" />
+      <div className="relative">
+        <MinimalFooter note={footerNote} showLanguage={false} className="border-t border-line-strong/60 text-[0.875rem] text-ink-soft" />
+      </div>
     </div>
   );
 }

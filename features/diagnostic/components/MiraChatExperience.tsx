@@ -40,6 +40,7 @@ import { NameIntake } from "./NameIntake";
 import { CompactProgress, SessionRail } from "./SessionProgress";
 import { TypingIndicator } from "./TypingIndicator";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
+import { LABEL } from "@/components/home/typography";
 import { SupportCard } from "@/components/patient/ui/SupportCard";
 
 type IconType = ComponentType<{ className?: string }>;
@@ -63,7 +64,7 @@ function MiraTyping({ phase, language }: { phase: MiraPhase | null; language: La
       aria-live="polite"
     >
       <MiraAvatar size="lg" />
-      <span className="inline-flex min-h-12 items-center gap-3 rounded-[1.375rem] rounded-ss-md border border-white/90 bg-white/70 px-5 shadow-soft backdrop-blur-sm">
+      <span className="inline-flex min-h-12 items-center gap-3 rounded-[1.375rem] rounded-ss-md border border-teal-100 bg-teal-50/70 px-5">
         <TypingIndicator />
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -72,7 +73,7 @@ function MiraTyping({ phase, language }: { phase: MiraPhase | null; language: La
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -3 }}
             transition={{ duration: 0.2 }}
-            className="text-sm text-ink-muted"
+            className="text-[0.9375rem] text-ink-soft"
           >
             {label}
           </motion.span>
@@ -89,7 +90,7 @@ function GreetingPill({ name, language, className }: { name: string; language: L
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.4, ease: EASE_OUT }}
       className={cn(
-        "inline-flex items-center gap-2.5 rounded-full border border-white/90 bg-white/75 px-4 py-2.5 text-sm font-semibold text-ink shadow-soft backdrop-blur-sm",
+        "inline-flex items-center gap-2.5 rounded-full border border-teal-100 bg-teal-50 px-4 py-2.5 text-[0.9375rem] font-semibold text-ink",
         className,
       )}
     >
@@ -361,9 +362,12 @@ export function MiraChatExperience({
           </span>
         </div>
       ) : (
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: EASE_OUT }}
           className={cn(
-            "relative mx-auto grid min-h-[34rem] w-full flex-1 gap-5 px-4 pb-3 pt-3 sm:px-6 sm:pb-4 lg:gap-6 lg:px-8 lg:pb-6 lg:pt-5",
+            "relative mx-auto grid min-h-[34rem] w-full flex-1 gap-5 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 lg:gap-6 lg:px-8 lg:pb-6 lg:pt-5",
             completed ? "max-w-4xl" : "max-w-chat lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21.5rem_minmax(0,1fr)]",
           )}
         >
@@ -418,7 +422,7 @@ export function MiraChatExperience({
                 tabIndex={0}
                 className="diagnostic-scroll-area min-h-0 flex-1 overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal-500"
               >
-                <div className="w-full space-y-7 px-4 py-6 sm:px-8 sm:py-8">
+                <div className="mx-auto w-full max-w-4xl space-y-7 px-4 py-6 sm:px-8 sm:py-9">
                   {name && (
                     <div className="flex justify-end">
                       <GreetingPill name={name} language={conversationLanguage} />
@@ -431,7 +435,7 @@ export function MiraChatExperience({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.45, ease: EASE_OUT }}
-                      className="mx-auto flex max-w-xl flex-col items-center gap-4 rounded-[1.375rem] border border-gold-100 bg-white/75 px-6 py-8 text-center shadow-soft backdrop-blur-sm sm:px-10"
+                      className="mx-auto flex max-w-xl flex-col items-center gap-4 rounded-[1.375rem] border border-gold-100 bg-gold-50/60 px-6 py-8 text-center sm:px-10"
                     >
                       <MiraAvatar size="xl" />
                       <div className="min-w-0">
@@ -439,7 +443,7 @@ export function MiraChatExperience({
                           <ShieldCheck className="h-5 w-5 shrink-0 text-teal-700" aria-hidden />
                           {diagnostic.completed.title}
                         </p>
-                        <p className="mx-auto mt-2 max-w-md text-[0.9375rem] leading-7 text-ink-muted">{diagnostic.completed.body}</p>
+                        <p className="mx-auto mt-2 max-w-md text-[0.9375rem] leading-7 text-ink-soft">{diagnostic.completed.body}</p>
                       </div>
                     </motion.div>
                   )}
@@ -466,7 +470,7 @@ export function MiraChatExperience({
               </div>
 
               {/* ── Composer ── */}
-              <div className="px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 sm:px-6 sm:pb-5">
+              <div className="mx-auto w-full max-w-4xl px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 sm:px-6 sm:pb-5">
                 {support && (
                   <SupportCard resources={support} labels={streamCopy.support} onHide={dismissSupport} className="mb-3" />
                 )}
@@ -549,11 +553,11 @@ export function MiraChatExperience({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
                       transition={{ duration: 0.4, ease: EASE_OUT, delay: 0.15 }}
-                      className="mb-4 rounded-[1.25rem] border border-white/80 bg-white/35 p-3 sm:p-4"
+                      className="mb-4 rounded-[1.25rem] border border-teal-100 bg-teal-50/50 p-3 sm:p-4"
                     >
-                      <p className="mb-3 flex items-center gap-2 px-1 text-sm text-ink-soft">
+                      <p className={cn(LABEL, "mb-3 flex items-center gap-2 px-1 text-ink-soft")}>
                         {diagnostic.suggestionsLabel}
-                        <Sparkle className="h-3.5 w-3.5 text-teal-600" aria-hidden />
+                        <Sparkle className="h-3.5 w-3.5 text-gold-600" aria-hidden />
                       </p>
                       <div className="flex flex-wrap gap-2 sm:gap-2.5">
                         {diagnostic.suggestions.map((chip, i) => {
@@ -585,7 +589,7 @@ export function MiraChatExperience({
                 </label>
                 <div
                   className={cn(
-                    "flex items-end gap-1 border border-white bg-white/90 p-2 shadow-soft transition-[border-color,box-shadow,border-radius] duration-300 ease-out-soft focus-within:border-teal-200 focus-within:shadow-[0_0_0_4px_rgb(81_133_145/0.12),var(--shadow-soft)] sm:p-2.5",
+                    "flex items-end gap-1 border border-line-strong bg-white p-2 shadow-[var(--shadow-soft)] transition-[border-color,box-shadow,border-radius] duration-300 ease-out-soft focus-within:border-teal-300 focus-within:shadow-[0_0_0_4px_rgb(81_133_145/0.14),var(--shadow-soft)] sm:p-2.5",
                     multiline ? "rounded-[1.75rem]" : "rounded-full",
                     completed && "cursor-not-allowed bg-white/60 opacity-70",
                   )}
@@ -632,7 +636,7 @@ export function MiraChatExperience({
                     placeholder={completed ? diagnostic.completed.inputDisabled : diagnostic.placeholder}
                     disabled={busy || completed}
                     aria-describedby="mira-session-meta"
-                    className="max-h-[140px] min-h-11 min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-base leading-6 text-ink outline-none placeholder:text-ink-subtle disabled:opacity-60 sm:text-[1.0625rem]"
+                    className="max-h-[140px] min-h-11 min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-base leading-6 text-ink outline-none placeholder:text-ink-muted disabled:opacity-60 sm:text-[1.0625rem]"
                   />
 
                   {input.trim() && (
@@ -691,10 +695,10 @@ export function MiraChatExperience({
                     title={diagnostic.send}
                     className={cn(
                       "inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full text-white transition-[box-shadow,opacity] duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed",
-                      "bg-[radial-gradient(circle_at_30%_25%,var(--color-teal-500),var(--color-teal-700)_60%,var(--color-teal-800))]",
+                      "bg-[radial-gradient(circle_at_30%_25%,var(--color-teal-600),var(--color-teal-800)_62%,var(--color-teal-900))]",
                       canSend
-                        ? "shadow-[0_0_0_5px_rgb(81_133_145/0.16),0_10px_24px_-8px_rgb(47_83_90/0.6)]"
-                        : "opacity-60 shadow-[0_0_0_5px_rgb(81_133_145/0.08)]",
+                        ? "shadow-[0_0_0_5px_rgb(227_176_28/0.2),0_10px_24px_-8px_rgb(34_60_65/0.65)]"
+                        : "opacity-55 shadow-[0_0_0_5px_rgb(81_133_145/0.08)]",
                     )}
                   >
                     <SendHorizontal className="h-5 w-5 rtl:-scale-x-100" aria-hidden />
@@ -702,17 +706,17 @@ export function MiraChatExperience({
                   )}
                 </div>
 
-                <div className={cn("mt-2.5 flex items-center justify-between gap-3 px-2 text-xs text-ink-muted", completed && "hidden")}>
+                <div className={cn("mt-2.5 flex items-center justify-between gap-3 px-2 text-[0.8125rem] text-ink-soft", completed && "hidden")}>
                   <span className="tabular-nums">{input.length > 0 ? `${input.length.toLocaleString()} / 10,000` : diagnostic.questionsHint}</span>
                   <span className="hidden sm:inline">{diagnostic.enterHint}</span>
                 </div>
 
-                <ul id="mira-session-meta" className="mt-5 hidden flex-wrap items-center justify-center gap-y-2 text-xs text-ink-muted md:flex">
+                <ul id="mira-session-meta" className="mt-5 hidden flex-wrap items-center justify-center gap-y-2 text-[0.8125rem] text-ink-soft md:flex">
                   {diagnostic.footerTrust.map((label, i) => {
                     const Icon = TRUST_ICONS[i] ?? ShieldCheck;
                     return (
                       <li key={label} className="inline-flex items-center gap-2 px-5 [&:not(:first-child)]:border-s [&:not(:first-child)]:border-line-strong/70">
-                        <Icon className="h-4 w-4 text-ink-subtle" />
+                        <Icon className="h-4 w-4 text-gold-700" />
                         {label}
                       </li>
                     );
@@ -721,7 +725,7 @@ export function MiraChatExperience({
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </section>
   );

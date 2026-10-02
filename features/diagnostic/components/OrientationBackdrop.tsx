@@ -1,9 +1,8 @@
-import { AmbientBackdrop } from "@/components/shared/AmbientBackdrop";
+"use client";
 
-/**
- * Mira's canvas (orientation + result): the home page's colours with slow, drifting colour
- * reflections and two light ribbons at the edges. Never printed.
- */
+import { CalmBackdrop } from "@/components/shared/CalmBackdrop";
+
+/** Mira's canvas (orientation + result) — the shared calm, animated backdrop. */
 export function OrientationBackdrop() {
-  return <AmbientBackdrop ribbons />;
+  return <CalmBackdrop />;
 }

@@ -24,3 +24,11 @@ export function visibleNav(hasSpark: boolean) {
 export function isActive(pathname: string, href: string) {
   return href === "/dashboard" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
+
+/**
+ * The clean white surface covers every patient screen except Lumina's and Spark's own, which keep
+ * their immersive look. It is switched on with `data-surface="clean"` (see "CLEAN SURFACE" in globals.css).
+ */
+export function isCleanSurface(pathname: string) {
+  return !isActive(pathname, "/dashboard/lumina") && !isActive(pathname, "/dashboard/spark");
+}

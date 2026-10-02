@@ -109,6 +109,23 @@ const en = {
       title: "Reads for you", subtitle: "Chosen for how you're doing — calm, practical, no jargon.", readTime: "{n} min read",
       curated: "Curated by Lumina", soon: "Personalised picks are coming soon.", close: "Close article", disclaimer: "General information, not medical advice.",
     },
+    welcome: {
+      readyLine: "One quiet minute with Lumina shapes the support you get today.",
+      doneLine: "You've already shown up for yourself today. That is real progress.",
+      motif: { ADHD: "Focus · Momentum", BIPOLAR: "Balance · Rhythm", SCHIZOPHRENIA: "Calm · Grounding", UNSPECIFIED: "Care · Clarity" },
+      stats: { checkins: "Check-ins this month", streak: "Day streak", together: "Days with Lumina" },
+    },
+    care: {
+      title: "What your care gives you", subtitle: "Everything your plan keeps ready for you",
+      plan: "Your plan", daysLeft: "days left",
+      perDay: "About {amount} a day for support that knows you",
+      trialEnds: "Free trial until {date}", renews: "Runs until {date}",
+      included: "Included",
+      lumina: { name: "Lumina", body: "Daily check-ins, private conversations that remember you, and a weekly report of your journey." },
+      spark: { name: "Spark", body: "Turns what's on your plate into small, doable steps, at your pace." },
+      manage: "Manage plan", none: "No active plan yet", noneBody: "Choose a plan to keep Lumina's daily support going.", plans: "See plans",
+      status: { TRIAL: "Free trial", ACTIVE: "Active", EXPIRED: "Ended", CANCELLED: "Cancelled", SUSPENDED: "Paused" },
+    },
   },
   spark: {
     title: "Spark", role: "Planning assistant", subtitle: "Turn what is on your plate into clear, doable steps", status: "Spark is here", thinking: "Spark is thinking…",
@@ -553,6 +570,23 @@ const ar: PatientCopy = {
     reads: {
       title: "قراءات لك", subtitle: "مختارة بحسب حالتك — هادئة وعملية وبلا مصطلحات معقّدة.", readTime: "قراءة {n} د",
       curated: "اختيار لومينا", soon: "الاقتراحات المخصصة قادمة قريبًا.", close: "إغلاق المقال", disclaimer: "معلومات عامة وليست نصيحة طبية.",
+    },
+    welcome: {
+      readyLine: "دقيقة هادئة مع لومينا تُحدّد الدعم الذي تحصل عليه اليوم.",
+      doneLine: "حضرتَ لأجل نفسك اليوم. وهذا تقدّم حقيقي.",
+      motif: { ADHD: "تركيز · زخم", BIPOLAR: "توازن · إيقاع", SCHIZOPHRENIA: "هدوء · ثبات", UNSPECIFIED: "عناية · وضوح" },
+      stats: { checkins: "فحوصات هذا الشهر", streak: "أيام متتالية", together: "أيام مع لومينا" },
+    },
+    care: {
+      title: "ما تمنحك إياه رعايتك", subtitle: "كل ما تُبقيه خطتك جاهزًا لك",
+      plan: "خطتك", daysLeft: "يومًا متبقيًا",
+      perDay: "نحو {amount} في اليوم لدعمٍ يعرفك",
+      trialEnds: "تجربة مجانية حتى {date}", renews: "سارية حتى {date}",
+      included: "متضمَّن",
+      lumina: { name: "لومينا", body: "فحوصات يومية، ومحادثات خاصة تتذكّرك، وتقرير أسبوعي عن رحلتك." },
+      spark: { name: "سبارك", body: "يحوّل ما على عاتقك إلى خطوات صغيرة وسهلة، بإيقاعك أنت." },
+      manage: "إدارة الخطة", none: "لا توجد خطة نشطة بعد", noneBody: "اختر خطة لتستمر مع دعم لومينا اليومي.", plans: "عرض الخطط",
+      status: { TRIAL: "فترة تجريبية", ACTIVE: "نشطة", EXPIRED: "منتهية", CANCELLED: "ملغاة", SUSPENDED: "موقوفة" },
     },
   },
   spark: {

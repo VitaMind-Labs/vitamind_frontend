@@ -111,7 +111,7 @@ export function WelcomeExperience() {
 
   return (
     <div className="lm-canvas relative flex min-h-dvh flex-col overflow-hidden">
-      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[28%] size-[38rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(126_165_171/0.45),rgb(227_176_28/0.12)_45%,transparent_70%)] blur-2xl" />
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[28%] size-[38rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,var(--lm-g1),var(--lm-g4)_45%,transparent_70%)] blur-2xl" />
 
       <header className="relative z-10 flex items-center justify-between gap-3 px-5 py-4 sm:px-8">
         <BrandLogo size="sm" href={null} />

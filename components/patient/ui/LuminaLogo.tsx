@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { LUMINA_MARK_SRC } from "@/components/layout/site-header/AgentAvatar";
+import { useCalmTrack } from "@/hooks/useCalmTrack";
 import { cn } from "@/lib/utils";
 
 /**
@@ -25,12 +26,13 @@ export function LuminaLogo({
   className?: string;
 }) {
   const reduce = useReducedMotion();
+  const calm = useCalmTrack();
   return (
     <motion.span
       aria-hidden
       className={cn("relative inline-flex shrink-0", className)}
       style={{ width: size, height: size } as CSSProperties}
-      animate={float && !reduce ? { y: [0, -8, 0] } : undefined}
+      animate={float && !reduce && !calm ? { y: [0, -8, 0] } : undefined}
       transition={float ? { duration: 5.5, repeat: Infinity, ease: "easeInOut" } : undefined}
     >
       <span className={cn("lm-logo-halo absolute rounded-full", glow ? "inset-[-30%] opacity-100" : "inset-[-14%] opacity-70")} />

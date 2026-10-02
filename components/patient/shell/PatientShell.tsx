@@ -1,15 +1,18 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { LuminaOrb, Skeleton } from "@/components/patient/ui/primitives";
 import { PatientMobileStrip, PatientRail, PatientTabBar } from "@/components/patient/shell/PatientChrome";
-import { PATIENT_NAV } from "@/components/patient/shell/nav";
+import { isCleanSurface, PATIENT_NAV } from "@/components/patient/shell/nav";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LogoLoader } from "@/components/shared/LogoLoader";
 import { Button } from "@/components/ui/button";
 import { PatientProvider } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
+import { homeSerif } from "@/components/home/fonts";
 import { ApiError } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
 
 /** Full-screen calm loader for the immersive screens (the welcome), which have no dashboard frame. */
 export function PatientLoading() {
@@ -29,9 +32,10 @@ export function PatientLoading() {
 export function PatientShellSkeleton() {
   const copy = usePatientCopy();
   const items = PATIENT_NAV.filter((item) => item.key !== "spark" && item.key !== "settings");
+  const clean = isCleanSurface(usePathname());
 
   return (
-    <div className="lm-canvas min-h-dvh text-foreground lg:flex" aria-busy="true">
+    <div data-surface={clean ? "clean" : undefined} className="lm-canvas min-h-dvh text-foreground lg:flex" aria-busy="true">
       <aside aria-hidden className="lm-rail sticky top-4 m-4 me-0 hidden h-[calc(100dvh-2rem)] w-64 shrink-0 self-start lg:flex lg:flex-col">
         <div className="px-5 pb-3 pt-6">
           <span className="inline-flex rounded-2xl bg-white/90 px-3 py-1.5 shadow-sm">
@@ -56,7 +60,7 @@ export function PatientShellSkeleton() {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <div aria-hidden className="flex items-center justify-between gap-3 px-4 pb-1 pt-4 sm:px-6 lg:hidden">
+        <div aria-hidden className="lm-topbar flex items-center justify-between gap-3 px-4 pb-3 pt-4 sm:px-6 lg:hidden">
           <BrandLogo size="md" href={null} />
           <Skeleton className="size-11 rounded-full" />
         </div>
@@ -109,9 +113,21 @@ export function PatientGate({ children, pending }: { children: ReactNode; pendin
 /** The signed-in patient's frame: navigation rail (profile, language, notifications), mobile tab bar and a skip link. */
 export function PatientChrome({ children }: { children: ReactNode }) {
   const copy = usePatientCopy();
+  const clean = isCleanSurface(usePathname());
+
+  // Popovers and dialogs render outside this frame, so the surface is also set on <html> for them.
+  useEffect(() => {
+    if (!clean) return;
+    const root = document.documentElement;
+    root.dataset.surface = "clean";
+    return () => {
+      delete root.dataset.surface;
+    };
+  }, [clean]);
+
   return (
     <PatientGate pending={<PatientShellSkeleton />}>
-      <div className="lm-canvas min-h-dvh text-foreground lg:flex">
+      <div data-surface={clean ? "clean" : undefined} className={cn(homeSerif.variable, "lm-canvas min-h-dvh text-foreground lg:flex")}>
         <a
           href="#patient-main"
           className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"

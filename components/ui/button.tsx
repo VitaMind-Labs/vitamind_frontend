@@ -9,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-white shadow-brand hover:bg-teal-700 hover:shadow-[0_14px_28px_-12px_rgb(61_106_115/0.6)]",
-        secondary: "border-line bg-surface-muted text-ink hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700",
-        outline: "border-line-strong bg-white text-ink hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700",
+        default: "bg-primary text-white shadow-brand hover:bg-primary-hover hover:shadow-[0_14px_28px_-12px_rgb(61_106_115/0.6)]",
+        secondary: "btn-glass border-line bg-surface-muted text-ink hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700",
+        outline: "btn-glass border-line-strong bg-white text-ink hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700",
         ghost: "text-teal-700 hover:bg-teal-50 hover:text-teal-800",
         link: "min-h-0 rounded-none p-0 text-teal-700 underline-offset-4 hover:underline",
         destructive: "bg-destructive text-white shadow-xs hover:bg-rose-700/90",
-        nav: "bg-primary text-white shadow-brand hover:bg-teal-700",
-        hero: "bg-primary text-base text-white shadow-brand hover:bg-teal-700 hover:shadow-[0_18px_36px_-14px_rgb(61_106_115/0.65)]",
-        auth: "w-full bg-primary text-[0.9375rem] text-white shadow-brand hover:bg-teal-700",
+        nav: "bg-primary text-white shadow-brand hover:bg-primary-hover",
+        hero: "bg-primary text-base text-white shadow-brand hover:bg-primary-hover hover:shadow-[0_18px_36px_-14px_rgb(61_106_115/0.65)]",
+        auth: "w-full bg-primary text-[0.9375rem] text-white shadow-brand hover:bg-primary-hover",
       },
       size: {
         default: "min-h-11 px-5 py-2.5",

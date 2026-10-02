@@ -7,8 +7,12 @@ import { motion, useInView } from "framer-motion";
 import { Activity, BarChart3, Brain, Eye, HeartPulse, Lightbulb, ShieldCheck, Zap, type LucideIcon } from "lucide-react";
 import { useRef } from "react";
 import { ACCENTS, type Accent } from "./accents";
+import { Grain } from "./Atmosphere";
+import { CountUp } from "./CountUp";
 import { HomeSection } from "./HomeSection";
+import { Spotlight } from "./Interactions";
 import { SectionHeader } from "./SectionHeader";
+import { BODY, BODY_SM, DISPLAY_M, DISPLAY_S, LABEL, SERIF } from "./typography";
 
 type Category = "core" | "insight" | "wellness";
 
@@ -26,9 +30,20 @@ const FEATURES_DATA: { icon: LucideIcon; stat: string; category: Category }[] = 
 const CATEGORY_INDEX: Record<Category, number> = { core: 0, insight: 1, wellness: 2 };
 const CATEGORY_ACCENT: Record<Category, Accent> = { core: "teal", insight: "gold", wellness: "sage" };
 
-/* Narrative order: the core capability leads, insight and care support it, the rest follow lighter. */
-const SUPPORTING = [1, 2, 5] as const;
-const SECONDARY = [3, 4, 6, 7] as const;
+/**
+ * The bento: feature 0 is the large deep-teal anchor; the other seven are light cards.
+ * Spans fill 12 columns on desktop (5+5 beside the anchor, 4+4+4, 6+6) and pair up on tablet.
+ */
+const BENTO: { span: string; mint?: boolean }[] = [
+  { span: "md:col-span-2 lg:col-span-7 lg:row-span-2" },
+  { span: "lg:col-span-5" },
+  { span: "lg:col-span-5", mint: true },
+  { span: "lg:col-span-4" },
+  { span: "lg:col-span-4", mint: true },
+  { span: "lg:col-span-4" },
+  { span: "lg:col-span-6", mint: true },
+  { span: "md:col-span-2 lg:col-span-6" },
+];
 
 type Feature = (typeof FEATURES_DATA)[number] & { title: string; description: string; statLabel: string; layer: string };
 
@@ -38,6 +53,9 @@ const NODES: [number, number, Category][] = [
   [300, 160, "insight"], [330, 55, "core"], [410, 115, "wellness"], [470, 60, "insight"],
 ];
 const EDGES: [number, number][] = [[0, 1], [0, 2], [1, 2], [1, 3], [2, 3], [3, 4], [3, 5], [4, 6], [5, 6], [5, 7], [6, 7], [2, 4]];
+
+/** On deep teal the "core" teal lifts to a lighter step so it never sinks into the surface. */
+const nodeFill = (category: Category) => (category === "core" ? "var(--color-teal-300)" : ACCENTS[CATEGORY_ACCENT[category]].fill);
 
 function NeuralMap() {
   const ref = useRef<SVGSVGElement>(null);
@@ -53,11 +71,12 @@ function NeuralMap() {
           x2={NODES[b][0]}
           y2={NODES[b][1]}
           stroke="var(--color-teal-300)"
-          strokeWidth="1.5"
+          strokeOpacity="0.55"
+          strokeWidth="1"
           strokeLinecap="round"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={start ? { pathLength: 1, opacity: 1 } : undefined}
-          transition={{ duration: 0.8, delay: 0.2 + i * 0.06, ease: EASE_OUT }}
+          transition={{ duration: 1.2, delay: 0.2 + i * 0.07, ease: EASE_OUT }}
         />
       ))}
       {NODES.map(([x, y, category], i) => (
@@ -65,45 +84,51 @@ function NeuralMap() {
           key={`${x}-${y}`}
           initial={{ scale: 0, opacity: 0 }}
           animate={start ? { scale: 1, opacity: 1 } : undefined}
-          transition={{ duration: 0.5, delay: 0.1 + i * 0.07, ease: EASE_OUT }}
+          transition={{ duration: 0.7, delay: 0.1 + i * 0.08, ease: EASE_OUT }}
           style={{ transformOrigin: `${x}px ${y}px` }}
         >
-          <circle cx={x} cy={y} r="14" fill={ACCENTS[CATEGORY_ACCENT[category]].fill} opacity="0.14" />
-          <circle cx={x} cy={y} r="6" fill={ACCENTS[CATEGORY_ACCENT[category]].fill} stroke="#fff" strokeWidth="2" />
+          <motion.circle
+            cx={x}
+            cy={y}
+            r="15"
+            fill={nodeFill(category)}
+            opacity="0.2"
+            animate={start ? { r: [15, 21, 15], opacity: [0.2, 0.06, 0.2] } : undefined}
+            transition={{ duration: 5 + (i % 3), delay: 1.5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <circle cx={x} cy={y} r="5.5" fill={nodeFill(category)} stroke="var(--color-teal-900)" strokeWidth="2" />
         </motion.g>
       ))}
     </svg>
   );
 }
 
-function FeatureIcon({ feature, large = false }: { feature: Feature; large?: boolean }) {
+function FeatureIcon({ feature, dark = false }: { feature: Feature; dark?: boolean }) {
   const Icon = feature.icon;
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-xl transition-transform duration-300 ease-out-soft group-hover:-translate-y-0.5",
-        ACCENTS[CATEGORY_ACCENT[feature.category]].icon,
-        large ? "h-12 w-12" : "h-10 w-10",
+        "flex size-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-500 ease-out-soft group-hover:-translate-y-0.5",
+        dark ? "border border-white/15 bg-white/10 text-teal-100" : ACCENTS[CATEGORY_ACCENT[feature.category]].icon,
       )}
     >
-      <Icon className={large ? "h-6 w-6" : "h-5 w-5"} strokeWidth={1.75} aria-hidden />
+      <Icon className="size-5" strokeWidth={1.5} aria-hidden />
     </span>
   );
 }
 
-function Stat({ feature, className }: { feature: Feature; className?: string }) {
+function Stat({ feature, dark = false, large = false }: { feature: Feature; dark?: boolean; large?: boolean }) {
   return (
-    <p className={cn("flex items-baseline gap-2", className)}>
-      <span className={cn("font-semibold tabular-nums", ACCENTS[CATEGORY_ACCENT[feature.category]].text)} dir="ltr">
-        {feature.stat}
+    <p className="flex items-baseline gap-3">
+      <span dir="ltr">
+        <CountUp
+          value={feature.stat}
+          className={cn(SERIF, dark ? "font-light" : "font-normal", "tabular-nums tracking-[-0.03em]", large ? "text-[clamp(3rem,4vw+1rem,4.5rem)] leading-none" : "text-[2rem] leading-none", dark ? "text-gold-300" : ACCENTS[CATEGORY_ACCENT[feature.category]].text)}
+        />
       </span>
-      <span className="text-xs text-ink-muted">{feature.statLabel}</span>
+      <span className={cn("text-[0.875rem]", dark ? "text-teal-100" : "text-ink-soft")}>{feature.statLabel}</span>
     </p>
   );
-}
-
-function LayerTag({ feature }: { feature: Feature }) {
-  return <span className={cn("home-label", ACCENTS[CATEGORY_ACCENT[feature.category]].text)}>{feature.layer}</span>;
 }
 
 export const Features = () => {
@@ -116,39 +141,49 @@ export const Features = () => {
     statLabel: copy.cards[index][2],
     layer: copy.columns[CATEGORY_INDEX[feature.category]].title,
   }));
-  const lead = features[0];
+  const [lead, ...rest] = features;
 
   return (
-    <HomeSection id="features" labelledBy="features-title" spacing="bottom">
-      <SectionHeader id="features-title" layout="split" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+    <HomeSection id="features" labelledBy="features-title">
+      <SectionHeader variant="editorial" id="features-title" layout="split" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
-      <div className="mt-12 grid gap-10 md:mt-16 lg:grid-cols-12 lg:gap-14">
-        {/* ── Dominant feature ─────────────────────────────────────────── */}
+      <motion.div
+        variants={stagger(0.08)}
+        initial="hidden"
+        whileInView="show"
+        viewport={REVEAL_VIEWPORT}
+        className="mt-14 grid gap-4 md:mt-20 md:grid-cols-2 lg:grid-cols-12 lg:gap-5"
+      >
+        {/* ── The anchor: deep teal, the one place the grid asks you to focus ───── */}
         <motion.article
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={REVEAL_VIEWPORT}
-          transition={{ duration: 0.7, ease: EASE_OUT }}
-          className="home-panel group relative flex min-w-0 flex-col overflow-hidden bg-[linear-gradient(165deg,var(--color-teal-50),#ffffff_58%)] p-6 sm:p-8 lg:col-span-7 lg:p-10"
+          variants={fadeUp(0, 24)}
+          className={cn(
+            "group relative isolate flex min-w-0 flex-col overflow-hidden rounded-panel border border-teal-800 bg-[linear-gradient(155deg,var(--color-teal-900),var(--color-ink)_95%)] p-7 text-white sm:p-10",
+            BENTO[0].span,
+          )}
         >
-          <div className="flex items-center justify-between gap-3">
-            <FeatureIcon feature={lead} large />
-            <LayerTag feature={lead} />
-          </div>
-          <h3 className="mt-6 text-title font-medium tracking-[-0.02em] text-ink">{lead.title}</h3>
-          <p className="mt-3 max-w-md text-base leading-7 text-ink-muted">{lead.description}</p>
+          <Grain />
+          <span aria-hidden className="pointer-events-none absolute -end-24 -top-24 -z-10 size-80 rounded-full bg-gold/15 blur-3xl" />
+          <span aria-hidden className="pointer-events-none absolute -bottom-32 -start-16 -z-10 size-80 rounded-full bg-teal-500/25 blur-3xl" />
 
-          <div className="mt-8 flex flex-1 items-end">
+          <div className="flex items-center justify-between gap-3">
+            <FeatureIcon feature={lead} dark />
+            <span className={cn(LABEL, "text-teal-200")}>{lead.layer}</span>
+          </div>
+          <h3 className={cn(DISPLAY_M, "mt-8 max-w-lg text-white")}>{lead.title}</h3>
+          <p className={cn(BODY, "mt-4 max-w-md text-[1.0625rem] text-teal-100")}>{lead.description}</p>
+
+          <div className="mt-10 flex flex-1 items-end">
             <NeuralMap />
           </div>
 
-          <div className="mt-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-t border-line pt-5">
-            <Stat feature={lead} className="[&>span:first-child]:text-3xl [&>span:first-child]:font-light [&>span:first-child]:tracking-[-0.03em]" />
+          <div className="mt-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-5 border-t border-white/12 pt-6">
+            <Stat feature={lead} dark large />
             {/* Legend for the map — the three layers, by label and colour. */}
-            <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+            <ul className="flex flex-wrap gap-x-5 gap-y-2">
               {(Object.keys(CATEGORY_INDEX) as Category[]).map((category) => (
-                <li key={category} className="inline-flex items-center gap-2 text-xs text-ink-muted">
-                  <span aria-hidden className={cn("h-2 w-2 rounded-full", ACCENTS[CATEGORY_ACCENT[category]].rule)} />
+                <li key={category} className="inline-flex items-center gap-2 text-[0.8125rem] text-teal-100">
+                  <span aria-hidden className="size-2 rounded-full" style={{ background: nodeFill(category) }} />
                   {copy.columns[CATEGORY_INDEX[category]].title}
                 </li>
               ))}
@@ -156,62 +191,43 @@ export const Features = () => {
           </div>
         </motion.article>
 
-        {/* ── Supporting features ──────────────────────────────────────── */}
-        <motion.ul
-          variants={stagger(0.08, 0.1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={REVEAL_VIEWPORT}
-          className="flex flex-col divide-y divide-line lg:col-span-5 lg:justify-center"
-        >
-          {SUPPORTING.map((index) => {
-            const feature = features[index];
-            return (
-              <motion.li key={feature.title} variants={fadeUp(0, 16)} className="group flex gap-4 py-6 first:pt-0 last:pb-0 sm:gap-5">
-                <FeatureIcon feature={feature} />
-                <div className="min-w-0 flex-1">
-                  <LayerTag feature={feature} />
-                  <h3 className="mt-1.5 text-[1.0625rem] font-semibold leading-snug text-ink">{feature.title}</h3>
-                  <p className="mt-1.5 text-[0.9375rem] leading-6 text-ink-muted">{feature.description}</p>
-                  <Stat feature={feature} className="mt-3 text-sm" />
-                </div>
-              </motion.li>
-            );
-          })}
-        </motion.ul>
-      </div>
-
-      {/* ── Secondary capabilities: lighter weight, hairline-separated ──── */}
-      <motion.ul
-        variants={stagger(0.07)}
-        initial="hidden"
-        whileInView="show"
-        viewport={REVEAL_VIEWPORT}
-        className="mt-14 grid gap-x-8 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4"
-      >
-        {SECONDARY.map((index) => {
-          const feature = features[index];
+        {/* ── The light cards ─────────────────────────────────────────────── */}
+        {rest.map((feature, i) => {
+          const layout = BENTO[i + 1];
           const accent = ACCENTS[CATEGORY_ACCENT[feature.category]];
-          const Icon = feature.icon;
           return (
-            <motion.li key={feature.title} variants={fadeUp(0, 14)} className="group relative border-t border-line py-6 sm:pb-2">
+            <motion.article
+              key={feature.title}
+              variants={fadeUp(0, 28)}
+              className={cn("min-w-0", layout.span)}
+            >
+              <Spotlight
+                tone={feature.category === "insight" ? "gold" : "teal"}
+                className={cn(
+                  "group flex h-full flex-col overflow-hidden rounded-panel border p-6 transition-[transform,box-shadow,border-color] duration-500 ease-out-soft hover:-translate-y-1.5 hover:shadow-[var(--shadow-soft-hover)] sm:p-7",
+                  layout.mint ? "border-teal-100 bg-teal-50/70 hover:border-teal-200" : "border-line bg-white shadow-[var(--shadow-soft)] hover:border-teal-200",
+                )}
+              >
               <span
                 aria-hidden
-                className={cn(
-                  "absolute -top-px start-0 h-px w-20 origin-left scale-x-50 transition-transform duration-500 ease-out-soft group-hover:scale-x-100 rtl:origin-right",
-                  accent.rule,
-                )}
+                className={cn("absolute inset-x-7 top-0 h-px origin-left scale-x-0 transition-transform duration-700 ease-out-soft group-hover:scale-x-100 rtl:origin-right", accent.rule)}
               />
-              <div className="flex items-center gap-3">
-                <Icon className={cn("h-[1.125rem] w-[1.125rem] shrink-0 transition-transform duration-300 ease-out-soft group-hover:-translate-y-0.5", accent.text)} strokeWidth={1.75} aria-hidden />
-                <h3 className="text-[0.9375rem] font-semibold leading-snug text-ink">{feature.title}</h3>
+              <div className="flex items-center justify-between gap-3">
+                <FeatureIcon feature={feature} />
+                <span className={cn(LABEL, accent.text)}>{feature.layer}</span>
               </div>
-              <p className="mt-2 text-sm leading-6 text-ink-muted">{feature.description}</p>
-              <Stat feature={feature} className="mt-3 text-sm" />
-            </motion.li>
+              <h3 className={cn(DISPLAY_S, "mt-7 text-ink")}>{feature.title}</h3>
+              <p className={cn(BODY_SM, "mt-3 max-w-md")}>{feature.description}</p>
+              <div className="mt-auto pt-8">
+                <div className={cn("border-t pt-5", layout.mint ? "border-teal-100" : "border-line")}>
+                  <Stat feature={feature} />
+                </div>
+              </div>
+              </Spotlight>
+            </motion.article>
           );
         })}
-      </motion.ul>
+      </motion.div>
     </HomeSection>
   );
 };
