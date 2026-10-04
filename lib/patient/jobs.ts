@@ -5,7 +5,7 @@ import type { JobProgressData } from "@/hooks/useEventStream";
 
 /**
  * Background work the API reports on the event stream (`job.progress`), keyed by job id. For the
- * journal the job id is the entry id, so a screen can ask "is Lumina reading this entry right now?".
+ * journal the job id is the entry id, so a screen can ask "is this entry being read right now?".
  * Finished jobs linger briefly so the screen can settle, then disappear.
  */
 export type JobState = JobProgressData & { at: number };

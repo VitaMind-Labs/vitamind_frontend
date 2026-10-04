@@ -3,92 +3,101 @@
 
 /*
  * MindWeave design tokens.
- * Core palette: teal #518591 / #4a7b82 / #3d6a73,
- * ink #2c3e3b, sage #7da89e / #5a7d76, gold #e3b01c / #c49b0f, rose #b87070,
- * surfaces #f8f9fb / #f4f6f5). Only the palette is borrowed — never layout.
+ * Core palette, drawn from the logo: white / ivory (#ffffff, #f8fbfa) carries ~75% of every screen, teal ~20%
+ * (#114c61 deep, #2b7080 actions and lines, #5b9091, #86babc, #bfdde1 soft fills) and gold ~5%
+ * (#ae8a39, #c9af6f, #e6d5aa — one italic word, thin lines, small labels, one dot). Body text #3c5864.
+ * Cards are white with a 1px #dfe9ea border. Gradients live only on small elements. Only the palette is borrowed — never layout.
  */
 @theme {
-  /* ===== BRAND RAMPS ===== */
-  --color-teal-50: #f1f6f6;
-  --color-teal-100: #e3eeef;
-  --color-teal-200: #cee1e3;
-  --color-teal-300: #a9c7cb;
-  --color-teal-400: #7ea5ab;
-  --color-teal-500: #518591;
-  --color-teal-600: #4a7b82;
-  --color-teal-700: #3d6a73;
-  --color-teal-800: #2f535a;
-  --color-teal-900: #223c41;
 
-  --color-ink: #2c3e3b;
-  --color-ink-soft: #4b5d5a;
-  --color-ink-muted: #5f716e;
-  --color-ink-subtle: #8a9a97;
+  /* ===== BRAND RAMPS (ancrées sur le logo) ===== */
+  --color-teal-50: #f1f8f8;
+  --color-teal-100: #ddedef;
+  --color-teal-200: #bfdde1;   /* logo : brume */
+  --color-teal-300: #a3cdd1;   /* logo : aqua clair */
+  --color-teal-400: #86babc;   /* logo : teal doux */
+  --color-teal-500: #5b9091;
+  --color-teal-600: #2b7080;   /* logo : teal principal (boutons) */
+  --color-teal-700: #226273;
+  --color-teal-800: #1a576a;   /* logo : teal profond */
+  --color-teal-900: #114c61;
+  --color-teal-950: #0d3d50;
 
-  --color-sage: #7da89e;
-  --color-sage-50: #f2f7f5;
-  --color-sage-100: #e3eeea;
-  --color-sage-700: #5a7d76;
+  --color-ink: #114c61;
+  --color-ink-soft: #3c5864;
+  --color-ink-muted: #5a7480;
+  --color-ink-subtle: #7c929b;
 
-  --color-gold: #e3b01c;
-  --color-gold-50: #fcf7e6;
-  --color-gold-100: #f8ebc2;
-  --color-gold-300: #d4b37c;
-  --color-gold-600: #c49b0f;
-  --color-gold-700: #8a6d0a;
+  --color-sage: #7fb0ae;
+  --color-sage-50: #eff6f6;
+  --color-sage-100: #dcebea;
+  --color-sage-700: #4a7c7c;
 
-  --color-rose: #b87070;
-  --color-rose-50: #faf2f2;
-  --color-rose-100: #f3dfdf;
-  --color-rose-700: #9a4f4f;
+  --color-gold: #c9af6f;       /* logo : or */
+  --color-gold-50: #fbf7ec;
+  --color-gold-100: #e6d5aa;   /* logo : champagne */
+  --color-gold-300: #c9af6f;   /* logo : or clair */
+  --color-gold-600: #ae8a39;
+  --color-gold-700: #8a6c25;
+
+  --color-rose: #b07a7a;
+  --color-rose-50: #faf3f3;
+  --color-rose-100: #f1e0e0;
+  --color-rose-700: #8f5252;
 
   /* ===== SURFACES & LINES ===== */
-  --color-canvas: #f8f9fb;
+  --color-canvas: #f8fbfa;
   --color-surface: #ffffff;
-  --color-surface-muted: #f4f6f5;
-  --color-line: #e4e9e8;
-  --color-line-strong: #d3dcdb;
+  --color-surface-muted: #f3f8f8;
+  --color-line: #dfe9ea;
+  --color-line-strong: #cbdadc;
+
+  /* ===== ALIASES ===== */
+  --color-primary: var(--color-teal-600);
+  --color-primary-hover: var(--color-teal-700);
+  --color-primary-deep: var(--color-teal-800);
+  --color-accent: var(--color-gold);
 
   /* ===== SEMANTIC (shadcn-compatible) ===== */
-  --color-background: #f8f9fb;
-  --color-foreground: #2c3e3b;
+  --color-background: #f8fbfa;
+  --color-foreground: #114c61;
   --color-card: #ffffff;
-  --color-card-foreground: #2c3e3b;
+  --color-card-foreground: #114c61;
   --color-popover: #ffffff;
-  --color-popover-foreground: #2c3e3b;
-  --color-muted: #f4f6f5;
-  --color-muted-foreground: #5f716e;
-  --color-accent: #e3eeef;
-  --color-accent-foreground: #3d6a73;
-  --color-border: #e4e9e8;
-  --color-input: #d3dcdb;
-  --color-ring: #518591;
+  --color-popover-foreground: #114c61;
+  --color-muted: #f3f8f8;
+  --color-muted-foreground: #5a7480;
+  --color-accent: #ddedef;
+  --color-accent-foreground: #226273;
+  --color-border: #dfe9ea;
+  --color-input: #cbdadc;
+  --color-ring: #5b9091;
 
-  --color-primary: #4a7b82;
-  --color-primary-hover: #3d6a73;
+  --color-primary: #2b7080;
+  --color-primary-hover: #226273;
   --color-primary-foreground: #ffffff;
   --color-on-primary: #ffffff;
-  --color-secondary: #f4f6f5;
-  --color-secondary-foreground: #2c3e3b;
-  --color-tertiary: #e3b01c;
-  --color-on-tertiary: #2c3e3b;
+  --color-secondary: #f3f8f8;
+  --color-secondary-foreground: #114c61;
+  --color-tertiary: #c9af6f;
+  --color-on-tertiary: #114c61;
   --color-destructive: #9a4f4f;
   --color-destructive-foreground: #ffffff;
 
   --color-sidebar: #ffffff;
-  --color-sidebar-foreground: #2c3e3b;
-  --color-sidebar-accent: #e3eeef;
-  --color-sidebar-accent-foreground: #3d6a73;
-  --color-sidebar-border: #e4e9e8;
-  --color-sidebar-ring: #518591;
+  --color-sidebar-foreground: #114c61;
+  --color-sidebar-accent: #ddedef;
+  --color-sidebar-accent-foreground: #226273;
+  --color-sidebar-border: #dfe9ea;
+  --color-sidebar-ring: #5b9091;
 
   /* Legacy Material-style aliases still consumed by existing screens. */
-  --color-on-background: #2c3e3b;
-  --color-on-surface: #2c3e3b;
-  --color-secondary-container: #f4f6f5;
-  --color-on-secondary-container: #2c3e3b;
-  --color-outline: #d3dcdb;
-  --color-outline-variant: #e4e9e8;
+  --color-on-background: #114c61;
+  --color-on-surface: #114c61;
+  --color-secondary-container: #f3f8f8;
+  --color-on-secondary-container: #114c61;
+  --color-outline: #cbdadc;
+  --color-outline-variant: #dfe9ea;
   --color-error: #9a4f4f;
   --color-on-error: #ffffff;
   --color-error-container: #faf2f2;
@@ -121,16 +130,16 @@
   --radius-panel: 1.75rem;
 
   /* ===== ELEVATION (ink-tinted, never pure black) ===== */
-  --shadow-xs: 0 1px 2px rgb(44 62 59 / 0.05);
-  --shadow-card: 0 1px 2px rgb(44 62 59 / 0.04), 0 8px 24px -12px rgb(44 62 59 / 0.12);
-  --shadow-raised: 0 2px 4px rgb(44 62 59 / 0.04), 0 18px 40px -18px rgb(44 62 59 / 0.22);
-  --shadow-float: 0 4px 12px rgb(44 62 59 / 0.05), 0 28px 64px -28px rgb(44 62 59 / 0.28);
-  --shadow-brand: 0 10px 24px -10px rgb(74 123 130 / 0.55);
-  --shadow-focus: 0 0 0 4px rgb(81 133 145 / 0.16);
+  --shadow-xs: 0 1px 2px rgb(17 76 97 / 0.04);
+  --shadow-card: 0 1px 2px rgb(17 76 97 / 0.03);
+  --shadow-raised: 0 1px 2px rgb(17 76 97 / 0.04), 0 10px 24px -16px rgb(17 76 97 / 0.12);
+  --shadow-float: 0 2px 6px rgb(17 76 97 / 0.04), 0 20px 40px -28px rgb(17 76 97 / 0.2);
+  --shadow-brand: 0 8px 18px -10px rgb(43 112 128 / 0.4);
+  --shadow-focus: 0 0 0 4px rgb(91 144 145 / 0.2);
   /* Soft 3D: a top-edge highlight over a wide, low-contrast drop. */
-  --shadow-soft: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 1px 2px rgb(44 62 59 / 0.04), 0 12px 32px -18px rgb(44 62 59 / 0.16);
-  --shadow-soft-hover: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 2px 6px rgb(44 62 59 / 0.05), 0 24px 48px -24px rgb(44 62 59 / 0.24);
-  --shadow-inset: inset 0 1px 2px rgb(44 62 59 / 0.06), inset 0 0 0 1px rgb(44 62 59 / 0.03);
+  --shadow-soft: 0 1px 2px rgb(17 76 97 / 0.03);
+  --shadow-soft-hover: 0 1px 2px rgb(17 76 97 / 0.04), 0 12px 28px -20px rgb(17 76 97 / 0.16);
+  --shadow-inset: inset 0 1px 2px rgb(17 76 97 / 0.06), inset 0 0 0 1px rgb(17 76 97 / 0.03);
 
   /* ===== MOTION ===== */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -430,7 +439,7 @@ html[data-track="PSYCHOSIS"] .lm-canvas::before {
   --shadow-brand: 0 10px 24px -10px rgb(156 111 26 / 0.5);
 }
 
-/* Lumina's drifting light stays still for patients sensitive to motion. */
+/* The drifting light stays still for patients sensitive to motion. */
 html[data-track="SCHIZOPHRENIA"] :is(.lm-mote, .lm-orbit),
 html[data-track="PSYCHOSIS"] :is(.lm-mote, .lm-orbit) {
   animation: none;
@@ -515,7 +524,7 @@ html[dir="rtl"] body {
 }
 
 ::selection {
-  background: rgb(227 176 28 / 0.28);
+  background: rgb(201 175 111 / 0.28);
   color: var(--color-ink);
 }
 
@@ -707,7 +716,7 @@ html.lenis body {
     border: 1px solid var(--color-line);
     border-radius: var(--radius-panel);
     box-shadow:
-      0 1px 2px rgb(44 62 59 / 0.04),
+      0 1px 2px rgb(17 76 97 / 0.04),
       0 24px 56px -32px rgb(47 83 90 / 0.28);
     position: relative;
   }
@@ -727,7 +736,7 @@ html.lenis body {
 
   /* A quieter mint tile nested inside `.orientation-glass` (progress, focus, suggestions). */
   .orientation-tile {
-    background: rgb(241 246 246 / 0.7);
+    background: rgb(241 248 248 / 0.7);
     border: 1px solid var(--color-teal-100);
     border-radius: 1.25rem;
   }
@@ -735,9 +744,9 @@ html.lenis body {
   /* Soft teal/gold light over the canvas, shared by focused flows (auth, checkout, support). */
   .canvas-glow {
     background:
-      radial-gradient(55% 32rem at 50% 0%, rgb(81 133 145 / 0.12), transparent 72%),
-      radial-gradient(40% 28rem at 90% 40rem, rgb(227 176 28 / 0.07), transparent 70%),
-      radial-gradient(45% 24rem at 10% 100%, rgb(125 168 158 / 0.08), transparent 70%);
+      radial-gradient(55% 32rem at 50% 0%, rgb(91 144 145 / 0.12), transparent 72%),
+      radial-gradient(40% 28rem at 90% 40rem, rgb(201 175 111 / 0.07), transparent 70%),
+      radial-gradient(45% 24rem at 10% 100%, rgb(120 174 170 / 0.08), transparent 70%);
   }
 
   .surface-card-interactive {
@@ -814,8 +823,8 @@ html.lenis body {
   .dash-canvas {
     background-color: var(--color-canvas);
     background-image:
-      radial-gradient(60% 36rem at 85% -6rem, rgb(81 133 145 / 0.1), transparent 70%),
-      radial-gradient(40% 28rem at 0% 100%, rgb(125 168 158 / 0.08), transparent 70%);
+      radial-gradient(60% 36rem at 85% -6rem, rgb(91 144 145 / 0.1), transparent 70%),
+      radial-gradient(40% 28rem at 0% 100%, rgb(120 174 170 / 0.08), transparent 70%);
   }
 
   .dash-sidebar {
@@ -922,14 +931,14 @@ html.lenis body {
   /* Light teal/gold halo in a card corner. */
   .card-halo {
     background-image:
-      radial-gradient(22rem 12rem at 100% 0%, rgb(81 133 145 / 0.1), transparent 70%),
-      radial-gradient(16rem 10rem at 0% 100%, rgb(227 176 28 / 0.07), transparent 70%);
+      radial-gradient(22rem 12rem at 100% 0%, rgb(91 144 145 / 0.1), transparent 70%),
+      radial-gradient(16rem 10rem at 0% 100%, rgb(201 175 111 / 0.07), transparent 70%);
   }
 
   [dir="rtl"] .card-halo {
     background-image:
-      radial-gradient(22rem 12rem at 0% 0%, rgb(81 133 145 / 0.1), transparent 70%),
-      radial-gradient(16rem 10rem at 100% 100%, rgb(227 176 28 / 0.07), transparent 70%);
+      radial-gradient(22rem 12rem at 0% 0%, rgb(91 144 145 / 0.1), transparent 70%),
+      radial-gradient(16rem 10rem at 100% 100%, rgb(201 175 111 / 0.07), transparent 70%);
   }
 
   /* The single brand-filled highlight card per screen. */
@@ -983,7 +992,7 @@ html.lenis body {
     background-color: var(--color-surface-muted);
     background-image:
       linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(227 238 239 / 0.45)),
-      linear-gradient(to bottom, transparent calc(100% - 1px), rgb(44 62 59 / 0.05) 1px);
+      linear-gradient(to bottom, transparent calc(100% - 1px), rgb(17 76 97 / 0.05) 1px);
     background-size: 100% 100%, 100% 3rem;
     border-radius: 1.25rem;
     box-shadow: var(--shadow-inset);
@@ -1000,7 +1009,7 @@ html.lenis body {
 
   @media (hover: hover) {
     .list-row:hover {
-      background: rgb(241 246 246 / 0.6);
+      background: rgb(241 248 248 / 0.6);
       border-color: var(--color-teal-200);
       box-shadow: var(--shadow-xs);
     }
@@ -1065,7 +1074,7 @@ html.lenis body {
     width: fit-content;
   }
 
-  /* ===== LUMINA — patient app design system =====
+  /* ===== PATIENT APP design system =====
    * Gradients, not borders. Every surface is built from the condition's four tokens
    * (--cond / --cond-glow / --cond-mist / --cond-dark): a living page, a deep gradient rail,
    * frosted gradient cards that lift off the page with a tinted shadow, and one signature
@@ -1284,7 +1293,7 @@ html.lenis body {
     color: var(--color-teal-800);
   }
 
-  /* Lumina's presence: a soft, breathing orb. Size comes from --orb. */
+  /* The brand presence: a soft, breathing orb. Size comes from --orb. */
   .lm-orb {
     --orb: 3rem;
     background:
@@ -1372,7 +1381,7 @@ html.lenis body {
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--cond) 30%, transparent);
   }
 
-  /* Lumina's mark: a white disc with a thin rim in the condition's colour, and a soft halo behind it. */
+  /* The brand mark: a white disc with a thin rim in the condition's colour, and a soft halo behind it. */
   .lm-logo-disc {
     background: radial-gradient(circle at 34% 26%, #fff, color-mix(in srgb, var(--cond-mist) 70%, white) 72%);
     box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--cond) 40%, transparent), 0 14px 30px -14px color-mix(in srgb, var(--cond-dark) 50%, transparent), inset 0 1px 0 #fff;
@@ -1398,7 +1407,7 @@ html.lenis body {
     width: 2.25rem;
   }
 
-  /* Lumina's conversation space: the condition's glow from above where she sits. */
+  /* The mark's stage: the condition's glow from above. */
   .lm-sanctuary {
     -webkit-backdrop-filter: blur(20px) saturate(1.3);
     backdrop-filter: blur(20px) saturate(1.3);
@@ -1415,7 +1424,7 @@ html.lenis body {
     position: relative;
   }
 
-  /* Drifting motes of light — the star from Lumina's logo, scattered and slow. */
+  /* Drifting motes of light — the star from the logo, scattered and slow. */
   .lm-mote {
     animation: lm-mote 18s ease-in-out infinite;
     background: radial-gradient(circle, rgb(255 255 255 / 0.95), color-mix(in srgb, var(--cond) 32%, transparent) 45%, transparent 72%);
@@ -1426,7 +1435,7 @@ html.lenis body {
     z-index: -1;
   }
 
-  /* A slow orbit around Lumina's mark in the empty conversation. */
+  /* A slow orbit around the brand mark. */
   .lm-orbit {
     animation: lm-orbit 48s linear infinite;
     border: 1.5px dashed color-mix(in srgb, var(--cond) 45%, transparent);
@@ -1550,12 +1559,17 @@ html.lenis body {
  * Soft field for dashboard inputs and textareas. Declared as a utility so it
  * wins over the base Input's shape; padding stays with the element.
  */
+/* The deep surface: flat deep teal, used only by the closing call to action and a few small panels. */
+@utility bg-deep {
+  background-color: var(--color-teal-900);
+}
+
 @layer utilities {
   .field-soft {
     background: var(--color-surface);
     border: 1px solid var(--color-line-strong);
     border-radius: var(--radius-control);
-    box-shadow: inset 0 1px 2px rgb(44 62 59 / 0.05);
+    box-shadow: inset 0 1px 2px rgb(17 76 97 / 0.05);
     min-height: 2.75rem;
     transition: border-color 200ms ease, box-shadow 200ms ease;
   }
@@ -1566,7 +1580,7 @@ html.lenis body {
 
   .field-soft:focus-visible {
     border-color: var(--color-teal-500);
-    box-shadow: inset 0 1px 2px rgb(44 62 59 / 0.05), var(--shadow-focus);
+    box-shadow: inset 0 1px 2px rgb(17 76 97 / 0.05), var(--shadow-focus);
     outline: none;
   }
 }
@@ -1577,7 +1591,7 @@ html.lenis body {
 
 /* ===== SCROLLBARS ===== */
 * {
-  scrollbar-color: rgb(81 133 145 / 0.35) transparent;
+  scrollbar-color: rgb(91 144 145 / 0.35) transparent;
   scrollbar-width: thin;
 }
 
@@ -1592,13 +1606,13 @@ html.lenis body {
 
 ::-webkit-scrollbar-thumb {
   background-clip: padding-box;
-  background-color: rgb(81 133 145 / 0.35);
+  background-color: rgb(91 144 145 / 0.35);
   border: 2px solid transparent;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(81 133 145 / 0.6);
+  background-color: rgb(91 144 145 / 0.6);
 }
 
 .diagnostic-scroll-area::-webkit-scrollbar-track {
@@ -1703,7 +1717,7 @@ html.lenis body {
 }
 
 .vm-loader-halo {
-  background: radial-gradient(circle, rgb(227 176 28 / 0.28), rgb(81 133 145 / 0.2) 50%, transparent 72%);
+  background: radial-gradient(circle, rgb(201 175 111 / 0.28), rgb(91 144 145 / 0.2) 50%, transparent 72%);
   animation: vm-loader-halo 1.8s ease-out infinite;
   pointer-events: none;
 }
@@ -1733,7 +1747,7 @@ html.lenis body {
 
 .vm-reflet-teal {
   animation: vm-reflet-a 24s ease-in-out infinite;
-  background: radial-gradient(closest-side, rgb(81 133 145 / 0.42), transparent 72%);
+  background: radial-gradient(closest-side, rgb(91 144 145 / 0.42), transparent 72%);
   height: 46rem;
   inset-block-start: -14rem;
   inset-inline-start: -12rem;
@@ -1742,7 +1756,7 @@ html.lenis body {
 
 .vm-reflet-gold {
   animation: vm-reflet-b 30s ease-in-out infinite;
-  background: radial-gradient(closest-side, rgb(227 176 28 / 0.3), transparent 72%);
+  background: radial-gradient(closest-side, rgb(201 175 111 / 0.3), transparent 72%);
   height: 38rem;
   inset-block-end: -12rem;
   inset-inline-end: -8rem;
@@ -1751,7 +1765,7 @@ html.lenis body {
 
 .vm-reflet-sage {
   animation: vm-reflet-c 27s ease-in-out infinite;
-  background: radial-gradient(closest-side, rgb(125 168 158 / 0.4), transparent 72%);
+  background: radial-gradient(closest-side, rgb(120 174 170 / 0.4), transparent 72%);
   height: 34rem;
   inset-block-start: 30%;
   inset-inline-end: 12%;
@@ -1760,7 +1774,7 @@ html.lenis body {
 
 .vm-sheen {
   animation: vm-sheen 70s linear infinite;
-  background: conic-gradient(from 0deg at 50% 50%, rgb(81 133 145 / 0.14), rgb(227 176 28 / 0.1), rgb(125 168 158 / 0.16), rgb(81 133 145 / 0.14));
+  background: conic-gradient(from 0deg at 50% 50%, rgb(91 144 145 / 0.14), rgb(201 175 111 / 0.1), rgb(120 174 170 / 0.16), rgb(91 144 145 / 0.14));
   filter: blur(64px);
   height: 120vmax;
   inset-block-start: 50%;
@@ -1801,10 +1815,9 @@ html.lenis body {
 
 /*
  * ===== ORGANIC SURFACE ("clean" scope) =====
- * Organic premium wellness / futuristic calm for every patient screen EXCEPT Lumina and Spark (see
- * `isCleanSurface` in components/patient/shell/nav.ts). It is opt-in: everything below is prefixed
+ * Organic premium wellness / futuristic calm for every patient screen. It is opt-in: everything below is prefixed
  * with the scope [data-surface="clean"], set on the dashboard frame and on <html> (for popovers and
- * dialogs), so Lumina and Spark never receive a single one of these rules.
+ * dialogs).
  *
  *   page          ivory #F8FBFA / #F2F7F6 with faint aqua, turquoise and sand-gold light, large
  *                 discreet organic shapes (blobs, halos, orbital lines) built from gradients only
@@ -1885,16 +1898,16 @@ html.lenis body {
 }
 
 /*
- * The page: ivory with a breath of colour. Two fixed, non-interactive layers, built from gradients
- * only (no images, no blur filter, so they stay cheap):
- *   ::before  light — large soft blobs (aqua, turquoise, sand-gold, botanical green, the
- *             condition's accent) and a few luminous dots, breathing very slowly
- *   ::after   line  — thin orbital rings and faint halos, still
+ * The page: morning light. Two fixed, non-interactive layers, built from gradients only (no images, no lines, no blur
+ * filter, so they stay cheap) in the colours the dashboard already uses:
+ *   ::before  light  — a warm sand-gold sun low in one corner, an aqua sky in the other, a soft meadow of sage rising from
+ *             the bottom and the condition's accent, with a few luminous dots, breathing very slowly
+ *   ::after   clouds — a few soft white masses that drift across, very slowly
  * Text always sits on a surface that is at least 60% white or on the near-white page itself.
  */
 .lm-canvas[data-surface="clean"] {
   background-color: #f8fbfa;
-  background-image: linear-gradient(180deg, #f8fbfa 0%, #f5f9f8 55%, #f2f7f6 100%);
+  background-image: linear-gradient(180deg, #f4faf9 0%, #f8fbfa 45%, #f3f8f6 100%);
 }
 
 :root .lm-canvas[data-surface="clean"]::before {
@@ -1905,11 +1918,11 @@ html.lenis body {
     radial-gradient(0.35rem 0.35rem at 88% 58%, rgb(255 255 255 / 0.95), transparent 100%),
     radial-gradient(0.3rem 0.3rem at 12% 74%, rgb(216 185 99 / 0.55), transparent 100%),
     radial-gradient(0.45rem 0.45rem at 56% 88%, rgb(111 169 165 / 0.6), transparent 100%),
-    radial-gradient(50rem 40rem at 6% 8%, rgb(111 169 165 / 0.17), transparent 70%),
-    radial-gradient(44rem 36rem at 96% 20%, rgb(52 123 126 / 0.09), transparent 72%),
-    radial-gradient(40rem 34rem at 86% 96%, color-mix(in srgb, var(--acc) 22%, transparent), transparent 70%),
-    radial-gradient(36rem 30rem at 14% 92%, rgb(238 241 231 / 0.95), transparent 70%),
-    radial-gradient(30rem 26rem at 52% 46%, rgb(232 212 154 / 0.1), transparent 72%);
+    radial-gradient(60rem 42rem at 102% -8%, rgb(232 212 154 / 0.5), transparent 68%),
+    radial-gradient(54rem 40rem at -6% 2%, rgb(111 169 165 / 0.26), transparent 70%),
+    radial-gradient(72rem 26rem at 50% 114%, rgb(207 231 227 / 0.95), transparent 72%),
+    radial-gradient(40rem 26rem at 94% 100%, color-mix(in srgb, var(--acc) 24%, transparent), transparent 70%),
+    radial-gradient(34rem 26rem at 50% 48%, rgb(255 255 255 / 0.55), transparent 72%);
   content: "";
   filter: none;
   inset: -8%;
@@ -1921,22 +1934,25 @@ html.lenis body {
 }
 
 :root .lm-canvas[data-surface="clean"]::after {
+  animation: lm-clouds 120s ease-in-out infinite alternate;
   background:
-    /* orbital lines, top end corner */
-    repeating-radial-gradient(circle at 104% -8%, transparent 0 17rem, rgb(52 123 126 / 0.11) 17rem calc(17rem + 1px), transparent calc(17rem + 1px) 29rem),
-    /* orbital lines, bottom start corner */
-    repeating-radial-gradient(circle at -6% 104%, transparent 0 13rem, rgb(111 169 165 / 0.14) 13rem calc(13rem + 1px), transparent calc(13rem + 1px) 25rem),
-    /* a faint halo with a soft inner glow, mid-page */
-    radial-gradient(circle at 78% 62%, transparent 0 15rem, rgb(216 185 99 / 0.2) 15rem calc(15rem + 1px), rgb(232 212 154 / 0.06) calc(15rem + 1px) 21rem, transparent 21rem),
-    radial-gradient(circle at 18% 36%, transparent 0 10rem, rgb(111 169 165 / 0.16) 10rem calc(10rem + 1px), transparent calc(10rem + 1px));
+    radial-gradient(32rem 9rem at 22% 12%, rgb(255 255 255 / 0.75), transparent 72%),
+    radial-gradient(26rem 8rem at 72% 26%, rgb(255 255 255 / 0.6), transparent 72%),
+    radial-gradient(30rem 8rem at 40% 78%, rgb(255 255 255 / 0.5), transparent 72%);
   content: "";
-  inset: 0;
-  -webkit-mask-image: radial-gradient(120% 90% at 50% 40%, #000 20%, transparent 100%);
-  mask-image: radial-gradient(120% 90% at 50% 40%, #000 20%, transparent 100%);
+  inset: -4% -10%;
+  mask-image: none;
+  -webkit-mask-image: none;
   opacity: 1;
   pointer-events: none;
   position: fixed;
+  will-change: transform;
   z-index: -1;
+}
+
+@keyframes lm-clouds {
+  from { transform: translate3d(-4%, 0, 0); }
+  to { transform: translate3d(5%, 1.5%, 0); }
 }
 
 @keyframes lm-breathe-slow {
@@ -1946,12 +1962,15 @@ html.lenis body {
 
 /* Schizophrenia / psychosis, and reduced motion: the background does not move at all. */
 html[data-track="SCHIZOPHRENIA"] .lm-canvas[data-surface="clean"]::before,
-html[data-track="PSYCHOSIS"] .lm-canvas[data-surface="clean"]::before {
+html[data-track="PSYCHOSIS"] .lm-canvas[data-surface="clean"]::before,
+html[data-track="SCHIZOPHRENIA"] .lm-canvas[data-surface="clean"]::after,
+html[data-track="PSYCHOSIS"] .lm-canvas[data-surface="clean"]::after {
   animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root .lm-canvas[data-surface="clean"]::before {
+  :root .lm-canvas[data-surface="clean"]::before,
+  :root .lm-canvas[data-surface="clean"]::after {
     animation: none;
   }
 }
@@ -2174,7 +2193,7 @@ html[data-track="PSYCHOSIS"] .lm-canvas[data-surface="clean"]::before {
   box-shadow: 0 0 0 1px rgb(111 169 165 / 0.35), 0 14px 28px -16px rgb(36 107 112 / 0.4);
 }
 
-/* Lumina's presence: aqua into deep teal, a quiet glow, never neon. */
+/* The brand presence: aqua into deep teal, a quiet glow, never neon. */
 :is(html, .lm-canvas)[data-surface="clean"] .lm-orb {
   background:
     radial-gradient(circle at 32% 28%, #fff 0, rgb(255 255 255 / 0.8) 8%, transparent 32%),
@@ -2235,7 +2254,7 @@ html[data-track="PSYCHOSIS"] .lm-canvas[data-surface="clean"]::before {
   }
 }
 
-/* Chat bubbles shown on clean screens (the Lumina note on Home): soft glass / deep teal. */
+/* Chat bubbles shown on clean screens (the companion note in the check-in): soft glass / deep teal. */
 :is(html, .lm-canvas)[data-surface="clean"] .lm-bubble-lumina {
   background: rgb(245 250 249 / 0.8);
   border: 1px solid rgb(70 120 120 / 0.1);
@@ -2256,9 +2275,9 @@ html[data-track="PSYCHOSIS"] .lm-canvas[data-surface="clean"]::before {
 
 /*
  * ===== SHELL: sidebar, top banner, tab bar =====
- * Clean white on EVERY patient page (Lumina and Spark included), separated from the content by a
+ * Clean white on EVERY patient page, separated from the content by a
  * single hairline. These rules target the shell's own classes (.lm-rail, .lm-topbar, .lm-tabbar)
- * and set no variable, so the content area of any page — the Lumina canvas included — is untouched.
+ * and set no variable, so the content area of any page is untouched.
  * The current item is a soft white pill with a very light, accent-tinted shadow and a thin 2px teal
  * indicator: never a dark or tinted fill. Colours are explicit, so the condition never turns them.
  */
@@ -2380,7 +2399,7 @@ html[data-track="PSYCHOSIS"] .lm-canvas[data-surface="clean"]::before {
   box-shadow: none;
 }
 
-/* Avatars and the raised Lumina tab: a pale aqua disc ringed in soft aqua, with a teal glyph. */
+/* Avatars and the raised check-in tab: a pale aqua disc ringed in soft aqua, with a teal glyph. */
 :is(.lm-rail, .lm-topbar, .lm-tabbar) .bg-gradient-to-br {
   background-color: #e4f1ef;
   background-image: none;
@@ -2423,4 +2442,85 @@ html[data-track="PSYCHOSIS"] .lm-rise {
   html[data-track="PSYCHOSIS"] .lm-starter:hover {
     transform: none;
   }
+}
+
+/* ===== PUBLIC CANVASES — auth (GridBackdrop), Mira (ColorFieldBackdrop) ===== */
+.grid-hairline {
+  background-image:
+    linear-gradient(to right, rgb(17 76 97 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(17 76 97 / 0.09) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  background-position: center top;
+}
+
+.color-field-a {
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgb(17 76 97 / 0.2),
+    rgb(91 144 145 / 0.28),
+    rgb(134 186 188 / 0.26),
+    rgb(201 175 111 / 0.16),
+    rgb(91 144 145 / 0.22),
+    rgb(17 76 97 / 0.2)
+  );
+}
+
+.color-field-b {
+  background: conic-gradient(
+    from 120deg at 50% 50%,
+    rgb(201 175 111 / 0.12),
+    rgb(43 112 128 / 0.2),
+    rgb(134 186 188 / 0.2),
+    rgb(17 76 97 / 0.14),
+    rgb(201 175 111 / 0.12)
+  );
+  mask-image: radial-gradient(closest-side, transparent 8%, black 70%);
+}
+
+@keyframes color-field-turn {
+  to { transform: rotate(360deg); }
+}
+
+
+/* The week scrubber of the daily ritual (components/home/DailyRitual.tsx): a teal fill up to the thumb. */
+.range-teal {
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, var(--color-teal-600) var(--fill, 0%), var(--color-teal-100) var(--fill, 0%));
+  border-radius: 9999px;
+  cursor: pointer;
+  height: 0.375rem;
+}
+
+.range-teal::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #fff;
+  border: 2px solid var(--color-teal-600);
+  border-radius: 9999px;
+  box-shadow: 0 0 0 4px rgb(91 144 145 / 0.18);
+  height: 1.5rem;
+  transition: box-shadow 200ms ease;
+  width: 1.5rem;
+}
+
+.range-teal::-moz-range-thumb {
+  background: #fff;
+  border: 2px solid var(--color-teal-600);
+  border-radius: 9999px;
+  box-shadow: 0 0 0 4px rgb(91 144 145 / 0.18);
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.range-teal:focus-visible {
+  outline: none;
+}
+
+.range-teal:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px rgb(91 144 145 / 0.35);
+}
+
+.range-teal:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 6px rgb(91 144 145 / 0.35);
 }

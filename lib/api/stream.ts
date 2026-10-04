@@ -4,7 +4,7 @@ import { apiUrl } from "./config";
 import { getAccessToken } from "./tokens";
 
 /**
- * Streamed agent turns (Mira, Lumina, Spark): `POST …/stream` answers with server-sent events
+ * Streamed agent turns (Mira): `POST …/stream` answers with server-sent events
  *   `delta` { text }*   then   `final` <the synchronous endpoint's body>   or   `error` { statusCode, message, code?, emergencyResources? }
  *
  * The browser talks to the API directly: SSE must never go through a Next.js rewrite or route
@@ -59,7 +59,7 @@ class RetryWithFreshToken extends Error {}
 type Deliver = { text?: unknown };
 
 export type StreamTurnOptions = {
-  /** Path under /api/v1, e.g. "/me/lumina/chat/stream". */
+  /** Path under /api/v1, e.g. "/mira/chat/stream". */
   path: string;
   body: unknown;
   headers?: Record<string, string>;

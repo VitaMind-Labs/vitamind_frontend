@@ -3,16 +3,14 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, Zap } from "lucide-react";
+import { ArrowRight, BookOpen, Check, FileText, HeartPulse, type LucideIcon } from "lucide-react";
 import { CountUp } from "@/components/home/CountUp";
 import { DISPLAY_S, SERIF } from "@/components/home/typography";
-import { LuminaLogo } from "@/components/patient/ui/LuminaLogo";
 import { ErrorState, GlassCard, SectionTitle, Skeleton } from "@/components/patient/ui/primitives";
 import { effectiveStatus } from "@/components/subscription/CurrentSubscription";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/patient/useCare";
-import { usePatient } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { formatMoney, planFeatureLines, tierCopyKey } from "@/lib/config/plans";
 import { LANGS } from "@/lib/i18n/config";
@@ -21,6 +19,11 @@ import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const DAY_MS = 86_400_000;
+const INCLUDED = [
+  { key: "checkin", icon: HeartPulse },
+  { key: "journal", icon: BookOpen },
+  { key: "reports", icon: FileText },
+] as const;
 const RING = 104;
 const STROKE = 8;
 
@@ -56,10 +59,10 @@ function PlanRing({ days, fraction, label }: { days: number; fraction: number; l
   );
 }
 
-function Companion({ icon, name, body, included }: { icon: React.ReactNode; name: string; body: string; included: string }) {
+function Included({ icon: Icon, name, body, included }: { icon: LucideIcon; name: string; body: string; included: string }) {
   return (
     <li className="flex items-start gap-3 lm-inset px-3.5 py-3">
-      <span className="mt-0.5 shrink-0">{icon}</span>
+      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full border text-ink" style={{ borderColor: "var(--cond)" }}><Icon className="size-4" aria-hidden /></span>
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-sm font-semibold text-ink">{name}</span>
@@ -73,14 +76,13 @@ function Companion({ icon, name, body, included }: { icon: React.ReactNode; name
 
 /**
  * What the patient's plan gives them, in one place: the time that is left, what it costs per day
- * of support, and the companions it keeps ready (Lumina for everyone, Spark on the ADHD track).
+ * of support, and what it keeps ready for them (daily check-ins, the Smart Journal and the reports).
  * The numbers come from the plan the patient actually holds, never from marketing copy.
  */
 export function CareValueCard() {
   const copy = usePatientCopy();
   const care = copy.home.care;
   const { dictionary, language } = useLanguage();
-  const { profile } = usePatient();
   const subscription = useSubscription();
   const locale = LANGS.find((item) => item.code === language)?.bcp47 ?? "en-US";
   const sub = subscription.data ?? null;
@@ -154,17 +156,9 @@ export function CareValueCard() {
       </div>
 
       <ul className="mt-5 space-y-2.5">
-        {profile.hasLuminaAccess && (
-          <Companion icon={<LuminaLogo size={36} />} name={care.lumina.name} body={care.lumina.body} included={care.included} />
-        )}
-        {profile.hasSpark && (
-          <Companion
-            icon={<span className="flex size-9 items-center justify-center rounded-full border text-ink" style={{ borderColor: "var(--cond)" }}><Zap className="size-4" aria-hidden /></span>}
-            name={care.spark.name}
-            body={care.spark.body}
-            included={care.included}
-          />
-        )}
+        {INCLUDED.map(({ key, icon }) => (
+          <Included key={key} icon={icon} name={care.includes[key].name} body={care.includes[key].body} included={care.included} />
+        ))}
       </ul>
 
       {features.length > 0 && (

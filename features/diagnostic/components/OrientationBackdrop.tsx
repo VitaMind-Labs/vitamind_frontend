@@ -1,8 +1,8 @@
 "use client";
 
-import { CalmBackdrop } from "@/components/shared/CalmBackdrop";
+import { ColorFieldBackdrop } from "@/components/shared/ColorFieldBackdrop";
 
-/** Mira's canvas (orientation + result) — the shared calm, animated backdrop. */
+/** Mira's canvas (orientation + result) — a slow field of colour rather than drawn shapes. */
 export function OrientationBackdrop() {
-  return <CalmBackdrop />;
+  return <ColorFieldBackdrop />;
 }

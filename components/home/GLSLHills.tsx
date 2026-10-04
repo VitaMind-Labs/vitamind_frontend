@@ -152,8 +152,8 @@ class Plane {
 
           void main(void) {
             float opacity = (96.0 - length(vPosition)) / 256.0 * 0.85;
-            vec3 teal = vec3(0.318, 0.522, 0.569); // MindWeave teal #518591
-            vec3 gold = vec3(0.890, 0.690, 0.110); // brand gold #e3b01c
+            vec3 teal = vec3(0.357, 0.565, 0.569); // MindWeave teal #5b9091
+            vec3 gold = vec3(0.788, 0.686, 0.435); // brand gold #c9af6f
             // Crests catch a little warm light; valleys stay teal.
             float crest = smoothstep(12.0, 40.0, vPosition.y);
             gl_FragColor = vec4(mix(teal, gold, crest * 0.55), opacity * (1.0 + crest * 0.6));

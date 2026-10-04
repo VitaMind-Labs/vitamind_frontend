@@ -30,6 +30,10 @@ export function AgentsMenu({ triggerClassName, indicator, onOpenChange }: Agents
   const { dictionary, direction } = useLanguage();
   const copy = dictionary.header;
   const reduce = useReducedMotion();
+  const rise = {
+    hidden: reduce ? { opacity: 0 } : { opacity: 0, y: 8 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_OUT } },
+  };
   const panelId = useId();
   const [open, setOpenState] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -112,10 +116,10 @@ export function AgentsMenu({ triggerClassName, indicator, onOpenChange }: Agents
             animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, transition: SPRING_SOFT }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.16, ease: EASE_OUT } }}
             style={{ transformOrigin: "top center" }}
-            className="absolute start-1/2 top-full z-50 w-[min(46rem,calc(100vw-2rem))] -translate-x-1/2 pt-3 rtl:translate-x-1/2"
+            className="absolute start-1/2 top-full z-50 w-[min(42rem,calc(100vw-2rem))] -translate-x-1/2 pt-3 rtl:translate-x-1/2"
           >
             {/* pt-3 above bridges the gap under the trigger so hover intent survives the trip to the panel. */}
-            <div className="relative overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/90 shadow-float ring-1 ring-line/60 backdrop-blur-2xl">
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 shadow-float ring-1 ring-line/60 backdrop-blur-2xl">
               <div aria-hidden className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
 
               <div className="flex items-end justify-between gap-6 px-6 pb-2 pt-5">
@@ -130,17 +134,11 @@ export function AgentsMenu({ triggerClassName, indicator, onOpenChange }: Agents
               <motion.ul
                 initial="hidden"
                 animate="show"
-                variants={{ hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.06, delayChildren: reduce ? 0 : 0.05 } } }}
-                className="grid grid-cols-2 gap-1.5 p-3"
+                variants={{ hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.08, delayChildren: reduce ? 0 : 0.05 } } }}
+                className="grid grid-cols-1 gap-3 p-3 pt-2 sm:grid-cols-2"
               >
                 {AGENTS.map((agent) => (
-                  <motion.li
-                    key={agent.id}
-                    variants={{
-                      hidden: reduce ? { opacity: 0 } : { opacity: 0, y: 8 },
-                      show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_OUT } },
-                    }}
-                  >
+                  <motion.li key={agent.id} variants={rise}>
                     <AgentCard agent={agent} onNavigate={() => setOpen(false)} />
                   </motion.li>
                 ))}

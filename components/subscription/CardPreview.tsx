@@ -44,8 +44,6 @@ export function CardPreview({ number, name, expiry, planName, holderLabel, expir
         className="relative isolate aspect-[1.586] overflow-hidden rounded-[1.5rem] border border-gold-300/30 bg-[linear-gradient(145deg,var(--color-teal-800),var(--color-teal-900)_55%,var(--color-ink))] p-5 text-white shadow-float sm:p-6"
         dir="ltr"
       >
-        <span className="pointer-events-none absolute -top-16 -right-10 -z-10 h-48 w-48 rounded-full bg-teal-400/40 blur-3xl" />
-        <span className="pointer-events-none absolute -bottom-20 -left-10 -z-10 h-44 w-44 rounded-full bg-gold/30 blur-3xl" />
         <motion.span
           style={{ left: shineX }}
           className="pointer-events-none absolute inset-y-0 -z-10 w-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"

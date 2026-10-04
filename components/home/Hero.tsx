@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { Magnetic, WordReveal } from "./AnimationUtilities";
 import { Grain } from "./Atmosphere";
-import { CareOrbit } from "./CareOrbit";
+import { CareJourney } from "./CareJourney";
 import { GLSLHills } from "./GLSLHills";
 import { Marquee } from "./Interactions";
 import { ACCENT_LIGHT, BODY, DISPLAY_XL } from "./typography";
@@ -38,7 +38,7 @@ function Motes() {
             {MOTES.map(([left, size, seconds, delay, gold]) => (
                 <motion.span
                     key={left}
-                    className={cn("absolute bottom-0 rounded-full", gold ? "bg-gold shadow-[0_0_14px_3px_rgb(227_176_28/0.45)]" : "bg-teal-300 shadow-[0_0_12px_3px_rgb(126_165_171/0.45)]")}
+                    className={cn("absolute bottom-0 rounded-full", gold ? "bg-gold shadow-[0_0_14px_3px_rgb(201_175_111/0.45)]" : "bg-teal-300 shadow-[0_0_12px_3px_rgb(134_186_188/0.45)]")}
                     style={{ left: `${left}%`, width: size, height: size }}
                     initial={{ y: 0, opacity: 0 }}
                     animate={{ y: [0, -420], opacity: [0, 0.9, 0] }}
@@ -89,7 +89,7 @@ export const Hero = () => {
     const my = useMotionValue(36);
     const sx = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.6 });
     const sy = useSpring(my, { stiffness: 60, damping: 20, mass: 0.6 });
-    const spotlight = useMotionTemplate`radial-gradient(38rem circle at ${sx}% ${sy}%, rgb(255 255 255 / 0.95), rgb(227 176 28 / 0.07) 45%, transparent 70%)`;
+    const spotlight = useMotionTemplate`radial-gradient(38rem circle at ${sx}% ${sy}%, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.2) 45%, transparent 70%)`;
 
     const onPointerMove = (event: React.PointerEvent<HTMLElement>) => {
         if (reduce || event.pointerType !== "mouse" || !heroRef.current) return;
@@ -103,7 +103,7 @@ export const Hero = () => {
             ref={heroRef}
             id="home"
             onPointerMove={onPointerMove}
-            className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,var(--color-teal-50)_62%,#ffffff_100%)]"
+            className="relative isolate overflow-hidden bg-[radial-gradient(60%_46rem_at_0%_12%,rgb(191_221_225/0.5),transparent_70%),radial-gradient(55%_42rem_at_100%_16%,rgb(230_213_170/0.42),transparent_70%),linear-gradient(180deg,#ffffff_0%,var(--color-canvas)_100%)]"
         >
             <Grain tone="light" />
             <motion.div aria-hidden style={{ background: spotlight }} className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[100svh] min-h-[44rem]" />
@@ -205,9 +205,9 @@ export const Hero = () => {
                     transition={{ duration: 1.3, ease: EASE_OUT }}
                     className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
                 >
-                    <CareOrbit />
+                    <CareJourney />
 
-                    {/* What the orb stands for — a quiet line beneath it, never a card over it */}
+                    {/* What the journey stands for — a quiet line beneath it, never a card over it */}
                     <ul className="mx-auto mt-9 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-[0.9375rem] text-ink-soft">
                         <li className="flex items-center gap-2.5">
                             <span className="flex size-7 items-center justify-center rounded-full bg-sage-100 text-sage-700">

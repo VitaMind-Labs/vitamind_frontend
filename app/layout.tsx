@@ -1,7 +1,7 @@
 import { AppProviders } from "@/components/providers/AppProviders";
 import { BRAND } from "@/lib/config/brand";
 import { LANGS, LANGUAGE_STORAGE_KEY, normalizeLanguage } from "@/lib/i18n/config";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { IBM_Plex_Sans, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     apple: "/assets/logo.svg",
   },
 };
+
+/** On Android the on-screen keyboard resizes the page, so a chat composer stays above it instead of hiding under it. */
+export const viewport: Viewport = { width: "device-width", initialScale: 1, interactiveWidget: "resizes-content" };
 
 export default async function RootLayout({
   children,

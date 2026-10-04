@@ -2,8 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Bell, Brain, CreditCard, LogOut, ShieldCheck, UserRound, Zap } from "lucide-react";
-import { MemoryList } from "@/components/patient/chat/MemoryDialog";
+import { Bell, CreditCard, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import { EmptyState, ErrorState, GlassCard, Skeleton } from "@/components/patient/ui/primitives";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
@@ -250,24 +249,6 @@ export function PrivacySection() {
         <ul className="space-y-3">{consents.data.map((consent) => <ConsentCard key={consent.assignmentId} consent={consent} />)}</ul>
       )}
     </Section>
-  );
-}
-
-export function MemorySection() {
-  const copy = usePatientCopy();
-  const { profile } = usePatient();
-  return (
-    <>
-      <Section icon={<Brain className="size-[1.125rem]" aria-hidden />} title={copy.settings.memory.title} body={copy.settings.memory.body}>
-        <div className="max-h-96 overflow-y-auto pe-1"><MemoryList agent="lumina" compact /></div>
-      </Section>
-      {/* Spark's own memories, only where Spark is offered (ADHD track; the backend enforces it). */}
-      {profile.hasSpark && (
-        <Section icon={<Zap className="size-[1.125rem]" aria-hidden />} title={copy.settings.sparkMemory.title} body={copy.settings.sparkMemory.body}>
-          <div className="max-h-96 overflow-y-auto pe-1"><MemoryList agent="spark" compact /></div>
-        </Section>
-      )}
-    </>
   );
 }
 

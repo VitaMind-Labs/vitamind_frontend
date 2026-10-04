@@ -48,6 +48,12 @@ export function ScaleSlider({
         value={value}
         aria-label={ariaLabel}
         onChange={(event) => onChange(Number(event.target.value))}
+        // Choosing the value the thumb already rests on fires no change event, so confirm it explicitly:
+        // otherwise a patient whose answer is the default could never continue.
+        onPointerUp={(event) => onChange(Number(event.currentTarget.value))}
+        onKeyUp={(event) => {
+          if (["Enter", " "].includes(event.key)) onChange(Number(event.currentTarget.value));
+        }}
         className="lm-range"
         style={{ "--pct": `${pct}%`, "--range-color": color } as CSSProperties}
       />

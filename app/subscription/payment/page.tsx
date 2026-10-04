@@ -134,7 +134,7 @@ function PaymentForm() {
         >
           <div className="relative isolate overflow-hidden rounded-[2rem] border border-line bg-white px-6 py-10 text-center shadow-float sm:px-12 sm:py-14">
             <span aria-hidden className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
-            <span aria-hidden className="pointer-events-none absolute -top-28 start-1/2 -z-10 size-72 -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(227_176_28/0.22),transparent)] rtl:translate-x-1/2" />
+            <span aria-hidden className="pointer-events-none absolute -top-28 start-1/2 -z-10 size-72 -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(201_175_111/0.22),transparent)] rtl:translate-x-1/2" />
 
             {/* The check draws itself inside rings that open outward, once */}
             <div className="relative mx-auto flex size-24 items-center justify-center">
@@ -271,11 +271,9 @@ function PaymentForm() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT }}
-          className="relative isolate overflow-hidden rounded-[2rem] bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_95%)] p-7 text-white shadow-float sm:p-9 lg:sticky lg:top-28 lg:order-last"
+          className="relative isolate overflow-hidden rounded-[2rem] bg-deep p-7 text-white shadow-float sm:p-9 lg:sticky lg:top-28 lg:order-last"
         >
           <Grain />
-          <span aria-hidden className="pointer-events-none absolute -end-20 -top-24 -z-10 size-72 rounded-full bg-gold/25 blur-3xl" />
-          <span aria-hidden className="pointer-events-none absolute -bottom-28 -start-20 -z-10 size-72 rounded-full bg-teal-500/25 blur-3xl" />
 
           <div className="flex items-center justify-between gap-3">
             <h2 className={cn(LABEL, "text-teal-200")}>{copy.summaryTitle}</h2>
@@ -386,7 +384,7 @@ function PaymentForm() {
                 variant="default"
                 size="lg"
                 aria-busy={isProcessing}
-                className="group relative min-h-14 w-full overflow-hidden bg-ink text-white shadow-[0_18px_36px_-16px_rgb(34_60_65/0.75)] hover:bg-teal-900"
+                className="group relative min-h-14 w-full overflow-hidden bg-ink text-white shadow-[0_18px_36px_-16px_rgb(17_76_97/0.75)] hover:bg-teal-900"
               >
                 {/* Warmth rises from the bottom edge on hover */}
                 <span aria-hidden className="absolute inset-0 origin-bottom scale-y-0 bg-gold/25 transition-transform duration-500 ease-out-soft group-hover:scale-y-100" />

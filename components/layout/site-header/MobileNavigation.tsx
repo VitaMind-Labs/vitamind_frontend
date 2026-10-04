@@ -112,13 +112,11 @@ export function MobileNavigation({ activeId, open, onOpenChange, className }: Mo
                 exit={{ ...hidden, transition: { duration: 0.45, ease: EASE_IN_OUT } }}
                 className={cn(
                   homeSerif.variable,
-                  "fixed inset-0 z-[60] isolate flex flex-col overflow-y-auto overscroll-contain bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_92%)] text-white lg:hidden",
+                  "fixed inset-0 z-[60] isolate flex flex-col overflow-y-auto overscroll-contain bg-deep text-white lg:hidden",
                 )}
               >
                 <Dialog.Title className="sr-only">{dictionary.nav.mainNav}</Dialog.Title>
                 <Grain />
-                <div aria-hidden className="pointer-events-none absolute -end-24 -top-24 -z-10 size-80 rounded-full bg-gold/20 blur-3xl" />
-                <div aria-hidden className="pointer-events-none absolute -bottom-32 -start-24 -z-10 size-80 rounded-full bg-teal-500/25 blur-3xl" />
 
                 {/* Mirrors the header row so the menu opens "in place". */}
                 <div className="pt-[env(safe-area-inset-top)]">

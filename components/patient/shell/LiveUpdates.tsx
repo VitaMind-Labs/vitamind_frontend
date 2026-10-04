@@ -45,7 +45,6 @@ export function LiveUpdates() {
       recordJob(job);
       if (job.kind === "journal.analysis" && (job.status === "completed" || job.status === "failed")) {
         invalidatePatientData("journal");
-        if (job.status === "completed") invalidatePatientData("lumina:state");
       }
     }
   }, []);

@@ -11,11 +11,12 @@ import { ROUTES } from "@/lib/config/routes";
 import { hasSeenWelcome } from "@/lib/patient/onboarding";
 import { readCachedProfile, writeCachedProfile } from "@/lib/patient/profile-cache";
 import { LiveUpdates } from "@/components/patient/shell/LiveUpdates";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { clearPatientCache, seedPatientData, usePatientResource } from "@/hooks/usePatientResource";
 
 type PatientContextValue = {
   profile: Profile;
-  /** The name to greet with: the preferred name from onboarding, else the nickname. */
+  /** The name to greet with: the patient's nickname. */
   name: string;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -40,8 +41,8 @@ const noSubscribe = () => () => {};
 const readToken = () => Boolean(getAccessToken());
 
 /**
- * Gate for everything behind sign-in: no token → sign-in; a patient who has not had
- * their first Lumina conversation → the welcome. The real shell shows at once (skeletons where
+ * Gate for everything behind sign-in: no token → sign-in; a patient who has not yet seen
+ * the welcome → the welcome. The real shell shows at once (skeletons where
  * the patient's own data goes) and children render as soon as the profile is known - instantly
  * from the cached copy, then refreshed in the background - so no screen ever flashes another
  * patient's data or an anonymous state.
@@ -63,6 +64,23 @@ export function PatientProvider({
   const [signingOut, setSigningOut] = useState(false);
   const profileResource = usePatientResource<Profile>(hasToken ? "profile" : null, () => profileApi.get(), { staleMs: 60_000 });
   const { data: profile, error, refresh } = profileResource;
+  const { language, setLanguage } = useLanguage();
+
+  // The account's language wins once per sign-in: a shared device may still hold another patient's
+  // (or an earlier visit's) choice. After that the patient's own switch in the rail is respected.
+  const accountLanguage = profile?.language === "AR" ? "ar" : profile?.language === "EN" ? "en" : null;
+  const accountId = profile?.id;
+  useEffect(() => {
+    if (!accountLanguage || !accountId) return;
+    const key = `vitamind_lang_synced:${accountId}`;
+    try {
+      if (window.sessionStorage.getItem(key)) return;
+      window.sessionStorage.setItem(key, "1");
+    } catch {
+      /* storage blocked: align once per mount instead */
+    }
+    if (accountLanguage !== language) setLanguage(accountLanguage);
+  }, [accountLanguage, accountId, language, setLanguage]);
 
   // Remember the last known profile for the next reload.
   useEffect(() => {
@@ -103,9 +121,8 @@ export function PatientProvider({
     router.replace(`${ROUTES.signIn}?redirect=${encodeURIComponent(pathname || ROUTES.dashboard)}`);
   }, [unauthorized, signingOut, router, pathname]);
 
-  // Only the first arrival is forced through the welcome; afterwards the patient may
-  // leave the first conversation and finish it later from Lumina.
-  const needsWelcome = Boolean(profile && !profile.hasCompletedOnboarding && profile.hasLuminaAccess && !hasSeenWelcome(profile.id));
+  // Only the first arrival is forced through the welcome; it marks onboarding complete when it ends.
+  const needsWelcome = Boolean(profile && !profile.hasCompletedOnboarding && profile.hasAccess && !hasSeenWelcome(profile.id));
   const onWelcomeFlow = pathname === WELCOME_ROUTE;
 
   useEffect(() => {
@@ -123,7 +140,7 @@ export function PatientProvider({
   const refreshProfile = useCallback(() => refresh(), [refresh]);
 
   const value = useMemo<PatientContextValue | null>(
-    () => (profile ? { profile, name: profile.preferredName || profile.nickname, refreshProfile, signOut } : null),
+    () => (profile ? { profile, name: profile.nickname, refreshProfile, signOut } : null),
     [profile, refreshProfile, signOut],
   );
 

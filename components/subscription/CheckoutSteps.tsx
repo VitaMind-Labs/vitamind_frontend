@@ -29,7 +29,7 @@ export function CheckoutSteps({ current, className }: { current: 0 | 1 | 2; clas
                     "flex size-10 shrink-0 items-center justify-center rounded-full border text-[1.0625rem] tabular-nums transition-[background-color,border-color,color,box-shadow] duration-500 ease-out-soft",
                     SERIF,
                     done && "border-teal-800 bg-teal-800 text-white",
-                    active && "border-teal-800 bg-white font-medium text-ink shadow-[0_0_0_5px_rgb(227_176_28/0.22)]",
+                    active && "border-teal-800 bg-white font-medium text-ink shadow-[0_0_0_5px_rgb(201_175_111/0.22)]",
                     !done && !active && "border-line-strong bg-white/80 text-ink-muted",
                   )}
                 >

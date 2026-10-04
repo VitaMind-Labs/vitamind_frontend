@@ -1,84 +1,136 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { EASE_OUT, REVEAL_VIEWPORT } from "@/lib/motion";
+import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import {
-    AnimatePresence,
-    motion,
-    useMotionValueEvent,
-    useScroll,
-    useSpring,
-    useTransform,
-    type MotionValue,
-} from "framer-motion";
-import { Check } from "lucide-react";
-import { useRef, useState } from "react";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { BookOpen, Compass, FileText, TrendingUp, type LucideIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { pad } from "./accents";
-import { Grain } from "./Atmosphere";
-import { HomeSection } from "./HomeSection";
-import { JOURNEY_VISUALS } from "./process/JourneyVisuals";
+import { CURTAIN } from "./HomeSection";
 import { SectionHeader } from "./SectionHeader";
-import { DISPLAY_S, LABEL, SERIF } from "./typography";
+import { LABEL, SERIF } from "./typography";
 
 type Step = readonly [string, string, readonly string[]];
-type StepState = "done" | "active" | "upcoming";
 
-/** Maps the journey's scroll progress onto this step's own 0 → 1 slice. */
-function StepVisual({ index, total, progress, details }: { index: number; total: number; progress: MotionValue<number>; details: readonly string[] }) {
-    const local = useTransform(progress, [index / total, (index + 0.85) / total], [0, 1]);
-    const Visual = JOURNEY_VISUALS[index];
-    return <Visual progress={local} details={details} />;
-}
+const ICONS: LucideIcon[] = [Compass, BookOpen, TrendingUp, FileText];
 
-const MARKER: Record<StepState, string> = {
-    active: "border-teal-700 bg-teal-700 text-white shadow-brand",
-    done: "border-teal-200 bg-teal-50 text-teal-700",
-    upcoming: "border-line-strong bg-white text-ink-soft",
-};
+/**
+ * The journey's colour: mist, then aqua, then teal, then gold — from the first soft step to the last, warm one.
+ * Each panel is a soft gradient of two neighbouring tones from the logo's palette.
+ */
+const PANELS = [
+    { surface: "bg-[linear-gradient(150deg,#eaf4f5,#bfdde1)]", numeral: "text-teal-900", body: "text-ink-soft", label: "text-teal-700", chip: "border-teal-400/40 bg-white/60 text-teal-800", icon: "bg-white/70 text-teal-700", title: "text-ink" },
+    { surface: "bg-[linear-gradient(150deg,#b4d8da,#86babc)]", numeral: "text-teal-900", body: "text-teal-900", label: "text-teal-900", chip: "border-teal-900/20 bg-white/45 text-teal-900", icon: "bg-white/60 text-teal-800", title: "text-teal-900" },
+    { surface: "bg-[linear-gradient(150deg,#2b7080,#114c61)]", numeral: "text-gold-100", body: "text-teal-100", label: "text-gold-100", chip: "border-white/25 bg-white/10 text-white", icon: "bg-white/10 text-gold-100", title: "text-white" },
+    { surface: "bg-[linear-gradient(150deg,#ecdfb6,#c9af6f)]", numeral: "text-teal-900", body: "text-teal-900", label: "text-teal-900", chip: "border-teal-900/20 bg-white/45 text-teal-900", icon: "bg-white/55 text-teal-800", title: "text-teal-900" },
+] as const;
 
-function ProcessStep({ step, index, state, stepLabel }: { step: Step; index: number; state: StepState; stepLabel: string }) {
-    const active = state === "active";
+type PanelProps = { step: Step; index: number; label: string; numeralX?: MotionValue<number>; className?: string };
+
+/** One step as a large soft panel: the numeral oversized in serif on the start side, the words on the other. */
+function Panel({ step, index, label, numeralX, className }: PanelProps) {
+    const tone = PANELS[index % PANELS.length];
+    const Icon = ICONS[index % ICONS.length];
+
     return (
-        <motion.li
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={REVEAL_VIEWPORT}
-            transition={{ duration: 0.6, ease: EASE_OUT }}
-            aria-current={active ? "step" : undefined}
-            className="relative ps-16 pb-14 last:pb-0 sm:ps-20 lg:min-h-[clamp(16rem,38vh,22rem)] lg:pb-20"
-        >
-            <span
+        <motion.li variants={fadeUp(0, 28)} className={cn("relative isolate flex overflow-hidden rounded-[2.5rem]", tone.surface, className)}>
+            <motion.span
                 aria-hidden
+                style={numeralX ? { x: numeralX } : undefined}
                 className={cn(
-                    "absolute start-0 top-0 flex size-12 items-center justify-center rounded-full border text-[0.9375rem] font-medium tabular-nums transition-[background-color,border-color,color,box-shadow] duration-700 ease-out-soft",
-                    MARKER[state],
+                    SERIF,
+                    "pointer-events-none absolute -bottom-[0.1em] start-5 select-none text-[clamp(7rem,22vw,20rem)] font-extralight opacity-20 lg:opacity-100 leading-none tracking-[-0.06em] tabular-nums lg:start-8 rtl:tracking-normal",
+                    tone.numeral,
                 )}
             >
-                {state === "done" ? <Check className="h-4 w-4" strokeWidth={2.25} /> : pad(index + 1)}
-            </span>
+                {pad(index + 1)}
+            </motion.span>
 
-            <p className={cn(LABEL, "pt-1 text-gold-700")}>
-                {stepLabel} {pad(index + 1)}
-            </p>
-            <h3 className={cn(DISPLAY_S, "mt-3 text-[clamp(1.75rem,1.4vw+1.3rem,2.5rem)] transition-colors duration-700", active ? "text-ink" : "text-ink-soft")}>
-                {step[0]}
-            </h3>
-            <p className="mt-4 max-w-lg text-[1.0625rem] leading-8 text-ink-soft">{step[1]}</p>
-            <ul className="mt-6 flex flex-wrap gap-2.5">
-                {step[2].map((detail) => (
-                    <li
-                        key={detail}
-                        className={cn(
-                            "rounded-full border px-3.5 py-1.5 text-[0.8125rem] font-medium transition-colors duration-700",
-                            active ? "border-teal-200 bg-teal-50 text-teal-800" : "border-line bg-white/70 text-ink-soft",
-                        )}
-                    >
-                        {detail}
-                    </li>
-                ))}
-            </ul>
+            <div className="relative ms-auto flex w-full flex-col justify-between gap-8 p-6 sm:p-9 sm:max-w-[28rem] lg:max-w-[30rem] lg:p-12">
+                <div className="flex items-center gap-3">
+                    <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-full", tone.icon)}>
+                        <Icon className="size-5" strokeWidth={1.5} aria-hidden />
+                    </span>
+                    <p className={cn(LABEL, tone.label)}>
+                        {label} {pad(index + 1)}
+                    </p>
+                </div>
+
+                <div>
+                    <h3 className={cn(SERIF, "text-[clamp(1.75rem,1.4vw+1.3rem,2.625rem)] font-light leading-[1.1] tracking-[-0.02em] rtl:font-sans rtl:font-semibold rtl:tracking-normal", tone.title)}>
+                        {step[0]}
+                    </h3>
+                    <p className={cn("mt-4 text-[1.0625rem] leading-8", tone.body)}>{step[1]}</p>
+                </div>
+
+                <ul className="flex flex-wrap gap-2">
+                    {step[2].map((detail) => (
+                        <li key={detail} className={cn("rounded-full border px-3.5 py-1.5 text-[0.8125rem] font-medium", tone.chip)}>
+                            {detail}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </motion.li>
+    );
+}
+
+/** Wide screens: a horizontal journey driven by the vertical scroll — the rail slides, the numerals drift against it. */
+function Journey({ steps, label, className }: { steps: readonly Step[]; label: string; className?: string }) {
+    const { direction } = useLanguage();
+    const total = steps.length;
+    const track = useRef<HTMLDivElement>(null);
+    const frame = useRef<HTMLDivElement>(null);
+    const rail = useRef<HTMLOListElement>(null);
+    const [shift, setShift] = useState(0);
+    const [active, setActive] = useState(0);
+    const { scrollYProgress } = useScroll({ target: track, offset: ["start start", "end end"] });
+
+    // How far the rail has to travel: its own width, less what the frame already shows. Measured, never guessed.
+    useEffect(() => {
+        const measure = () => {
+            if (!rail.current || !frame.current) return;
+            setShift(Math.max(0, rail.current.scrollWidth - frame.current.clientWidth));
+        };
+        const observer = new ResizeObserver(measure);
+        if (rail.current) observer.observe(rail.current);
+        if (frame.current) observer.observe(frame.current);
+        return () => observer.disconnect();
+    }, []);
+
+    const sign = direction === "rtl" ? 1 : -1;
+    const x = useTransform(scrollYProgress, [0.04, 0.96], [0, sign * shift]);
+    const numeralX = useTransform(x, (value) => value * -0.1);
+
+    useMotionValueEvent(scrollYProgress, "change", (value) => {
+        const next = Math.min(total - 1, Math.max(0, Math.floor(value * total)));
+        setActive((current) => (current === next ? current : next));
+    });
+
+    return (
+        <div ref={track} className={cn("relative h-[340svh]", className)}>
+            <div className="sticky top-0 flex h-svh flex-col justify-center gap-8 overflow-hidden py-20">
+                <div ref={frame} className="w-full">
+                    <motion.ol ref={rail} style={{ x }} className="flex w-max gap-6 ps-[max(1.5rem,calc((100vw-76rem)/2))] pe-[max(1.5rem,calc((100vw-76rem)/2))]">
+                        {steps.map((step, index) => (
+                            <Panel key={step[0]} step={step} index={index} label={label} numeralX={numeralX} className="h-[min(33rem,66svh)] w-[min(82vw,62rem)] shrink-0" />
+                        ))}
+                    </motion.ol>
+                </div>
+
+                {/* Where you are in the journey: a gold thread and a count, in serif */}
+                <div className="page-container w-full" aria-hidden>
+                    <div className="flex items-center gap-5">
+                        <span className={cn(SERIF, "text-[1.5rem] font-light tabular-nums text-ink")} dir="ltr">{pad(active + 1)}</span>
+                        <span className="relative h-px flex-1 overflow-hidden bg-line-strong">
+                            <motion.span style={{ scaleX: scrollYProgress }} className="absolute inset-0 origin-left bg-gold rtl:origin-right" />
+                        </span>
+                        <span className={cn(SERIF, "text-[1.5rem] font-light tabular-nums text-ink-soft")} dir="ltr">{pad(total)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -86,86 +138,33 @@ export const HowItWorks = () => {
     const { dictionary } = useLanguage();
     const copy = dictionary.homeLanding.process;
     const steps = copy.steps as readonly Step[];
-    const total = steps.length;
+    const reduce = useReducedMotion();
 
-    const listRef = useRef<HTMLOListElement>(null);
-    const [active, setActive] = useState(0);
-    // The reading line sits at 55% of the viewport: the step crossing it is the active one.
-    const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 0.55", "end 0.55"] });
-    const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.3 });
-
-    useMotionValueEvent(scrollYProgress, "change", (v) => {
-        const next = Math.min(total - 1, Math.max(0, Math.floor(v * total)));
-        setActive((current) => (current === next ? current : next));
-    });
-
-    const stateOf = (i: number): StepState => (i < active ? "done" : i === active ? "active" : "upcoming");
+    const stack = (
+        <motion.ol variants={stagger(0.1)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className={cn("page-container space-y-5", !reduce && "lg:hidden")}>
+            {steps.map((step, index) => (
+                <Panel key={step[0]} step={step} index={index} label={copy.stepLabel} className="min-h-[24rem] sm:min-h-[22rem]" />
+            ))}
+        </motion.ol>
+    );
 
     return (
-        <HomeSection id="how-it-works" labelledBy="process-title">
-            <div className="grid gap-12 lg:grid-cols-12 lg:gap-14">
-                {/* ── Context column: sticky on desktop ─────────────────────── */}
-                <div className="lg:col-span-5">
-                    <div className="lg:sticky lg:top-28">
-                        <SectionHeader variant="editorial" id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
-
-                        <div className="mt-12 hidden items-center gap-5 lg:flex" aria-hidden>
-                            <span className={cn(SERIF, "text-2xl font-light tabular-nums text-ink")}>{pad(active + 1)}</span>
-                            <span className="relative h-px flex-1 overflow-hidden bg-line-strong">
-                                <motion.span style={{ scaleX: progress }} className="absolute inset-0 origin-left bg-gold rtl:origin-right" />
-                            </span>
-                            <span className={cn(SERIF, "text-2xl font-light tabular-nums text-ink-soft")}>{pad(total)}</span>
-                        </div>
-
-                        <div
-                            aria-hidden
-                            className="relative isolate mt-6 hidden h-[clamp(17rem,calc(100vh-24rem),26rem)] overflow-hidden rounded-panel border border-line bg-[radial-gradient(80%_70%_at_20%_0%,var(--color-teal-100),transparent_70%),linear-gradient(160deg,#ffffff,var(--color-teal-50))] shadow-[var(--shadow-soft)] lg:block"
-                        >
-                            <Grain tone="light" />
-                            {/* The step number, enormous and faint, changes with the step */}
-                            <AnimatePresence mode="popLayout" initial={false}>
-                                <motion.span
-                                    key={`ghost-${active}`}
-                                    initial={{ opacity: 0, y: 36 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -36 }}
-                                    transition={{ duration: 0.8, ease: EASE_OUT }}
-                                    className={cn(SERIF, "pointer-events-none absolute -bottom-8 end-6 select-none text-[11rem] font-extralight leading-none tabular-nums text-teal-700/10")}
-                                >
-                                    {pad(active + 1)}
-                                </motion.span>
-                            </AnimatePresence>
-                            <AnimatePresence mode="popLayout" initial={false}>
-                                <motion.div
-                                    key={active}
-                                    initial={{ opacity: 0, scale: 0.97 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 1.02 }}
-                                    transition={{ duration: 0.8, ease: EASE_OUT }}
-                                    className="absolute inset-0 p-8"
-                                >
-                                    <StepVisual index={active} total={total} progress={progress} details={steps[active][2]} />
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── The journey: one list for every breakpoint ────────────── */}
-                <div className="lg:col-span-6 lg:col-start-7 lg:pt-4">
-                    <ol ref={listRef} className="relative">
-                        <span aria-hidden className="absolute bottom-10 start-[calc(1.25rem-0.5px)] top-10 w-px bg-line" />
-                        <motion.span
-                            aria-hidden
-                            style={{ scaleY: progress }}
-                            className="absolute bottom-10 start-[calc(1.25rem-0.5px)] top-10 w-px origin-top bg-teal-500"
-                        />
-                        {steps.map((step, i) => (
-                            <ProcessStep key={step[0]} step={step} index={i} state={stateOf(i)} stepLabel={copy.stepLabel} />
-                        ))}
-                    </ol>
-                </div>
+        <section id="how-it-works" aria-labelledby="process-title" className={cn("section-pt relative isolate overflow-x-clip bg-canvas", CURTAIN)}>
+            <div className="page-container">
+                <SectionHeader variant="editorial" id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
             </div>
-        </HomeSection>
+
+            <div className="mt-14 md:mt-20">
+                {reduce ? (
+                    stack
+                ) : (
+                    <>
+                        <Journey steps={steps} label={copy.stepLabel} className="hidden lg:block" />
+                        {stack}
+                    </>
+                )}
+            </div>
+            <div aria-hidden className="h-16 lg:h-24" />
+        </section>
     );
 };

@@ -2,6 +2,7 @@
 
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { JournalEntry } from "@/lib/api/patient-types";
+import { journalLabels } from "@/lib/patient/journal-labels";
 import { fill } from "@/lib/i18n/patient";
 import { useJob } from "@/lib/patient/jobs";
 
@@ -18,8 +19,8 @@ function Progress({ value }: { value?: number }) {
 }
 
 /**
- * One line about Lumina's read of an entry: reading now (live, from the event stream), pending, done
- * (with everyday cues), failed or private.
+ * One line about the read of an entry: reading now (live, from the event stream), pending, done
+ * (with the themes it found), failed or private.
  */
 export function AnalysisNote({ entry }: { entry: Pick<JournalEntry, "id" | "analysisStatus" | "analysis" | "isPrivate"> }) {
   const copy = usePatientCopy();
@@ -36,6 +37,6 @@ export function AnalysisNote({ entry }: { entry: Pick<JournalEntry, "id" | "anal
   }
   if (entry.analysisStatus === "PENDING") return <span>{a.PENDING}</span>;
   if (entry.analysisStatus === "FAILED") return <span>{a.FAILED}</span>;
-  const cues = (entry.analysis?.cues ?? []).slice(0, 2).map((cue) => copy.journal.cues[cue]);
-  return <span dir="auto">{cues.length ? fill(a.COMPLETED, { cues: cues.join(" · ") }) : a.COMPLETED_NONE}</span>;
+  const labels = journalLabels(entry.analysis, copy).slice(0, 2);
+  return <span dir="auto">{labels.length ? fill(a.COMPLETED, { cues: labels.join(" · ") }) : a.COMPLETED_NONE}</span>;
 }

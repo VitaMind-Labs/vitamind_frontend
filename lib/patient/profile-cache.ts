@@ -18,7 +18,9 @@ export function readCachedProfile(): Profile | undefined {
     const stored = JSON.parse(raw) as Stored;
     const user = getSessionUser();
     const fresh = Date.now() - stored.savedAt < MAX_AGE_MS;
-    return fresh && user && stored.profile?.id === user.id ? stored.profile : undefined;
+    // A copy saved before `hasAccess` existed is the old shape: ignore it.
+    const current = typeof stored.profile?.hasAccess === "boolean";
+    return fresh && current && user && stored.profile.id === user.id ? stored.profile : undefined;
   } catch {
     return undefined;
   }

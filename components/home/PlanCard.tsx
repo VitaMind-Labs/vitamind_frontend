@@ -44,12 +44,10 @@ export function HomePlanCard({ plan, href, ownsIt = false, needsRenewal = false 
             whileInView="show"
             viewport={REVEAL_VIEWPORT}
             // A 1px gradient edge: gold where the light lands, teal where it falls away.
-            className="relative mx-auto w-full max-w-xl rounded-[2.25rem] bg-[linear-gradient(135deg,rgb(212_179_124/0.75),rgb(81_133_145/0.35)_45%,rgb(212_179_124/0.2))] p-px shadow-float"
+            className="relative mx-auto w-full max-w-xl rounded-[2.25rem] bg-[linear-gradient(135deg,rgb(201_175_111/0.75),rgb(91_144_145/0.35)_45%,rgb(201_175_111/0.2))] p-px shadow-float"
         >
-            <div className="relative isolate overflow-hidden rounded-[calc(2.25rem-1px)] bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_95%)] p-7 text-white sm:p-10">
+            <div className="relative isolate overflow-hidden rounded-[calc(2.25rem-1px)] bg-deep p-7 text-white sm:p-10">
                 <Grain />
-                <span aria-hidden className="pointer-events-none absolute -end-20 -top-24 -z-10 size-80 rounded-full bg-gold/25 blur-3xl" />
-                <span aria-hidden className="pointer-events-none absolute -bottom-32 -start-24 -z-10 size-80 rounded-full bg-teal-500/25 blur-3xl" />
 
                 {/* A slow sheen crosses the surface now and then */}
                 {reduce ? null : (

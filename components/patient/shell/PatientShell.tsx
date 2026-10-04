@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
 import { LuminaOrb, Skeleton } from "@/components/patient/ui/primitives";
 import { PatientMobileStrip, PatientRail, PatientTabBar } from "@/components/patient/shell/PatientChrome";
-import { isCleanSurface, PATIENT_NAV } from "@/components/patient/shell/nav";
+import { navFor } from "@/components/patient/shell/nav";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LogoLoader } from "@/components/shared/LogoLoader";
 import { Button } from "@/components/ui/button";
@@ -31,11 +30,10 @@ export function PatientLoading() {
  */
 export function PatientShellSkeleton() {
   const copy = usePatientCopy();
-  const items = PATIENT_NAV.filter((item) => item.key !== "spark" && item.key !== "settings");
-  const clean = isCleanSurface(usePathname());
+  const items = navFor(undefined).filter((item) => item.key !== "settings");
 
   return (
-    <div data-surface={clean ? "clean" : undefined} className="lm-canvas min-h-dvh text-foreground lg:flex" aria-busy="true">
+    <div data-surface="clean" className="lm-canvas min-h-dvh text-foreground lg:flex" aria-busy="true">
       <aside aria-hidden className="lm-rail sticky top-4 m-4 me-0 hidden h-[calc(100dvh-2rem)] w-64 shrink-0 self-start lg:flex lg:flex-col">
         <div className="px-5 pb-3 pt-6">
           <span className="inline-flex rounded-2xl bg-white/90 px-3 py-1.5 shadow-sm">
@@ -113,21 +111,19 @@ export function PatientGate({ children, pending }: { children: ReactNode; pendin
 /** The signed-in patient's frame: navigation rail (profile, language, notifications), mobile tab bar and a skip link. */
 export function PatientChrome({ children }: { children: ReactNode }) {
   const copy = usePatientCopy();
-  const clean = isCleanSurface(usePathname());
 
   // Popovers and dialogs render outside this frame, so the surface is also set on <html> for them.
   useEffect(() => {
-    if (!clean) return;
     const root = document.documentElement;
     root.dataset.surface = "clean";
     return () => {
       delete root.dataset.surface;
     };
-  }, [clean]);
+  }, []);
 
   return (
     <PatientGate pending={<PatientShellSkeleton />}>
-      <div data-surface={clean ? "clean" : undefined} className={cn(homeSerif.variable, "lm-canvas min-h-dvh text-foreground lg:flex")}>
+      <div data-surface="clean" className={cn(homeSerif.variable, "lm-canvas min-h-dvh text-foreground lg:flex")}>
         <a
           href="#patient-main"
           className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"

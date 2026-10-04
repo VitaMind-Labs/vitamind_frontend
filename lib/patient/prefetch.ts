@@ -1,4 +1,4 @@
-import { checkinsApi, luminaApi, profileApi } from "@/lib/api/patient";
+import { checkinsApi, profileApi } from "@/lib/api/patient";
 import { prefetchPatientData } from "@/hooks/usePatientResource";
 import { localDay } from "@/lib/patient/format";
 
@@ -11,6 +11,5 @@ export function prefetchPatientHome() {
   void Promise.allSettled([
     prefetchPatientData("profile", () => profileApi.get(), 60_000),
     prefetchPatientData(`checkins:today:${day}`, async () => (await checkinsApi.today(day)).data),
-    prefetchPatientData("lumina:state", () => luminaApi.state(), 60_000),
   ]);
 }

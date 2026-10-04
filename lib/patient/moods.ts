@@ -1,6 +1,6 @@
 /**
  * The five mood levels shared by the daily check-in and the Smart Journal. Each maps to
- * a 0–10 score (Lumina's contract) and carries the colour that follows it through
+ * a 0–10 score (the journal's mood scale; the 1–5 check-in maps to the same levels) and carries the colour that follows it through
  * the emoji, the slider glow and the charts.
  */
 export type MoodLevel = {
@@ -27,6 +27,21 @@ export const MOOD_LEVELS: readonly MoodLevel[] = [
 export function moodFor(score: number | null | undefined): MoodLevel | null {
   if (score === null || score === undefined || Number.isNaN(score)) return null;
   return MOOD_LEVELS.reduce((best, item) => (Math.abs(item.score - score) < Math.abs(best.score - score) ? item : best));
+}
+
+/**
+ * The journal stores mood on 0–10 (two points per level); everything the patient reads is on the check-in's
+ * 1–5 scale, so one number means one thing across the app. Returns null for a missing score.
+ */
+export function toFiveScale(score: number | null | undefined): number | null {
+  if (score === null || score === undefined || Number.isNaN(score)) return null;
+  return Math.round(Math.min(5, Math.max(1, score / 2)) * 10) / 10;
+}
+
+/** The level for a 1–5 check-in answer or average (rounded to the nearest level). */
+export function moodForLevel(level: number | null | undefined): MoodLevel | null {
+  if (level === null || level === undefined || Number.isNaN(level)) return null;
+  return MOOD_LEVELS[Math.min(5, Math.max(1, Math.round(level))) - 1];
 }
 
 /** Colour for a 0–10 value on a smooth low→high scale (used by rings and charts). */

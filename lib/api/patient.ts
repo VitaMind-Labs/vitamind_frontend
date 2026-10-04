@@ -1,32 +1,21 @@
 import { AGENT_TIMEOUT_MS, api } from "./client";
-import { streamWithFallback } from "./stream";
 import type {
   AssignedExercise,
   Checkin,
-  CheckinPlan,
-  CheckinResult,
+  CheckinGoal,
   Consent,
+  DailyReport,
   Exercise,
+  GoalStatus,
   JournalEntry,
   JournalInsights,
-  LuminaChatReply,
-  LuminaConversation,
-  LuminaMemory,
-  LuminaPage,
-  LuminaState,
-  LuminaTurn,
+  LibraryCurrent,
+  LibraryEventType,
+  LibraryRecommendation,
   Paginated,
   Profile,
   ReportDetail,
   ReportListItem,
-  SparkChatReply,
-  SparkMemory,
-  SparkPatternProgress,
-  SparkOutcomeName,
-  SparkState,
-  SparkTask,
-  SparkTaskStatus,
-  SparkTurn,
 } from "./patient-types";
 
 /**
@@ -35,7 +24,7 @@ import type {
  * the backend derives ownership from it, never from ids in the body.
  */
 
-type Scale = number; // 0–10 self-report
+type Scale = number; // 0–10 self-report (journal mood)
 export type LocalDay = string; // YYYY-MM-DD
 export type DayRange = { from?: LocalDay; to?: LocalDay };
 
@@ -45,22 +34,18 @@ export type InterventionResult = "EFFECTIVE" | "PARTIALLY_EFFECTIVE" | "INEFFECT
 export type InterventionEngagement = "OFFERED" | "ACCEPTED" | "STARTED" | "COMPLETED" | "DECLINED" | "UNKNOWN";
 export type JournalShareLevel = "NONE" | "FLAGGED_EXCERPTS" | "FULL";
 
-export type OnboardingKey =
-  | "preferred_name" | "tone" | "checkin_time" | "main_goal" | "good_day" | "sleep_pattern" | "daily_rhythm"
-  | "energy_rhythm" | "focus_challenge" | "early_signs" | "stressors" | "support_people" | "medication_routine"
-  | "social_life" | "helps" | "anything_else";
-
 export type CheckinInput = {
   date?: LocalDay;
-  moodScore: Scale;
-  energyLevel?: Scale;
-  anxietyLevel?: Scale;
-  focusLevel?: Scale;
-  routineStability?: Scale;
-  socialConnection?: Scale;
-  taskCompletion?: Scale;
-  sleepHours?: number;
-  medicationTaken?: boolean;
+  /** 1–5 */
+  mood: number;
+  /** 1–5 */
+  energy: number;
+  /** 1–5 */
+  focus: number;
+  /** Hours slept last night, 0–24. */
+  sleepHours: number;
+  /** Up to 3 goals; replaced as a whole, and only while none is resolved. */
+  goals?: { title: string }[];
 };
 
 export type JournalEntryInput = {
@@ -91,16 +76,18 @@ const id = (value: string) => encodeURIComponent(value);
 export const profileApi = {
   get: () => api.get<Profile>("/me"),
   update: (input: { nickname?: string; language?: "EN" | "AR" }) => api.patch<Profile>("/me", input),
-  saveAnswers: (answers: { key: OnboardingKey; value: string }[]) =>
-    api.post<{ saved: number }>("/me/onboarding/answers", { answers }),
-  completeOnboarding: () => api.post<Profile>("/me/onboarding/complete", undefined, { timeoutMs: AGENT_TIMEOUT_MS }),
+  completeOnboarding: () => api.post<Profile>("/me/onboarding/complete"),
 };
 
 export const checkinsApi = {
-  create: (input: CheckinInput) => api.post<CheckinResult>("/me/checkins", input, { timeoutMs: AGENT_TIMEOUT_MS }),
-  plan: (date?: LocalDay) => api.get<{ data: CheckinPlan }>("/me/checkins/plan", { date }),
+  /** Today's check-in (or the day in `date`). The Check-in engine validates it before it is saved. */
+  create: (input: CheckinInput) => api.post<{ data: Checkin }>("/me/checkins", input, { timeoutMs: AGENT_TIMEOUT_MS }),
   today: (date?: LocalDay) => api.get<{ data: Checkin | null }>("/me/checkins/today", { date }),
   list: (range: DayRange = {}) => api.get<{ data: Checkin[]; meta: { from: string; to: string; count: number } }>("/me/checkins", range),
+  /** Resolve a goal during the day (or put it back to PENDING). */
+  setGoal: (goalId: string, status: GoalStatus) => api.patch<{ data: CheckinGoal }>(`/me/checkins/goals/${id(goalId)}`, { status }),
+  weeklyReport: (weekStart: LocalDay) => api.get<{ data: DailyReport }>("/me/checkins/reports/weekly", { weekStart }),
+  monthlyReport: (year: number, month: number) => api.get<{ data: DailyReport }>("/me/checkins/reports/monthly", { year, month }),
 };
 
 export const journalApi = {
@@ -115,81 +102,6 @@ export const journalApi = {
   shareExcerpt: (entryId: string, excerpt: string) =>
     api.post<{ id: string; content: string; sharedAt: string }>(`/me/journal/${id(entryId)}/excerpts`, { excerpt }),
   unshareExcerpt: (excerptId: string) => api.delete<{ success: boolean }>(`/me/journal/excerpts/${id(excerptId)}`),
-};
-
-export const luminaApi = {
-  /**
-   * One turn. With `conversationId` it continues that thread; without one the backend opens a new
-   * thread (returned as `conversationId`). Reuse the same `clientMessageId` (UUID) when retrying.
-   */
-  chat: (input: { text: string; deep?: boolean; clientMessageId?: string; conversationId?: string }) =>
-    api.post<LuminaChatReply>("/me/lumina/chat", input, { timeoutMs: AGENT_TIMEOUT_MS }),
-  /**
-   * The same turn, streamed: text arrives through `onDelta`, the resolved body is the final reply. If the
-   * stream cannot open the synchronous endpoints answer instead; the retry is safe (same `clientMessageId`).
-   */
-  chatStream: (
-    input: { text: string; deep?: boolean; clientMessageId?: string; conversationId?: string },
-    handlers: { onDelta?: (text: string) => void; signal?: AbortSignal } = {},
-  ) =>
-    streamWithFallback<LuminaChatReply>({
-      path: "/me/lumina/chat/stream",
-      body: input,
-      ...handlers,
-      resumable: true,
-      sync: () => (input.conversationId ? luminaApi.chat(input) : luminaApi.startConversation(input)),
-    }),
-  /** Open a new thread with its first message (a thread never exists empty). */
-  startConversation: (input: { text: string; deep?: boolean; clientMessageId?: string }) =>
-    api.post<LuminaChatReply>("/me/lumina/conversations", input, { timeoutMs: AGENT_TIMEOUT_MS }),
-  conversations: (query: { limit?: number; before?: string } = {}) =>
-    api.get<LuminaPage<LuminaConversation>>("/me/lumina/conversations", query),
-  /** One thread's turns, oldest first, with intervention cards and crisis resources restored. */
-  conversationMessages: (conversationId: string, query: { limit?: number; before?: string } = {}) =>
-    api.get<LuminaPage<LuminaChatReply> & { conversation: Omit<LuminaConversation, "turnCount"> }>(
-      `/me/lumina/conversations/${id(conversationId)}/messages`, query),
-  /** Every turn across threads, check-in replies included. */
-  history: (query: { limit?: number; before?: string } = {}) => api.get<LuminaPage<LuminaTurn>>("/me/lumina/history", query),
-  state: () => api.get<LuminaState>("/me/lumina/state"),
-  memories: () => api.get<{ data: LuminaMemory[] }>("/me/lumina/memories"),
-  decideMemory: (memoryId: string, action: "CONFIRM" | "REJECT") =>
-    api.patch<{ id: string; status: string }>(`/me/lumina/memories/${id(memoryId)}`, { action }),
-  interactionOutcome: (interactionId: string, input: { result: InterventionResult; engagement?: InterventionEngagement }) =>
-    api.post<{ id: string; result: InterventionResult }>(`/me/lumina/interactions/${id(interactionId)}/outcome`, input),
-};
-
-/**
- * Spark, the ADHD assistant. Every route is refused (403, code SPARK_ADHD_ONLY) unless the
- * backend's own record says the patient is on the ADHD track - nothing here sends a condition.
- */
-export const sparkApi = {
-  /** Reuse the same `clientMessageId` (UUID) when retrying so the turn is not duplicated. */
-  chat: (input: { text: string; clientMessageId?: string; localDate?: LocalDay; localTime?: string; availableMinutes?: number }) =>
-    api.post<SparkChatReply>("/me/spark/chat", input, { timeoutMs: AGENT_TIMEOUT_MS }),
-  /** The same turn, streamed (see `luminaApi.chatStream`). */
-  chatStream: (
-    input: { text: string; clientMessageId?: string; localDate?: LocalDay; localTime?: string; availableMinutes?: number },
-    handlers: { onDelta?: (text: string) => void; signal?: AbortSignal } = {},
-  ) =>
-    streamWithFallback<SparkChatReply>({
-      path: "/me/spark/chat/stream",
-      body: input,
-      ...handlers,
-      resumable: true,
-      sync: () => sparkApi.chat(input),
-    }),
-  state: () => api.get<SparkState>("/me/spark/state"),
-  history: (query: { limit?: number; before?: string } = {}) =>
-    api.get<{ data: SparkTurn[]; meta: { limit: number; nextBefore: string | null } }>("/me/spark/history", query),
-  tasks: (status: SparkTaskStatus = "TODO") => api.get<{ data: SparkTask[] }>("/me/spark/tasks", { status }),
-  completeTask: (taskId: string) => api.post<SparkTask>(`/me/spark/tasks/${id(taskId)}/complete`, {}),
-  recordOutcome: (input: { outcome: SparkOutcomeName; taskId?: string; focusMinutes?: 5 | 10 | 15 | 25; localHour?: number; attemptId?: string }) =>
-    api.post<{ id: string; attemptId: string; replayed: boolean }>("/me/spark/outcomes", input),
-  /** What Spark learned (ACTIVE) or proposes (CANDIDATE) - Spark's own memories only. */
-  memories: () => api.get<{ data: SparkMemory[]; progress?: SparkPatternProgress }>("/me/spark/memories"),
-  /** Confirming only activates a pattern; its evidence and confidence stay as Spark observed them. */
-  decideMemory: (memoryId: string, action: "CONFIRM" | "REJECT") =>
-    api.patch<{ id: string; status: string }>(`/me/spark/memories/${id(memoryId)}`, { action }),
 };
 
 export const careApi = {
@@ -218,4 +130,16 @@ export const clinicalApi = {
   latestWeeklyReport: () => api.get<unknown>("/me/weekly-reports/latest"),
   weeklyNote: (note: string) => api.patch<unknown>("/me/weekly-note", { note }),
   sessionPreNote: (sessionId: string, note: string) => api.patch<unknown>(`/me/sessions/${id(sessionId)}/pre-note`, { note }),
+};
+
+/** Smart Library: the patient is the token's own; the library comes from their account, never from the request. */
+export const libraryApi = {
+  /** Already-recommended articles; read-only, safe on every page load. */
+  current: () => api.get<LibraryCurrent>("/me/library/recommendations/current"),
+  /** Ask for new articles. Each one served goes on a 14-day cooldown, so call it on need, not on every load. */
+  recommend: (input: { limit?: number; contextTags?: Record<string, number> } = {}) =>
+    api.post<LibraryRecommendation>("/me/library/recommendations", input),
+  /** Idempotent on `eventId`. */
+  sendEvent: (input: { eventId: string; contentId: string; type: LibraryEventType }) =>
+    api.post<{ accepted: boolean; reason?: string }>("/me/library/events", input),
 };

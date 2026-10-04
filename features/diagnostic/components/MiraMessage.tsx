@@ -149,7 +149,7 @@ export function MiraMessage({ content, role, createdAt, index, language, streami
             {diagnostic.youLabel}
             {time && <time className="ms-1.5 tabular-nums text-ink-muted">{time}</time>}
           </span>
-          <div className="max-w-full rounded-[1.375rem] rounded-se-md bg-[linear-gradient(135deg,var(--color-teal-700),var(--color-teal-900))] px-5 py-3.5 text-white shadow-[0_14px_30px_-16px_rgb(34_60_65/0.7)]">
+          <div className="max-w-full rounded-[1.375rem] rounded-se-md bg-[linear-gradient(135deg,var(--color-teal-700),var(--color-teal-900))] px-5 py-3.5 text-white shadow-[0_14px_30px_-16px_rgb(17_76_97/0.7)]">
             <RichText content={content} className="text-[0.9375rem] leading-7 break-words sm:text-base" />
           </div>
         </div>

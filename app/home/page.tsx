@@ -18,6 +18,7 @@ import {
   HeroSection,
   PricingSection,
   ProcessSection,
+  RitualSection,
   StatementSection,
 } from "@/components/home";
 
@@ -67,9 +68,9 @@ export default function Home() {
       dir={direction}
       className={cn(homeSerif.variable, "home-page min-h-dvh w-full overflow-x-clip bg-white text-ink selection:bg-teal-200 selection:text-ink")}
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {phase === "loading" && (
-          <LoadingScreen key="loading" onComplete={() => setPhase("intro")} />
+          <LoadingScreen key="loading" onComplete={() => setPhase("intro")} onSkip={() => setPhase("main")} />
         )}
         {phase === "intro" && (
           <CinematicIntro key="intro" onComplete={() => setPhase("main")} />
@@ -90,6 +91,7 @@ export default function Home() {
                 <HeroSection />
                 <StatementSection />
                 <FeaturesSection />
+                <RitualSection />
                 <ConditionsSection />
                 <ProcessSection />
                 <PricingSection />

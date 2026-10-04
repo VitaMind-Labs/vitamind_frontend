@@ -21,5 +21,5 @@ export const BODY = "text-[clamp(1.0625rem,0.3vw+1rem,1.25rem)] leading-[1.75] t
 export const BODY_SM = "text-[0.9375rem] leading-[1.7] text-ink-soft";
 
 /** The italic olive-gold accent phrase; light and dark surfaces. */
-export const ACCENT_LIGHT = "italic text-gold-700 rtl:not-italic";
+export const ACCENT_LIGHT = "italic text-gold-600 rtl:not-italic";
 export const ACCENT_DARK = "italic text-gold-300 rtl:not-italic";

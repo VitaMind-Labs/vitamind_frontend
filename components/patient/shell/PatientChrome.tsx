@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { NotificationBell } from "@/components/patient/shell/NotificationBell";
-import { isActive, PATIENT_NAV, visibleNav, type PatientNavKey } from "@/components/patient/shell/nav";
+import { isActive, navFor, PATIENT_NAV } from "@/components/patient/shell/nav";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { useCalmTrack } from "@/hooks/useCalmTrack";
 import { profileApi } from "@/lib/api/patient";
@@ -16,14 +16,13 @@ import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { SPRING_SOFT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-/** Desktop rail: the dark teal navigation with Lumina's "you're not alone" card. */
+/** Desktop rail: the dark teal navigation. */
 export function PatientRail() {
   const pathname = usePathname();
   const copy = usePatientCopy();
   const { signOut, profile } = usePatient();
   const [signingOut, setSigningOut] = useState(false);
-  // Spark shows only for the patients the backend flags (ADHD track); the API refuses everyone else regardless.
-  const main = visibleNav(profile.hasSpark).filter((item) => item.key !== "settings");
+  const main = navFor(profile.track).filter((item) => item.key !== "settings");
   const settings = PATIENT_NAV.find((item) => item.key === "settings")!;
 
   return (
@@ -72,7 +71,7 @@ export function PatientRail() {
 /** Language switch and notifications, shared by the desktop rail and the small-screen strip. */
 function PatientUtilities({ side }: { side: "rail" | "strip" }) {
   const { refreshProfile } = usePatient();
-  // Lumina answers in the patient's profile language, so the switch updates it too.
+  // The profile keeps the language too, so the switch updates it.
   return (
     <>
       <LanguageSwitcher onChange={(language) => void profileApi.update({ language: language === "ar" ? "AR" : "EN" }).then(refreshProfile, () => undefined)} />
@@ -135,35 +134,29 @@ export function PatientMobileStrip() {
   );
 }
 
-/** Small-screen tab bar: the five daily screens with Lumina raised in the middle. */
+/** Small-screen tab bar: the four daily screens, with the check-in raised in the middle. */
 export function PatientTabBar() {
   const pathname = usePathname();
   const copy = usePatientCopy();
-  const { profile } = usePatient();
   // Schizophrenia / psychosis tracks: the active pill fades in place instead of sliding between tabs.
   const calm = useCalmTrack();
-  const tabs = (profile.hasSpark
-    ? ["home", "checkin", "lumina", "spark", "journal", "reports"]
-    : ["home", "checkin", "lumina", "journal", "reports"]) as ReadonlyArray<Exclude<PatientNavKey, "settings">>;
+  const { profile } = usePatient();
+  const tabs = navFor(profile.track).filter((item) => item.key !== "settings");
 
   return (
     <nav
       aria-label={copy.shell.navLabel}
-      className={cn(
-        "lm-glass lm-tabbar fixed inset-x-3 bottom-3 z-40 grid items-end rounded-[1.75rem] px-1.5 pb-1.5 pt-1.5 lg:hidden",
-        tabs.length === 6 ? "grid-cols-6" : "grid-cols-5",
-      )}
+      className="lm-glass lm-tabbar fixed inset-x-3 bottom-3 z-40 grid grid-flow-col auto-cols-fr items-end rounded-[1.75rem] px-1.5 pb-1.5 pt-1.5 lg:hidden"
       style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
     >
-      {tabs.map((key) => {
-        const item = PATIENT_NAV.find((entry) => entry.key === key)!;
-        const active = isActive(pathname, item.href);
-        const Icon = item.icon;
-        const center = key === "lumina";
+      {tabs.map((item) => {
+        const { key, href, icon: Icon } = item;
+        const active = isActive(pathname, href);
+        const center = key === "checkin";
         return (
           <Link
             key={key}
-            href={item.href}
+            href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
               "relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl py-1.5 text-[0.625rem] font-medium leading-tight",

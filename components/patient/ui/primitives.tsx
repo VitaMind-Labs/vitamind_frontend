@@ -18,7 +18,7 @@ export function GlassCard({
   return <Tag className={cn("lm-glass lm-card", lift && "lm-card-lift", className)} {...props} />;
 }
 
-/** Lumina's presence — a soft breathing orb. */
+/** The brand presence — a soft breathing orb. */
 export function LuminaOrb({ size = 48, breathe = true, className }: { size?: number; breathe?: boolean; className?: string }) {
   return (
     <span
@@ -104,7 +104,7 @@ export function ErrorState({ message, onRetry }: { message?: string; onRetry?: (
   );
 }
 
-/** Shown where a screen needs Lumina but the trial or plan has ended. */
+/** Shown where a screen needs an active plan but the trial or plan has ended. */
 export function SubscriptionGate() {
   const copy = usePatientCopy();
   return (

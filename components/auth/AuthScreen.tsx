@@ -19,7 +19,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { prefetchPatientHome } from "@/lib/patient/prefetch";
-import { ACCENT_LIGHT, DISPLAY_M, LABEL } from "@/components/home/typography";
 import { cn } from "@/lib/utils";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
 
@@ -154,20 +153,21 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: 0.1 }}
-      className="relative w-full rounded-panel border border-line bg-white p-6 shadow-[var(--shadow-soft)] sm:p-9 lg:p-10"
+      className="relative w-full rounded-2xl border border-line-strong/70 bg-white p-6 shadow-[var(--shadow-soft)] sm:p-9 lg:p-10"
     >
+      <span aria-hidden className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-teal-400 to-transparent" />
       {/* ── HEADING ──────────────────────────────────────────────────── */}
       <header>
-        <p className={cn(LABEL, "inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-3 py-1.5 text-teal-700")}>
-          <ShieldCheck className="size-3.5" aria-hidden />
+        <p className="inline-flex items-center gap-2 rounded-full border border-line-strong/70 bg-surface-muted px-3 py-1.5 text-[0.8125rem] font-medium text-ink-soft">
+          <ShieldCheck className="size-3.5 text-teal-600" aria-hidden />
           {auth.badge}
         </p>
         <h1
           id="auth-title"
-          className={cn(DISPLAY_M, "mt-6 text-[clamp(2rem,1.6vw+1.5rem,2.75rem)] text-ink")}
+          className="mt-6 text-[clamp(1.875rem,1.2vw+1.5rem,2.375rem)] font-semibold leading-[1.1] tracking-[-0.035em] text-ink rtl:tracking-normal"
         >
           {isSignUp ? auth.titleSignUpA : auth.titleSignInA}{" "}
-          <span className={ACCENT_LIGHT}>{isSignUp ? auth.titleSignUpB : auth.titleSignInB}</span>
+          <span className="text-ink-muted">{isSignUp ? auth.titleSignUpB : auth.titleSignInB}</span>
         </h1>
         <p className="mt-3 text-[1rem] leading-7 text-ink-soft">
           {isSignUp ? auth.subtitleSignUp : auth.subtitleWelcome}
@@ -193,6 +193,26 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         )}
       </AnimatePresence>
 
+      {/* ── ALTERNATIVE FIRST (sign-in): one tap in, then the email form ──────── */}
+      {!isSignUp && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: DURATION.base, ease: EASE_OUT, delay: 0.2 }}
+          className="mt-7"
+        >
+          <Button type="button" variant="outline" size="lg" className="w-full gap-3 hover:text-ink">
+            <Icon icon="logos:google-icon" aria-hidden="true" />
+            {auth.gmailButton}
+          </Button>
+          <div className="mt-5 flex items-center gap-3">
+            <Separator className="flex-1 bg-line" />
+            <span className="shrink-0 text-[0.8125rem] font-medium text-ink-soft">{auth.or}</span>
+            <Separator className="flex-1 bg-line" />
+          </div>
+        </motion.div>
+      )}
+
       {/* ── PRIMARY: CREDENTIALS ─────────────────────────────────────── */}
       <motion.form
         key={mode}
@@ -201,7 +221,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
         variants={stagger(0.05, 0.15)}
         initial="hidden"
         animate="show"
-        className="mt-7 flex flex-col gap-5"
+        className={cn("flex flex-col gap-5", isSignUp ? "mt-7" : "mt-6")}
         aria-busy={isPending}
       >
         {isSignUp && (
@@ -315,7 +335,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
             size="lg"
             disabled={isPending}
             aria-busy={isPending}
-            className="group min-h-14 bg-ink shadow-[0_18px_36px_-16px_rgb(34_60_65/0.75)] hover:bg-teal-900 hover:shadow-[0_18px_36px_-14px_rgb(34_60_65/0.85)]"
+            className="group min-h-14 bg-ink shadow-[0_18px_36px_-16px_rgb(17_76_97/0.75)] hover:bg-teal-700 hover:shadow-[0_18px_36px_-16px_rgb(17_76_97/0.7)]"
           >
             {isPending ? (
               <>
@@ -332,34 +352,14 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
               </>
             )}
           </Button>
-        </motion.div>
-      </motion.form>
-
-      {/* ── ALTERNATIVES ─────────────────────────────────────────────── */}
-      {!isSignUp && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: DURATION.base, ease: EASE_OUT, delay: 0.45 }}
-          className="mt-7"
-        >
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1 bg-line" />
-            <span className="shrink-0 text-[0.8125rem] font-medium text-ink-soft">{auth.altAuth}</span>
-            <Separator className="flex-1 bg-line" />
-          </div>
-          <div className="mt-5 grid gap-2.5">
-            <Button type="button" variant="outline" size="lg" className="w-full gap-3 hover:text-ink">
-              <Icon icon="logos:google-icon" aria-hidden="true" />
-              {auth.gmailButton}
-            </Button>
-            <Button type="button" variant="ghost" className="w-full text-ink-soft hover:text-teal-800">
+          {!isSignUp && (
+            <Button type="button" variant="ghost" className="mt-2 w-full text-ink-soft hover:text-teal-800">
               <Mail aria-hidden />
               {auth.magicLink}
             </Button>
-          </div>
+          )}
         </motion.div>
-      )}
+      </motion.form>
 
       {/* ── SWITCH + LEGAL ───────────────────────────────────────────── */}
       <footer className="mt-7 border-t border-line pt-6 text-center">

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Flame, Moon, Sun, Sunrise, Sunset, type LucideIcon } from "lucide-react";
-import { WaveLines } from "@/components/home/Atmosphere";
 import { CountUp } from "@/components/home/CountUp";
 import { Magnetic, WordReveal } from "@/components/home/AnimationUtilities";
 import { DISPLAY_M, LABEL, SERIF } from "@/components/home/typography";
@@ -13,7 +12,6 @@ import { Skeleton } from "@/components/patient/ui/primitives";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCheckinHistory, useTodayCheckin } from "@/hooks/patient/useCheckin";
-import { useLuminaState } from "@/hooks/patient/useLumina";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { useCalmTrack } from "@/hooks/useCalmTrack";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
@@ -22,7 +20,7 @@ import { dayPart, formatDay, type DayPart } from "@/lib/patient/format";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-const PLAYED_KEY = "lumina_day_welcome_played";
+const PLAYED_KEY = "vitamind_day_welcome_played";
 const DAY_ICON: Record<DayPart, LucideIcon> = { morning: Sunrise, afternoon: Sun, evening: Sunset, night: Moon };
 const DAY_MS = 86_400_000;
 
@@ -49,10 +47,10 @@ function Stat({ value, label, loading }: { value: number; label: string; loading
 }
 
 /**
- * The welcome after sign-in. A clean white panel with fine wave lines in the condition's colour, Lumina's mark in
- * a gentle orbit, a greeting that rises word by word, and three numbers that count up: the
+ * The welcome after sign-in. A clean white panel lit by the condition's colour, the VitaMind mark with its soft halo,
+ * a greeting that rises word by word, and three numbers that count up: the
  * patient sees, at once, that someone has been keeping the thread of their days. Every motion
- * stops under reduced motion (and, for psychosis / schizophrenia tracks, the orbit stays still).
+ * stops under reduced motion (and, for psychosis / schizophrenia tracks, the mark stays still).
  */
 export function DayWelcome() {
   const copy = usePatientCopy();
@@ -63,7 +61,6 @@ export function DayWelcome() {
   const calm = useCalmTrack();
   const today = useTodayCheckin();
   const history = useCheckinHistory(30);
-  const state = useLuminaState();
   const [first] = useState(() => typeof window !== "undefined" && !alreadyPlayed());
 
   useEffect(() => {
@@ -77,7 +74,6 @@ export function DayWelcome() {
   const part = dayPart();
   const DayIcon = DAY_ICON[part];
   const checkedIn = Boolean(today.data);
-  const capacity = state.data?.data?.capacity;
   const w = copy.home.welcome;
   const hero = copy.home.hero;
 
@@ -110,7 +106,7 @@ export function DayWelcome() {
 
   const cta = (
     <Button asChild size="lg" disabled={today.isLoading}>
-      <Link href={checkedIn ? "/dashboard/lumina" : "/dashboard/check-in"}>
+      <Link href={checkedIn ? "/dashboard/journal" : "/dashboard/check-in"}>
         {checkedIn ? hero.doneCta : hero.readyCta}
         <ArrowRight className="rtl:-scale-x-100" aria-hidden />
       </Link>
@@ -119,9 +115,6 @@ export function DayWelcome() {
 
   return (
     <section aria-labelledby="day-welcome-title" className="lm-welcome mb-6">
-
-      <WaveLines tone="light" className="inset-y-0 opacity-50" />
-
       <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12 lg:p-10">
         <div className="min-w-0">
           <motion.div {...enter(0)} className="flex flex-wrap items-center gap-2">
@@ -150,9 +143,6 @@ export function DayWelcome() {
 
           <motion.div {...enter(0.3)} className="mt-6 flex flex-wrap items-center gap-3">
             {calm ? cta : <Magnetic>{cta}</Magnetic>}
-            {capacity && capacity !== "UNKNOWN" && (
-              <span className="lm-welcome-chip">{copy.capacity[capacity as keyof typeof copy.capacity] ?? capacity}</span>
-            )}
             {history.streak >= 2 && (
               <span className="lm-welcome-chip">
                 <Flame className="size-3.5" style={{ color: "var(--color-teal-600)" }} aria-hidden />
@@ -164,14 +154,6 @@ export function DayWelcome() {
 
         <div aria-hidden className="relative mx-auto hidden size-44 shrink-0 items-center justify-center sm:flex lg:mx-0 lg:size-52">
           <motion.span
-            className="absolute inset-0 rounded-full border border-[var(--cond)]/40"
-            initial={reduce ? false : calm ? { opacity: 0 } : { scale: 0.4, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: first ? 1.8 : 0.8, ease: EASE_OUT }}
-          />
-          <span className="lm-orbit -inset-1" />
-          <span className="lm-orbit lm-orbit-soft inset-5" />
-          <motion.span
             initial={reduce ? false : calm ? { opacity: 0 } : { scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, ease: EASE_OUT, delay: first ? 0.3 : 0 }}
@@ -182,7 +164,7 @@ export function DayWelcome() {
         </div>
       </div>
 
-      <motion.div {...enter(0.45)} className="relative grid grid-cols-3 gap-4 border-t border-line px-6 py-5 sm:px-8 lg:px-10">
+      <motion.div {...enter(0.45)} className="relative grid grid-cols-3 gap-4 bg-white/45 px-6 py-5 sm:px-8 lg:px-10">
         <Stat value={history.data?.length ?? 0} label={w.stats.checkins} loading={history.isLoading} />
         <Stat value={history.streak} label={w.stats.streak} loading={history.isLoading} />
         <Stat value={together} label={w.stats.together} loading={false} />

@@ -11,7 +11,8 @@ import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { JournalInsights as Insights, Trend } from "@/lib/api/patient-types";
 import { fill } from "@/lib/i18n/patient";
 import { formatDay } from "@/lib/patient/format";
-import { moodFor, type EmotionKey } from "@/lib/patient/moods";
+import { signalLabel, themeLabel } from "@/lib/patient/journal-labels";
+import { moodFor, toFiveScale, type EmotionKey } from "@/lib/patient/moods";
 import { cn } from "@/lib/utils";
 
 const RANGES = [7, 30, 90] as const;
@@ -95,7 +96,7 @@ function Loaded({ data, days, moodSeries, goalSeries }: { data: Insights; days: 
 
       <div className="grid gap-5 md:grid-cols-2">
         <GlassCard aria-label={i.moodTrend}>
-          <SectionTitle title={i.moodTrend} subtitle={data.mood.average !== null ? `${i.average} ${data.mood.average}/10` : undefined} action={<TrendChip trend={data.mood.trend} delta={data.mood.delta} />} />
+          <SectionTitle title={i.moodTrend} subtitle={data.mood.average !== null ? `${i.average} ${toFiveScale(data.mood.average)}/5` : undefined} action={<TrendChip trend={data.mood.trend} delta={data.mood.delta} />} />
           {moodSeries.length >= 2 && !partial ? <TrendChart data={moodSeries} height={200} /> : <p className="rounded-xl bg-white/60 px-4 py-10 text-center text-sm text-muted-foreground">{i.trend.UNKNOWN}</p>}
         </GlassCard>
 
@@ -148,11 +149,12 @@ function Loaded({ data, days, moodSeries, goalSeries }: { data: Insights; days: 
               ))}
             </ul>
           ) : <p className="text-sm text-muted-foreground">—</p>}
-          {(data.cues.length > 0 || data.hardMoments > 0) && (
+          {(data.themes.length > 0 || data.journalSignals.length > 0 || data.hardMoments > 0) && (
             <div className="mt-5 border-t border-white/70 pt-4">
-              <p className="mb-2 text-xs font-semibold text-ink-soft">{i.cues}</p>
+              <p className="mb-2 text-xs font-semibold text-ink-soft">{i.themes}</p>
               <div className="flex flex-wrap gap-1.5">
-                {data.cues.map((item) => <span key={item.cue} className="chip" dir="auto">{copy.journal.cues[item.cue]} · {item.count}</span>)}
+                {data.themes.map((item) => <span key={item.theme} className="chip" dir="auto">{themeLabel(item.theme, copy)} · {item.count}</span>)}
+                {data.journalSignals.map((item) => <span key={item.signal} className="chip" dir="auto">{signalLabel(item.signal, copy)} · {item.count}</span>)}
                 {data.hardMoments > 0 && <span className="chip chip-pending">{fill(i.hardMoments, { n: data.hardMoments })}</span>}
               </div>
             </div>
@@ -167,7 +169,7 @@ function Loaded({ data, days, moodSeries, goalSeries }: { data: Insights; days: 
             <div key={title} className="rounded-2xl bg-white/65 p-4">
               <p className="text-xs font-semibold text-teal-700">{title}</p>
               <p className="mt-1 text-sm text-ink-soft">{fill(i.entries, { n: block.entries })}</p>
-              <p className="mt-1 text-sm text-ink-soft tabular-nums">{copy.reports.metrics.mood}: {block.moodAverage ?? "—"} · {copy.reports.metrics.goals}: {block.goalAverage ?? "—"}</p>
+              <p className="mt-1 text-sm text-ink-soft tabular-nums">{copy.reports.metrics.mood}: {toFiveScale(block.moodAverage) ?? "—"} · {copy.reports.metrics.goals}: {block.goalAverage ?? "—"}</p>
             </div>
           ))}
         </div>

@@ -9,32 +9,37 @@ import { ArrowRight, Check, Play } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 import { Magnetic, WordReveal } from "./AnimationUtilities";
-import { Grain } from "./Atmosphere";
 import { CURTAIN } from "./HomeSection";
-import { ACCENT_DARK, LABEL, SERIF } from "./typography";
+import { LABEL, SERIF } from "./typography";
 
-/** A rising horizon: a warm disc climbs from below as the section arrives, ringed by slow ripples. */
+/** The one italic word of the closing headline, in champagne. */
+const ACCENT_CHAMPAGNE = "italic text-gold-100 rtl:not-italic";
+
+/**
+ * A sunrise behind the horizon: a warm disc of champagne and gold climbs from below as the section arrives, and its light
+ * slowly breathes. Gradients only — no blur filter, so it stays cheap.
+ */
 function Horizon({ progress }: { progress: ReturnType<typeof useScroll>["scrollYProgress"] }) {
     const reduce = useReducedMotion();
     const rise = useTransform(progress, [0, 0.7], [reduce ? 0 : 38, 0]);
-    const grow = useTransform(progress, [0, 0.7], [reduce ? 1 : 0.72, 1]);
+    const grow = useTransform(progress, [0, 0.7], [reduce ? 1 : 0.76, 1]);
     const y = useTransform(rise, (value) => `${value}%`);
+    const breathe = reduce ? undefined : { scale: [1, 1.07, 1], opacity: [0.86, 1, 0.86] };
 
     return (
-        <motion.div aria-hidden style={{ y, scale: grow }} className="pointer-events-none absolute -bottom-[62vmin] left-1/2 -z-10 size-[130vmin] -translate-x-1/2">
-            <div className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,rgb(227_176_28/0.55),rgb(212_179_124/0.28)_38%,rgb(81_133_145/0.2)_62%,transparent_78%)] blur-[2px]" />
-            <div className="absolute inset-[22%] rounded-full bg-[radial-gradient(closest-side,rgb(255_255_255/0.5),rgb(227_176_28/0.35)_55%,transparent)] blur-xl" />
-            {reduce
-                ? null
-                : [0, 1, 2].map((i) => (
-                      <motion.span
-                          key={i}
-                          className="absolute inset-0 rounded-full border border-white/20"
-                          initial={{ scale: 0.55, opacity: 0 }}
-                          animate={{ scale: [0.55, 1.05], opacity: [0, 0.5, 0] }}
-                          transition={{ duration: 9, repeat: Infinity, delay: i * 3, ease: "easeOut" }}
-                      />
-                  ))}
+        <motion.div aria-hidden style={{ y, scale: grow }} className="pointer-events-none absolute -bottom-[70vmin] left-1/2 -z-10 size-[130vmin] -translate-x-1/2">
+            {/* The glow of the sun, spreading into the teal */}
+            <motion.div
+                className="absolute -inset-[16%] rounded-full bg-[radial-gradient(closest-side,rgb(230_213_170/0.55),rgb(201_175_111/0.28)_46%,transparent_72%)]"
+                animate={breathe}
+                transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            />
+            {/* The disc itself: champagne at the heart, gold at the rim */}
+            <motion.div
+                className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,#f3e8c6_0%,#e6d5aa_34%,#c9af6f_70%,rgb(201_175_111/0.35)_88%,transparent_100%)]"
+                animate={breathe}
+                transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+            />
         </motion.div>
     );
 }
@@ -52,11 +57,11 @@ export const CTASection = () => {
             id="cta"
             ref={ref}
             className={cn(
-                "relative isolate overflow-hidden bg-[linear-gradient(170deg,var(--color-teal-900),var(--color-ink)_90%)] pb-14 pt-28 text-white md:pb-16 md:pt-44",
+                "relative isolate overflow-hidden bg-deep pb-14 pt-28 text-white md:pb-16 md:pt-44",
                 CURTAIN,
             )}
         >
-            <Grain />
+            <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
             <Horizon progress={scrollYProgress} />
 
             <div className="page-container">
@@ -73,7 +78,7 @@ export const CTASection = () => {
                                     <WordReveal>{copy.titleA}</WordReveal>
                                 </span>
                                 <span className="block">
-                                    <WordReveal className={ACCENT_DARK} delay={0.15}>
+                                    <WordReveal className={ACCENT_CHAMPAGNE} delay={0.15}>
                                         {copy.titleB}
                                     </WordReveal>
                                 </span>
@@ -96,7 +101,7 @@ export const CTASection = () => {
                                 <Magnetic strength={0.3}>
                                     <Link
                                         href={ROUTES.orientation}
-                                        className="group relative grid size-40 place-items-center overflow-hidden rounded-full bg-white text-ink shadow-[0_30px_60px_-24px_rgb(0_0_0/0.6)] transition-transform duration-500 ease-out-soft hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-gold-300 md:size-48"
+                                        className="group relative grid size-40 place-items-center overflow-hidden rounded-full bg-white text-ink shadow-[0_24px_48px_-28px_rgb(0_0_0/0.45)] transition-transform duration-500 ease-out-soft hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-gold-300 md:size-48"
                                     >
                                         {/* Warmth floods in from the pointer's side of the disc */}
                                         <span aria-hidden className="absolute inset-0 origin-bottom scale-y-0 rounded-full bg-gold-300 transition-transform duration-700 ease-out-soft group-hover:scale-y-100" />
@@ -110,7 +115,7 @@ export const CTASection = () => {
                         </div>
                     </div>
 
-                    <motion.div variants={fadeUp(0, 12)} className="mt-24 flex flex-col gap-6 border-t border-white/15 pt-7 md:mt-32 lg:flex-row lg:items-center lg:justify-between">
+                    <motion.div variants={fadeUp(0, 12)} className="mt-24 flex flex-col gap-6 rounded-3xl border border-gold/40 bg-teal-900/85 px-6 py-5 md:mt-32 lg:flex-row lg:items-center lg:justify-between">
                         <ul className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.9375rem] text-white/90">
                             {copy.benefits.map((text) => (
                                 <li key={text} className="flex items-center gap-2.5">

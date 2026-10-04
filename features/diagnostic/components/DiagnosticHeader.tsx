@@ -94,7 +94,7 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
           <Link
             href={signedIn ? ROUTES.dashboard : ROUTES.home}
             aria-label={backLabel}
-            className="group inline-flex min-h-10 items-center gap-2.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgb(34_60_65/0.7)] transition-[background-color,transform] duration-300 ease-out-soft hover:bg-teal-800 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 sm:px-5"
+            className="group inline-flex min-h-10 items-center gap-2.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgb(17_76_97/0.7)] transition-[background-color,transform] duration-300 ease-out-soft hover:bg-teal-800 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 sm:px-5"
           >
             <House className="size-4 transition-transform duration-300 ease-out-soft group-hover:-translate-y-0.5" aria-hidden />
             <span className="hidden sm:inline">{backLabel}</span>

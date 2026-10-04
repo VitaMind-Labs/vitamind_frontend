@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
+import { profileApi } from "@/lib/api/patient";
 import { fill } from "@/lib/i18n/patient";
 import { markWelcomeSeen } from "@/lib/patient/onboarding";
-import { canSpeak, speakLumina, type SpeakHandle } from "@/lib/patient/voice";
+import { canSpeak, speakWelcome, type SpeakHandle } from "@/lib/patient/voice";
 import { EASE_OUT } from "@/lib/motion";
 
 type Phase = "intro" | "playing" | "done";
@@ -23,9 +24,9 @@ const holdFor = (text: string, arabic: boolean) => Math.max(1800, text.length * 
 const REDIRECT_MS = 3200;
 
 /**
- * The first thing a new patient sees after subscribing: nothing but Lumina. A 3D presence, a
- * spoken welcome (with captions, and a silent path) and a hand-off to the first conversation.
- * No navigation, no dashboard chrome — only a language switch and "skip".
+ * The first thing a new patient sees after subscribing: a 3D presence, a spoken welcome (with
+ * captions, and a silent path) and a hand-off to the first check-in. No navigation, no dashboard
+ * chrome — only a language switch and "skip".
  */
 export function WelcomeExperience() {
   const copy = usePatientCopy();
@@ -33,7 +34,7 @@ export function WelcomeExperience() {
   const router = useRouter();
   const reduce = useReducedMotion();
   const { language } = useLanguage();
-  const { profile, name } = usePatient();
+  const { profile, name, refreshProfile } = usePatient();
   const [phase, setPhase] = useState<Phase>("intro");
   const [visible, setVisible] = useState(0);
   const [speaking, setSpeaking] = useState(false);
@@ -59,8 +60,10 @@ export function WelcomeExperience() {
     clear();
     stopVoice();
     markWelcomeSeen(profile.id);
-    router.replace(profile.hasCompletedOnboarding ? "/dashboard" : "/dashboard/lumina");
-  }, [clear, stopVoice, profile.id, profile.hasCompletedOnboarding, router]);
+    // The welcome is the whole onboarding now: finish it, then start with the first check-in.
+    void (profile.hasCompletedOnboarding ? Promise.resolve() : profileApi.completeOnboarding().then(refreshProfile)).catch(() => undefined);
+    router.replace(profile.hasCompletedOnboarding ? "/dashboard" : "/dashboard/check-in");
+  }, [clear, stopVoice, profile.id, profile.hasCompletedOnboarding, refreshProfile, router]);
 
   useEffect(() => () => {
     clear();
@@ -87,7 +90,7 @@ export function WelcomeExperience() {
       timers.current.push(window.setTimeout(() => { captionsDone = true; finish(); }, at));
 
       if (sound) {
-        void speakLumina(fill(w.voiceText, { name }), language, {
+        void speakWelcome(fill(w.voiceText, { name }), language, {
           onStart: () => setSpeaking(true),
           onEnd: () => { setSpeaking(false); speechDone = true; finish(); },
           onError: () => { setSpeaking(false); speechDone = true; finish(); },
@@ -102,7 +105,7 @@ export function WelcomeExperience() {
     [language, name, clear, stopVoice, w],
   );
 
-  // Once the welcome is finished, hand over to the first conversation.
+  // Once the welcome is finished, hand over to the first check-in.
   useEffect(() => {
     if (phase !== "done") return;
     const timer = window.setTimeout(go, REDIRECT_MS);

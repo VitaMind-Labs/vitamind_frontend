@@ -98,8 +98,8 @@ export function Spotlight({ children, className, tone = "teal" }: { children: Re
                 className={cn(
                     "pointer-events-none absolute inset-0 z-0 rounded-[inherit] opacity-0 transition-opacity duration-500 group-hover/spot:opacity-100",
                     tone === "gold"
-                        ? "bg-[radial-gradient(22rem_circle_at_var(--mx,50%)_var(--my,50%),rgb(227_176_28/0.14),transparent_65%)]"
-                        : "bg-[radial-gradient(22rem_circle_at_var(--mx,50%)_var(--my,50%),rgb(81_133_145/0.14),transparent_65%)]",
+                        ? "bg-[radial-gradient(22rem_circle_at_var(--mx,50%)_var(--my,50%),rgb(201_175_111/0.14),transparent_65%)]"
+                        : "bg-[radial-gradient(22rem_circle_at_var(--mx,50%)_var(--my,50%),rgb(91_144_145/0.14),transparent_65%)]",
                 )}
             />
             {children}

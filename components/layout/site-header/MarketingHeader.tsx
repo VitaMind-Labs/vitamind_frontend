@@ -121,7 +121,7 @@ export function MarketingHeader() {
             )}
             <Link
               href={primary.href}
-              className="group hidden min-h-11 items-center gap-3 rounded-full bg-ink py-1 ps-5 pe-1 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgb(34_60_65/0.7)] transition-[background-color,box-shadow,transform] duration-300 ease-out-soft hover:bg-teal-800 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 lg:inline-flex"
+              className="group hidden min-h-11 items-center gap-3 rounded-full bg-ink py-1 ps-5 pe-1 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgb(17_76_97/0.7)] transition-[background-color,box-shadow,transform] duration-300 ease-out-soft hover:bg-teal-800 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 lg:inline-flex"
             >
               {primary.label}
               <span className="flex size-9 items-center justify-center rounded-full bg-white/15 transition-[background-color,color,transform] duration-300 ease-out-soft group-hover:bg-gold group-hover:text-ink">

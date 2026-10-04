@@ -59,7 +59,7 @@ function humanize(key: string) {
 
 /** Machine keys (e.g. `decreased_need_for_sleep`) read as sentences; free text is left untouched. */
 function readable(item: string) {
-  return /^[a-z0-9]+(?:[_.][a-z0-9]+)+$/i.test(item) ? humanize(item.replace(/\./g, " · ")) : item;
+  return /^[a-z0-9]+(?:[_.][a-z0-9]+)*$/i.test(item) ? humanize(item.replace(/\./g, " · ")) : item;
 }
 
 /** Display form of Mira's orientation: drop the machine "orientation:" prefix, capitalise. Same field. */
@@ -67,6 +67,9 @@ function displayOrientation(orientation: string) {
   const text = orientation.replace(/^\s*orientation\s*:\s*/i, "").trim() || orientation;
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
+
+/** The engine names its scores adhd / bipolar / psychosis; the copy is keyed by the spectrum names. */
+const SCORE_KEYS: Record<string, string> = { adhd: "ADHD", bipolar: "BIPOLAR_SPECTRUM", psychosis: "PSYCHOSIS_SPECTRUM" };
 
 /** Each block of the report reveals as it reaches the reader. */
 const reveal = {
@@ -164,11 +167,11 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
 
   const entries = Object.entries(result.condition_scores || {}).sort((a, b) => b[1] - a[1]);
   const pathwayLabel = displayOrientation(result.orientation);
-  const observationColumns = [result.supporting_features, result.contradictory_features].filter((items) => items.length > 0).length;
+  const observationColumns = [result.supporting_features, result.contradictory_features, result.missing_information].filter((items) => items.length > 0).length;
 
   const signals: SignalDatum[] = entries.map(([key, score]) => ({
     key,
-    label: pathways[key] ?? pathways[key.toUpperCase()] ?? humanize(key),
+    label: pathways[SCORE_KEYS[key] ?? key] ?? pathways[key.toUpperCase()] ?? humanize(key),
     percent: Math.max(0, Math.min(100, Math.round(score * 100))),
     raw: score,
   }));
@@ -225,12 +228,10 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: EASE_OUT }}
           aria-labelledby="orientation-result-title"
-          className="result-hero relative isolate overflow-hidden rounded-[2rem] bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_95%)] text-white shadow-float"
+          className="result-hero relative isolate overflow-hidden rounded-[2rem] bg-deep text-white shadow-float"
         >
           <span className="print:hidden"><Grain /></span>
           <span className="print:hidden"><WaveLines tone="deep" className="inset-y-0" /></span>
-          <span aria-hidden className="pointer-events-none absolute -end-24 -top-28 -z-10 size-[26rem] rounded-full bg-gold/20 blur-3xl print:hidden" />
-          <span aria-hidden className="pointer-events-none absolute -bottom-40 -start-24 -z-10 size-[26rem] rounded-full bg-teal-500/25 blur-3xl print:hidden" />
 
           <div className="relative grid gap-10 p-7 pb-16 sm:p-11 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_18.5rem] lg:gap-14">
             <div className="min-w-0">
@@ -404,9 +405,10 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
         )}
 
         {/* ── 4. Observations ── */}
-        <div className={cn("grid gap-5 lg:gap-6", observationColumns > 1 && "md:grid-cols-2")}>
+        <div className={cn("grid gap-5 lg:gap-6", observationColumns > 1 && (observationColumns > 2 ? "md:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2"))}>
           <ObservationCard title={mira.supportingTitle} icon={<Check className="size-4" aria-hidden />} items={result.supporting_features} />
           <ObservationCard title={mira.flagsTitle} icon={<XCircle className="size-4" aria-hidden />} items={result.contradictory_features} tone="muted" />
+          <ObservationCard title={mira.missingTitle} icon={<Info className="size-4" aria-hidden />} items={result.missing_information} />
         </div>
 
         {/* ── 5. Suggested next step ── */}

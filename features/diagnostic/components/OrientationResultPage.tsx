@@ -117,7 +117,7 @@ export function OrientationResultPage() {
         <main className={cn("relative flex-1 px-4 pt-6 sm:px-6 sm:pt-10 lg:px-8 lg:pb-20", showConversion ? "pb-28" : "pb-12")}>
           {state.phase === "loading" && (
             <div className="relative mx-auto w-full max-w-5xl space-y-5" role="status" aria-live="polite">
-              <div className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_95%)] p-7 pb-16 text-white shadow-float sm:p-11 sm:pb-20">
+              <div className="relative overflow-hidden rounded-[2rem] bg-deep p-7 pb-16 text-white shadow-float sm:p-11 sm:pb-20">
                 <div className="h-7 w-48 animate-pulse rounded-full bg-white/10" />
                 <div className="mt-9 h-5 w-64 max-w-full animate-pulse rounded-full bg-white/10" />
                 <div className="mt-6 h-12 w-[30rem] max-w-full animate-pulse rounded-2xl bg-white/10" />

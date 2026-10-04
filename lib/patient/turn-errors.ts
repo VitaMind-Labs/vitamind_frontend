@@ -8,7 +8,6 @@ import { StreamInterrupted, StreamTurnError } from "@/lib/api/stream";
 export type TurnFailureKind =
   | "support" // emergency resources came with the failure: show the support card
   | "subscription"
-  | "notAllowed"
   | "offline"
   | "timeout"
   | "rateLimited"
@@ -42,8 +41,7 @@ export function classifyTurnFailure(error: unknown): TurnFailure {
   const base = { code: error.code, emergencyResources, partialText };
 
   if (error.code === "SUBSCRIPTION_REQUIRED") return { ...base, kind: "subscription" };
-  if (error.code === "SPARK_ADHD_ONLY") return { ...base, kind: "notAllowed" };
-  if (error.code === "LUMINA_UNAVAILABLE" || error.code === "SPARK_UNAVAILABLE" || emergencyResources.length > 0) return { ...base, kind: "support" };
+  if (emergencyResources.length > 0) return { ...base, kind: "support" };
   if (error.isTimeout) return { ...base, kind: "timeout" };
   if (error.isNetwork) return { ...base, kind: "offline" };
   if (error.status === 429) return { ...base, kind: "rateLimited" };

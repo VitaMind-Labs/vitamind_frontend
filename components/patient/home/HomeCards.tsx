@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  Activity, BatteryMedium, Brain, CalendarCheck2, Check, ChevronRight, Clock, Flame, HeartPulse, House,
-  Link2, Moon, Repeat, Target, TrendingUp, Users, Wind, Zap,
+  Activity, BatteryMedium, Brain, Check, ChevronRight, Clock, Flame, HeartPulse, House,
+  Link2, Moon, Target, TrendingUp, Wind, Zap,
 } from "lucide-react";
 import { ErrorState, GlassCard, SectionTitle, Skeleton } from "@/components/patient/ui/primitives";
 import { ExerciseSession } from "@/components/patient/ui/ExerciseSession";
@@ -14,19 +14,18 @@ import { Button } from "@/components/ui/button";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { useCheckinHistory, useTodayCheckin } from "@/hooks/patient/useCheckin";
 import { useAssignedExercises, useCompleteExercise, useCompletedToday, useExerciseCatalog } from "@/hooks/patient/useCare";
-import { useLuminaState } from "@/hooks/patient/useLumina";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { Exercise } from "@/lib/api/patient-types";
 import { fill } from "@/lib/i18n/patient";
 import { addDaysLocal, formatDay, localDay } from "@/lib/patient/format";
 import { localizeExercise, recommendExercise, suggestedExercises, type LocalizedExercise } from "@/lib/patient/exercises";
-import { bandLabel, deriveSignals, readWellbeing, WELLBEING_BY_TRACK, type SignalTone, type WellbeingKey } from "@/lib/patient/home";
+import { bandLabel, deriveSignals, readWellbeing, ringValue, WELLBEING_KEYS, type SignalTone, type WellbeingKey } from "@/lib/patient/home";
 import { scaleColor } from "@/lib/patient/moods";
 import { cn } from "@/lib/utils";
 
 const DIM_ICON: Record<WellbeingKey | "consistency", typeof Activity> = {
-  mood: HeartPulse, energy: Zap, stress: Wind, sleep: Moon, focus: Target, routine: Repeat, social: Users, tasks: CalendarCheck2, consistency: Flame,
+  mood: HeartPulse, energy: Zap, sleep: Moon, focus: Target, consistency: Flame,
 };
 
 const EXERCISE_ICON: Record<Exercise["type"], typeof Activity> = {
@@ -39,12 +38,10 @@ const TONE_CLASS: Record<SignalTone, string> = {
   attention: "bg-gold-100 text-gold-700",
 };
 
-/** Today's four rings, chosen for the patient's track. */
+/** Today's four rings: mood, energy, focus and sleep. */
 export function WellbeingCard() {
   const copy = usePatientCopy();
-  const { profile } = usePatient();
   const today = useTodayCheckin();
-  const keys = WELLBEING_BY_TRACK[profile.track];
 
   return (
     <GlassCard aria-labelledby="wellbeing-title">
@@ -54,7 +51,7 @@ export function WellbeingCard() {
         <ErrorState onRetry={() => void today.refresh()} />
       ) : (
         <div className="lm-soft grid grid-cols-2 gap-x-3 gap-y-6 px-3 py-6 sm:grid-cols-4 sm:px-4">
-          {keys.map((key) => {
+          {WELLBEING_KEYS.map((key) => {
             const reading = readWellbeing(key, today.data ?? null);
             const Icon = DIM_ICON[key];
             return (
@@ -62,12 +59,12 @@ export function WellbeingCard() {
                 {today.isLoading ? (
                   <Skeleton className="size-[76px] rounded-full" />
                 ) : (
-                  <ScoreRing value={reading.value} inverted={reading.inverted} label={copy.dimensions[key]} icon={<Icon className="size-5" aria-hidden />} />
+                  <ScoreRing value={reading.value} display={reading.display} label={copy.dimensions[key]} icon={<Icon className="size-5" aria-hidden />} />
                 )}
                 <div>
                   <p className="text-sm font-semibold text-ink">{copy.dimensions[key]}</p>
                   <p className="text-sm tabular-nums text-ink-soft">{reading.display}</p>
-                  <p className="text-xs" style={{ color: scaleColor(reading.value, reading.inverted) }}>{bandLabel(reading, copy)}</p>
+                  <p className="text-xs" style={{ color: scaleColor(reading.value) }}>{bandLabel(reading, copy)}</p>
                 </div>
               </div>
             );
@@ -88,7 +85,7 @@ export function TrendCard() {
   const history = useCheckinHistory(14);
 
   const { series, percent, hasData } = useMemo(() => {
-    const byDay = new Map((history.data ?? []).map((row) => [row.checkinDate.slice(0, 10), row.moodScore]));
+    const byDay = new Map((history.data ?? []).map((row) => [row.date.slice(0, 10), row.mood]));
     const daily = (offset: number) => localDay(addDaysLocal(new Date(), -offset));
     const week = Array.from({ length: 7 }, (_, i) => {
       const date = addDaysLocal(new Date(), -(6 - i));
@@ -127,7 +124,7 @@ export function TrendCard() {
       ) : history.isLoading ? (
         <Skeleton className="h-44 w-full" />
       ) : hasData ? (
-        <TrendChart data={series} height={190} className="lm-soft px-2 pb-1 pt-3" />
+        <TrendChart data={series} height={190} domain={[1, 5]} ticks={[1, 3, 5]} className="lm-soft px-2 pb-1 pt-3" />
       ) : (
         <p className="lm-inset px-4 py-10 text-center text-sm text-muted-foreground">{copy.home.trend.empty}</p>
       )}
@@ -137,10 +134,9 @@ export function TrendCard() {
 
 export function SignalsCard() {
   const copy = usePatientCopy();
-  const state = useLuminaState();
   const history = useCheckinHistory(14);
-  const signals = useMemo(() => deriveSignals(state.data?.data, history.data ?? [], copy), [state.data, history.data, copy]);
-  const loading = state.isLoading || history.isLoading;
+  const signals = useMemo(() => deriveSignals(history.data ?? [], copy), [history.data, copy]);
+  const loading = history.isLoading;
 
   return (
     <GlassCard aria-labelledby="signals-title">
@@ -175,7 +171,7 @@ export function SignalsCard() {
 
 type PlanRow = { exercise: Exercise; assignmentId?: string; assigned: boolean };
 
-/** Today's plan: what the care team assigned first, then Lumina's suggestions for this track. */
+/** Today's plan: what the care team assigned first, then suggestions for this track. */
 export function PlanCard() {
   const copy = usePatientCopy();
   const { language } = useLanguage();
@@ -265,10 +261,7 @@ export function RecommendedExerciseCard() {
 
   const exercise = useMemo(
     () =>
-      recommendExercise(catalog.data ?? [], profile.track, {
-        stress: today.data?.anxietyLevel ?? null,
-        sleepHours: today.data?.sleepHours ?? null,
-      }),
+      recommendExercise(catalog.data ?? [], profile.track, { sleepHours: today.data?.sleepHours ?? null }),
     [catalog.data, profile.track, today.data],
   );
   const item: LocalizedExercise | null = exercise ? localizeExercise(exercise, language) : null;
@@ -319,11 +312,11 @@ export function ProgressStrip() {
   const copy = usePatientCopy();
   const history = useCheckinHistory(14);
   const days = useMemo(() => {
-    const set = new Set((history.data ?? []).map((row) => row.checkinDate.slice(0, 10)));
+    const set = new Set((history.data ?? []).map((row) => row.date.slice(0, 10)));
     return Array.from({ length: 7 }, (_, i) => set.has(localDay(addDaysLocal(new Date(), -i)))).filter(Boolean).length;
   }, [history.data]);
-  const spark = useMemo(() => {
-    const byDay = new Map((history.data ?? []).map((row) => [row.checkinDate.slice(0, 10), row.moodScore]));
+  const moodSeries = useMemo(() => {
+    const byDay = new Map((history.data ?? []).map((row) => [row.date.slice(0, 10), ringValue(row.mood)]));
     return Array.from({ length: 14 }, (_, i) => byDay.get(localDay(addDaysLocal(new Date(), -(13 - i)))) ?? null);
   }, [history.data]);
 
@@ -338,7 +331,7 @@ export function ProgressStrip() {
       </div>
       <div className="w-full sm:w-48">
         <p className="mb-1 text-xs text-muted-foreground">{copy.home.progress.moodTrend}</p>
-        <Sparkline values={spark} color="var(--color-teal-600)" height={44} />
+        <Sparkline values={moodSeries} color="var(--color-teal-600)" height={44} domain={[0, 10]} />
       </div>
     </GlassCard>
   );

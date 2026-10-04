@@ -3,7 +3,6 @@
 import { Grain } from "@/components/home/Atmosphere";
 import { HomePlanCard, HomePlanSkeleton } from "@/components/home/PlanCard";
 import { TiltCard } from "@/components/home/Interactions";
-import { Orbits } from "@/components/home/Pricing";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { DISPLAY_M } from "@/components/home/typography";
 import { Button } from "@/components/ui/button";
@@ -15,17 +14,15 @@ import { useCurrentSubscription } from "@/hooks/useCurrentSubscription";
 import { usePlans } from "@/hooks/usePlans";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Calendar, CircleAlert, CreditCard, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
 
 export default function SubscriptionPage() {
   const { dictionary } = useLanguage();
   const copy = dictionary.subscription;
   const plans = usePlans();
   const current = useCurrentSubscription();
-  const reduce = useReducedMotion();
 
   const subscription = current.data ?? null;
   const status = subscription ? effectiveStatus(subscription) : null;
@@ -33,11 +30,6 @@ export default function SubscriptionPage() {
   // The plan is "owned" only while a paid period runs; an expired one is offered again to renew.
   const ownsIt = !!plan && status === "ACTIVE" && subscription?.subscriptionPlanId === plan.id;
   const needsRenewal = !!subscription && subscription.subscriptionStatus === "ACTIVE" && status === "EXPIRED";
-
-  // The warm glow behind the plan drifts against the scroll.
-  const stage = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: stage, offset: ["start end", "end start"] });
-  const glowY = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : 60, reduce ? 0 : -60]);
 
   const reassurance = [
     { icon: ShieldCheck, text: copy.securePrivate },
@@ -77,14 +69,7 @@ export default function SubscriptionPage() {
         </div>
 
         {/* ── The offer ──────────────────────────────────────────────────────────── */}
-        <div ref={stage} className="relative lg:col-span-7">
-          <motion.span
-            aria-hidden
-            style={{ y: glowY }}
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(227_176_28/0.28),rgb(81_133_145/0.16)_55%,transparent)]"
-          />
-          <Orbits />
-
+        <div className="relative lg:col-span-7">
           {plan ? (
             <TiltCard className="mx-auto max-w-xl">
               <HomePlanCard plan={plan} href={`/subscription/payment?plan=${plan.id}`} ownsIt={ownsIt} needsRenewal={needsRenewal} />
@@ -111,10 +96,9 @@ export default function SubscriptionPage() {
           initial="hidden"
           whileInView="show"
           viewport={REVEAL_VIEWPORT}
-          className="relative isolate mx-auto mt-24 max-w-4xl overflow-hidden rounded-[2rem] bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_95%)] p-9 text-center text-white shadow-float sm:mt-28 sm:p-14"
+          className="relative isolate mx-auto mt-24 max-w-4xl overflow-hidden rounded-[2rem] bg-deep p-9 text-center text-white shadow-float sm:mt-28 sm:p-14"
         >
           <Grain />
-          <span aria-hidden className="pointer-events-none absolute -top-24 start-1/2 -z-10 size-80 -translate-x-1/2 rounded-full bg-gold/25 blur-3xl rtl:translate-x-1/2" />
           <motion.h2 variants={fadeUp(0, 14)} id="subscription-closing-title" className={cn(DISPLAY_M, "text-white")}>
             {copy.ctaTitle}
           </motion.h2>

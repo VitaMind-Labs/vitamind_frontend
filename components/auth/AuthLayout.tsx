@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { AuthBrandPanel } from "@/components/auth/AuthBrandPanel";
 import { homeSerif } from "@/components/home/fonts";
 import { SiteHeader } from "@/components/layout/site-header";
-import { CalmBackdrop } from "@/components/shared/CalmBackdrop";
+import { GridBackdrop } from "@/components/shared/GridBackdrop";
 import { LogoLoader } from "@/components/shared/LogoLoader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageTransition } from "@/hooks/useLanguageTransition";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Shell for /auth/*: the same capsule header as every public page (it adapts — here it offers the other
- * auth page), the calm animated canvas, and the form beside the brand story on desktop.
+ * auth page), a still hairline-grid canvas, and the form first with the brand story beside it on desktop.
  * Mobile/tablet: the form is the whole experience; the layout mirrors by reading direction via grid order.
  */
 export function AuthLayout({ children }: { children: ReactNode }) {
@@ -24,16 +24,16 @@ export function AuthLayout({ children }: { children: ReactNode }) {
 
   return (
     <div dir={direction} className={cn(homeSerif.variable, "relative isolate flex min-h-dvh flex-col overflow-x-clip bg-canvas text-ink")}>
-      <CalmBackdrop />
+      <GridBackdrop />
 
       <SiteHeader variant="public" />
 
       <main
         ref={scope}
-        className="page-container relative flex flex-1 flex-col pb-12 pt-6 sm:pb-16 sm:pt-10 lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,28rem)] lg:gap-10 lg:pt-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] xl:gap-16"
+        className="page-container relative flex flex-1 flex-col pb-12 pt-6 sm:pb-16 sm:pt-10 lg:grid lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] lg:items-stretch lg:gap-10 lg:pt-6 xl:gap-16"
       >
-        <AuthBrandPanel />
         <div className="mx-auto flex w-full max-w-[28rem] flex-1 flex-col justify-start sm:justify-center lg:max-w-none lg:py-4">{children}</div>
+        <AuthBrandPanel />
       </main>
 
       <footer className="page-container relative flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-[0.875rem] text-ink-soft sm:justify-between">

@@ -3,7 +3,7 @@
 import { LANGS, type Lang } from "@/lib/i18n/config";
 
 /**
- * Lumina's voice for the welcome. Uses the ElevenLabs proxy (`/api/voice`) when the server has a
+ * The voice for the welcome. Uses the ElevenLabs proxy (`/api/voice`) when the server has a
  * key, otherwise the browser's own speech synthesis. Unlike the Mira helper it reports when
  * speech starts and ends, so captions, the 3D orb and the hand-off to the chat can follow it.
  */
@@ -94,7 +94,7 @@ async function elevenLabsVoice(text: string, language: Lang, callbacks: SpeakCal
 }
 
 /** Speak `text`; resolves with a handle to cancel. Falls back to the browser voice on any failure. */
-export async function speakLumina(text: string, language: Lang, callbacks: SpeakCallbacks = {}): Promise<SpeakHandle | null> {
+export async function speakWelcome(text: string, language: Lang, callbacks: SpeakCallbacks = {}): Promise<SpeakHandle | null> {
   const premium = await elevenLabsVoice(text, language, callbacks);
   if (premium) return premium;
   if (!canSpeak()) {

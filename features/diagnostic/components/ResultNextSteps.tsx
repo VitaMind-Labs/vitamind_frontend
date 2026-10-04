@@ -117,14 +117,13 @@ export function ResultNextSteps({ sessionId }: { sessionId: string }) {
                   className={cn(
                     "relative isolate overflow-hidden rounded-panel p-6 transition-[transform,box-shadow] duration-500 ease-out-soft hover:-translate-y-1",
                     featured
-                      ? "bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_95%)] text-white shadow-float"
+                      ? "bg-deep text-white shadow-float"
                       : "border border-line bg-white shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-soft-hover)]",
                   )}
                 >
                   {featured && (
                     <>
                       <Grain />
-                      <span aria-hidden className="pointer-events-none absolute -end-16 -top-20 -z-10 size-56 rounded-full bg-gold/25 blur-3xl" />
                       <span className={cn(LABEL, "absolute end-5 top-5 rounded-full border border-gold-300/40 bg-gold/10 px-3 py-1 text-gold-300")}>{t.featured}</span>
                     </>
                   )}

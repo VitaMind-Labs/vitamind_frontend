@@ -42,7 +42,7 @@ function QuestionRing({ answered, total, percent, size = "lg" }: { answered: num
   const circumference = 2 * Math.PI * radius;
   const large = size === "lg";
   return (
-    <span className={cn("relative inline-flex shrink-0 items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-14px_rgb(74_123_130/0.5)] ring-1 ring-teal-100", large ? "size-24" : "size-12")}>
+    <span className={cn("relative inline-flex shrink-0 items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-14px_rgb(43_112_128/0.5)] ring-1 ring-teal-100", large ? "size-24" : "size-12")}>
       <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">

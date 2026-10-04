@@ -16,6 +16,7 @@ export function SectionRail() {
     const items = [
         { id: "home", label: copy.nav.home },
         { id: "features", label: copy.nav.features },
+        { id: "ritual", label: copy.ritual.eyebrow },
         { id: "conditions", label: copy.conditions.eyebrow },
         { id: "how-it-works", label: copy.nav.process },
         { id: "pricing", label: copy.nav.pricing },

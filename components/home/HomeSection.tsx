@@ -29,7 +29,7 @@ const SPACING = { both: "section-y", top: "section-pt", bottom: "section-pb" } a
 const SURFACE = {
   base: "bg-white",
   tint: "bg-canvas",
-  deep: "bg-[linear-gradient(160deg,var(--color-teal-900),var(--color-ink)_92%)] text-white",
+  deep: "bg-deep text-white",
 } as const;
 
 /** The one section shell every home section is built on: surface, rhythm and container. */

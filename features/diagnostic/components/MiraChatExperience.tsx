@@ -94,7 +94,7 @@ function GreetingPill({ name, language, className }: { name: string; language: L
         className,
       )}
     >
-      <span aria-hidden className="h-2 w-2 rounded-full bg-sage shadow-[0_0_0_3px_rgb(125_168_158/0.2)]" />
+      <span aria-hidden className="h-2 w-2 rounded-full bg-sage shadow-[0_0_0_3px_rgb(120_174_170/0.2)]" />
       {fill(copy[language].diagnostic.greetingPill, { name })}
     </motion.p>
   );
@@ -367,7 +367,7 @@ export function MiraChatExperience({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE_OUT }}
           className={cn(
-            "relative mx-auto grid min-h-[34rem] w-full flex-1 gap-5 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 lg:gap-6 lg:px-8 lg:pb-6 lg:pt-5",
+            "relative mx-auto grid min-h-0 w-full flex-1 grid-rows-[minmax(0,1fr)] gap-3 px-3 pb-2 pt-3 sm:gap-5 sm:px-6 sm:pb-4 sm:pt-4 lg:min-h-[34rem] lg:gap-6 lg:px-8 lg:pb-6 lg:pt-5",
             completed ? "max-w-4xl" : "max-w-chat lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21.5rem_minmax(0,1fr)]",
           )}
         >
@@ -553,7 +553,7 @@ export function MiraChatExperience({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
                       transition={{ duration: 0.4, ease: EASE_OUT, delay: 0.15 }}
-                      className="mb-4 rounded-[1.25rem] border border-teal-100 bg-teal-50/50 p-3 sm:p-4"
+                      className="mb-4 rounded-[1.25rem] border border-teal-100 bg-teal-50/50 p-3 sm:p-4 [@media(max-height:44rem)]:hidden"
                     >
                       <p className={cn(LABEL, "mb-3 flex items-center gap-2 px-1 text-ink-soft")}>
                         {diagnostic.suggestionsLabel}
@@ -589,7 +589,7 @@ export function MiraChatExperience({
                 </label>
                 <div
                   className={cn(
-                    "flex items-end gap-1 border border-line-strong bg-white p-2 shadow-[var(--shadow-soft)] transition-[border-color,box-shadow,border-radius] duration-300 ease-out-soft focus-within:border-teal-300 focus-within:shadow-[0_0_0_4px_rgb(81_133_145/0.14),var(--shadow-soft)] sm:p-2.5",
+                    "flex items-end gap-1 border border-line-strong bg-white p-2 shadow-[var(--shadow-soft)] transition-[border-color,box-shadow,border-radius] duration-300 ease-out-soft focus-within:border-teal-300 focus-within:shadow-[0_0_0_4px_rgb(91_144_145/0.14),var(--shadow-soft)] sm:p-2.5",
                     multiline ? "rounded-[1.75rem]" : "rounded-full",
                     completed && "cursor-not-allowed bg-white/60 opacity-70",
                   )}
@@ -612,7 +612,7 @@ export function MiraChatExperience({
                     disabled={completed}
                     aria-label={diagnostic.composerAttach}
                     title={diagnostic.composerAttach}
-                    className="h-11 w-11 rounded-full text-ink-muted hover:bg-teal-50 hover:text-teal-800"
+                    className="hidden h-11 w-11 rounded-full text-ink-muted hover:bg-teal-50 hover:text-teal-800 sm:inline-flex"
                   >
                     <Paperclip aria-hidden />
                   </Button>
@@ -636,7 +636,7 @@ export function MiraChatExperience({
                     placeholder={completed ? diagnostic.completed.inputDisabled : diagnostic.placeholder}
                     disabled={busy || completed}
                     aria-describedby="mira-session-meta"
-                    className="max-h-[140px] min-h-11 min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-base leading-6 text-ink outline-none placeholder:text-ink-muted disabled:opacity-60 sm:text-[1.0625rem]"
+                    className="max-h-[min(140px,22dvh)] min-h-11 min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-base leading-6 text-ink outline-none placeholder:text-ink-muted disabled:opacity-60 sm:text-[1.0625rem]"
                   />
 
                   {input.trim() && (
@@ -650,7 +650,7 @@ export function MiraChatExperience({
                         if (inputRef.current) inputRef.current.style.height = "auto";
                       }}
                       aria-label={dictionary.common.close}
-                      className="h-11 w-11 rounded-full text-ink-subtle hover:text-ink"
+                      className="h-10 w-10 rounded-full text-ink-subtle hover:text-ink sm:h-11 sm:w-11"
                     >
                       <X aria-hidden />
                     </Button>
@@ -666,7 +666,7 @@ export function MiraChatExperience({
                     title={dictating ? diagnostic.composerDictationLive : diagnostic.composerDictate}
                     aria-pressed={dictating}
                     className={cn(
-                      "h-11 w-11 rounded-full",
+                      "h-10 w-10 rounded-full sm:h-11 sm:w-11",
                       dictating ? "bg-rose-50 text-rose-700 hover:bg-rose-50 hover:text-rose-700" : "text-ink-muted hover:bg-teal-50 hover:text-teal-800",
                     )}
                   >
@@ -680,7 +680,7 @@ export function MiraChatExperience({
                       whileTap={{ scale: 0.92 }}
                       aria-label={streamCopy.stop}
                       title={streamCopy.stop}
-                      className="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-teal-200 bg-white text-teal-800 shadow-[0_0_0_5px_rgb(81_133_145/0.1)] transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+                      className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-teal-200 sm:h-12 sm:w-12 bg-white text-teal-800 shadow-[0_0_0_5px_rgb(91_144_145/0.1)] transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
                     >
                       <Square className="h-4 w-4 fill-current" aria-hidden />
                     </motion.button>
@@ -694,11 +694,11 @@ export function MiraChatExperience({
                     aria-label={diagnostic.send}
                     title={diagnostic.send}
                     className={cn(
-                      "inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full text-white transition-[box-shadow,opacity] duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed",
+                      "inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white sm:h-12 sm:w-12 transition-[box-shadow,opacity] duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 disabled:cursor-not-allowed",
                       "bg-[radial-gradient(circle_at_30%_25%,var(--color-teal-600),var(--color-teal-800)_62%,var(--color-teal-900))]",
                       canSend
-                        ? "shadow-[0_0_0_5px_rgb(227_176_28/0.2),0_10px_24px_-8px_rgb(34_60_65/0.65)]"
-                        : "opacity-55 shadow-[0_0_0_5px_rgb(81_133_145/0.08)]",
+                        ? "shadow-[0_0_0_5px_rgb(201_175_111/0.2),0_10px_24px_-8px_rgb(17_76_97/0.65)]"
+                        : "opacity-55 shadow-[0_0_0_5px_rgb(91_144_145/0.08)]",
                     )}
                   >
                     <SendHorizontal className="h-5 w-5 rtl:-scale-x-100" aria-hidden />
