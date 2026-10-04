@@ -133,6 +133,7 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
   const sessionLanguageRef = useRef<Lang | null>(null);
   const startedRef = useRef(false);
   const lockedRef = useRef(locked);
+  const restoredKeyRef = useRef<string | null>(null);
   // Read at restore time only: a language switch must not re-run the restore effect.
   const langRef = useRef(lang);
   useEffect(() => {
@@ -208,6 +209,11 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
   // database, not just the last message, and route completed sessions to their report.
   useEffect(() => {
     if (lockedRef.current) return;
+    // Once per storage key. `start` changes identity whenever isStarting flips, so without this guard a
+    // failed start re-ran this effect and fired POST /mira/session again in a tight loop (until HTTP 429).
+    // A retry after a failure is the visitor's explicit action (start/retry), never automatic.
+    if (restoredKeyRef.current === (storageKey ?? "")) return;
+    restoredKeyRef.current = storageKey ?? "";
     const storedSessionId = storageKey ? window.localStorage.getItem(storageKey) : null;
     if (!storedSessionId) {
       window.setTimeout(() => void start(preferredLanguage(langRef.current)), 0);
