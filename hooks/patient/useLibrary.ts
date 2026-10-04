@@ -14,6 +14,9 @@ type LibraryState = { items: LibraryItem[]; /** Backend reason code when there i
 /** Sent once per article and kind in this tab; a repeated click or a re-render never adds a second event. */
 const sent = new Set<string>();
 
+/** A refresh is asked for once per page session: if the catalog has nothing for a theme, reloading must not keep asking. */
+let refreshAsked = false;
+
 const newEventId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
 
 /**
@@ -28,9 +31,15 @@ export function useLibrary(enabled = true) {
   const resource = usePatientResource<LibraryState>(
     enabled ? "library:recommendations" : null,
     async () => {
-      const current = await libraryApi.current();
-      if (current.items.length) return { items: current.items };
+      let current = await libraryApi.current();
       if (current.reason) return { items: [], reason: current.reason };
+      // The patient's own check-ins/journal point to a theme nothing has answered yet (e.g. short sleep): ask for it.
+      if (current.refresh && !refreshAsked) {
+        refreshAsked = true;
+        const fresh = await libraryApi.recommend({ limit: 3 });
+        if (fresh.type === "RECOMMENDATION") current = await libraryApi.current();
+      }
+      if (current.items.length) return { items: current.items };
       const fresh = await libraryApi.recommend({ limit: BATCH });
       return fresh.type === "RECOMMENDATION" ? { items: fresh.items } : { items: [], reason: fresh.reason };
     },

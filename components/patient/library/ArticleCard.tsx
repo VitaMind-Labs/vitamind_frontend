@@ -44,6 +44,7 @@ export function ArticleCard({ item, index = 0, className, onOpen, onDismiss }: C
   const { content } = item;
   const tone = COVERS[index % COVERS.length];
   const title = (language === "ar" && content.titleAr) || content.title;
+  const because = item.because?.[0];
 
   const inner = (
     <>
@@ -60,6 +61,7 @@ export function ArticleCard({ item, index = 0, className, onOpen, onDismiss }: C
       </span>
 
       <span className="flex flex-1 flex-col p-4 sm:p-5">
+        {because && <span className="mb-2 text-[0.8125rem] font-medium leading-snug text-teal-700">{copy.because[because]}</span>}
         <span dir="auto" className="text-[1.0625rem] font-semibold leading-snug text-ink">{title}</span>
         {content.summary && <span dir="auto" className="mt-2 line-clamp-3 text-[0.875rem] leading-6 text-ink-soft">{content.summary}</span>}
         {content.readingTimeMinutes ? (

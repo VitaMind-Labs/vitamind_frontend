@@ -194,7 +194,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
       </AnimatePresence>
 
       {/* ── ALTERNATIVE FIRST (sign-in): one tap in, then the email form ──────── */}
-      {!isSignUp && (
+      {/* {!isSignUp && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -211,7 +211,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
             <Separator className="flex-1 bg-line" />
           </div>
         </motion.div>
-      )}
+      )} */}
 
       {/* ── PRIMARY: CREDENTIALS ─────────────────────────────────────── */}
       <motion.form
