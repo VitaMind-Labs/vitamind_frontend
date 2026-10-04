@@ -1,26 +1,24 @@
-import { BookOpen, FileText, HeartPulse, House, Settings, Sparkles, Zap, type LucideIcon } from "lucide-react";
+import { BookHeart, BookOpen, FileText, HeartPulse, House, Settings, type LucideIcon } from "lucide-react";
 
-export type PatientNavKey = "home" | "checkin" | "lumina" | "mira" | "spark" | "journal" | "reports" | "settings";
+import { showsReads, type HomeTrack } from "@/lib/patient/content";
 
-/**
- * The patient screens, in the order they appear. `spark` is only for patients the backend
- * marks `hasSpark` (ADHD track): use `visibleNav()`, never this list directly.
- */
+export type PatientNavKey = "home" | "checkin" | "journal" | "library" | "reports" | "settings";
+
+/** The patient screens, in the order they appear. */
 export const PATIENT_NAV: { key: PatientNavKey; href: string; icon: LucideIcon }[] = [
   { key: "home", href: "/dashboard", icon: House },
   { key: "checkin", href: "/dashboard/check-in", icon: HeartPulse },
-  { key: "lumina", href: "/dashboard/lumina", icon: Sparkles },
-  { key: "spark", href: "/dashboard/spark", icon: Zap },
   { key: "journal", href: "/dashboard/journal", icon: BookOpen },
+  { key: "library", href: "/dashboard/library", icon: BookHeart },
   { key: "reports", href: "/dashboard/reports", icon: FileText },
   { key: "settings", href: "/dashboard/settings", icon: Settings },
 ];
 
-/** The navigation for this patient: Spark appears only when the backend says they have it. */
-export function visibleNav(hasSpark: boolean) {
-  return PATIENT_NAV.filter((item) => item.key !== "spark" || hasSpark);
-}
-
 export function isActive(pathname: string, href: string) {
   return href === "/dashboard" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** The screens for a track: the library is there for bipolar, schizophrenia and psychosis — not for ADHD (or before the track is known). */
+export function navFor(track: HomeTrack | undefined) {
+  return PATIENT_NAV.filter((item) => item.key !== "library" || (track !== undefined && showsReads(track)));
 }

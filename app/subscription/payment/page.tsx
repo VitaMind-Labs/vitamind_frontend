@@ -12,8 +12,11 @@ import { billingApi } from "@/lib/api/billing";
 import { ApiError } from "@/lib/api/client";
 import { isAuthenticated } from "@/lib/api/tokens";
 import { Button } from "@/components/ui/button";
+import { Grain } from "@/components/home/Atmosphere";
+import { CountUp } from "@/components/home/CountUp";
+import { splitPrice } from "@/components/home/PlanCard";
 import { SectionHeader } from "@/components/home/SectionHeader";
-import { PlanBenefits, PlanPrice } from "@/components/pricing/PlanColumn";
+import { DISPLAY_M, DISPLAY_S, LABEL, SERIF } from "@/components/home/typography";
 import { FormField, IconInput } from "@/components/shared/FormField";
 import { CardPreview } from "@/components/subscription/CardPreview";
 import { CheckoutLayout } from "@/components/subscription/CheckoutLayout";
@@ -23,6 +26,7 @@ import { LANGS } from "@/lib/i18n/config";
 import { fill } from "@/lib/i18n/format";
 import { EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { LogoLoader, LogoSpinner } from "@/components/shared/LogoLoader";
+import { cn } from "@/lib/utils";
 
 const REDIRECT_DELAY_MS = 2500;
 
@@ -97,10 +101,10 @@ function PaymentForm() {
     return plans.isLoading ? (
       <PaymentFallback />
     ) : (
-      <div role="alert" className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-[1.75rem] border border-rose-100 bg-rose-50 p-8 text-center">
+      <div role="alert" className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-panel border border-rose-100 bg-rose-50 p-8 text-center">
         <AlertCircle className="h-6 w-6 text-rose-700" aria-hidden />
         <p className="font-semibold text-ink">{dictionary.subscription.plansUnavailableTitle}</p>
-        <p className="text-sm text-ink-soft">{dictionary.subscription.plansUnavailableBody}</p>
+        <p className="text-[0.9375rem] text-ink-soft">{dictionary.subscription.plansUnavailableBody}</p>
         <Button variant="outline" onClick={() => void plans.refresh()}>
           {dictionary.subscription.retry}
         </Button>
@@ -123,75 +127,87 @@ function PaymentForm() {
         <CheckoutSteps current={2} className="mb-10" />
         <motion.section
           aria-live="polite"
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: EASE_OUT }}
-          className="mx-auto w-full max-w-lg"
+          transition={{ duration: 0.9, ease: EASE_OUT }}
+          className="mx-auto w-full max-w-xl"
         >
-          <div className="relative overflow-hidden rounded-[1.75rem] border border-line bg-white px-5 py-8 text-center sm:px-10 sm:py-10">
-            <div aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-primary" />
+          <div className="relative isolate overflow-hidden rounded-[2rem] border border-line bg-white px-6 py-10 text-center shadow-float sm:px-12 sm:py-14">
+            <span aria-hidden className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
+            <span aria-hidden className="pointer-events-none absolute -top-28 start-1/2 -z-10 size-72 -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(201_175_111/0.22),transparent)] rtl:translate-x-1/2" />
 
-            <motion.div
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.1 }}
-              className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-teal-50 ring-8 ring-teal-50/60"
-            >
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-brand">
-                <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
+            {/* The check draws itself inside rings that open outward, once */}
+            <div className="relative mx-auto flex size-24 items-center justify-center">
+              {[0, 1].map((i) => (
+                <motion.span
+                  key={i}
+                  aria-hidden
+                  className="absolute inset-0 rounded-full border border-gold"
+                  initial={{ scale: 0.6, opacity: 0.7 }}
+                  animate={{ scale: 1.9, opacity: 0 }}
+                  transition={{ duration: 1.8, delay: 0.5 + i * 0.4, ease: "easeOut" }}
+                />
+              ))}
+              <motion.span
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 240, damping: 18, delay: 0.1 }}
+                className="flex size-20 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_25%,var(--color-teal-600),var(--color-teal-900))] text-white shadow-brand ring-8 ring-teal-50"
+              >
+                <svg viewBox="0 0 24 24" className="size-9" aria-hidden>
                   <motion.path
                     d="M5 12.5l4.5 4.5L19 7.5"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2.5"
+                    strokeWidth="2.25"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.6, delay: 0.45, ease: EASE_OUT }}
+                    transition={{ duration: 0.7, delay: 0.5, ease: EASE_OUT }}
                   />
                 </svg>
-              </span>
-            </motion.div>
+              </motion.span>
+            </div>
 
-            <motion.div variants={stagger(0.07, 0.2)} initial="hidden" animate="show">
-              <motion.h1 variants={fadeUp(0, 10)} className="mt-6 text-title font-semibold text-ink">
+            <motion.div variants={stagger(0.08, 0.3)} initial="hidden" animate="show">
+              <motion.h1 variants={fadeUp(0, 12)} className={cn(DISPLAY_M, "mt-8 text-[clamp(2rem,2vw+1.4rem,3rem)] text-ink")}>
                 {copy.success.title}
               </motion.h1>
-              <motion.p variants={fadeUp(0, 10)} className="mt-3 inline-flex items-center gap-2 rounded-full border border-sage-100 bg-sage-50 px-3.5 py-1.5 text-xs font-medium text-sage-700">
-                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-sage-700" />
+              <motion.p variants={fadeUp(0, 12)} className={cn(LABEL, "mt-5 inline-flex items-center gap-2.5 rounded-full border border-sage-100 bg-sage-50 px-4 py-2 text-sage-700")}>
+                <span aria-hidden className="size-1.5 rounded-full bg-sage-700" />
                 {copy.success.activePlan}: <strong className="font-semibold">{planCopy.name}</strong>
               </motion.p>
-              <motion.p variants={fadeUp(0, 10)} className="mx-auto mt-4 max-w-sm text-[0.9375rem] leading-7 text-ink-muted">
+              <motion.p variants={fadeUp(0, 12)} className="mx-auto mt-5 max-w-sm text-[1.0625rem] leading-8 text-ink-soft">
                 {fill(copy.success.body, { plan: planCopy.name })}
               </motion.p>
 
-              <motion.dl variants={fadeUp(0, 10)} className="mt-6 divide-y divide-line border-y border-line text-start text-sm">
+              <motion.dl variants={fadeUp(0, 12)} className="mt-8 divide-y divide-line-strong/60 border-y border-line-strong/60 text-start text-[0.9375rem]">
                 {receipt.map((row) => (
-                  <div key={row.label} className="flex items-center justify-between gap-4 py-3">
-                    <dt className="text-ink-muted">{row.label}</dt>
+                  <div key={row.label} className="flex items-center justify-between gap-4 py-3.5">
+                    <dt className="text-ink-soft">{row.label}</dt>
                     <dd className="text-end text-ink">{row.value}</dd>
                   </div>
                 ))}
               </motion.dl>
 
-              <motion.div variants={fadeUp(0, 10)} className="mt-7 grid gap-2.5 sm:grid-cols-2">
-                <Button asChild variant="default" size="lg" className="group w-full">
+              <motion.div variants={fadeUp(0, 12)} className="mt-8 grid gap-3 sm:grid-cols-2">
+                <Button asChild variant="default" size="lg" className="group min-h-14 w-full shadow-brand">
                   <Link href="/dashboard">
                     {copy.success.dashboard}
                     <ArrowRight className="transition-transform duration-300 ease-out-soft group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="w-full">
+                <Button asChild variant="outline" size="lg" className="min-h-14 w-full">
                   <Link href="/dashboard/settings">{copy.success.invoice}</Link>
                 </Button>
               </motion.div>
 
-              <motion.div variants={fadeUp(0, 10)} className="mt-6" role="status">
-                <p className="text-xs text-ink-muted">{copy.success.redirecting}</p>
-                <div className="mx-auto mt-2 h-1 max-w-48 overflow-hidden rounded-full bg-teal-100">
+              <motion.div variants={fadeUp(0, 12)} className="mt-7" role="status">
+                <p className="text-[0.875rem] text-ink-soft">{copy.success.redirecting}</p>
+                <div className="mx-auto mt-3 h-px max-w-56 overflow-hidden bg-line-strong">
                   <motion.div
-                    className="h-full origin-left rounded-full bg-teal-500 rtl:origin-right"
+                    className="h-full origin-left bg-gold rtl:origin-right"
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ duration: REDIRECT_DELAY_MS / 1000, ease: "linear" }}
@@ -199,7 +215,7 @@ function PaymentForm() {
                 </div>
               </motion.div>
 
-              <motion.p variants={fadeUp(0, 10)} className="mt-6 text-xs leading-5 text-ink-muted">
+              <motion.p variants={fadeUp(0, 12)} className="mt-7 text-[0.875rem] leading-6 text-ink-soft">
                 {copy.success.emailSent}{" "}
                 {copy.success.help}{" "}
                 <Link href="/support" className="font-semibold text-teal-700 underline-offset-4 hover:underline">
@@ -224,13 +240,13 @@ function PaymentForm() {
           transition={{ duration: 0.55, ease: EASE_OUT }}
           className="mx-auto w-full max-w-lg"
         >
-          <div className="rounded-[1.75rem] border border-line bg-white p-6 text-center sm:p-8">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-sage-50 text-sage-700">
-              <ShieldCheck className="h-6 w-6" aria-hidden />
+          <div className="rounded-[2rem] border border-line bg-white p-8 text-center shadow-float sm:p-12">
+            <span className="mx-auto flex size-14 items-center justify-center rounded-full bg-sage-50 text-sage-700 ring-8 ring-sage-50/60">
+              <ShieldCheck className="size-7" strokeWidth={1.5} aria-hidden />
             </span>
-            <h1 className="mt-4 text-title font-semibold text-ink">{copy.alreadyActiveTitle}</h1>
-            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-muted">{copy.alreadyActiveBody}</p>
-            <Button asChild variant="default" size="lg" className="group mt-6 w-full sm:w-auto">
+            <h1 className={cn(DISPLAY_M, "mt-6 text-[clamp(1.75rem,1.6vw+1.3rem,2.5rem)] text-ink")}>{copy.alreadyActiveTitle}</h1>
+            <p className="mx-auto mt-3 max-w-sm text-[1rem] leading-7 text-ink-soft">{copy.alreadyActiveBody}</p>
+            <Button asChild variant="default" size="lg" className="group mt-8 min-h-14 w-full px-8 shadow-brand sm:w-auto">
               <Link href="/dashboard">
                 {copy.goToDashboard}
                 <ArrowRight className="transition-transform duration-300 ease-out-soft group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden />
@@ -242,50 +258,66 @@ function PaymentForm() {
     );
   }
 
+  const price = splitPrice(plan.price, plan.currency);
+
   return (
     <>
-      <CheckoutSteps current={1} className="mb-10" />
+      <CheckoutSteps current={1} className="mb-12" />
       <PaymentHero />
-      <div className="mx-auto grid w-full max-w-6xl items-start gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-8">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-10">
         {/* Order summary — first on small screens so the plan is always confirmed before card details. */}
         <motion.aside
           aria-label={copy.summaryTitle}
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.1, ease: EASE_OUT }}
-          className="rounded-[1.75rem] border border-line bg-white p-5 sm:p-7 lg:sticky lg:top-24 lg:order-last"
+          transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT }}
+          className="relative isolate overflow-hidden rounded-[2rem] bg-deep p-7 text-white shadow-float sm:p-9 lg:sticky lg:top-28 lg:order-last"
         >
+          <Grain />
+
           <div className="flex items-center justify-between gap-3">
-            <h2 className="home-label text-ink-muted">{copy.summaryTitle}</h2>
-            <Link href="/subscription" className="inline-flex min-h-10 items-center rounded-md text-sm font-semibold text-teal-700 underline-offset-4 hover:underline">
+            <h2 className={cn(LABEL, "text-teal-200")}>{copy.summaryTitle}</h2>
+            <Link href="/subscription" className="inline-flex min-h-10 items-center rounded-md text-[0.9375rem] font-semibold text-gold-300 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-gold-300">
               {copy.changePlan}
             </Link>
           </div>
 
-          {/* The chosen plan, in the same emphasis surface it had on the plan step. */}
-          <div className="relative mt-3 overflow-hidden rounded-2xl bg-teal-50/60 p-4 sm:p-5">
-            <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-primary" />
-            <p className="text-lg font-semibold text-ink">{planCopy.name}</p>
-            <PlanPrice amount={plan.price} currency={plan.currency} size="sm" className="mt-2" />
-            <p className="mt-1.5 text-xs text-ink-muted">{copy.billedMonthly}</p>
-          </div>
+          <p className={cn(DISPLAY_S, "mt-7 text-white")}>{planCopy.name}</p>
+          <p className="mt-4 flex items-baseline gap-2" dir="ltr">
+            <span className={cn(SERIF, "text-[1.5rem] font-light text-gold-300")}>{price.symbol}</span>
+            <span className={cn(SERIF, "text-[4rem] font-light leading-none tracking-[-0.045em] tabular-nums")}>
+              <CountUp value={price.figure} />
+            </span>
+          </p>
+          <p className="mt-3 text-[0.9375rem] text-teal-100">{copy.billedMonthly}</p>
 
-          <PlanBenefits features={planFeatureLines(plan, dictionary.subscription.planFeature).slice(0, 3)} className="mt-5 hidden sm:block" />
+          <ul className="mt-7 hidden space-y-3 border-t border-white/15 pt-6 sm:block">
+            {planFeatureLines(plan, dictionary.subscription.planFeature)
+              .slice(0, 3)
+              .map((feature) => (
+                <li key={feature} className="flex items-start gap-3 text-[0.9375rem] leading-6 text-white/90">
+                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-gold-300/40 bg-gold/15 text-gold-300">
+                    <Check className="size-3" strokeWidth={2.75} aria-hidden />
+                  </span>
+                  {feature}
+                </li>
+              ))}
+          </ul>
 
-          <dl className="mt-5 space-y-3 border-t border-line pt-4 text-sm">
-            <div className="flex items-center justify-between gap-3">
-              <dt className="text-base font-semibold text-ink">{copy.totalToday}</dt>
-              <dd dir="ltr" className="text-2xl font-semibold tabular-nums text-teal-700">{formattedPrice}</dd>
+          <dl className="mt-7 border-t border-white/15 pt-6">
+            <div className="flex items-baseline justify-between gap-3">
+              <dt className="text-[1rem] font-semibold">{copy.totalToday}</dt>
+              <dd dir="ltr" className={cn(SERIF, "text-[2rem] font-light tracking-[-0.03em] tabular-nums text-gold-300")}>{formattedPrice}</dd>
             </div>
           </dl>
 
-          <ul className="mt-5 space-y-2.5 border-t border-line pt-5">
+          <ul className="mt-6 space-y-3 border-t border-white/15 pt-6">
             {[
               { icon: ShieldCheck, text: copy.secureProcessed },
               { icon: Lock, text: copy.cardHandled },
             ].map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-start gap-3 text-xs leading-5 text-ink-muted">
-                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" aria-hidden />
+              <li key={text} className="flex items-start gap-3 text-[0.875rem] leading-6 text-teal-100">
+                <Icon className="mt-0.5 size-4 shrink-0 text-gold-300" aria-hidden />
                 <span className="min-w-0">{text}</span>
               </li>
             ))}
@@ -295,22 +327,22 @@ function PaymentForm() {
         {/* Payment form */}
         <motion.section
           aria-labelledby="payment-details-title"
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: EASE_OUT }}
-          className="rounded-[1.75rem] border border-line bg-white p-5 sm:p-8"
+          transition={{ duration: 0.9, ease: EASE_OUT }}
+          className="rounded-[2rem] border border-line bg-white p-6 shadow-[var(--shadow-soft)] sm:p-10"
         >
-          <div className="mb-6 flex items-start gap-3">
-            <span className="home-icon">
-              <CreditCard className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+          <div className="mb-8 flex items-start gap-4">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-teal-700">
+              <CreditCard className="size-5" strokeWidth={1.5} aria-hidden />
             </span>
             <div className="min-w-0">
-              <h2 id="payment-details-title" className="text-lg font-semibold text-ink">{copy.detailsTitle}</h2>
-              <p className="mt-0.5 text-sm text-ink-muted">{copy.detailsBody}</p>
+              <h2 id="payment-details-title" className={cn(DISPLAY_S, "text-[clamp(1.5rem,1vw+1.2rem,2rem)] text-ink")}>{copy.detailsTitle}</h2>
+              <p className="mt-1.5 text-[0.9375rem] leading-7 text-ink-soft">{copy.detailsBody}</p>
             </div>
           </div>
 
-          <div className="mb-8">
+          <div className="mb-10">
             <CardPreview
               number={preview.number}
               name={preview.name}
@@ -322,9 +354,9 @@ function PaymentForm() {
           </div>
 
           {error && (
-            <div role="alert" className="mb-5 flex items-start gap-2.5 rounded-xl border border-rose-100 bg-rose-50 px-3.5 py-3">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-700" aria-hidden />
-              <p className="text-[0.8125rem] leading-5 text-rose-700">{error}</p>
+            <div role="alert" className="mb-6 flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3.5">
+              <AlertCircle className="mt-0.5 size-4 shrink-0 text-rose-700" aria-hidden />
+              <p className="text-[0.9375rem] leading-6 text-rose-700">{error}</p>
             </div>
           )}
 
@@ -347,20 +379,30 @@ function PaymentForm() {
                 <IconInput id="pay-name" icon={User} type="text" autoComplete="cc-name" onChange={mirror("name")} defaultValue="Alex Morgan" placeholder="John Doe" required />
               </FormField>
 
-              <Button type="submit" variant="default" size="lg" aria-busy={isProcessing} className="group w-full min-h-13">
-                {isProcessing ? (
-                  <>
-                    <LogoSpinner size={18} />
-                    {copy.processing}
-                  </>
-                ) : (
-                  <>
-                    {copy.submit}
-                    <ArrowRight className="transition-transform duration-300 ease-out-soft group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden />
-                  </>
-                )}
+              <Button
+                type="submit"
+                variant="default"
+                size="lg"
+                aria-busy={isProcessing}
+                className="group relative min-h-14 w-full overflow-hidden bg-ink text-white shadow-[0_18px_36px_-16px_rgb(17_76_97/0.75)] hover:bg-teal-900"
+              >
+                {/* Warmth rises from the bottom edge on hover */}
+                <span aria-hidden className="absolute inset-0 origin-bottom scale-y-0 bg-gold/25 transition-transform duration-500 ease-out-soft group-hover:scale-y-100" />
+                <span className="relative flex items-center gap-2.5">
+                  {isProcessing ? (
+                    <>
+                      <LogoSpinner size={18} />
+                      {copy.processing}
+                    </>
+                  ) : (
+                    <>
+                      {copy.submit}
+                      <ArrowRight className="transition-transform duration-300 ease-out-soft group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden />
+                    </>
+                  )}
+                </span>
               </Button>
-              <p className="text-center text-xs text-ink-muted">{copy.cancelBefore}</p>
+              <p className="text-center text-[0.875rem] text-ink-soft">{copy.cancelBefore}</p>
             </fieldset>
           </form>
         </motion.section>
@@ -374,7 +416,9 @@ function PaymentHero() {
   const copy = dictionary.payment;
 
   return (
-    <SectionHeader id="payment-title" as="h1" align="center" eyebrow={copy.eyebrow} titleA={copy.title} intro={copy.subtitle} className="mb-10 sm:mb-14" />
+    <div className="mx-auto mb-12 w-full max-w-6xl sm:mb-16">
+      <SectionHeader variant="editorial" id="payment-title" as="h1" eyebrow={copy.eyebrow} titleA={copy.title} intro={copy.subtitle} />
+    </div>
   );
 }
 
@@ -394,10 +438,10 @@ export default function PaymentPage() {
       <Suspense fallback={<PaymentFallback />}>
         <PaymentForm />
       </Suspense>
-      <ul className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-ink-muted">
+      <ul className="mx-auto mt-14 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[0.875rem] text-ink-soft">
         {copy.trust.map((item) => (
           <li key={item} className="inline-flex items-center gap-1.5">
-            <Check className="h-3.5 w-3.5 text-sage-700" aria-hidden />
+            <Check className="size-4 text-sage-700" aria-hidden />
             {item}
           </li>
         ))}

@@ -1,6 +1,7 @@
 export { CinematicIntro } from "./CinematicIntro";
 export { ConditionsSection } from "./ConditionsSection";
 export { CTASection } from "./CTASection";
+export { DailyRitual as RitualSection } from "./DailyRitual";
 export { Features as FeaturesSection } from "./Features";
 export { Footer as FooterSection } from "./Footer";
 export { Hero as HeroSection } from "./Hero";

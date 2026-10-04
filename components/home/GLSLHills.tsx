@@ -1,4 +1,7 @@
+"use client";
+
 import { useEffect, useRef } from 'react';
+import type { MotionValue } from 'framer-motion';
 import * as THREE from 'three';
 
 interface GLSLHillsProps {
@@ -7,6 +10,10 @@ interface GLSLHillsProps {
     cameraZ?: number;
     planeSize?: number;
     speed?: number;
+    /** 0 → 1 scroll progress: the camera glides forward over the hills as it grows. */
+    progress?: MotionValue<number>;
+    /** Upper bound for the device pixel ratio — the hills are soft, they never need more than 1.5. */
+    maxPixelRatio?: number;
 }
 
 interface PlaneUniforms {
@@ -144,9 +151,12 @@ class Plane {
           varying vec3 vPosition;
 
           void main(void) {
-            float opacity = (96.0 - length(vPosition)) / 256.0 * 0.6;
-            vec3 color = vec3(0.318, 0.522, 0.569); // MindWeave teal #518591
-            gl_FragColor = vec4(color, opacity);
+            float opacity = (96.0 - length(vPosition)) / 256.0 * 0.85;
+            vec3 teal = vec3(0.357, 0.565, 0.569); // MindWeave teal #5b9091
+            vec3 gold = vec3(0.788, 0.686, 0.435); // brand gold #c9af6f
+            // Crests catch a little warm light; valleys stay teal.
+            float crest = smoothstep(12.0, 40.0, vPosition.y);
+            gl_FragColor = vec4(mix(teal, gold, crest * 0.55), opacity * (1.0 + crest * 0.6));
           }
         `,
                 transparent: true
@@ -159,7 +169,7 @@ class Plane {
     }
 }
 
-const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize = 256, speed = 0.5 }: GLSLHillsProps) => {
+const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize = 256, speed = 0.5, progress, maxPixelRatio = 1.5 }: GLSLHillsProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -183,20 +193,38 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
             const h = Math.max(container.clientHeight, 1);
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxPixelRatio));
             renderer.setSize(w, h, false);
             if (!running) renderer.render(scene, camera);
+        };
+
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Pointer drift (mouse only) and scroll glide, both eased so the landscape never jerks.
+        const look = { x: 0, y: 0, tx: 0, ty: 0, p: 0 };
+        const onPointerMove = (event: PointerEvent) => {
+            if (reduceMotion || event.pointerType !== 'mouse') return;
+            const rect = container.getBoundingClientRect();
+            look.tx = ((event.clientX - rect.left) / Math.max(rect.width, 1) - 0.5) * 2;
+            look.ty = ((event.clientY - rect.top) / Math.max(rect.height, 1) - 0.5) * 2;
+        };
+
+        const frame = () => {
+            look.x += (look.tx - look.x) * 0.04;
+            look.y += (look.ty - look.y) * 0.04;
+            look.p += ((reduceMotion ? 0 : (progress?.get() ?? 0)) - look.p) * 0.08;
+            camera.position.set(look.x * 7, 16 - look.y * 3 + look.p * 10, cameraZ - look.p * 38);
+            camera.lookAt(new THREE.Vector3(look.x * -4, 28 + look.p * 8, 0));
         };
 
         const render = () => {
             const now = performance.now();
             const delta = Math.min((now - lastTime) / 1000, 0.033); // Cap delta to 33ms max
             lastTime = now;
-            plane.render(delta);
+            frame();
+            plane.render(delta * (1 + look.p * 2.2));
             renderer.render(scene, camera);
         };
-
-        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
         const renderLoop = () => {
             render();
@@ -225,12 +253,14 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
         scene.add(plane.mesh);
 
         window.addEventListener('resize', resize);
+        window.addEventListener('pointermove', onPointerMove, { passive: true });
         resize();
         render();
         observer.observe(container);
 
         return () => {
             window.removeEventListener('resize', resize);
+            window.removeEventListener('pointermove', onPointerMove);
             observer.disconnect();
             stop();
             renderer.dispose();
@@ -243,7 +273,7 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
                 }
             }
         };
-    }, [cameraZ, planeSize, speed]);
+    }, [cameraZ, planeSize, speed, progress, maxPixelRatio]);
 
     return (
         <div ref={containerRef} style={{ position: 'absolute', top: 0, left: 0, width, height }}>

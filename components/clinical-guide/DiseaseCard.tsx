@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // ─── ICÔNES ───────────────────────────────────────────────────────────────────
-const ICON_MAP: Record<string, React.ElementType> = { Brain, Moon, Activity };
+type IconComponent = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+const ICON_MAP: Record<string, IconComponent> = { Brain, Moon, Activity };
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 interface DiseaseCardProps { id: string; disease: DiseaseDefinition; index: number }
@@ -36,7 +37,7 @@ function SymbolList({ items, color }: { items: string[]; color: string }) {
     );
 }
 
-function StatChip({ icon: Icon, label, value, iconColor }: { icon: React.ElementType; label: string; value: string; iconColor: string }) {
+function StatChip({ icon: Icon, label, value, iconColor }: { icon: IconComponent; label: string; value: string; iconColor: string }) {
     return (
         <div className="flex items-center gap-3 p-3.5 rounded-2xl" style={{ background: "rgba(255,255,255,0.70)", border: "1px solid rgba(81,133,145,0.10)" }}>
             <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: `${iconColor}12` }}>

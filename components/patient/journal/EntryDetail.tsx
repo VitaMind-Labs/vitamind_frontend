@@ -16,7 +16,7 @@ import { formatDay } from "@/lib/patient/format";
 import { moodFor, type EmotionKey } from "@/lib/patient/moods";
 import { invalidatePatientData, usePatientResource } from "@/hooks/usePatientResource";
 
-/** One entry in full: read, edit, delete, retry Lumina's read, or share a passage with the care team. */
+/** One entry in full: read, edit, delete, retry the read, or share a passage with the care team. */
 export function EntryDetail({ entry, onClose }: { entry: JournalEntry | null; onClose: () => void }) {
   const copy = usePatientCopy();
   return (

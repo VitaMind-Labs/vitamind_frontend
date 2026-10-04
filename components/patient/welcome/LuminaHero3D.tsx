@@ -44,7 +44,7 @@ export function LuminaHero3D({ speaking }: { speaking: boolean }) {
   );
 
   return (
-    <div className="relative size-full" role="img" aria-label="Lumina">
+    <div className="relative size-full" role="img" aria-label="VitaMind">
       {webgl === null ? null : webgl ? (
         <SceneBoundary fallback={fallback}>
           <LuminaScene speaking={speaking} still={Boolean(reduce)} />

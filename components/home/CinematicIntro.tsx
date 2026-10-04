@@ -1,85 +1,107 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { animate, motion, useMotionValue, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_IN_OUT, EASE_OUT } from "@/lib/motion";
+import { cn } from "@/lib/utils";
+import { IntroBrand, IntroCounter, IntroField } from "./IntroScene";
+import { ACCENT_LIGHT, LABEL, SERIF } from "./typography";
 
 type CinematicIntroProps = {
   onComplete: () => void;
 };
 
+/** The second half of the scene: one sentence, then the colour settles into the hero's own light and the page appears. */
+/** The colour has fully settled into the hero's light (SETTLE seconds after EXIT_AT) before the overlay starts to fade. */
+const EXIT_AT_MS = 520;
+const SETTLE_SECONDS = 0.8;
+const COMPLETE_AT_MS = EXIT_AT_MS + SETTLE_SECONDS * 1000 + 40;
+
 export const CinematicIntro = ({ onComplete }: CinematicIntroProps) => {
   const [startExit, setStartExit] = useState(false);
   const { dictionary, direction } = useLanguage();
+  const reduce = useReducedMotion();
   const copy = dictionary.homeLanding.intro;
 
+  const calm = useMotionValue(0);
+  const presence = useMotionValue(1);
+  // The loader ended at 100%; its numerals dissolve here instead of vanishing.
+  const hundred = useMotionValue(100);
+
+  // Latest callback without restarting the timeline when the parent re-renders.
+  const done = useRef(onComplete);
   useEffect(() => {
-    const timer = setTimeout(() => setStartExit(true), 3400);
-    const completeTimer = setTimeout(() => onComplete(), 4100);
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(completeTimer);
-    };
+    done.current = onComplete;
   }, [onComplete]);
 
-  const lines = [copy.lineA.split(" "), copy.lineB.split(" ")];
-  const lineOffsets = [0, lines[0].length];
+  useEffect(() => {
+    if (reduce) {
+      const quick = setTimeout(() => done.current(), 300);
+      return () => clearTimeout(quick);
+    }
+    let settle: ReturnType<typeof animate> | undefined;
+    const exit = setTimeout(() => {
+      setStartExit(true);
+      settle = animate(calm, 1, { duration: SETTLE_SECONDS, ease: EASE_IN_OUT });
+    }, EXIT_AT_MS);
+    const complete = setTimeout(() => done.current(), COMPLETE_AT_MS);
+    return () => {
+      clearTimeout(exit);
+      clearTimeout(complete);
+      settle?.stop();
+    };
+  }, [reduce, calm]);
+
+  // Anyone in a hurry can move on: a tap, a click, Enter or Escape.
+  const skip = useCallback(() => done.current(), []);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => (event.key === "Escape" || event.key === "Enter") && skip();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [skip]);
 
   return (
     <motion.div
       dir={direction}
+      onClick={skip}
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.9, ease: EASE_IN_OUT } }}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-white"
+      exit={{ opacity: 0, transition: { duration: reduce ? 0.25 : 0.6, ease: EASE_IN_OUT } }}
+      className="fixed inset-0 z-50 isolate cursor-pointer overflow-hidden bg-white text-ink"
     >
-      <motion.div
-        aria-hidden
-        initial={{ opacity: 0, scale: 0.6 }}
-        animate={{ opacity: [0, 0.5, 0.35], scale: [0.6, 1.4, 1.8] }}
-        transition={{ duration: 3.8, ease: "easeOut" }}
-        className="absolute left-1/2 top-1/2 h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(81_133_145/0.18),rgb(227_176_28/0.08)_45%,transparent_70%)]"
-      />
+      {reduce ? (
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_50%_at_0%_20%,rgb(191_221_225/0.55),transparent_70%),radial-gradient(60%_50%_at_100%_20%,rgb(230_213_170/0.45),transparent_70%)]" />
+      ) : (
+        <IntroField calm={calm} presence={presence} />
+      )}
 
       <motion.div
-        animate={{ opacity: startExit ? 0 : 1, y: startExit ? -12 : 0 }}
-        transition={{ duration: 0.7, ease: EASE_IN_OUT }}
-        className="relative px-6 text-center"
+        animate={{ opacity: startExit ? 0 : 1, y: startExit ? -16 : 0 }}
+        transition={{ duration: 0.5, ease: EASE_IN_OUT }}
+        className="relative flex h-full flex-col items-center justify-center px-6 text-center"
       >
-        {lines.map((words, lineIndex) => (
-          <p key={lineIndex} className="flex flex-wrap justify-center gap-x-[0.28em] overflow-hidden pb-[0.1em] text-[clamp(2.5rem,7vw,6.5rem)] font-extralight leading-[1.1] tracking-[-0.03em] text-ink">
-            {words.map((word, i) => {
-              const delay = 0.25 + (lineOffsets[lineIndex] + i) * 0.1;
-              return (
-                <motion.span
-                  key={`${lineIndex}-${word}`}
-                  initial={{ opacity: 0, y: "60%" }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay, ease: EASE_OUT }}
-                  className={lineIndex === 1 ? "home-heading-accent inline-block" : "inline-block"}
-                >
-                  {word}
-                </motion.span>
-              );
-            })}
-          </p>
-        ))}
+        <IntroBrand instant />
 
-        <motion.span
-          aria-hidden
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.7, delay: 1, ease: EASE_OUT }}
-          className="mx-auto mt-8 block h-px w-40 bg-teal-500"
-        />
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: EASE_OUT }}
+          className={cn(SERIF, "mt-6 max-w-[22ch] text-[clamp(1.25rem,2.6vw,2rem)] font-light leading-[1.25] tracking-[-0.02em] text-ink-soft rtl:font-sans rtl:tracking-normal sm:max-w-none")}
+        >
+          {copy.lineA} <span className={ACCENT_LIGHT}>{copy.lineB}</span>
+        </motion.p>
         <motion.p
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.25, ease: EASE_OUT }}
-          className="mt-5 text-xs font-medium uppercase tracking-[0.28em] text-ink-muted"
+          transition={{ duration: 0.7, delay: 0.25, ease: EASE_OUT }}
+          className={cn(LABEL, "mt-4 text-teal-700")}
         >
           {copy.tagline}
         </motion.p>
+      </motion.div>
+
+      <motion.div animate={{ opacity: 0 }} initial={{ opacity: 1 }} transition={{ duration: 0.6, ease: EASE_OUT }} className="absolute bottom-6 start-6 sm:bottom-9 sm:start-10">
+        <IntroCounter progress={hundred} />
       </motion.div>
     </motion.div>
   );

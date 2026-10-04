@@ -2,25 +2,61 @@ import { ROUTES } from "@/lib/config/routes";
 
 export type AgentId = "mira" | "lumina";
 
-/** Presentation of each agent in the header; copy lives in `dictionary.header.agents.items`. */
+/**
+ * Presentation of each box in the header's "AI agents" panel; copy lives in `dictionary.header.agents.items`.
+ * Mira is teal and aqua, Lumina champagne and gold — the two sides of the logo.
+ */
 export const AGENTS: ReadonlyArray<{
   id: AgentId;
   href: string;
   /** `live` pulses (open to everyone now); `member` is a calm steady dot. */
   status: "live" | "member";
-  tone: { ring: string; tint: string; text: string; dot: string };
+  tone: {
+    ring: string;
+    tint: string;
+    text: string;
+    dot: string;
+    /** Soft gradient surface of the feature box. */
+    surface: string;
+    border: string;
+    /** The wash that fades in on hover: the neighbour's colour. */
+    wash: string;
+    /** The thin line along the top edge. */
+    edge: string;
+    arrow: string;
+  };
 }> = [
   {
     id: "mira",
     href: ROUTES.orientation,
     status: "live",
-    tone: { ring: "group-hover:ring-teal-200", tint: "bg-teal-50/80", text: "text-teal-700", dot: "bg-sage" },
+    tone: {
+      ring: "group-hover:ring-teal-200",
+      tint: "bg-teal-50/80",
+      text: "text-teal-700",
+      dot: "bg-teal-500",
+      surface: "bg-[linear-gradient(150deg,var(--color-teal-100),#ffffff_74%)]",
+      border: "border-teal-200 hover:border-teal-400",
+      wash: "bg-[linear-gradient(150deg,rgb(134_186_188/0.35),transparent_70%)]",
+      edge: "from-teal-300 via-teal-500 to-teal-200",
+      arrow: "bg-teal-600 text-white group-hover:bg-teal-800",
+    },
   },
   {
     id: "lumina",
-    href: ROUTES.plans,
+    href: ROUTES.signUp,
     status: "member",
-    tone: { ring: "group-hover:ring-gold-100", tint: "bg-gold-50/80", text: "text-gold-700", dot: "bg-gold" },
+    tone: {
+      ring: "group-hover:ring-gold-100",
+      tint: "bg-gold-50",
+      text: "text-gold-700",
+      dot: "bg-gold",
+      surface: "bg-[linear-gradient(150deg,var(--color-gold-50),#f3e8c6_86%)]",
+      border: "border-gold-100 hover:border-gold",
+      wash: "bg-[linear-gradient(150deg,rgb(230_213_170/0.6),transparent_70%)]",
+      edge: "from-gold-100 via-gold to-gold-100",
+      arrow: "bg-gold text-teal-900 group-hover:bg-gold-600 group-hover:text-white",
+    },
   },
 ];
 

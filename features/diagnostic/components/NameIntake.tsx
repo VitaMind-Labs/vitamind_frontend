@@ -20,12 +20,12 @@ export function NameIntake({ onSubmit, onSkip }: { onSubmit: (name: string) => v
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: EASE_OUT }}
-      className="flex items-start gap-3.5 rounded-[1.375rem] border border-white/90 bg-white/70 p-4 shadow-soft backdrop-blur-sm sm:gap-4 sm:p-6"
+      className="flex items-start gap-3.5 rounded-[1.375rem] border border-teal-100 bg-teal-50/70 p-4 sm:gap-4 sm:p-6"
     >
       <MiraAvatar size="lg" />
       <div className="min-w-0 flex-1">
-        <p className="text-[0.9375rem] font-semibold text-ink">{t.prompt}</p>
-        <p className="mt-1 text-sm leading-6 text-ink-muted">{t.hint}</p>
+        <p className="text-[1rem] font-semibold text-ink">{t.prompt}</p>
+        <p className="mt-1 text-[0.9375rem] leading-6 text-ink-soft">{t.hint}</p>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -44,14 +44,14 @@ export function NameIntake({ onSubmit, onSkip }: { onSubmit: (name: string) => v
             placeholder={t.placeholder}
             maxLength={40}
             autoComplete="given-name"
-            className="min-h-12 min-w-0 flex-1 rounded-full border border-line bg-white px-5 text-base text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-ink-subtle focus:border-teal-500 focus:shadow-focus"
+            className="min-h-12 min-w-0 flex-1 rounded-full border border-line-strong bg-white px-5 text-base text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-ink-subtle focus:border-teal-500 focus:shadow-focus"
           />
           <div className="flex shrink-0 gap-2">
             <Button type="submit" variant="default" className="group min-h-12 rounded-full px-5">
               {t.confirm}
               <ArrowRight className="transition-transform duration-300 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden />
             </Button>
-            <Button type="button" variant="ghost" onClick={onSkip} className="min-h-12 rounded-full text-ink-muted">
+            <Button type="button" variant="ghost" onClick={onSkip} className="min-h-12 rounded-full text-ink-soft">
               {t.skip}
             </Button>
           </div>

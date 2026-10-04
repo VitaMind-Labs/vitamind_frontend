@@ -3,12 +3,12 @@
 import { DiseaseType } from '../diseases/data';
 
 const KEYS = {
-  USER: 'lumina_user',
-  DISEASE: 'lumina_disease',
-  SUBSCRIPTION: 'lumina_subscription',
-  JOURNAL_ENTRIES: 'lumina_journal_entries',
-  CHAT_MESSAGES: 'lumina_chat_messages',
-  JOURNAL_RATINGS: 'lumina_journal_ratings',
+  USER: 'vitamind_user',
+  DISEASE: 'vitamind_disease',
+  SUBSCRIPTION: 'vitamind_subscription',
+  JOURNAL_ENTRIES: 'vitamind_journal_entries',
+  CHAT_MESSAGES: 'vitamind_chat_messages',
+  JOURNAL_RATINGS: 'vitamind_journal_ratings',
 } as const;
 
 function getItem<T>(key: string, fallback: T): T {

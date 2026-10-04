@@ -9,6 +9,7 @@ import { EASE_OUT } from "@/lib/motion";
 export function ScoreRing({
   value,
   inverted = false,
+  display,
   icon,
   size = 76,
   stroke = 7,
@@ -17,6 +18,8 @@ export function ScoreRing({
   value: number | null;
   /** Higher is worse (stress): the colour scale flips. */
   inverted?: boolean;
+  /** What to announce for the value, e.g. "4/5" (defaults to "{value}/10"). */
+  display?: string;
   icon: ReactNode;
   size?: number;
   stroke?: number;
@@ -29,7 +32,7 @@ export function ScoreRing({
   const color = scaleColor(value, inverted);
 
   return (
-    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`${label}: ${value === null ? "—" : `${value}/10`}`}>
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`${label}: ${value === null ? "—" : display ?? `${value}/10`}`}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90 rtl:rotate-90" aria-hidden>
         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={stroke} className="lm-ring-track" />
         <motion.circle

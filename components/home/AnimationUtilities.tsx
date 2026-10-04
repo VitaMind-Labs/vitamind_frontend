@@ -85,6 +85,44 @@ type TextRevealProps = {
     delay?: number;
 };
 
+type WordRevealProps = {
+    /** Plain text, split on spaces. Words stay real text for screen readers. */
+    children: string;
+    className?: string;
+    delay?: number;
+    /** Seconds between words. */
+    step?: number;
+};
+
+/** Word-by-word masked rise for display headings. Static under reduced motion. */
+export const WordReveal = ({ children, className, delay = 0, step = 0.055 }: WordRevealProps) => {
+    const ref = useRef<HTMLSpanElement>(null);
+    const reduce = useReducedMotion();
+    const isInView = useInView(ref, { once: true, margin: "0px 0px -12% 0px" });
+    const words = children.split(" ").filter(Boolean);
+
+    return (
+        <span ref={ref} className={className}>
+            {words.map((word, i) => (
+                <span key={`${word}-${i}`}>
+                    {/* The mask is padded and pulled back so italics and descenders never clip. */}
+                    <span className="-mx-[0.08em] -my-[0.12em] inline-block overflow-hidden px-[0.08em] py-[0.12em] align-bottom">
+                        <motion.span
+                            className="inline-block"
+                            initial={reduce ? false : { y: "108%" }}
+                            animate={isInView || reduce ? { y: 0 } : { y: "108%" }}
+                            transition={{ duration: 1, ease: EASE_OUT, delay: delay + i * step }}
+                        >
+                            {word}
+                        </motion.span>
+                    </span>
+                    {i < words.length - 1 ? " " : null}
+                </span>
+            ))}
+        </span>
+    );
+};
+
 /** Masked line reveal for headings. */
 export const TextReveal = ({ children, className = "", delay = 0 }: TextRevealProps) => {
     const ref = useRef<HTMLSpanElement>(null);

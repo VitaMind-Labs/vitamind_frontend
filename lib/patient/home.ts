@@ -1,66 +1,43 @@
-import type { Checkin, LuminaState, PatientTrack } from "@/lib/api/patient-types";
+import type { Checkin } from "@/lib/api/patient-types";
 import type { PatientCopy } from "@/lib/i18n/patient";
 import { fill } from "@/lib/i18n/patient";
 import { addDaysLocal, localDay } from "@/lib/patient/format";
 
-export type WellbeingKey = "mood" | "energy" | "stress" | "sleep" | "focus" | "routine" | "social" | "tasks";
+export type WellbeingKey = "mood" | "energy" | "sleep" | "focus";
 
-/** Which four dimensions Home shows first for each track. */
-export const WELLBEING_BY_TRACK: Record<PatientTrack, WellbeingKey[]> = {
-  ADHD: ["mood", "energy", "focus", "tasks"],
-  BIPOLAR: ["mood", "energy", "sleep", "stress"],
-  SCHIZOPHRENIA: ["mood", "sleep", "routine", "social"],
-  UNSPECIFIED: ["mood", "energy", "stress", "sleep"],
-};
+/** The four daily measures, in the order Home shows them. */
+export const WELLBEING_KEYS: WellbeingKey[] = ["mood", "energy", "focus", "sleep"];
 
 /** Sleep hours on a 0–10 ring: a plateau around 7–9 hours, falling away on both sides. */
 export function sleepScore(hours: number): number {
   return Math.max(0, Math.min(10, 10 - Math.abs(hours - 8) * 1.6));
 }
 
+/** A 1–5 check-in answer on the 0–10 ring (1→2 … 5→10, the same steps as the mood levels). */
+export const ringValue = (level: number): number => level * 2;
+
 export type WellbeingReading = {
   key: WellbeingKey;
   /** 0–10 for the ring, null when not reported today. */
   value: number | null;
-  /** What to print next to it: "6", "7.5h". */
+  /** What to print next to it: "4/5", "7.5h". */
   display: string;
-  inverted: boolean;
 };
 
 export function readWellbeing(key: WellbeingKey, checkin: Checkin | null): WellbeingReading {
-  const inverted = key === "stress";
-  const raw = (() => {
-    if (!checkin) return null;
-    switch (key) {
-      case "mood": return checkin.moodScore;
-      case "energy": return checkin.energyLevel;
-      case "stress": return checkin.anxietyLevel;
-      case "focus": return checkin.focusLevel;
-      case "routine": return checkin.routineStability;
-      case "social": return checkin.socialConnection;
-      case "tasks": return checkin.taskCompletion;
-      case "sleep": return checkin.sleepHours;
-    }
-  })();
-  if (raw === null || raw === undefined) return { key, value: null, display: "—", inverted };
-  if (key === "sleep") return { key, value: sleepScore(raw), display: `${Math.round(raw * 10) / 10}h`, inverted };
-  return { key, value: raw, display: `${raw}/10`, inverted };
+  if (!checkin) return { key, value: null, display: "—" };
+  if (key === "sleep") return { key, value: sleepScore(checkin.sleepHours), display: `${Math.round(checkin.sleepHours * 10) / 10}h` };
+  const level = checkin[key];
+  return { key, value: ringValue(level), display: `${level}/5` };
 }
 
 export function bandLabel(reading: WellbeingReading, copy: PatientCopy): string {
   if (reading.value === null) return copy.bands.none;
-  if (reading.inverted) return reading.value <= 3 ? copy.bands.calm : reading.value <= 6 ? copy.bands.moderate : copy.bands.high;
   return reading.value >= 7 ? copy.bands.good : reading.value >= 4 ? copy.bands.moderate : copy.bands.low;
 }
 
 export type SignalTone = "positive" | "neutral" | "attention";
 export type Signal = { id: string; dimension: WellbeingKey | "consistency"; tone: SignalTone; text: string };
-
-/** Lumina's dimension names → the ones the UI uses. */
-const DIMENSION_MAP: Record<string, WellbeingKey> = {
-  sleep: "sleep", energy: "energy", stress: "stress", mood: "mood", focus: "focus",
-  routine_stability: "routine", social_connection: "social", task_completion: "tasks",
-};
 
 function average(values: (number | null)[]): number | null {
   const numbers = values.filter((value): value is number => value !== null);
@@ -68,54 +45,71 @@ function average(values: (number | null)[]): number | null {
 }
 
 /**
- * "Recent signals": what Lumina detected against the patient's own baseline (never against a
- * population), plus plain week-on-week facts from their check-ins. Non-diagnostic wording only.
+ * "Recent signals": plain week-on-week facts from the patient's own check-ins, compared only with
+ * themselves. Non-diagnostic wording only.
  */
-export function deriveSignals(state: LuminaState["data"] | null | undefined, checkins: Checkin[], copy: PatientCopy): Signal[] {
+export function deriveSignals(checkins: Checkin[], copy: PatientCopy): Signal[] {
   const signals: Signal[] = [];
+  const byDay = new Map(checkins.map((row) => [row.date.slice(0, 10), row]));
+  const window = (offset: number, pick: (row: Checkin) => number) =>
+    Array.from({ length: 7 }, (_, i) => {
+      const row = byDay.get(localDay(addDaysLocal(new Date(), -(offset + i))));
+      return row ? pick(row) : null;
+    });
 
-  for (const change of state?.changes ?? []) {
-    const dimension = DIMENSION_MAP[change.dimension];
-    if (!dimension) continue;
-    const rising = change.direction === "INCREASE";
-    const worse = dimension === "stress" ? rising : !rising;
+  const moodNow = window(0, (row) => row.mood);
+  const thisWeek = average(moodNow);
+  const lastWeek = average(window(7, (row) => row.mood));
+  // Mood is 1–5, so half a point is the smallest change worth naming.
+  if (thisWeek !== null && lastWeek !== null && moodNow.filter((v) => v !== null).length >= 3) {
+    const delta = thisWeek - lastWeek;
+    if (delta >= 0.5) signals.push({ id: "mood:up", dimension: "mood", tone: "positive", text: copy.home.signals.moodUp });
+    else if (delta <= -0.5) signals.push({ id: "mood:down", dimension: "mood", tone: "attention", text: copy.home.signals.moodDown });
+  }
+
+  const energyNow = average(window(0, (row) => row.energy));
+  const energyBefore = average(window(7, (row) => row.energy));
+  if (energyNow !== null && energyBefore !== null && Math.abs(energyNow - energyBefore) >= 0.5) {
+    const rising = energyNow > energyBefore;
     signals.push({
-      id: `change:${change.dimension}`,
-      dimension,
-      tone: worse ? "attention" : "positive",
-      text: fill(rising ? copy.home.signals.up : copy.home.signals.down, { dimension: copy.dimensions[dimension] }),
+      id: "energy",
+      dimension: "energy",
+      tone: rising ? "positive" : "attention",
+      text: fill(rising ? copy.home.signals.up : copy.home.signals.down, { dimension: copy.dimensions.energy }),
     });
   }
 
-  const byDay = new Map(checkins.map((row) => [row.checkinDate.slice(0, 10), row]));
-  const window = (offset: number) =>
-    Array.from({ length: 7 }, (_, i) => byDay.get(localDay(addDaysLocal(new Date(), -(offset + i))))?.moodScore ?? null);
-  const thisWeek = average(window(0));
-  const lastWeek = average(window(7));
-  if (thisWeek !== null && lastWeek !== null && window(0).filter((v) => v !== null).length >= 3) {
-    const delta = thisWeek - lastWeek;
-    if (delta >= 1) signals.push({ id: "mood:up", dimension: "mood", tone: "positive", text: copy.home.signals.moodUp });
-    else if (delta <= -1) signals.push({ id: "mood:down", dimension: "mood", tone: "attention", text: copy.home.signals.moodDown });
-  }
-
-  const lastNight = [...checkins].reverse().find((row) => row.sleepHours !== null);
-  if (lastNight && lastNight.sleepHours !== null && signals.length < 4) {
+  // `checkins` is newest-last (as the trend charts read it). The latest night is compared with the
+  // patient's own recent nights, so a 12 h or a 2 h night is never shown as a bare number.
+  const lastNight = [...checkins].reverse()[0];
+  if (lastNight && signals.length < 4) {
     const hours = Math.round(lastNight.sleepHours * 10) / 10;
-    const good = lastNight.sleepHours >= 7;
+    const h = lastNight.sleepHours;
+    const earlier = checkins.filter((row) => row !== lastNight).slice(-14).map((row) => row.sleepHours);
+    const usual = earlier.length >= 3 ? earlier.reduce((sum, v) => sum + v, 0) / earlier.length : null;
+    const base = fill(
+      h < 4 ? copy.home.signals.sleepVeryShort : h < 6 ? copy.home.signals.sleepShort : h > 10 ? copy.home.signals.sleepLong : copy.home.signals.sleepGood,
+      { h: hours },
+    );
+    const gap = usual === null ? 0 : Math.round((h - usual) * 10) / 10;
+    const text = Math.abs(gap) >= 1.5 ? fill(gap < 0 ? copy.home.signals.sleepLess : copy.home.signals.sleepMore, { base, d: Math.abs(gap) }) : base;
     signals.push({
       id: "sleep:last",
       dimension: "sleep",
-      tone: good ? "positive" : lastNight.sleepHours < 6 ? "attention" : "neutral",
-      text: fill(good ? copy.home.signals.sleepGood : copy.home.signals.sleepShort, { h: hours }),
+      tone: h >= 7 && h <= 10 ? "positive" : h < 6 || h > 10 ? "attention" : "neutral",
+      text,
     });
+    if (h < 5 && lastNight.energy >= 4 && lastNight.mood >= 4 && signals.length < 4) {
+      signals.push({ id: "energy:little-sleep", dimension: "energy", tone: "attention", text: copy.home.signals.energyLittleSleep });
+    }
   }
 
-  const days = window(0).filter((value) => value !== null).length;
+  const days = moodNow.filter((value) => value !== null).length;
   if (days >= 2 && signals.length < 4) {
     signals.push({ id: "consistency", dimension: "consistency", tone: "positive", text: fill(copy.home.signals.consistent, { n: days }) });
   }
 
-  if (!signals.length && state && state.changes.length === 0) {
+  if (!signals.length && checkins.length) {
     signals.push({ id: "calibrating", dimension: "consistency", tone: "neutral", text: copy.home.signals.calibrating });
   }
   return signals.slice(0, 4);

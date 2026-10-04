@@ -12,7 +12,7 @@ import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { ReportDetail } from "@/lib/api/patient-types";
 import { fill } from "@/lib/i18n/patient";
 import { formatDay, formatRange } from "@/lib/patient/format";
-import { moodFor, scaleColor, type EmotionKey } from "@/lib/patient/moods";
+import { moodForLevel, scaleColor, type EmotionKey } from "@/lib/patient/moods";
 import { cn } from "@/lib/utils";
 
 const TONE = {
@@ -72,13 +72,9 @@ function Body({ report }: { report: ReportDetail }) {
   const best = report.bestDay;
   const hard = report.hardestDay;
   const dims = [
-    { key: "mood", value: report.averages.mood, inverted: false },
-    { key: "energy", value: report.averages.energy, inverted: false },
-    { key: "stress", value: report.averages.stress, inverted: true },
-    { key: "focus", value: report.averages.focus, inverted: false },
-    { key: "routine", value: report.averages.routine, inverted: false },
-    { key: "social", value: report.averages.social, inverted: false },
-    { key: "tasks", value: report.averages.tasks, inverted: false },
+    { key: "mood", value: report.averages.mood },
+    { key: "energy", value: report.averages.energy },
+    { key: "focus", value: report.averages.focus },
   ] as const;
   const shown = dims.filter((item) => item.value !== null);
   const facts = report.clinician ? clinicianFacts(report.clinician.content) : [];
@@ -98,7 +94,7 @@ function Body({ report }: { report: ReportDetail }) {
         <Tile label={copy.reports.metrics.journal} value={String(report.journalEntries)} />
         <Tile
           label={copy.reports.metrics.mood}
-          value={report.averages.mood !== null ? `${moodFor(report.averages.mood)?.emoji ?? ""} ${report.averages.mood}` : "—"}
+          value={report.averages.mood !== null ? `${moodForLevel(report.averages.mood)?.emoji ?? ""} ${report.averages.mood}` : "—"}
           hint={report.moodDelta !== null ? fill(d.vs, { delta: `${report.moodDelta > 0 ? "+" : ""}${report.moodDelta}` }) : undefined}
         />
         <Tile label={copy.reports.metrics.consistency} value={`${Math.round(report.consistency * 100)}%`} />
@@ -117,10 +113,10 @@ function Body({ report }: { report: ReportDetail }) {
 
       <section aria-label={d.moodChart}>
         <h3 className="mb-2 text-sm font-semibold text-ink">{d.moodChart}</h3>
-        {hasMood ? <TrendChart data={chart} height={200} /> : <p className="rounded-xl bg-white/60 px-4 py-8 text-center text-sm text-muted-foreground">{d.noMood}</p>}
+        {hasMood ? <TrendChart data={chart} height={200} domain={[1, 5]} ticks={[1, 3, 5]} /> : <p className="rounded-xl bg-white/60 px-4 py-8 text-center text-sm text-muted-foreground">{d.noMood}</p>}
         <div className="mt-3 flex flex-wrap gap-2 text-xs">
-          {best && <span className="chip chip-success">{d.bestDay}: {formatDay(best.date, language, { weekday: "long" })} {moodFor(best.mood)?.emoji}</span>}
-          {hard && <span className="chip chip-pending">{d.hardestDay}: {formatDay(hard.date, language, { weekday: "long" })} {moodFor(hard.mood)?.emoji}</span>}
+          {best && <span className="chip chip-success">{d.bestDay}: {formatDay(best.date, language, { weekday: "long" })} {moodForLevel(best.mood)?.emoji}</span>}
+          {hard && <span className="chip chip-pending">{d.hardestDay}: {formatDay(hard.date, language, { weekday: "long" })} {moodForLevel(hard.mood)?.emoji}</span>}
         </div>
         <div className="mt-3 flex gap-1.5" dir="ltr" aria-hidden>
           {report.days.map((day) => (
@@ -139,8 +135,8 @@ function Body({ report }: { report: ReportDetail }) {
           <ul className="grid gap-3 sm:grid-cols-2">
             {shown.map((item) => (
               <li key={item.key} className="rounded-2xl bg-white/70 p-3.5">
-                <div className="mb-1.5 flex justify-between text-sm"><span className="font-medium text-ink">{copy.dimensions[item.key]}</span><span className="tabular-nums text-ink-soft">{item.value}/10</span></div>
-                <div className="h-2 overflow-hidden rounded-full bg-ink/10"><motion.div className="h-full rounded-full" style={{ background: scaleColor(item.value, item.inverted) }} initial={{ width: 0 }} animate={{ width: `${(item.value ?? 0) * 10}%` }} transition={{ duration: 0.8 }} /></div>
+                <div className="mb-1.5 flex justify-between text-sm"><span className="font-medium text-ink">{copy.dimensions[item.key]}</span><span className="tabular-nums text-ink-soft">{item.value}/5</span></div>
+                <div className="h-2 overflow-hidden rounded-full bg-ink/10"><motion.div className="h-full rounded-full" style={{ background: scaleColor((item.value ?? 0) * 2) }} initial={{ width: 0 }} animate={{ width: `${((item.value ?? 0) / 5) * 100}%` }} transition={{ duration: 0.8 }} /></div>
               </li>
             ))}
             {report.averages.sleepHours !== null && (

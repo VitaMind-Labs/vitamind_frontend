@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Check, Flame, HeartHandshake, Lightbulb, MessageCircle, RotateCcw, ShieldAlert, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Flame, HeartHandshake, Lightbulb, RotateCcw, ShieldAlert, Sparkles, Wind } from "lucide-react";
 import { AnalysisNote } from "@/components/patient/journal/AnalysisNote";
 import { EMPTY_ENTRY, EntryForm, saveDraft, type EntryValues } from "@/components/patient/journal/EntryForm";
 import { Skeleton, SubscriptionGate } from "@/components/patient/ui/primitives";
@@ -13,11 +13,13 @@ import type { JournalEntry } from "@/lib/api/patient-types";
 import { useJournalActions, useJournalInsights } from "@/hooks/patient/useJournal";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { crisisBodyFor, fill } from "@/lib/i18n/patient";
+import { journalLabels } from "@/lib/patient/journal-labels";
+import { toFiveScale } from "@/lib/patient/moods";
 import { EASE_OUT } from "@/lib/motion";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
 
 /**
- * Today's entry: write on today's page, save, and see how it fits the picture Lumina is
+ * Today's entry: write on today's page, save, and see how it fits the picture being
  * building over time. `insert` carries a prompt chosen in the companion column.
  */
 export function JournalWrite({ onOpenInsights, insert }: { onOpenInsights: () => void; insert?: { text: string; nonce: number } }) {
@@ -66,7 +68,7 @@ export function JournalWrite({ onOpenInsights, insert }: { onOpenInsights: () =>
 }
 
 /**
- * The result of a save, in three honest steps: what the patient gave, what Lumina read from it,
+ * The result of a save, in three honest steps: what the patient gave, what was read from it,
  * and how it sits inside the longer picture. Nothing here names a clinical category.
  */
 function SavedResult({ entry, onDismiss, onOpenInsights }: { entry: JournalEntry; onDismiss: () => void; onOpenInsights: () => void }) {
@@ -78,7 +80,7 @@ function SavedResult({ entry, onDismiss, onOpenInsights }: { entry: JournalEntry
   const [retrying, setRetrying] = useState(false);
   const crisis = current.support?.level === "CRISIS";
   const heavy = Boolean(current.analysis?.heavy) || current.support?.level === "ELEVATED";
-  const followUps = current.analysis?.followUps ?? [];
+  const noticed = current.analysis?.current ? journalLabels(current.analysis, copy).slice(0, 5) : [];
   const totals = insights.data?.totals;
   // The same entry always gets the same line.
   const affirm = j.affirm[[...entry.id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % j.affirm.length];
@@ -118,11 +120,17 @@ function SavedResult({ entry, onDismiss, onOpenInsights }: { entry: JournalEntry
         <div role="alert" className="mx-5 mb-5 flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
           <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
           <div>
-            <p className="font-semibold">{copy.chat.crisisTitle}</p>
-            <p className="mt-0.5">{crisisBodyFor(copy.chat, current.support?.emergencyResources)}</p>
+            <p className="font-semibold">{j.crisis.title}</p>
+            <p className="mt-0.5">{crisisBodyFor(j.crisis, current.support?.emergencyResources)}</p>
             {current.support?.emergencyResources?.length ? (
               <ul className="mt-1.5 list-inside list-disc" dir="auto">{current.support.emergencyResources.map((item) => <li key={item}>{item}</li>)}</ul>
             ) : null}
+            <p className="mt-3 font-semibold">{j.crisis.stepsTitle}</p>
+            <ul className="mt-1 list-inside list-disc space-y-0.5">{j.crisis.steps.map((step) => <li key={step}>{step}</li>)}</ul>
+            <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-semibold">
+              <a href={j.crisis.helplineUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{j.crisis.helpline}</a>
+              <Link href="/support" className="underline underline-offset-2">{j.crisis.careTeam}</Link>
+            </p>
           </div>
         </div>
       ) : heavy ? (
@@ -134,15 +142,15 @@ function SavedResult({ entry, onDismiss, onOpenInsights }: { entry: JournalEntry
               <p className="mt-0.5 text-sm text-ink-soft">{j.heavy.body}</p>
             </div>
           </div>
-          <Button asChild size="sm"><Link href="/dashboard/lumina"><MessageCircle aria-hidden />{j.heavy.cta}</Link></Button>
+          <Button asChild size="sm"><Link href="/dashboard"><Wind aria-hidden />{j.heavy.cta}</Link></Button>
         </div>
       ) : null}
 
-      {followUps.length > 0 && !crisis && (
+      {noticed.length > 0 && !crisis && (
         <div className="mx-5 mb-5">
-          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-teal-800"><Lightbulb className="size-3.5" aria-hidden />{j.result.suggestions}</p>
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-teal-800"><Lightbulb className="size-3.5" aria-hidden />{j.result.noticed}</p>
           <ul className="flex flex-wrap gap-2">
-            {followUps.map((code) => <li key={code} className="chip" dir="auto">{j.followUps[code]}</li>)}
+            {noticed.map((label) => <li key={label} className="chip" dir="auto">{label}</li>)}
           </ul>
         </div>
       )}
@@ -160,7 +168,7 @@ function SavedResult({ entry, onDismiss, onOpenInsights }: { entry: JournalEntry
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Stat label={j.result.entries} value={String(totals.entries)} />
               <Stat label={j.result.streak} value={String(totals.currentStreak)} icon={<Flame className="size-4 text-gold-600" aria-hidden />} />
-              <Stat label={j.result.mood} value={insights.data?.mood.average !== null && insights.data?.mood.average !== undefined ? `${insights.data.mood.average}` : "—"} />
+              <Stat label={j.result.mood} value={insights.data?.mood.average !== null && insights.data?.mood.average !== undefined ? `${toFiveScale(insights.data.mood.average)}/5` : "—"} />
               <Stat label={j.result.goals} value={insights.data?.goals.average !== null && insights.data?.goals.average !== undefined ? `${insights.data.goals.average}` : "—"} />
             </div>
             <p className="mt-3 text-xs leading-relaxed text-teal-800">

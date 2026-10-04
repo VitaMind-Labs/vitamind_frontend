@@ -9,7 +9,7 @@ import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { ReportInsight, ReportListItem } from "@/lib/api/patient-types";
 import { fill } from "@/lib/i18n/patient";
 import { addDaysLocal, dayOfPeriod, formatDay, formatRange, parseDay } from "@/lib/patient/format";
-import { moodFor } from "@/lib/patient/moods";
+import { moodForLevel } from "@/lib/patient/moods";
 import { cn } from "@/lib/utils";
 
 export function insightText(insight: ReportInsight, copy: ReturnType<typeof usePatientCopy>): string {
@@ -38,9 +38,10 @@ export function ReportCard({ item, onOpen, locked = false }: { item: ReportListI
   const { language } = useLanguage();
   const reduce = useReducedMotion();
   const inProgress = item.status === "IN_PROGRESS";
-  const mood = moodFor(item.moodAverage);
-  const up = item.moodDelta !== null && item.moodDelta >= 1;
-  const down = item.moodDelta !== null && item.moodDelta <= -1;
+  const mood = moodForLevel(item.moodAverage);
+  // Mood is 1-5, so half a point is the smallest change worth naming (the report uses the same threshold).
+  const up = item.moodDelta !== null && item.moodDelta >= 0.5;
+  const down = item.moodDelta !== null && item.moodDelta <= -0.5;
   const opensOn = formatDay(addDaysLocal(parseDay(item.weekEnd), 1), language, { weekday: "long", month: "short", day: "numeric" });
 
   // The first week is still running: the card is a plain, disabled preview. No click, no focus, no request.
@@ -117,7 +118,7 @@ export function ReportCard({ item, onOpen, locked = false }: { item: ReportListI
               )}
             </p>
           </div>
-          <div className="w-28 sm:w-32"><Sparkline values={item.moodSeries} height={44} /></div>
+          <div className="w-28 sm:w-32"><Sparkline values={item.moodSeries} height={44} domain={[1, 5]} /></div>
         </div>
       ) : (
         <p className="rounded-xl bg-white/60 px-3 py-3 text-sm text-muted-foreground">{copy.reports.quietWeek}</p>

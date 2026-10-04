@@ -8,7 +8,7 @@
 export const API_BASE_URL = (
   process.env.API_SERVICE_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000"
+  "http://localhost:3000"
 ).replace(/\/$/, "");
 
 export const API_PREFIX = "/api/v1";

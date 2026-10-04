@@ -23,6 +23,11 @@ const invalidationListeners = new Set<(prefix: string) => void>();
 
 const DEFAULT_STALE_MS = 30_000;
 
+/** Requests started ahead of the screen that needs them (see `prefetchPatientData`), shared by key. */
+const inflight = new Map<string, Promise<void>>();
+/** Bumped on sign-out: a request that was already on its way never writes into the next patient's cache. */
+let epoch = 0;
+
 function notify() {
   storeListeners.forEach((listener) => listener());
 }
@@ -41,8 +46,44 @@ export function invalidatePatientData(prefix: string) {
 }
 
 export function clearPatientCache() {
+  epoch += 1;
   cache.clear();
+  inflight.clear();
   notify();
+}
+
+/**
+ * Put a known value in the cache without a request (the last profile, restored from this device).
+ * `at: 0` marks it stale, so the screen shows it at once and the hook refreshes it in the background.
+ */
+export function seedPatientData<T>(key: string, data: T, at = 0) {
+  if (cache.has(key)) return;
+  cache.set(key, { data, at });
+  notify();
+}
+
+/**
+ * Start loading a key before its screen mounts (from the sign-in page). Independent calls can be
+ * started together; the hook that later asks for the same key reuses the request in flight.
+ */
+export function prefetchPatientData<T>(key: string, fetcher: () => Promise<T>, staleMs = DEFAULT_STALE_MS): Promise<void> {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.at < staleMs) return Promise.resolve();
+  const running = inflight.get(key);
+  if (running) return running;
+  const startedIn = epoch;
+  const request = fetcher()
+    .then((data) => {
+      if (startedIn !== epoch) return;
+      cache.set(key, { data, at: Date.now() });
+      notify();
+    })
+    .catch(() => undefined)
+    .finally(() => {
+      if (inflight.get(key) === request) inflight.delete(key);
+    });
+  inflight.set(key, request);
+  return request;
 }
 
 export type Resource<T> = {
@@ -87,6 +128,13 @@ export function usePatientResource<T>(
       const id = ++runId.current;
       setRefreshingKey(key);
       try {
+        // A request already started for this key (a prefetch) is reused instead of asking twice.
+        const early = !force ? inflight.get(key) : undefined;
+        if (early) {
+          await early;
+          const arrived = cache.get(key);
+          if (arrived && Date.now() - arrived.at < staleMs) return;
+        }
         const next = await fetcherRef.current(new AbortController().signal);
         if (id !== runId.current) return;
         cache.set(key, { data: next, at: Date.now() });

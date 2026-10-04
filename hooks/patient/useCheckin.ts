@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { checkinsApi, type CheckinInput } from "@/lib/api/patient";
-import type { Checkin, CheckinPlan, CheckinResult } from "@/lib/api/patient-types";
+import type { Checkin, DailyReport, GoalStatus } from "@/lib/api/patient-types";
 import { currentStreak, localDay } from "@/lib/patient/format";
 import { invalidatePatientData, usePatientResource } from "@/hooks/usePatientResource";
 
@@ -13,12 +13,6 @@ export function useTodayCheckin() {
   return usePatientResource<Checkin | null>(`checkins:today:${day}`, async () => (await checkinsApi.today(day)).data);
 }
 
-/** Which questions to ask today and what to acknowledge first (adapted server-side). */
-export function useCheckinPlan() {
-  const day = localDay();
-  return usePatientResource<CheckinPlan>(`checkins:plan:${day}`, async () => (await checkinsApi.plan(day)).data, { staleMs: 5_000 });
-}
-
 /** The last `days` check-ins, oldest first, plus the streak they imply. */
 export function useCheckinHistory(days = 30) {
   const to = new Date();
@@ -26,23 +20,31 @@ export function useCheckinHistory(days = 30) {
   from.setDate(to.getDate() - (days - 1));
   const range = { from: localDay(from), to: localDay(to) };
   const resource = usePatientResource<Checkin[]>(`checkins:list:${range.from}:${range.to}`, async () => (await checkinsApi.list(range)).data);
-  const streak = resource.data ? currentStreak(resource.data.map((row) => row.checkinDate)) : 0;
+  const streak = resource.data ? currentStreak(resource.data.map((row) => row.date)) : 0;
   return { ...resource, streak };
+}
+
+/** The patient's own check-in report for a calendar month (built by the longitudinal service). */
+export function useMonthlyCheckinReport(year: number, month: number) {
+  return usePatientResource<DailyReport>(
+    `reports:checkin-monthly:${year}-${month}`,
+    async () => (await checkinsApi.monthlyReport(year, month)).data,
+    { staleMs: 60_000 },
+  );
 }
 
 export function useSubmitCheckin() {
   const [isSubmitting, setSubmitting] = useState(false);
   const [error, setError] = useState<ApiError | Error | null>(null);
 
-  const submit = useCallback(async (input: CheckinInput): Promise<CheckinResult | null> => {
+  const submit = useCallback(async (input: CheckinInput): Promise<Checkin | null> => {
     setSubmitting(true);
     setError(null);
     try {
-      const result = await checkinsApi.create({ ...input, date: localDay() });
+      const { data } = await checkinsApi.create({ ...input, date: localDay() });
       invalidatePatientData("checkins");
-      invalidatePatientData("lumina:state");
       invalidatePatientData("reports");
-      return result;
+      return data;
     } catch (caught) {
       setError(caught instanceof Error ? caught : new Error("Request failed"));
       return null;
@@ -52,4 +54,28 @@ export function useSubmitCheckin() {
   }, []);
 
   return { submit, isSubmitting, error, clearError: () => setError(null) };
+}
+
+/** Resolve one of today's goals (COMPLETED / PARTIAL / MISSED, or back to PENDING). */
+export function useSetGoalStatus() {
+  const [pending, setPending] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const setStatus = useCallback(async (goalId: string, status: GoalStatus) => {
+    setPending(goalId);
+    setError(null);
+    try {
+      await checkinsApi.setGoal(goalId, status);
+      invalidatePatientData("checkins");
+      invalidatePatientData("reports");
+      return true;
+    } catch (caught) {
+      setError(caught instanceof Error ? caught : new Error("Request failed"));
+      return false;
+    } finally {
+      setPending(null);
+    }
+  }, []);
+
+  return { setStatus, pendingGoalId: pending, error };
 }

@@ -4,6 +4,7 @@
 
 # 1. Dependencies & Package Managers
 /node_modules
+/package-lock.json
 /.pnp
 .pnp.*
 .yarn/*
@@ -11,6 +12,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
 
 # 2. Build & Export Outputs
 /.next/
@@ -50,6 +52,10 @@ next-env.d.ts
 /doc
 .claude/
 .kilo/
+
+# 10. Markdown Documents (keep the root README)
+*.md
+!/README.md
 
 # Do NOT Ignore (Critical Config & Guidelines Files)
 CLAUDE.md

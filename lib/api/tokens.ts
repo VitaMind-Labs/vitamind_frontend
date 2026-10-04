@@ -7,6 +7,8 @@
 const ACCESS_KEY = "vitamind_token";
 const REFRESH_KEY = "vitamind_refresh_token";
 const USER_KEY = "vitamind_user";
+/** The last loaded profile (see lib/patient/profile-cache.ts); it never outlives the session. */
+export const PROFILE_CACHE_KEY = "vitamind_profile_cache";
 
 export type SessionUser = { id: string; nickname: string; tier?: string };
 
@@ -92,6 +94,7 @@ export function clearTokens() {
     window.localStorage.removeItem(ACCESS_KEY);
     window.localStorage.removeItem(REFRESH_KEY);
     window.localStorage.removeItem(USER_KEY);
+    window.localStorage.removeItem(PROFILE_CACHE_KEY);
   } catch {
     /* ignore */
   }

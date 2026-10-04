@@ -1,88 +1,60 @@
 /** Response shapes of `/api/v1/me/*` (vitamind_backend/apps/api/src/modules/patient). */
 
 export type PatientTrack = "ADHD" | "BIPOLAR" | "SCHIZOPHRENIA" | "UNSPECIFIED";
-export type SafetyLevel = "NORMAL" | "ELEVATED" | "CRISIS";
 export type Trend = "UP" | "DOWN" | "STEADY" | "UNKNOWN";
 export type Confidence = "INSUFFICIENT" | "EMERGING" | "ESTABLISHED";
 
 export type Profile = {
   id: string;
   nickname: string;
-  /** The name the patient asked Lumina to use (from onboarding), when given. */
-  preferredName?: string | null;
   email: string;
   language: "EN" | "AR";
   track: PatientTrack;
   hasCompletedOnboarding: boolean;
-  hasLuminaAccess: boolean;
-  /** Spark (the ADHD assistant) is offered on the ADHD track only - the backend decides and enforces it. */
-  hasSpark: boolean;
+  /** Active subscription or live trial: writes (check-in, journal) need it. */
+  hasAccess: boolean;
   memberSince: string;
   subscription: { status: "TRIAL" | "ACTIVE" | "EXPIRED" | "CANCELLED" | "SUSPENDED"; planId: string | null; trialEndDate: string | null; endDate: string | null };
   careTeam: { hasClinician: boolean; count: number };
 };
 
+export type GoalStatus = "PENDING" | "COMPLETED" | "PARTIAL" | "MISSED";
+export type CheckinGoal = { id: string; title: string; status: GoalStatus; position: number };
+
+/** A daily check-in: mood, energy and focus on a 1–5 scale, sleep in hours, up to three goals. */
 export type Checkin = {
   id: string;
-  checkinDate: string;
-  moodScore: number;
-  energyLevel: number | null;
-  anxietyLevel: number | null;
-  sleepHours: number | null;
-  focusLevel: number | null;
-  routineStability: number | null;
-  socialConnection: number | null;
-  taskCompletion: number | null;
-  medicationTaken: boolean | null;
-  luminaMessage: string | null;
+  /** The local day, YYYY-MM-DD (may arrive as a full timestamp). */
+  date: string;
+  mood: number;
+  energy: number;
+  focus: number;
+  sleepHours: number;
+  goals: CheckinGoal[];
   createdAt: string;
   updatedAt: string;
 };
 
-export type CheckinItemKey = "mood" | "energy" | "stress" | "sleep" | "focus" | "tasks" | "routine" | "social" | "medication";
-export type CheckinField =
-  | "moodScore" | "energyLevel" | "anxietyLevel" | "sleepHours" | "focusLevel"
-  | "taskCompletion" | "routineStability" | "socialConnection" | "medicationTaken";
-export type CheckinAdaptation =
-  | "FIRST_CHECKIN" | "WELCOME_BACK" | "SLEEP_LOW_YESTERDAY" | "STRESS_HIGH_YESTERDAY"
-  | "MOOD_LOW_YESTERDAY" | "MOOD_GOOD_YESTERDAY" | "STREAK";
+export type SafetyLevel = "NORMAL" | "ELEVATED" | "CRISIS";
+/** The Journal engine's closed label sets (ai-engine/configs/taxonomy_v1.yaml). */
+export type Sentiment = "positive" | "neutral" | "negative";
+export type JournalEmotionLabel = "joy" | "sadness" | "anxiety" | "stress" | "anger" | "frustration" | "overwhelm" | "calm" | "fear" | "loneliness" | "motivation" | "fatigue";
+export type JournalThemeLabel = "work" | "study" | "family" | "relationships" | "sleep" | "social" | "finance" | "routine" | "health" | "goals";
+export type JournalSignalLabel = "low_energy" | "high_energy" | "low_focus" | "high_stress" | "low_motivation" | "sleep_change" | "social_withdrawal" | "rumination" | "goal_difficulty" | "stable_focus";
+export type JournalTemporal = "current" | "past" | "future";
 
-export type CheckinPlan = {
-  date: string;
-  track: PatientTrack;
-  streak: number;
-  items: { key: CheckinItemKey; field: CheckinField; required: boolean; reason: "CORE" | "TRACK" | "MEDICATION" }[];
-  adaptations: CheckinAdaptation[];
-  yesterday: { mood: number; sleepHours: number | null; stress: number | null } | null;
-  hasLuminaAccess: boolean;
-  alreadyCheckedIn: boolean;
-  prefill: Checkin | null;
-};
-
-export type CheckinResult = {
-  checkin: Checkin;
-  lumina: {
-    status: "OK" | "UNAVAILABLE";
-    message: string | null;
-    interactionId?: string;
-    strategy?: string | null;
-    interventionId?: string | null;
-    safetyLevel?: SafetyLevel;
-    replayed?: boolean;
-  };
-};
-
-/** Everyday cues Lumina may show a patient (the agent's safety categories never leave the backend). */
-export type PatientCue = "anxiety" | "overload" | "sadness" | "elevated";
-export type JournalFollowUp = "task_initiation" | "stress_reduction" | "mood" | "sleep_consistency" | "grounding";
-
+/** What the Journal engine found, as everyday labels. Model internals and raw scores never reach the patient. */
 export type JournalAnalysisSummary = {
+  /** False once the entry was edited after this reading. */
   current: boolean;
-  safetyLevel: SafetyLevel;
-  cues: PatientCue[];
+  sentiment: Sentiment | null;
+  temporal: JournalTemporal | null;
+  emotions: JournalEmotionLabel[];
+  themes: JournalThemeLabel[];
+  signals: JournalSignalLabel[];
   /** The entry sounded like a hard moment: the client answers with support, never a category name. */
   heavy: boolean;
-  followUps: JournalFollowUp[];
+  safetyLevel: SafetyLevel;
   analyzedAt: string;
 } | null;
 
@@ -117,7 +89,10 @@ export type JournalInsights = {
   mood: { average: number | null; trend: Trend; delta: number | null; series: SeriesPoint[] };
   goals: { average: number | null; trend: Trend; delta: number | null; series: SeriesPoint[] };
   emotions: { emotion: string; count: number; share: number }[];
-  cues: { cue: PatientCue; count: number }[];
+  /** Themes the Journal engine found (work, sleep, family…), most frequent first. */
+  themes: { theme: string; count: number }[];
+  /** Everyday signals (low_energy, rumination…). */
+  journalSignals: { signal: string; count: number }[];
   hardMoments: number;
   weekly: { weekStart: string; entries: number; moodAverage: number | null; goalAverage: number | null }[];
   recent: {
@@ -127,121 +102,6 @@ export type JournalInsights = {
   calendar: { date: string; entries: number; mood: number | null }[];
   signals: InsightSignal[];
   isPartial: boolean;
-};
-
-export type LuminaTurn = {
-  interactionId: string;
-  /** The thread this turn belongs to (null for check-in replies). */
-  conversationId: string | null;
-  kind: "CHAT" | "CHECKIN" | string;
-  message: string | null;
-  reply: string;
-  strategy: string | null;
-  interventionId: string | null;
-  safetyLevel: SafetyLevel;
-  createdAt: string;
-  replayed?: boolean;
-};
-
-export type LuminaChatReply = LuminaTurn & {
-  intervention: { id: string; title: string | null; steps: string[] | null } | null;
-  support: { level: SafetyLevel; emergencyResources?: string[] };
-};
-
-/** One chat thread in the history sidebar. `title` is the start of its first message (null for older chats). */
-export type LuminaConversation = {
-  id: string;
-  title: string | null;
-  createdAt: string;
-  lastMessageAt: string;
-  turnCount: number;
-};
-
-export type LuminaPage<T> = { data: T[]; meta: { limit: number; nextBefore: string | null } };
-
-// ---- Spark (ADHD assistant) - `/api/v1/me/spark/*`, ADHD patients only (403 SPARK_ADHD_ONLY otherwise)
-export type SparkTaskStatus = "TODO" | "DONE" | "DEFERRED";
-export type SparkTask = {
-  id: string;
-  /** Spark's own id for the task; a turn's plan refers to it by this. */
-  taskKey: string;
-  title: string;
-  status: SparkTaskStatus;
-  scheduledDate: string | null;
-  startTime: string | null;
-  deadline: string | null;
-  durationMinutes: number | null;
-  postponedCount: number;
-  completedAt: string | null;
-  createdAt: string;
-};
-export type SparkPlan = {
-  strategy: string;
-  primaryTaskKey: string | null;
-  nextAction: { text: string; estimatedMinutes: number | null } | null;
-  secondaryTaskKeys: string[];
-  day: string | null;
-} | null;
-export type SparkTurn = {
-  id: string;
-  userMessage: string | null;
-  reply: string;
-  intent: string | null;
-  safetyLevel: string;
-  plan: SparkPlan;
-  focusSession: { minutes: number; successCondition: string; basis: string } | null;
-  capacity: string | null;
-  friction: string[];
-  clarification: string | null;
-  createdAt: string;
-  replayed?: boolean;
-};
-export type SparkChatReply = SparkTurn & {
-  tasks: SparkTask[];
-  support: { level: SafetyLevel; emergencyResources?: string[] };
-};
-export type SparkState = { available: true; tasks: SparkTask[]; lastTurn: SparkTurn | null };
-export type SparkOutcomeName = "DONE" | "PARTIAL" | "NOT_STARTED" | "HELPFUL" | "NOT_HELPFUL" | "TOO_HARD" | "TOO_LONG" | "TOO_EASY" | "INTERRUPTED";
-
-export type LuminaSignal = { dimension: string; value: number | null; quality: "observed" | "estimated" | "missing" | "unknown"; source: string; raw: number | null };
-export type LuminaChange = { dimension: string; direction: string; delta: number | null; certainty: string; significance: string; persistence_days: number };
-
-export type LuminaState = {
-  data: {
-    snapshotDate: string;
-    capacity: "HIGH" | "NORMAL" | "REDUCED" | "VERY_LOW" | "UNKNOWN" | string;
-    evidenceQuality: number;
-    signals: Record<string, LuminaSignal>;
-    missingDimensions: string[];
-    changes: LuminaChange[];
-    createdAt: string;
-  } | null;
-  isDiagnostic: false;
-};
-
-export type LuminaMemory = {
-  id: string;
-  category: string;
-  content: string;
-  status: "CANDIDATE" | "ACTIVE";
-  confidence: number;
-  confirmedAt: string | null;
-  updatedAt: string;
-};
-
-/** A pattern Spark learned from the patient's own attempts (`/me/spark/memories`). */
-export type SparkMemory = LuminaMemory & {
-  memoryKey: string;
-  value: string | null;
-  evidenceCount: number;
-};
-
-/** How many focus attempts Spark has seen against the floor it needs before suggesting a pattern. */
-export type SparkPatternProgress = {
-  attempts: number;
-  days: number;
-  neededAttempts: number;
-  neededDays: number;
 };
 
 export type Exercise = {
@@ -265,9 +125,10 @@ export type AssignedExercise = {
 };
 
 export type ReportInsightCode =
-  | "LOW_DATA" | "MOOD_UP" | "MOOD_DOWN" | "MOOD_STEADY" | "SLEEP_LOW" | "SLEEP_GOOD" | "STRESS_HIGH"
+  | "LOW_DATA" | "MOOD_UP" | "MOOD_DOWN" | "MOOD_STEADY" | "SLEEP_LOW" | "SLEEP_GOOD"
   | "CONSISTENT" | "BUILD_HABIT" | "GOALS_STRONG" | "GOALS_LOW" | "EXERCISES_DONE"
-  | "MEDICATION_STEADY" | "MEDICATION_MISSED";
+  | "MEDICATION_STEADY" | "MEDICATION_MISSED"
+  | "FOCUS_LOW" | "SLEEP_IRREGULAR" | "SLEEP_LONG" | "ENERGY_HIGH_LITTLE_SLEEP";
 export type ReportInsight = { code: ReportInsightCode; tone: "positive" | "neutral" | "attention"; value: number | null };
 
 export type ReportListItem = {
@@ -294,7 +155,7 @@ export type ReportDetail = {
   journalDays: number;
   activeDays: number;
   consistency: number;
-  averages: { mood: number | null; energy: number | null; stress: number | null; sleepHours: number | null; focus: number | null; routine: number | null; social: number | null; tasks: number | null };
+  averages: { mood: number | null; energy: number | null; sleepHours: number | null; focus: number | null };
   journal: { moodAverage: number | null; goalAverage: number | null };
   moodDelta: number | null;
   days: { date: string; mood: number | null; sleepHours: number | null; checkedIn: boolean; journaled: boolean }[];
@@ -326,3 +187,66 @@ export type SubscriptionInfo = {
   plan?: { id?: string; name?: string } | null;
   [key: string]: unknown;
 };
+
+// ---- Check-in reports (`/me/checkins/reports/weekly|monthly`), built by the longitudinal service
+
+export type DailyMetricKey = "mood" | "energy" | "focus" | "sleep";
+
+export type DailyMetricBlock = {
+  n: number;
+  mean: number | null;
+  min: number | null;
+  max: number | null;
+  baseline: { mean: number; n: number } | null;
+  delta_vs_baseline: number | null;
+  trend: { status: string; against: "previous_week" | "rest_of_month"; change?: number };
+  lower_days: number;
+  lower_day_dates: string[];
+  sustained: { start: string; end: string; length: number } | null;
+  /** Mood and energy only: days at 4-5 and the longest consecutive run of them. */
+  higher_days?: number;
+  sustained_high?: { start: string; end: string; length: number } | null;
+};
+
+export type DailyReport = {
+  schema_version: string;
+  report_type: "weekly" | "monthly";
+  period: { start: string; end: string; days: number };
+  availability: { checkins: number; days: number; rate: number };
+  /** `insufficient_data` when there are too few records for a summary. */
+  status: "ok" | "insufficient_data";
+  goals: { created: number; completed: number; partial: number; missed: number; resolved: number; completion_rate: number | null };
+  metrics: Record<DailyMetricKey, DailyMetricBlock>;
+  /** Consecutive days of sleep under 5 h with energy at 4-5, when there were at least two. */
+  elevated_short_sleep?: { start: string; end: string; length: number } | null;
+  data_limitations: string[];
+  /** Plain-language summary that already passed the safety validator. */
+  text: string;
+};
+
+/** An article of the Smart Library, as the backend serves it to the signed-in patient. */
+export type LibraryContent = {
+  id: string;
+  title: string;
+  titleAr: string | null;
+  /** Null until an editor writes one. */
+  summary: string | null;
+  /** The real public source; null when none was provided (the card then does not link). */
+  url: string | null;
+  sourceOrg: string | null;
+  sourceLabel: string | null;
+  /** Null when not measured. */
+  readingTimeMinutes: number | null;
+};
+
+export type LibraryItem = { recommendationId: string; content: LibraryContent; reasons: string[] };
+
+/** `GET /me/library/recommendations/current` */
+export type LibraryCurrent = { mode: string; items: LibraryItem[]; reason?: string };
+
+/** `POST /me/library/recommendations`: `NO_RECOMMENDATION` carries a reason code and no items. */
+export type LibraryRecommendation =
+  | { mode: string; type: "RECOMMENDATION"; items: LibraryItem[] }
+  | { mode: string; type: "NO_RECOMMENDATION"; reason: string };
+
+export type LibraryEventType = "OPENED" | "SAVED" | "USEFUL" | "SOMEWHAT_USEFUL" | "DISMISSED" | "NOT_USEFUL";

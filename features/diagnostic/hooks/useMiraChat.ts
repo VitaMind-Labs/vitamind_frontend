@@ -1,6 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ApiError } from "@/lib/api/client";
+import { streamWithFallback } from "@/lib/api/stream";
+import { useTurnStream } from "@/hooks/patient/useTurnStream";
+import { classifyTurnFailure, type TurnFailureKind } from "@/lib/patient/turn-errors";
 import { copy, LANGUAGE_STORAGE_KEY, normalizeLanguage, type Lang } from "@/lib/i18n/config";
 import type { MiraAssessmentResult, MiraAttemptState, MiraChapter, MiraMessage, MiraSafety } from "../types";
 import { deriveChapter } from "../lib/chapters";
@@ -117,6 +121,13 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
   const [completed, setCompleted] = useState(locked);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [phase, setPhase] = useState<MiraPhase | null>(null);
+  /** Why the last reply did not complete, in calm terms; emergency resources when the API sent them. */
+  const [failure, setFailure] = useState<TurnFailureKind | null>(null);
+  const [support, setSupport] = useState<string[] | null>(null);
+  const { text: streamText, begin: beginStream, finish: finishStream, stop: stopStream, snapshot: streamSnapshot } = useTurnStream();
+  const [writing, setWriting] = useState<{ key: string; startedAt: string } | null>(null);
+  /** The visitor's last message that got no reply, so a gentle retry can send it again. */
+  const unanswered = useRef<{ localId: string; text: string } | null>(null);
 
   const sessionRef = useRef<string | null>(null);
   const sessionLanguageRef = useRef<Lang | null>(null);
@@ -266,8 +277,16 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
     })();
   }, [start, storageKey, errors.send]);
 
+  const displayMessages = useMemo<MiraMessage[]>(
+    () =>
+      writing && streamText
+        ? [...messages, { id: writing.key, renderKey: writing.key, role: "assistant", content: streamText, createdAt: writing.startedAt, streaming: true }]
+        : messages,
+    [messages, writing, streamText],
+  );
+
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, options: { resendOf?: string } = {}) => {
       const text = content.trim();
       const sid = sessionRef.current;
       const requestLanguage = sessionLanguageRef.current;
@@ -276,49 +295,107 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
       setIsBotTyping(true);
       setPhase("reading");
       setError(null);
+      setFailure(null);
+      setSupport(null);
       const localId = uid("local");
+      const key = `stream:${localId}`;
+      // A retry replaces the unanswered attempt (and its unfinished reply) instead of stacking a second copy.
       setMessages((prev) => [
-        ...prev,
+        ...prev.filter((m) => m.id !== options.resendOf && m.renderKey !== `stream:${options.resendOf}`),
         { id: localId, role: "user", content: text, chapter, createdAt: new Date().toISOString() },
       ]);
+      unanswered.current = { localId, text };
       const sentAt = performance.now();
       const reflectTimer = window.setTimeout(() => setPhase("reflecting"), READING_MS);
+      const live = beginStream();
+      let streamed = false;
       try {
-        const response = await fetch("/api/mira", fpInit({
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "message", sessionId: sid, text, language: requestLanguage }),
-        }));
-        const data = (await response.json()) as SendResponse & { error?: string; code?: string };
-        if (!response.ok && data.code === ORIENTATION_COMPLETED) {
+        // The stream goes straight to the API (SSE must never pass through the Next proxy); if it cannot open,
+        // the proxied synchronous endpoint answers and the reply simply arrives whole.
+        const data = await streamWithFallback<SendResponse>({
+          path: `/mira/session/${encodeURIComponent(sid)}/message/stream`,
+          body: { text, language: requestLanguage },
+          headers: fingerprintHeaders(),
+          auth: false,
+          signal: live.signal,
+          onDelta: (delta) => {
+            if (!streamed) {
+              streamed = true;
+              window.clearTimeout(reflectTimer);
+              setPhase("typing");
+              setWriting({ key, startedAt: new Date().toISOString() });
+            }
+            live.onDelta(delta);
+          },
+          sync: async () => {
+            const response = await fetch("/api/mira", fpInit({
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "message", sessionId: sid, text, language: requestLanguage }),
+            }));
+            const body = (await response.json().catch(() => ({}))) as SendResponse & { error?: string; code?: string };
+            if (!response.ok) throw new ApiError(body.error || body.assistant_message || errors.send, response.status, body.code, body);
+            return body;
+          },
+        });
+        if (!streamed) {
+          // The reply came whole: read for a beat, then "type" for a length-proportional beat, as before.
+          const waited = performance.now() - sentAt;
+          if (waited < READING_MS) await sleep(READING_MS - waited);
+          window.clearTimeout(reflectTimer);
+          setPhase("typing");
+          await sleep(typingDelay(data.assistant_message, performance.now() - sentAt));
+        }
+        unanswered.current = null;
+        setProgress(data.chapter_progress);
+        setSafety(data.safety);
+        // The final body is the source of truth; a streamed reply keeps its key so it never remounts.
+        setMessages((prev) => [
+          ...prev,
+          { id: uid("mira"), role: "assistant", content: data.assistant_message, chapter: data.chapter, createdAt: new Date().toISOString(), renderKey: streamed ? key : undefined },
+        ]);
+        if (data.assessment_complete && data.result) setResult(data.result);
+      } catch (err) {
+        const stopped = live.signal.aborted;
+        const problem = classifyTurnFailure(err);
+        if (err instanceof ApiError && err.code === ORIENTATION_COMPLETED) {
           lockedRef.current = true;
           setCompleted(true);
           setSessionReady(false);
           setMessages((prev) => prev.filter((m) => m.id !== localId)); // it was never delivered
+          unanswered.current = null;
           return;
         }
-        if (!response.ok) throw new Error(data.error || data.assistant_message || errors.send);
-        // Always read for a beat before "typing", then type for a length-proportional beat.
-        const waited = performance.now() - sentAt;
-        if (waited < READING_MS) await sleep(READING_MS - waited);
-        window.clearTimeout(reflectTimer);
-        setPhase("typing");
-        await sleep(typingDelay(data.assistant_message, performance.now() - sentAt));
-        setProgress(data.chapter_progress);
-        setSafety(data.safety);
-        pushAssistant(data.assistant_message, data.chapter);
-        if (data.assessment_complete && data.result) setResult(data.result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : errors.send);
+        // Whatever was already written stays on screen; the visitor's own message always stays.
+        const partialText = (streamSnapshot() || problem.partialText).trim();
+        if (partialText) {
+          setMessages((prev) => [
+            ...prev,
+            { id: key, renderKey: key, role: "assistant", content: partialText, createdAt: new Date().toISOString(), partial: stopped ? "stopped" : "interrupted" },
+          ]);
+        }
+        if (!stopped) {
+          if (problem.kind === "support") setSupport(problem.emergencyResources);
+          else if (problem.kind === "other") setError(err instanceof Error && !(err instanceof ApiError) ? err.message : errors.send);
+          else setFailure(problem.kind);
+        }
       } finally {
         window.clearTimeout(reflectTimer);
+        finishStream();
+        setWriting(null);
         setIsSending(false);
         setIsBotTyping(false);
         setPhase(null);
       }
     },
-    [chapter, errors.send, isSending, pushAssistant, result, sessionReady],
+    [beginStream, chapter, errors.send, finishStream, isSending, result, sessionReady, streamSnapshot],
   );
+
+  /** Send the visitor's unanswered message again (from the unfinished reply's "Try again", or the error banner). */
+  const retry = useCallback(() => {
+    const last = unanswered.current;
+    if (last) void sendMessage(last.text, { resendOf: last.localId });
+  }, [sendMessage]);
 
   /** Finalize ("download report"): consumes one attempt. Idempotent; safe to call once per download. */
   const finalize = useCallback(async (): Promise<MiraAttemptState | null> => {
@@ -362,7 +439,13 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
   }, [start, storageKey]);
 
   return {
-    messages,
+    messages: displayMessages,
+    isStreaming: displayMessages.length > messages.length,
+    stop: stopStream,
+    retry,
+    failure,
+    support,
+    dismissSupport: () => setSupport(null),
     sessionId,
     sessionLanguage: sessionLanguage ?? lang,
     chapter,

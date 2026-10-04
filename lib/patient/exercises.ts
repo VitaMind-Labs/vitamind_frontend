@@ -43,16 +43,15 @@ const TRACK_PICKS: Record<PatientTrack, string[]> = {
   UNSPECIFIED: ["breathing-4-7-8", "short-walk", "body-scan"],
 };
 
-export type ExerciseNeed = { stress: number | null; sleepHours: number | null };
+export type ExerciseNeed = { sleepHours: number | null };
 
 /**
- * The one exercise to recommend now: breathing when stress is high, a wind-down after a short
- * night, otherwise the track's first pick. Falls back to any breathing exercise, then the first.
+ * The one exercise to recommend now: a wind-down after a short night, otherwise the track's
+ * first pick. Falls back to the first exercise of the catalogue.
  */
 export function recommendExercise(catalog: Exercise[], track: PatientTrack, need: ExerciseNeed): Exercise | null {
   if (!catalog.length) return null;
   const bySlug = (slug: string) => catalog.find((item) => item.slug === slug);
-  if (need.stress !== null && need.stress >= 6) return bySlug("breathing-4-7-8") ?? catalog.find((item) => item.type === "BREATHING") ?? catalog[0];
   if (need.sleepHours !== null && need.sleepHours < 6) return bySlug("sleep-wind-down") ?? catalog[0];
   for (const slug of TRACK_PICKS[track]) {
     const found = bySlug(slug);

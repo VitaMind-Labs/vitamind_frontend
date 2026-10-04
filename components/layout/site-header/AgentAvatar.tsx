@@ -7,7 +7,7 @@ type AgentAvatarProps = {
   className?: string;
 };
 
-/** Lumina's own mark (leaves, a figure and a gold ring with its star), on a white tile. */
+/** The VitaMind patient-app mark (leaves, a figure and a gold ring with its star), on a white tile. */
 export const LUMINA_MARK_SRC = "/assets/lumina-mark.png";
 /** Mira's official 3D mark (profile, leaves and gold orbit), background removed. */
 export const MIRA_MARK_SRC = "/assets/mira-mark.png";

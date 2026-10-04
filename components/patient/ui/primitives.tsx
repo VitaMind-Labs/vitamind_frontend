@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { AlertCircle, Inbox, LockKeyhole, type LucideIcon } from "lucide-react";
+import { SERIF } from "@/components/home/typography";
 import { Button } from "@/components/ui/button";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,7 @@ export function GlassCard({
   return <Tag className={cn("lm-glass lm-card", lift && "lm-card-lift", className)} {...props} />;
 }
 
-/** Lumina's presence — a soft breathing orb. */
+/** The brand presence — a soft breathing orb. */
 export function LuminaOrb({ size = 48, breathe = true, className }: { size?: number; breathe?: boolean; className?: string }) {
   return (
     <span
@@ -36,7 +37,7 @@ export function SectionTitle({ title, subtitle, action }: { title: string; subti
   return (
     <div className="mb-5 flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <h2 className="text-[1.0625rem] font-semibold leading-snug tracking-tight text-ink sm:text-lg">{title}</h2>
+        <h2 className={cn(SERIF, "text-[1.1875rem] font-normal leading-snug tracking-[-0.01em] text-ink sm:text-xl rtl:font-semibold")}>{title}</h2>
         {subtitle && <p className="mt-0.5 text-[0.8125rem] leading-snug text-muted-foreground">{subtitle}</p>}
       </div>
       {action}
@@ -74,7 +75,7 @@ export function PageIntro({
             {eyebrow}
           </p>
         )}
-        <h1 className={cn("text-[clamp(1.5rem,1.1rem+1.4vw,2.125rem)] font-semibold leading-tight tracking-tight text-ink", hideTitle && "sr-only")}>{title}</h1>
+        <h1 className={cn(SERIF, "text-[clamp(1.75rem,1.2rem+1.6vw,2.5rem)] font-light leading-[1.1] tracking-[-0.02em] text-ink rtl:font-semibold rtl:tracking-normal", hideTitle && "sr-only")}>{title}</h1>
         {subtitle && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-[0.9375rem]">{subtitle}</p>}
       </div>
       {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
@@ -103,7 +104,7 @@ export function ErrorState({ message, onRetry }: { message?: string; onRetry?: (
   );
 }
 
-/** Shown where a screen needs Lumina but the trial or plan has ended. */
+/** Shown where a screen needs an active plan but the trial or plan has ended. */
 export function SubscriptionGate() {
   const copy = usePatientCopy();
   return (

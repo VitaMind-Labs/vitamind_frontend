@@ -1,51 +1,53 @@
 "use client";
 
-import { useMemo } from "react";
-import { CalendarDays, Sun } from "lucide-react";
-import { HeroCard, PlanCard, ProgressStrip, RecommendedExerciseCard, SignalsCard, TrendCard, WellbeingCard } from "@/components/patient/home/HomeCards";
+import type { ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { CareValueCard } from "@/components/patient/home/CareValueCard";
+import { DayWelcome } from "@/components/patient/home/DayWelcome";
+import { ReadsBand } from "@/components/patient/home/ReadsBand";
+import { PlanCard, ProgressStrip, RecommendedExerciseCard, SignalsCard, TrendCard, WellbeingCard } from "@/components/patient/home/HomeCards";
 import { HomeSidePanel } from "@/components/patient/home/HomePanels";
-import { PageIntro } from "@/components/patient/ui/primitives";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { usePatient } from "@/hooks/patient/usePatient";
-import { usePatientCopy } from "@/hooks/usePatientCopy";
-import { fill } from "@/lib/i18n/patient";
-import { dayPart, formatDay } from "@/lib/patient/format";
+import { useCalmTrack } from "@/hooks/useCalmTrack";
+import { EASE_OUT } from "@/lib/motion";
+
+/** One grid cell that settles into place a beat after the one before it (still, under reduced motion). */
+function Cell({ index, className, children }: { index: number; className: string; children: ReactNode }) {
+  const reduce = useReducedMotion();
+  const calm = useCalmTrack();
+  return (
+    <motion.div
+      className={className}
+      initial={reduce ? false : calm ? { opacity: 0 } : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.5 + index * 0.07 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 /**
- * Home. A calm, structured overview: Lumina's greeting, today's wellbeing, the trend and
- * signals, a small plan, and — on the right — Lumina (chat or reads, by track).
+ * Home. The day's welcome first (greeting, three numbers that count up), then — for the tracks that have one — a warm band
+ * of reading, then a calm,
+ * structured overview: today's wellbeing, the trend and signals, a small plan, what the patient's
+ * plan keeps ready for them, and — on the right — today's goals.
  * Every card loads on its own, so the page fills in progressively.
  */
 export default function HomePage() {
-  const copy = usePatientCopy();
-  const { language } = useLanguage();
-  const { name } = usePatient();
-  const greeting = useMemo(() => fill(copy.shell.greeting[dayPart()], { name }), [copy, name]);
-
   return (
-    <div className="lm-rise">
-      <PageIntro
-        eyebrow={copy.shell.eyebrows.home}
-        icon={Sun}
-        title={greeting}
-        subtitle={copy.home.subtitle}
-        action={
-          <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/90 bg-white/70 px-4 text-sm font-medium text-ink-soft shadow-xs backdrop-blur-sm">
-            <CalendarDays className="size-4 text-teal-700" aria-hidden />
-            {formatDay(new Date(), language, { weekday: "long", month: "long", day: "numeric" })}
-          </span>
-        }
-      />
+    <div>
+      <DayWelcome />
+      <ReadsBand />
 
       <div className="grid gap-5 md:grid-cols-2 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(21rem,26rem)] xl:items-start">
-        <div className="order-1 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-1 xl:row-start-1"><HeroCard /></div>
-        <div className="order-2 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-1 xl:row-start-2"><WellbeingCard /></div>
-        <div className="order-3 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-3 xl:row-span-3 xl:row-start-1 xl:sticky xl:top-4"><HomeSidePanel /></div>
-        <div className="order-4 xl:order-none xl:col-start-2 xl:row-start-1"><TrendCard /></div>
-        <div className="order-5 xl:order-none xl:col-start-1 xl:row-start-3"><PlanCard /></div>
-        <div className="order-6 xl:order-none xl:col-start-2 xl:row-start-2"><SignalsCard /></div>
-        <div className="order-7 xl:order-none xl:col-start-2 xl:row-start-3"><RecommendedExerciseCard /></div>
-        <div className="order-8 md:col-span-2 xl:order-none xl:col-span-2 xl:col-start-1 xl:row-start-4"><ProgressStrip /></div>
+        <Cell index={0} className="order-1 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-1 xl:row-start-1"><WellbeingCard /></Cell>
+        <Cell index={1} className="order-2 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-3 xl:row-span-4 xl:row-start-1 xl:sticky xl:top-4"><HomeSidePanel /></Cell>
+        <Cell index={2} className="order-3 xl:order-none xl:col-start-2 xl:row-start-1"><TrendCard /></Cell>
+        <Cell index={3} className="order-4 xl:order-none xl:col-start-1 xl:row-start-2"><PlanCard /></Cell>
+        <Cell index={4} className="order-5 xl:order-none xl:col-start-2 xl:row-start-2"><SignalsCard /></Cell>
+        <Cell index={5} className="order-6 xl:order-none xl:col-start-1 xl:row-start-3"><RecommendedExerciseCard /></Cell>
+        <Cell index={6} className="order-7 xl:order-none xl:col-start-2 xl:row-start-3"><CareValueCard /></Cell>
+        <Cell index={7} className="order-8 md:col-span-2 xl:order-none xl:col-span-2 xl:col-start-1 xl:row-start-4"><ProgressStrip /></Cell>
       </div>
     </div>
   );

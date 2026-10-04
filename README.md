@@ -160,11 +160,12 @@ Create a `.env.local` file for local configuration. The repository includes `.en
 Example:
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
-NEXT_PUBLIC_APP_ENV=development
+NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
-Update values based on your backend and deployment configuration.
+`NEXT_PUBLIC_API_URL` is the base URL of the NestJS API and must match the API's own URL (`vitamind_backend/apps/api/.env.example`: `PORT=3000` locally, the Render service URL in production). The browser calls it directly, including the live connections (server-sent events for Mira and `/api/v1/events`): they never pass through Next.js. So the API's `CORS_ORIGINS` must list this app's origin, and the value is fixed at build time. See `.env.example` for every variable.
+
+The API uses port 3000 locally, so run the app on another port: `npm run dev -- -p 3001`. Test streaming and live updates with `npm run build && npm run start -- -p 3001`.
 
 ## Available Scripts
 

@@ -25,7 +25,19 @@ export class ApiError extends Error {
   get isConflict() {
     return this.status === 409;
   }
+  /** The request never got an answer in time (slow network or a sleeping server). */
+  get isTimeout() {
+    return this.code === "TIMEOUT";
+  }
+  /** The request never reached the API (offline, DNS, CORS...). */
+  get isNetwork() {
+    return this.status === 0 && !this.isTimeout;
+  }
 }
+
+/** Plain calls should answer quickly; anything that waits on an AI agent opts into the longer budget. */
+export const DEFAULT_TIMEOUT_MS = 10_000;
+export const AGENT_TIMEOUT_MS = 60_000;
 
 export type QueryValue = string | number | boolean | null | undefined;
 export type QueryParams = Record<string, QueryValue>;
@@ -62,14 +74,14 @@ export function messageFrom(payload: unknown, status: number): string {
 }
 
 /** Accept both raw payloads and the optional `{ success, data }` envelope. */
-function unwrap<T>(payload: unknown): T {
+export function unwrap<T>(payload: unknown): T {
   if (payload && typeof payload === "object" && "success" in payload && "data" in payload) {
     return (payload as { data: T }).data;
   }
   return payload as T;
 }
 
-async function readJson(res: Response): Promise<unknown> {
+export async function readJson(res: Response): Promise<unknown> {
   if (res.status === 204) return undefined;
   if (!(res.headers.get("content-type") || "").includes("application/json")) return null;
   return res.json().catch(() => null);
@@ -85,12 +97,14 @@ export type RequestOptions = {
   signal?: AbortSignal;
   /** Attach the patient bearer token (default true). */
   auth?: boolean;
+  /** How long to wait for the API to answer (default 10 s; agent-backed calls pass AGENT_TIMEOUT_MS). */
+  timeoutMs?: number;
 };
 
 let refreshing: Promise<boolean> | null = null;
 
 /** One shared refresh at a time; on failure the session is cleared. */
-function refreshSession(): Promise<boolean> {
+export function refreshSession(): Promise<boolean> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) return Promise.resolve(false);
   refreshing ??= (async () => {
@@ -120,18 +134,33 @@ async function send(path: string, options: RequestOptions, retry: boolean): Prom
   const token = options.auth === false ? null : getAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
 
+  // One controller for both the caller's own cancel and the request timeout.
+  const controller = new AbortController();
+  const onCallerAbort = () => controller.abort();
+  if (options.signal?.aborted) controller.abort();
+  else options.signal?.addEventListener("abort", onCallerAbort, { once: true });
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+
   let res: Response;
   try {
     res = await fetch(`${apiUrl(path)}${toQueryString(options.query)}`, {
       method: options.method ?? "GET",
       headers,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-      signal: options.signal,
+      signal: controller.signal,
       cache: "no-store",
     });
   } catch (error) {
+    if (timedOut) throw new ApiError("This is taking longer than usual. Please try again.", 0, "TIMEOUT");
     if ((error as Error)?.name === "AbortError") throw error;
     throw new ApiError("Network error — check your connection and retry.", 0);
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener("abort", onCallerAbort);
   }
 
   if (res.status === 401 && retry && token && (await refreshSession())) {

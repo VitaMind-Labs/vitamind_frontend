@@ -1,12 +1,13 @@
 "use client";
 
 import { useId } from "react";
+import { cn } from "@/lib/utils";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export type TrendPoint = { label: string; value: number | null };
 
 /**
- * Soft area chart for a 0–10 series. Gaps stay gaps (no invented values). The time axis is
+ * Soft area chart for a series (0–10 by default; pass `domain`/`ticks` for another scale). Gaps stay gaps (no invented values). The time axis is
  * always left-to-right, also in Arabic, so "later" never flips meaning.
  */
 export function TrendChart({
@@ -14,17 +15,21 @@ export function TrendChart({
   color = "var(--color-teal-600)",
   height = 180,
   domain = [0, 10],
+  ticks = [0, 5, 10],
   unit,
+  className,
 }: {
   data: TrendPoint[];
   color?: string;
   height?: number;
   domain?: [number, number];
+  ticks?: number[];
   unit?: string;
+  className?: string;
 }) {
   const gradientId = useId().replace(/:/g, "");
   return (
-    <div dir="ltr" style={{ height }} className="w-full">
+    <div dir="ltr" style={{ height }} className={cn("w-full", className)}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 12, left: -6, bottom: 0 }}>
           <defs>
@@ -35,7 +40,7 @@ export function TrendChart({
           </defs>
           <CartesianGrid vertical={false} stroke="rgb(44 62 59 / 0.07)" />
           <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#5f716e" }} interval="preserveStartEnd" />
-          <YAxis domain={domain} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#8a9a97" }} ticks={[0, 5, 10]} width={34} />
+          <YAxis domain={domain} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#8a9a97" }} ticks={ticks} width={34} />
           <Tooltip
             cursor={{ stroke: color, strokeOpacity: 0.25 }}
             contentStyle={{ borderRadius: 12, border: "1px solid #e4e9e8", boxShadow: "0 8px 24px -12px rgb(44 62 59 / 0.3)", fontSize: 12 }}
@@ -61,7 +66,7 @@ export function TrendChart({
 }
 
 /** A tiny line with no axes, for cards. */
-export function Sparkline({ values, color = "var(--color-teal-600)", height = 40 }: { values: (number | null)[]; color?: string; height?: number }) {
+export function Sparkline({ values, color = "var(--color-teal-600)", height = 40, domain = [0, 10] }: { values: (number | null)[]; color?: string; height?: number; domain?: [number, number] }) {
   const gradientId = useId().replace(/:/g, "");
   const data = values.map((value, index) => ({ index, value }));
   return (
@@ -74,7 +79,7 @@ export function Sparkline({ values, color = "var(--color-teal-600)", height = 40
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <YAxis hide domain={[0, 10]} />
+          <YAxis hide domain={domain} />
           <Area type="monotone" dataKey="value" stroke={color} strokeWidth={2} fill={`url(#${gradientId})`} connectNulls dot={false} isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>

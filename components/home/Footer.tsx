@@ -8,6 +8,9 @@ import { BRAND } from "@/lib/config/brand";
 import { ROUTES } from "@/lib/config/routes";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Grain } from "./Atmosphere";
+import { LABEL, SERIF } from "./typography";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -15,13 +18,13 @@ import type { ReactNode } from "react";
 /** Route for each label in `footer.links` / `footer.companyLinks` (same order). */
 const PRODUCT_HREFS = [ROUTES.orientation, `${ROUTES.home}#how-it-works`, ROUTES.plans] as const;
 const ACCOUNT_HREFS = [ROUTES.support, ROUTES.signIn, ROUTES.signUp] as const;
-const LINK_CLASS = "inline-flex min-h-10 items-center rounded-md text-[0.9375rem] text-ink-muted transition-colors duration-200 hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500";
+const LINK_CLASS = "inline-flex min-h-10 items-center rounded-md text-[1rem] text-ink-soft transition-colors duration-200 hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500";
 
 function FooterGroup({ title, children }: { title: string; children: ReactNode }) {
     return (
         <motion.nav variants={fadeUp(0, 12)} aria-label={title}>
-            <h2 className="home-label text-ink">{title}</h2>
-            <ul className="mt-3">{children}</ul>
+            <h2 className={cn(LABEL, "text-ink")}>{title}</h2>
+            <ul className="mt-4">{children}</ul>
         </motion.nav>
     );
 }
@@ -32,19 +35,19 @@ export const Footer = () => {
     const copy = dictionary.homeLanding.footer;
 
     return (
-        <footer id="contact" className="relative bg-canvas">
-            <span aria-hidden className="home-divider" />
+        <footer id="contact" className="relative isolate bg-canvas">
+            <Grain tone="light" />
             <motion.div
                 variants={stagger(0.08)}
                 initial="hidden"
                 whileInView="show"
                 viewport={REVEAL_VIEWPORT}
-                className="page-container pb-8 pt-16 md:pt-20"
+                className="page-container pb-10 pt-20 md:pt-28"
             >
                 <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
                     <motion.div variants={fadeUp(0, 12)} className="lg:col-span-5">
                         <BrandLogo size="lg" priority={false} />
-                        <p className="mt-6 max-w-md text-[clamp(1.25rem,0.5vw+1.1rem,1.5rem)] font-light leading-snug tracking-[-0.01em] text-ink rtl:font-normal">
+                        <p className={cn(SERIF, "mt-8 max-w-md text-[clamp(1.5rem,1vw+1.2rem,2.125rem)] font-light leading-[1.25] tracking-[-0.02em] text-ink rtl:tracking-normal")}>
                             {copy.description}
                         </p>
                     </motion.div>
@@ -72,7 +75,7 @@ export const Footer = () => {
                     </div>
 
                     <motion.div variants={fadeUp(0, 12)} className="lg:col-span-3">
-                        <label htmlFor="footer-updates-email" className="home-label text-ink">
+                        <label htmlFor="footer-updates-email" className={cn(LABEL, "text-ink")}>
                             {copy.updates}
                         </label>
                         <div className="mt-4 flex min-w-0 gap-2">
@@ -93,9 +96,9 @@ export const Footer = () => {
 
                 <motion.div
                     variants={fadeUp(0, 8)}
-                    className="mt-14 flex flex-col-reverse items-center gap-5 border-t border-line pt-6 sm:flex-row sm:justify-between"
+                    className="mt-16 flex flex-col-reverse items-center gap-5 border-t border-line-strong/70 pt-6 sm:flex-row sm:justify-between"
                 >
-                    <p className="text-xs text-ink-muted">
+                    <p className="text-[0.875rem] text-ink-soft">
                         © {new Date().getFullYear()} {BRAND.name}. {copy.rights}
                     </p>
                     <LanguageSwitcher />
