@@ -179,7 +179,7 @@ function GoalsBody() {
   );
 }
 
-const CHART = { width: 480, height: 200, top: 24, scale: 80, max: 4.4, xs: [60, 180, 300, 420] as const };
+const CHART = { width: 720, height: 250, top: 34, scale: 92, max: 4.4, xs: [90, 270, 450, 630] as const };
 const yOf = (value: number) => CHART.top + (CHART.max - value) * CHART.scale;
 const segment = (index: number) => {
   const [x1, x2] = [CHART.xs[index], CHART.xs[index + 1]];
@@ -188,7 +188,11 @@ const segment = (index: number) => {
   return `M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`;
 };
 
-/** Weeks, one by one: your own line against your own baseline. Drag the scrubber, or let it play once. */
+/**
+ * Weeks, one by one: your own line against your own baseline — an instrument panel on the deep teal, the one dark
+ * moment in this section. A guide sweeps from week to week, the reading grows to the size of a headline,
+ * and each week is a button under its own point. Plays once on its own; yours to scrub afterwards.
+ */
 function Understand() {
   const { dictionary } = useLanguage();
   const copy = dictionary.homeLanding.ritual.understand;
@@ -207,134 +211,189 @@ function Understand() {
 
   const bandTop = yOf(BASELINE + 0.4);
   const bandBottom = yOf(BASELINE - 0.4);
-  const fill = ((shown - 1) / (FOCUS.length - 1)) * 100;
+  const guideX = CHART.xs[shown - 1];
+  const value = FOCUS[shown - 1];
+  const below = value < BASELINE - 0.4;
 
   return (
     <motion.div
       ref={ref}
       variants={fadeUp(0, 28)}
-      className="relative mt-5 grid gap-10 overflow-hidden rounded-panel border border-line bg-white p-6 sm:p-9 lg:grid-cols-12 lg:gap-12 lg:p-12"
+      className="relative isolate mt-5 overflow-hidden rounded-panel bg-teal-900 p-6 text-white sm:p-9 lg:p-12"
     >
       <span aria-hidden className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-teal-300 via-gold to-gold-100" />
+      <span aria-hidden className="pointer-events-none absolute -end-24 -top-24 -z-10 size-[28rem] bg-[radial-gradient(closest-side,rgb(43_112_128/0.55),transparent_72%)]" />
 
-      <div className="lg:col-span-5">
-        <p className={cn(LABEL, "flex items-center gap-3 text-gold-700")}>
-          <span aria-hidden className="h-px w-8 bg-gold" />
-          {copy.eyebrow}
-        </p>
-        <h3 className="mt-5 font-[family-name:var(--font-home-serif)] text-[clamp(1.75rem,1.6vw+1.3rem,2.5rem)] font-light leading-[1.12] tracking-[-0.02em] text-ink rtl:font-sans rtl:font-semibold rtl:tracking-normal">
-          {copy.name}
-        </h3>
-        <p className="mt-4 max-w-md text-[1.0625rem] leading-8 text-ink-soft">{copy.body}</p>
+      {/* Reading: the title on one side, the week's value as a headline on the other */}
+      <div className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-12">
+        <div className="lg:col-span-7">
+          <p className={cn(LABEL, "flex items-center gap-3 text-gold-100")}>
+            <span aria-hidden className="h-px w-8 bg-gold" />
+            {copy.eyebrow}
+          </p>
+          <h3 className="mt-5 max-w-xl font-[family-name:var(--font-home-serif)] text-[clamp(1.75rem,1.6vw+1.3rem,2.75rem)] font-light leading-[1.12] tracking-[-0.02em] text-white rtl:font-sans rtl:font-semibold rtl:tracking-normal">
+            {copy.name}
+          </h3>
+        </div>
 
-        <ul className="mt-6 flex flex-wrap gap-2">
-          {copy.tags.map((tag) => (
-            <li key={tag} className="rounded-full border border-teal-200 bg-teal-50 px-3.5 py-1.5 text-[0.8125rem] font-medium text-teal-800">
-              {tag}
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-8 rounded-2xl border border-line bg-surface-muted p-5">
-          <p className="text-[0.9375rem] leading-7 text-ink-soft">{copy.pattern}</p>
-          <p className={cn(LABEL, "mt-3 text-ink-muted")}>{copy.illustrative}</p>
+        <div className="lg:col-span-5 lg:text-end" dir="ltr">
+          <p className="text-[0.875rem] text-teal-100 lg:text-end" dir="auto">
+            {copy.metric}
+          </p>
+          <p className="mt-1 flex items-end gap-3 lg:justify-end">
+            <span className="font-[family-name:var(--font-home-serif)] text-[clamp(4.5rem,9vw,8rem)] font-extralight leading-[0.85] tracking-[-0.05em] tabular-nums text-gold-100">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span
+                  key={shown}
+                  className="inline-block"
+                  initial={reduce ? false : { opacity: 0, y: 28 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -28 }}
+                  transition={{ duration: 0.5, ease: EASE_OUT }}
+                >
+                  {value.toFixed(1)}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+            <span className="pb-1 text-[1rem] tabular-nums text-teal-100">
+              / 5 · {copy.week} {shown}
+            </span>
+          </p>
         </div>
       </div>
 
-      <div className="lg:col-span-7">
-        <div className="flex items-baseline justify-between gap-4">
-          <p className="text-[0.9375rem] font-semibold text-ink">{copy.metric}</p>
-          <p className="text-[0.8125rem] tabular-nums text-ink-soft" dir="ltr">
-            {copy.week} {shown} · <span className="font-semibold text-ink">{FOCUS[shown - 1].toFixed(1)}</span> / 5
-          </p>
-        </div>
+      {/* The chart runs the full width of the panel */}
+      <div dir="ltr" className="mt-8 lg:mt-10">
+        <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} role="img" aria-label={`${copy.metric}: ${FOCUS.join(" → ")}`} className="h-auto w-full overflow-visible">
+          {/* Personal baseline: the usual range, and its centre */}
+          <rect x="0" y={bandTop} width={CHART.width} height={bandBottom - bandTop} rx="14" fill="var(--color-teal-100)" opacity="0.1" />
+          <line x1="0" x2={CHART.width} y1={yOf(BASELINE)} y2={yOf(BASELINE)} stroke="var(--color-teal-300)" strokeWidth="1.25" strokeDasharray="4 6" opacity="0.8" />
 
-        <div dir="ltr" className="mt-4">
-          <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} role="img" aria-label={`${copy.metric}: ${FOCUS.join(" → ")}`} className="h-auto w-full overflow-visible">
-            {/* Personal baseline: the usual range, and its centre */}
-            <rect x="0" y={bandTop} width={CHART.width} height={bandBottom - bandTop} rx="10" fill="var(--color-teal-100)" opacity="0.7" />
-            <line x1="0" x2={CHART.width} y1={yOf(BASELINE)} y2={yOf(BASELINE)} stroke="var(--color-teal-400)" strokeWidth="1.25" strokeDasharray="4 5" />
+          {/* The guide that sweeps from week to week */}
+          <motion.line
+            y1={CHART.top - 14}
+            y2={CHART.height}
+            stroke="var(--color-gold)"
+            strokeWidth="1"
+            strokeDasharray="2 5"
+            opacity="0.7"
+            initial={false}
+            animate={{ x1: guideX, x2: guideX }}
+            transition={{ duration: reduce ? 0 : 0.9, ease: EASE_OUT }}
+          />
 
-            {[0, 1, 2].map((index) => (
-              <motion.path
-                key={index}
-                d={segment(index)}
-                fill="none"
-                stroke="var(--color-teal-600)"
-                strokeWidth="3"
-                strokeLinecap="round"
-                initial={reduce ? false : { pathLength: 0 }}
-                animate={{ pathLength: shown > index + 1 ? 1 : 0 }}
-                transition={{ duration: 0.9, ease: EASE_OUT }}
-              />
-            ))}
+          {[0, 1, 2].map((index) => (
+            <motion.path
+              key={index}
+              d={segment(index)}
+              fill="none"
+              stroke="var(--color-gold-100)"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              initial={reduce ? false : { pathLength: 0 }}
+              animate={{ pathLength: shown > index + 1 ? 1 : 0 }}
+              transition={{ duration: 0.9, ease: EASE_OUT }}
+            />
+          ))}
 
-            {FOCUS.map((value, index) => {
-              const reached = index < shown;
-              const current = index === shown - 1;
-              return (
-                <g key={index}>
+          {FOCUS.map((point, index) => {
+            const reached = index < shown;
+            const current = index === shown - 1;
+            return (
+              <g key={index}>
+                {current ? (
                   <motion.circle
                     cx={CHART.xs[index]}
-                    cy={yOf(value)}
-                    r={current ? 7 : 5}
-                    fill="#ffffff"
-                    stroke="var(--color-teal-600)"
-                    strokeWidth="2.5"
-                    initial={reduce ? false : { opacity: 0 }}
-                    animate={{ opacity: reached ? 1 : 0.25 }}
-                    transition={{ duration: 0.4 }}
+                    cy={yOf(point)}
+                    fill="var(--color-gold)"
+                    initial={false}
+                    animate={reduce ? { r: 14, opacity: 0.2 } : { r: [11, 20, 11], opacity: [0.28, 0.05, 0.28] }}
+                    transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  {current ? <circle cx={CHART.xs[index]} cy={yOf(value)} r="3" className="fill-gold" /> : null}
-                </g>
-              );
-            })}
-          </svg>
+                ) : null}
+                <motion.circle
+                  cx={CHART.xs[index]}
+                  cy={yOf(point)}
+                  r={current ? 8 : 5.5}
+                  fill="var(--color-teal-900)"
+                  stroke="var(--color-gold-100)"
+                  strokeWidth="2.5"
+                  initial={reduce ? false : { opacity: 0 }}
+                  animate={{ opacity: reached ? 1 : 0.3 }}
+                  transition={{ duration: 0.4 }}
+                />
+                {current ? <circle cx={CHART.xs[index]} cy={yOf(point)} r="3" className="fill-gold" /> : null}
+              </g>
+            );
+          })}
+        </svg>
 
-          <div className="grid grid-cols-4 text-center text-[0.75rem] font-medium text-ink-muted">
-            {FOCUS.map((_, index) => (
-              <span key={index} className={cn("transition-colors duration-500", index === shown - 1 && "text-ink")}>
-                {copy.week} {index + 1}
-              </span>
-            ))}
-          </div>
+        {/* Each week is a button under its own point — the scrubber */}
+        <div role="group" aria-label={copy.scrub} className="mt-3 grid grid-cols-4 gap-2 sm:gap-3">
+          {FOCUS.map((_, index) => {
+            const active = index === shown - 1;
+            return (
+              <button
+                key={index}
+                type="button"
+                aria-pressed={active}
+                onClick={() => {
+                  setTouched(true);
+                  setWeek(index + 1);
+                }}
+                className={cn(
+                  "min-h-11 rounded-full border px-2 py-2 text-[0.8125rem] font-medium tabular-nums transition-[background-color,border-color,color] duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-100",
+                  active ? "border-gold bg-gold text-teal-900" : "border-white/20 text-teal-100 hover:border-white/50 hover:text-white",
+                )}
+              >
+                <span dir="auto">
+                  {copy.week} {index + 1}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[0.8125rem] text-ink-soft">
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-[0.8125rem] text-teal-100" dir="auto">
           <span className="inline-flex items-center gap-2">
-            <span aria-hidden className="h-px w-6 border-t border-dashed border-teal-400" />
+            <span aria-hidden className="h-px w-6 border-t border-dashed border-teal-300" />
             {copy.baseline}
           </span>
           <span className="inline-flex items-center gap-2">
-            <span aria-hidden className="h-2.5 w-6 rounded-sm bg-teal-100" />
+            <span aria-hidden className="h-2.5 w-6 rounded-sm bg-teal-100/20" />
             {copy.baseline} ±
           </span>
         </div>
+      </div>
 
-        <div className="mt-6" dir="ltr">
-          <label htmlFor="ritual-scrub" className="sr-only">
-            {copy.scrub}
-          </label>
-          <input
-            id="ritual-scrub"
-            type="range"
-            min={1}
-            max={FOCUS.length}
-            step={1}
-            value={shown}
-            onChange={(event) => {
-              setTouched(true);
-              setWeek(Number(event.target.value));
-            }}
-            aria-valuetext={`${copy.week} ${shown}`}
-            style={{ ["--fill" as string]: `${fill}%` }}
-            className="range-teal w-full"
-          />
+      {/* What it says, and what it is made of */}
+      <div className="mt-10 grid gap-8 border-t border-white/15 pt-8 lg:mt-12 lg:grid-cols-12 lg:gap-12 lg:pt-10">
+        <div className="lg:col-span-6">
+          <p className="max-w-md text-[1.0625rem] leading-8 text-teal-100">{copy.body}</p>
+          <ul className="mt-6 flex flex-wrap gap-2">
+            {copy.tags.map((tag) => (
+              <li key={tag} className="rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[0.8125rem] font-medium text-white">
+                {tag}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <p aria-live="polite" className="mt-5 min-h-[3.25rem] text-[1rem] leading-7 text-ink">
-          {copy.notes[shown - 1]}
-        </p>
+        <div className="lg:col-span-6">
+          <p
+            aria-live="polite"
+            className={cn(
+              "min-h-[5.5rem] font-[family-name:var(--font-home-serif)] text-[clamp(1.25rem,0.9vw+1rem,1.75rem)] font-light leading-[1.4] tracking-[-0.01em] rtl:font-sans rtl:leading-[1.7] rtl:tracking-normal",
+              below ? "text-gold-100" : "text-white",
+            )}
+          >
+            {copy.notes[shown - 1]}
+          </p>
+          <div className="mt-6 rounded-2xl border border-white/15 bg-white/5 p-5">
+            <p className="text-[0.9375rem] leading-7 text-teal-100">{copy.pattern}</p>
+            <p className={cn(LABEL, "mt-3 text-teal-200")}>{copy.illustrative}</p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
@@ -412,7 +471,7 @@ function Sticky({ className }: { className?: string }) {
 
   return (
     <div ref={track} className={cn("relative h-[320svh]", className)}>
-      <div className="sticky top-0 flex h-svh items-center py-24">
+      <div className="sticky top-0 flex h-svh items-center py-20 xl:py-24">
         <div className="grid w-full grid-cols-12 items-center gap-10 xl:gap-16">
           <div className="col-span-5">
             <AnimatePresence mode="wait" initial={false}>
@@ -474,39 +533,127 @@ function Sticky({ className }: { className?: string }) {
   );
 }
 
-/** Small screens and reduced motion: the same three moments, one after the other, each in its own colour. */
-function Stacked({ className }: { className?: string }) {
+/** The pill's ink, held on the same stops as its colour: dark on the light moments, white on the evening. */
+const PILL_INK = ["#0f3a47", "#0f3a47", "#0f3a47", "#0f3a47", "#ffffff", "#ffffff"];
+
+/** The day as an arc: a sun climbs it from morning to evening as the list scrolls. */
+function SunArc({ progress }: { progress: MotionValue<number> }) {
+  const cx = useTransform(progress, (p) => 30 - 26 * Math.cos(Math.PI * Math.min(1, Math.max(0, p))));
+  const cy = useTransform(progress, (p) => 32 - 26 * Math.sin(Math.PI * Math.min(1, Math.max(0, p))));
+  return (
+    <svg viewBox="0 0 60 36" aria-hidden className="h-8 w-[3.25rem] shrink-0 overflow-visible">
+      <path d="M4 32 A26 26 0 0 1 56 32" fill="none" stroke="currentColor" strokeOpacity="0.3" strokeWidth="1.5" strokeDasharray="2 4" strokeLinecap="round" />
+      <motion.circle style={{ cx, cy }} r="9" className="fill-gold" opacity="0.28" />
+      <motion.circle style={{ cx, cy }} r="4.5" className="fill-gold" />
+      <line x1="2" x2="58" y1="33" y2="33" stroke="currentColor" strokeOpacity="0.35" strokeWidth="1" />
+    </svg>
+  );
+}
+
+/**
+ * Small screens: a pill that stays under the header while the day scrolls by. It takes the colour of the moment on screen,
+ * names it, and carries the sun along its arc — so the long list reads as one day, not three separate cards.
+ */
+function DayPill({ progress, active }: { progress: MotionValue<number>; active: number }) {
+  const { dictionary } = useLanguage();
+  const chapters = dictionary.diagnostic.chapters;
+  const moment = MOMENTS[active];
+  const Icon = moment.icon;
+  const background = useTransform(progress, STOPS, PANEL);
+  const color = useTransform(progress, STOPS, PILL_INK);
+
+  return (
+    <div className="sticky top-[4.75rem] z-20 flex justify-center pb-4 lg:hidden">
+      <motion.div
+        style={{ backgroundColor: background, color }}
+        className="flex max-w-full items-center gap-3 rounded-full border border-white/60 py-2 pe-4 ps-2 shadow-[var(--shadow-soft)]"
+      >
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-teal-700">
+          <Icon className="size-[1.125rem]" strokeWidth={1.5} aria-hidden />
+        </span>
+        <span className={cn(LABEL, "min-w-0 truncate")}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span key={moment.key} className="block" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25, ease: EASE_OUT }}>
+              {chapters[moment.key]}
+            </motion.span>
+          </AnimatePresence>
+        </span>
+        <SunArc progress={progress} />
+        <span dir="ltr" className="font-mono text-[0.75rem] tabular-nums opacity-80">
+          {pad(active + 1)} / {pad(MOMENTS.length)}
+        </span>
+      </motion.div>
+    </div>
+  );
+}
+
+/** One moment: it rises into its colour as it arrives, and its numeral drifts against the scroll. */
+function StackedMoment({ moment, index }: { moment: (typeof MOMENTS)[number]; index: number }) {
   const { dictionary } = useLanguage();
   const copy = dictionary.homeLanding.ritual.capture;
   const chapters = dictionary.diagnostic.chapters;
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLLIElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start 0.35"] });
+  const { scrollYProgress: through } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const scale = useTransform(scrollYProgress, [0, 1], [0.92, 1]);
+  const radius = useTransform(scrollYProgress, [0, 1], [56, 32]);
+  const lift = useTransform(scrollYProgress, [0, 1], [48, 0]);
+  const numeralY = useTransform(through, [0, 1], [30, -50]);
+  const item = copy[moment.feature];
+  const light = moment.ink === "light";
 
   return (
-    <ol className={cn("space-y-5", className)}>
-      {MOMENTS.map((moment, index) => {
-        const item = copy[moment.feature];
-        const light = moment.ink === "light";
-        return (
-          <li key={moment.key} className={cn("overflow-hidden rounded-[2rem] p-5 sm:p-8", moment.stack)}>
-            <div className="flex items-start gap-4">
-              <span aria-hidden className={cn(SERIF, "text-[4.5rem] font-extralight leading-[0.85] tracking-[-0.05em] rtl:tracking-normal", light ? "text-white" : "text-teal-900")}>
-                {pad(index + 1)}
-              </span>
-              <div className="min-w-0 pt-1">
-                <p className={cn(LABEL, "flex items-center gap-3", light ? "text-gold-100" : "text-gold-700")}>
-                  <span aria-hidden className="h-px w-6 bg-gold" />
-                  {chapters[moment.key]}
-                </p>
-                <h3 className={cn(DISPLAY_M, "mt-3 text-[1.75rem]", light ? "text-white" : "text-ink")}>{item.name}</h3>
-              </div>
-            </div>
-            <p className={cn(BODY_SM, "mt-4", light ? "text-teal-100" : "text-ink-soft")}>{item.body}</p>
-            <div className="mt-6">
-              <MomentCard moment={moment} label={chapters[moment.key]} />
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+    <motion.li
+      ref={ref}
+      style={reduce ? undefined : { scale, y: lift, borderRadius: radius }}
+      className={cn("overflow-hidden p-5 sm:p-8", reduce && "rounded-[2rem]", moment.stack)}
+    >
+      <div className="flex items-start gap-4">
+        <motion.span
+          aria-hidden
+          style={reduce ? undefined : { y: numeralY }}
+          className={cn(SERIF, "text-[4.5rem] font-extralight leading-[0.85] tracking-[-0.05em] rtl:tracking-normal sm:text-[6rem]", light ? "text-white" : "text-teal-900")}
+        >
+          {pad(index + 1)}
+        </motion.span>
+        <div className="min-w-0 pt-1">
+          <p className={cn(LABEL, "flex items-center gap-3", light ? "text-gold-100" : "text-gold-700")}>
+            <span aria-hidden className="h-px w-6 bg-gold" />
+            {chapters[moment.key]}
+          </p>
+          <h3 className={cn(DISPLAY_M, "mt-3 text-[1.75rem]", light ? "text-white" : "text-ink")}>{item.name}</h3>
+        </div>
+      </div>
+      <p className={cn(BODY_SM, "mt-4 sm:max-w-xl", light ? "text-teal-100" : "text-ink-soft")}>{item.body}</p>
+      <div className="mt-6">
+        <MomentCard moment={moment} label={chapters[moment.key]} />
+      </div>
+    </motion.li>
+  );
+}
+
+/** Small screens and reduced motion: the same three moments, one after the other, each in its own colour, under a pill that follows the day. */
+function Stacked({ className }: { className?: string }) {
+  const reduce = useReducedMotion();
+  const wrap = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: wrap, offset: ["start 0.55", "end 0.6"] });
+  const [active, setActive] = useState(0);
+
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const next = Math.min(MOMENTS.length - 1, Math.max(0, Math.floor(value * MOMENTS.length)));
+    setActive((current) => (current === next ? current : next));
+  });
+
+  return (
+    <div ref={wrap} className={className}>
+      {reduce ? null : <DayPill progress={scrollYProgress} active={active} />}
+      <ol className="space-y-5">
+        {MOMENTS.map((moment, index) => (
+          <StackedMoment key={moment.key} moment={moment} index={index} />
+        ))}
+      </ol>
+    </div>
   );
 }
 
@@ -522,7 +669,7 @@ export function DailyRitual() {
 
   return (
     <HomeSection id="ritual" labelledBy="ritual-title" className="border-t border-line">
-      <SectionHeader variant="editorial" align="center" id="ritual-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+      <SectionHeader variant="editorial" layout="split" counter="03 / 06" id="ritual-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
       <div className="mt-14 md:mt-20">
         {reduce ? (
@@ -549,12 +696,17 @@ export function DailyRitual() {
         {copy.outcomes.map(([title, text], index) => {
           const Icon = OUTCOME_ICONS[index % OUTCOME_ICONS.length];
           return (
-            <motion.li key={title} variants={fadeUp(0, 14)} className="flex gap-4 py-6 md:px-8 md:first:ps-0 md:last:pe-0">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-teal-200 bg-teal-50 text-teal-700">
+            <motion.li key={title} variants={fadeUp(0, 14)} className="group flex gap-4 py-7 md:px-8 md:first:ps-0 md:last:pe-0">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-teal-200 bg-teal-50 text-teal-700 transition-colors duration-500 group-hover:border-gold group-hover:bg-gold-50">
                 <Icon className="size-[1.125rem]" strokeWidth={1.6} aria-hidden />
               </span>
               <div className="min-w-0">
-                <p className="text-[1rem] font-semibold text-ink">{title}</p>
+                <p className="flex items-baseline gap-2.5 text-[1rem] font-semibold text-ink">
+                  <span dir="ltr" className="font-mono text-[0.75rem] font-normal tabular-nums text-ink-muted">
+                    {pad(index + 1)}
+                  </span>
+                  {title}
+                </p>
                 <p className={cn(BODY_SM, "mt-1")}>{text}</p>
               </div>
             </motion.li>

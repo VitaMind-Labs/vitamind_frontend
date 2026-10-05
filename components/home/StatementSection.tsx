@@ -3,8 +3,9 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BRAND } from "@/lib/config/brand";
 import { cn } from "@/lib/utils";
-import { motion, useMotionValue, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { useRef } from "react";
+import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { useRef, useState, type ReactNode } from "react";
+import { pad } from "./accents";
 import { Grain } from "./Atmosphere";
 import { ACCENT_LIGHT, LABEL, SERIF } from "./typography";
 
@@ -23,11 +24,28 @@ const EMPHASIS: Record<Emphasis, string> = {
 };
 
 function Word({ children, progress, range, emphasis }: { children: string; progress: MotionValue<number>; range: [number, number]; emphasis: Emphasis }) {
-    const opacity = useTransform(progress, range, [0.14, 1]);
+    const [from, to] = range;
+    const opacity = useTransform(progress, [from, to], [0.12, 1]);
+    const y = useTransform(progress, [from, to], ["72%", "0%"]);
+    const line = useTransform(progress, [to, Math.min(1, to + 0.035)], [0, 1]);
+    const marked = emphasis !== "plain";
+
     return (
-        <motion.span style={{ opacity }} className={cn("inline", EMPHASIS[emphasis])}>
-            {children}
-        </motion.span>
+        <span className="relative inline-block">
+            {/* The mask is padded and pulled back so italics and descenders never clip. */}
+            <span className="-mx-[0.08em] -my-[0.14em] inline-block overflow-hidden px-[0.08em] py-[0.14em] align-bottom">
+                <motion.span style={{ opacity, y }} className={cn("inline-block", EMPHASIS[emphasis])}>
+                    {children}
+                </motion.span>
+            </span>
+            {marked ? (
+                <motion.span
+                    aria-hidden
+                    style={{ scaleX: line }}
+                    className={cn("pointer-events-none absolute inset-x-0 -bottom-[0.04em] h-px origin-left rtl:origin-right", emphasis === "brand" ? "bg-gold" : "bg-teal-400/70")}
+                />
+            ) : null}
+        </span>
     );
 }
 
@@ -53,49 +71,150 @@ function Light({ progress }: { progress: MotionValue<number> }) {
     );
 }
 
-/** A large ring that turns with the scroll, echoing the hero's orbit. Hairlines only — teal, with one gold dot. */
+/**
+ * The circle system, as an aperture: concentric hairline rings that open as the statement is read and turn against one another,
+ * a dial of ticks, small points riding two of the rings, and a lens of light at the centre that swells with the reading.
+ * Hairlines only — teal, with gold points. Always centred on the text.
+ */
 function Ring({ progress }: { progress: MotionValue<number> }) {
-    const rotate = useTransform(progress, [0, 1], [0, 140]);
+    const outer = useTransform(progress, [0, 1], [0, 150]);
+    const inner = useTransform(progress, [0, 1], [0, -210]);
+    const open = useTransform(progress, [0, 0.45, 1], [0.8, 1, 1.06]);
+    const lens = useTransform(progress, [0, 0.5, 1], [0.55, 1, 0.8]);
+    const lensGlow = useTransform(progress, [0, 0.2, 0.7, 1], [0, 0.9, 0.9, 0]);
+
     return (
-        <motion.svg
-            aria-hidden
-            viewBox="0 0 800 800"
-            style={{ rotate }}
-            className="pointer-events-none absolute left-1/2 top-1/2 size-[min(150vmin,64rem)] -translate-x-1/2 -translate-y-1/2 text-teal-400/45"
-        >
-            <circle cx="400" cy="400" r="396" fill="none" stroke="currentColor" strokeWidth="1" />
-            <circle cx="400" cy="400" r="300" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 10" />
-            <circle cx="400" cy="400" r="210" fill="none" stroke="currentColor" strokeWidth="1" />
-            <circle cx="400" cy="4" r="6" className="fill-gold" />
-            <circle cx="106" cy="612" r="4.5" className="fill-teal-500" />
-        </motion.svg>
+        <motion.div aria-hidden style={{ scale: open }} className="pointer-events-none absolute inset-0 grid place-items-center">
+            <motion.span
+                style={{ scale: lens, opacity: lensGlow }}
+                className="absolute size-[min(62vmin,36rem)] rounded-full bg-[radial-gradient(closest-side,rgb(255_255_255/0.85),rgb(191_221_225/0.35)_55%,transparent_75%)]"
+            />
+            <div className="relative size-[min(150vmin,64rem)] text-teal-400/45">
+                <motion.svg viewBox="0 0 800 800" style={{ rotate: outer }} className="absolute inset-0 size-full">
+                    <circle cx="400" cy="400" r="396" fill="none" stroke="currentColor" strokeWidth="1" />
+                    {/* The dial: 72 radial ticks */}
+                    <circle cx="400" cy="400" r="352" fill="none" stroke="currentColor" strokeWidth="9" strokeDasharray="1.2 29.8" />
+                    <circle cx="400" cy="400" r="300" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 10" />
+                    <circle cx="400" cy="4" r="6" className="fill-gold" />
+                    <circle cx="106" cy="612" r="4.5" className="fill-teal-500" />
+                </motion.svg>
+                <motion.svg viewBox="0 0 800 800" style={{ rotate: inner }} className="absolute inset-0 size-full">
+                    <circle cx="400" cy="400" r="236" fill="none" stroke="currentColor" strokeWidth="1" />
+                    <circle cx="400" cy="400" r="176" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="1 7" />
+                    <circle cx="400" cy="400" r="116" fill="none" stroke="currentColor" strokeWidth="1" />
+                    <circle cx="636" cy="400" r="5" className="fill-gold" />
+                    <circle cx="400" cy="224" r="3.5" className="fill-teal-500" />
+                </motion.svg>
+            </div>
+        </motion.div>
     );
 }
 
-/** One full statement layer: transparent, so the section's wash shows through; the sentence is read word by word. */
-function Layer({ eyebrow, words, read, ring, labelId }: { eyebrow: string; words: string[]; read: MotionValue<number>; ring: MotionValue<number>; labelId?: string }) {
+/** Cuts the words into sentences, keeping each word's place in the whole so the reading progress stays continuous. */
+function toSentences(words: string[]) {
+    const sentences: { start: number; words: string[] }[] = [];
+    let current: { start: number; words: string[] } = { start: 0, words: [] };
+    words.forEach((word, i) => {
+        current.words.push(word);
+        if (/[.!?؟]$/.test(word) || i === words.length - 1) {
+            sentences.push(current);
+            current = { start: i + 1, words: [] };
+        }
+    });
+    return sentences;
+}
+
+/**
+ * One sentence, centred. It rises into place as the reading reaches it, sits a touch larger while it is the one being read,
+ * then settles back and quietens once the next one begins — so on a phone, where only a few lines fit, the eye always knows where it is.
+ */
+function Sentence({ progress, from, to, last, index, children }: { progress: MotionValue<number>; from: number; to: number; last: boolean; index: string; children: ReactNode }) {
+    const y = useTransform(progress, [Math.max(0, from - 0.07), from], [28, 0]);
+    const scale = useTransform(progress, [Math.max(0, from - 0.05), from, to, Math.min(1, to + 0.06)], [0.94, 1, 1, last ? 1 : 0.97]);
+    const opacity = useTransform(progress, [to, Math.min(1, to + 0.08)], [1, last ? 1 : 0.5]);
+
     return (
-        <div className="absolute inset-0 isolate flex items-center overflow-hidden text-ink">
+        <motion.p style={{ y, scale, opacity }} className="mx-auto max-w-[19ch] text-balance min-[430px]:max-w-[23ch] sm:max-w-[26ch] lg:max-w-[30ch]">
+            <span aria-hidden dir="ltr" className="mb-3 flex items-center justify-center gap-3 font-mono text-[0.75rem] font-normal leading-none tabular-nums tracking-normal text-gold-700 sm:mb-4">
+                <span className="h-px w-6 bg-gold/60" />
+                {index}
+                <span className="h-px w-6 bg-gold/60" />
+            </span>
+            {children}
+        </motion.p>
+    );
+}
+
+/** Where you are in the statement: one dot per sentence, the current one stretched into a gold bar. */
+function Dots({ count, active }: { count: number; active: number }) {
+    return (
+        <div aria-hidden className="mt-9 flex items-center justify-center gap-2 sm:mt-12">
+            {Array.from({ length: count }, (_, i) => (
+                <span key={i} className={cn("h-1.5 rounded-full transition-[width,background-color] duration-500 ease-out-soft", i === active ? "w-8 bg-gold" : i < active ? "w-1.5 bg-teal-500" : "w-1.5 bg-teal-900/20")} />
+            ))}
+        </div>
+    );
+}
+
+/** One full statement layer: transparent, so the section's wash shows through; centred, read sentence by sentence, word by word. */
+function Layer({ eyebrow, words, read, ring, labelId }: { eyebrow: string; words: string[]; read: MotionValue<number>; ring: MotionValue<number>; labelId?: string }) {
+    const sentences = toSentences(words);
+    const [active, setActive] = useState(0);
+
+    useMotionValueEvent(read, "change", (value) => {
+        const at = Math.min(words.length - 1, Math.max(0, Math.floor(value * words.length)));
+        const next = Math.max(0, sentences.findIndex((s) => at < s.start + s.words.length));
+        setActive((current) => (current === next ? current : next));
+    });
+
+    return (
+        <div className="absolute inset-0 isolate flex items-center overflow-hidden py-14 text-ink sm:py-20">
             <Light progress={ring} />
             <Grain tone="light" />
             <Ring progress={ring} />
 
-            <div className="page-container">
-                <div className="mx-auto max-w-5xl">
-                    <p id={labelId} className={cn(LABEL, "flex items-center gap-3 text-teal-700")}>
-                        <span aria-hidden className="h-px w-10 bg-gold" />
-                        {eyebrow}
-                    </p>
-                    <p className={cn(SERIF, "mt-8 text-[clamp(1.625rem,3.4vw+0.75rem,4.25rem)] font-light leading-[1.2] tracking-[-0.025em] rtl:leading-[1.55] rtl:tracking-normal")}>
-                        {words.map((word, i) => (
-                            <span key={`${word}-${i}`}>
-                                <Word progress={read} range={[i / words.length, (i + 1) / words.length]} emphasis={emphasisOf(word)}>
-                                    {word}
-                                </Word>
-                                {i < words.length - 1 ? " " : null}
-                            </span>
+            <div className="page-container relative">
+                <div className="mx-auto max-w-5xl text-center">
+                    <div className="flex flex-col items-center gap-4">
+                        <span aria-hidden dir="ltr" className="rounded-full border border-line-strong bg-white/60 px-3 py-1 font-mono text-[0.75rem] tabular-nums leading-none text-ink-soft backdrop-blur-sm">
+                            {pad(active + 1)} / {pad(sentences.length)}
+                        </span>
+                        <p id={labelId} className={cn(LABEL, "flex items-center justify-center gap-3 text-teal-700")}>
+                            <span aria-hidden className="h-px w-8 bg-gold sm:w-10" />
+                            {eyebrow}
+                            <span aria-hidden className="h-px w-8 bg-gold sm:w-10" />
+                        </p>
+                        <span aria-hidden className="relative h-px w-[min(14rem,56%)] overflow-hidden bg-teal-900/15">
+                            <motion.span style={{ scaleX: read }} className="absolute inset-0 origin-left bg-gold rtl:origin-right" />
+                        </span>
+                    </div>
+
+                    <div className={cn(SERIF, "mt-8 space-y-[0.5em] text-[clamp(1.5rem,3.4vw+0.75rem,4.5rem)] font-light leading-[1.14] tracking-[-0.03em] rtl:leading-[1.55] rtl:tracking-normal sm:mt-10")}>
+                        {sentences.map((sentence, s) => (
+                            <Sentence
+                                key={sentence.start}
+                                progress={read}
+                                from={sentence.start / words.length}
+                                to={(sentence.start + sentence.words.length) / words.length}
+                                last={s === sentences.length - 1}
+                                index={pad(s + 1)}
+                            >
+                                {sentence.words.map((word, w) => {
+                                    const i = sentence.start + w;
+                                    return (
+                                        <span key={`${word}-${i}`}>
+                                            <Word progress={read} range={[i / words.length, (i + 1) / words.length]} emphasis={emphasisOf(word)}>
+                                                {word}
+                                            </Word>
+                                            {w < sentence.words.length - 1 ? " " : null}
+                                        </span>
+                                    );
+                                })}
+                            </Sentence>
                         ))}
-                    </p>
+                    </div>
+
+                    <Dots count={sentences.length} active={active} />
                 </div>
             </div>
         </div>
@@ -123,7 +242,7 @@ export const StatementSection = () => {
 
     if (reduce) {
         return (
-            <section aria-labelledby="statement-eyebrow" className={cn("relative h-[34rem] sm:h-[40rem]", WASH)}>
+            <section aria-labelledby="statement-eyebrow" className={cn("relative h-[46rem] sm:h-[44rem]", WASH)}>
                 <Layer eyebrow={copy.eyebrow} words={words} read={done} ring={rest} labelId="statement-eyebrow" />
             </section>
         );
