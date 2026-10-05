@@ -152,7 +152,7 @@ class Plane {
 
           void main(void) {
             float opacity = (96.0 - length(vPosition)) / 256.0 * 0.85;
-            vec3 teal = vec3(0.357, 0.565, 0.569); // MindWeave teal #5b9091
+            vec3 teal = vec3(0.357, 0.565, 0.569); // VitaMind teal #5b9091
             vec3 gold = vec3(0.788, 0.686, 0.435); // brand gold #c9af6f
             // Crests catch a little warm light; valleys stay teal.
             float crest = smoothstep(12.0, 40.0, vPosition.y);
