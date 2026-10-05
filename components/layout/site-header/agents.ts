@@ -3,7 +3,7 @@ import { ROUTES } from "@/lib/config/routes";
 export type AgentId = "mira" | "lumina";
 
 /**
- * Presentation of each box in the header's "AI agents" panel; copy lives in `dictionary.header.agents.items`.
+ * Presentation of each agent (home section cards, agent pages); copy lives in `dictionary.header.agents.items`.
  * Mira is teal and aqua, Lumina champagne and gold — the two sides of the logo.
  */
 export const AGENTS: ReadonlyArray<{
@@ -28,7 +28,7 @@ export const AGENTS: ReadonlyArray<{
 }> = [
   {
     id: "mira",
-    href: ROUTES.orientation,
+    href: ROUTES.mira,
     status: "live",
     tone: {
       ring: "group-hover:ring-teal-200",
@@ -44,7 +44,7 @@ export const AGENTS: ReadonlyArray<{
   },
   {
     id: "lumina",
-    href: ROUTES.signUp,
+    href: ROUTES.lumina,
     status: "member",
     tone: {
       ring: "group-hover:ring-gold-100",
@@ -60,9 +60,9 @@ export const AGENTS: ReadonlyArray<{
   },
 ];
 
-/** Top-level destinations (no in-page home anchors). `agents` opens the agents panel. */
+/** Top-level destinations (no in-page home anchors). `product` opens the Mira / Lumina list; the others are plain links. */
 export const PRIMARY_LINKS = [
-  { id: "agents", href: null },
+  { id: "product", href: null },
   { id: "plans", href: ROUTES.plans },
   { id: "support", href: ROUTES.support },
 ] as const;
@@ -71,4 +71,10 @@ export type PrimaryLinkId = (typeof PRIMARY_LINKS)[number]["id"];
 
 export function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** The primary destination the path belongs to: a plain link, or "product" on any agent page. */
+export function activeLinkId(pathname: string): PrimaryLinkId | null {
+  if (AGENTS.some((agent) => isActivePath(pathname, agent.href))) return "product";
+  return PRIMARY_LINKS.find((link) => link.href && isActivePath(pathname, link.href))?.id ?? null;
 }

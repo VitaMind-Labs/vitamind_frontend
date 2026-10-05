@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { agentPagesCopy } from "@/lib/i18n/agents";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -9,13 +10,15 @@ import { useEffect, useState } from "react";
  * is behind it, so the same dots read on the light sheets and on the deep teal.
  */
 export function SectionRail() {
-    const { dictionary } = useLanguage();
+    const { dictionary, language } = useLanguage();
     const copy = dictionary.homeLanding;
+    const agents = agentPagesCopy[language].home;
     const [active, setActive] = useState("home");
 
     const items = [
         { id: "home", label: copy.nav.home },
         { id: "features", label: copy.nav.features },
+        { id: "agents", label: agents.eyebrow },
         { id: "ritual", label: copy.ritual.eyebrow },
         { id: "conditions", label: copy.conditions.eyebrow },
         { id: "how-it-works", label: copy.nav.process },

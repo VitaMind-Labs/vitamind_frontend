@@ -2,6 +2,8 @@
 export const ROUTES = {
   home: "/",
   orientation: "/orientation",
+  mira: "/mira",
+  lumina: "/lumina",
   plans: "/subscription",
   support: "/support",
   signIn: "/auth/signin",

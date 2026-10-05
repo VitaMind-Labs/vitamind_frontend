@@ -23,7 +23,7 @@ export function AuthBrandPanel() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.9, ease: EASE_OUT }}
-      className="relative isolate hidden min-h-[36rem] flex-col overflow-hidden rounded-[1.75rem] border border-line bg-white p-10 text-ink lg:flex xl:p-14"
+      className="relative isolate hidden min-h-[min(36rem,calc(100dvh-16rem))] flex-col overflow-hidden rounded-[1.75rem] border border-line bg-white p-10 text-ink lg:flex xl:p-14 2xl:p-16"
     >
       {/* Still hairline grid, strongest at the top; teal into gold along the edge */}
       <span aria-hidden className="grid-hairline pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(80%_70%_at_85%_0%,black,transparent_80%)]" />
@@ -39,11 +39,11 @@ export function AuthBrandPanel() {
           {brand.titleA} <span className={ACCENT_LIGHT}>{brand.titleB}</span>
         </motion.h2>
 
-        <motion.p variants={fadeUp(0, 12)} className="mt-6 max-w-md text-[1.0625rem] leading-8 text-ink-soft">
+        <motion.p variants={fadeUp(0, 12)} className="mt-6 max-w-md text-[1.0625rem] leading-8 text-ink-soft 2xl:max-w-lg">
           {brand.body}
         </motion.p>
 
-        <motion.ul variants={fadeUp(0, 12)} className="mt-9 max-w-md divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface-muted">
+        <motion.ul variants={fadeUp(0, 12)} className="mt-9 max-w-md 2xl:max-w-lg divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface-muted">
           {brand.points.map((point, index) => {
             const Icon = POINT_ICONS[index % POINT_ICONS.length];
             return (

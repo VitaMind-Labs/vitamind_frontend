@@ -542,6 +542,40 @@ html.lenis body {
   overflow: clip;
 }
 
+/* ===== LARGE SCREENS =====
+   Past full-HD the whole interface grows with the screen — sizes and spacing are rem-based, so scaling the root
+   scales everything together — and the page column widens in steps, so a big monitor is filled instead of
+   showing a narrow strip. Unlayered on purpose: it must win over the theme's own --container-page. */
+@media (min-width: 1536px) {
+  :root {
+    --container-page: 82rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  html {
+    font-size: 112.5%;
+  }
+  :root {
+    --container-page: 86rem;
+  }
+}
+
+@media (min-width: 2560px) {
+  html {
+    font-size: 137.5%;
+  }
+  :root {
+    --container-page: 90rem;
+  }
+}
+
+@media (min-width: 3440px) {
+  html {
+    font-size: 175%;
+  }
+}
+
 /* ===== SHARED COMPONENT CLASSES ===== */
 @layer components {
   .page-container {

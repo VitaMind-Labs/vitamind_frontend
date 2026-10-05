@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Copy, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { Check, CircleSlash, Copy, Info, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { MIRA_MARK_SRC } from "@/components/layout/site-header/AgentAvatar";
@@ -27,6 +27,10 @@ interface MiraMessageProps {
   /** An unfinished reply that was kept; `onRetry` offers to send the visitor's message again. */
   partial?: "stopped" | "interrupted";
   onRetry?: () => void;
+  /** Mira's calm reply to a message she could not read: set apart so it is clear nothing was counted. */
+  notice?: "unreadable";
+  /** The visitor's message that Mira did not count. */
+  notCounted?: boolean;
 }
 
 /** Rendered size (px) of Mira's mark per avatar size. */
@@ -103,7 +107,7 @@ function StreamingDots() {
   );
 }
 
-export function MiraMessage({ content, role, createdAt, index, language, streaming = false, partial, onRetry }: MiraMessageProps) {
+export function MiraMessage({ content, role, createdAt, index, language, streaming = false, partial, onRetry, notice, notCounted }: MiraMessageProps) {
   const { dictionary } = useLanguage();
   const streamCopy = MIRA_STREAM_COPY[language];
   const diagnostic = dictionary.diagnostic;
@@ -152,6 +156,12 @@ export function MiraMessage({ content, role, createdAt, index, language, streami
           <div className="max-w-full rounded-[1.375rem] rounded-se-md bg-[linear-gradient(135deg,var(--color-teal-700),var(--color-teal-900))] px-5 py-3.5 text-white shadow-[0_14px_30px_-16px_rgb(17_76_97/0.7)]">
             <RichText content={content} className="text-[0.9375rem] leading-7 break-words sm:text-base" />
           </div>
+          {notCounted && (
+            <span className="inline-flex items-center gap-1.5 px-1 text-[0.75rem] font-medium text-gold-700">
+              <CircleSlash className="size-3.5" aria-hidden />
+              {diagnostic.notCounted}
+            </span>
+          )}
         </div>
       </motion.div>
     );
@@ -173,7 +183,18 @@ export function MiraMessage({ content, role, createdAt, index, language, streami
           {time && <time className="text-[0.8125rem] tabular-nums text-ink-muted">{time}</time>}
         </p>
 
-        <div className="relative mt-2 rounded-[1.375rem] rounded-ss-md border border-teal-100 bg-teal-50/70 px-5 py-4 sm:px-6">
+        <div
+          className={cn(
+            "relative mt-2 rounded-[1.375rem] rounded-ss-md border px-5 py-4 sm:px-6",
+            notice ? "border-gold-100 bg-gold-50" : "border-teal-100 bg-teal-50/70",
+          )}
+        >
+          {notice && (
+            <p className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[0.8125rem] font-semibold text-gold-700 ring-1 ring-gold-100">
+              <Info className="size-3.5" aria-hidden />
+              {diagnostic.notCountedHint}
+            </p>
+          )}
           {/* Polite live region, busy while the reply is being written: assistive tech reads it once it is complete. */}
           <div aria-live="polite" aria-busy={streaming || undefined}>
             <RichText content={content} className="text-base leading-7 text-ink-soft break-words sm:text-[1.0625rem] sm:leading-8" />

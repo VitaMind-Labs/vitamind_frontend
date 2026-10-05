@@ -1,5 +1,6 @@
 import { AppProviders } from "@/components/providers/AppProviders";
 import { BRAND } from "@/lib/config/brand";
+import { ROOT_SOCIAL, SITE } from "@/lib/config/site";
 import { LANGS, LANGUAGE_STORAGE_KEY, normalizeLanguage } from "@/lib/i18n/config";
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
@@ -20,15 +21,18 @@ const plexSansArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE.url),
+  applicationName: BRAND.name,
   title: {
-    default: BRAND.name,
+    default: SITE.title,
     template: `%s | ${BRAND.name}`,
   },
-  description: BRAND.description,
-  icons: {
-    icon: "/logo.png",
-    apple: "/assets/logo.svg",
-  },
+  description: SITE.description,
+  // favicon.ico in /app is picked up automatically; the apple icon must be a PNG.
+  icons: { apple: "/assets/vitamind-mark-3d.png" },
+  ...ROOT_SOCIAL,
+  // Google Search Console: set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION to the token it gives for the "HTML tag" method.
+  verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
 };
 
 /** On Android the on-screen keyboard resizes the page, so a chat composer stays above it instead of hiding under it. */

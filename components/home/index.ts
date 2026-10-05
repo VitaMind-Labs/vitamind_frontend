@@ -1,3 +1,4 @@
+export { AgentsSection } from "./AgentsSection";
 export { CinematicIntro } from "./CinematicIntro";
 export { ConditionsSection } from "./ConditionsSection";
 export { CTASection } from "./CTASection";

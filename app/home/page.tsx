@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
+  AgentsSection,
   CTASection,
   ConditionsSection,
   FeaturesSection,
@@ -91,6 +92,7 @@ export default function Home() {
                 <HeroSection />
                 <StatementSection />
                 <FeaturesSection />
+                <AgentsSection />
                 <RitualSection />
                 <ConditionsSection />
                 <ProcessSection />

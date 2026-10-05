@@ -1,13 +1,15 @@
 import { AuthLayout, AuthLoading } from "@/components/auth/AuthLayout";
 import { AuthScreen } from "@/components/auth/AuthScreen";
-import { BRAND } from "@/lib/config/brand";
+import { ROUTES } from "@/lib/config/routes";
+import { pageMetadata } from "@/lib/config/site";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-export const metadata: Metadata = {
-  title: `Sign up | ${BRAND.name}`,
-  description: `Create your ${BRAND.name} account and start your wellness journey.`,
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Create your account",
+  description: "Create your VitaMind account to follow your mood, energy, focus and sleep day by day, privately.",
+  path: ROUTES.signUp,
+});
 
 export default function SignUpPage() {
   return (

@@ -88,7 +88,9 @@ export async function POST(request: Request) {
   }
 
   const sessionId = body.sessionId || body.session_id;
-  const text = (body.text || body.message || "").trim();
+  const rawText = body.text ?? body.message ?? "";
+  // Spaces only are forwarded as they are: Mira answers them kindly (nothing was counted) instead of an API error.
+  const text = rawText.trim() || (rawText.length > 0 ? " " : "");
   if (!sessionId) return jsonError("sessionId is required", 400);
   if (!text) return jsonError("text is required", 400);
 

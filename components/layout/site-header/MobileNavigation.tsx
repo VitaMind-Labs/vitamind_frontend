@@ -17,7 +17,7 @@ import { authApi } from "@/lib/api/auth";
 import { ROUTES } from "@/lib/config/routes";
 import { EASE_IN_OUT, EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { AgentCard } from "./AgentCard";
+import { AgentAvatar } from "./AgentAvatar";
 import { AGENTS, PRIMARY_LINKS, type PrimaryLinkId } from "./agents";
 import { initialOf } from "./UserMenu";
 
@@ -148,19 +148,36 @@ export function MobileNavigation({ activeId, open, onOpenChange, className }: Mo
                     </motion.p>
                   )}
 
+                  {/* The product: one titled group, Mira and Lumina under it. */}
                   <motion.p variants={fadeUp(0, 10)} className={cn(LABEL, "flex items-center gap-3 text-teal-200")}>
                     <span aria-hidden className="h-px w-8 bg-gold-300" />
-                    {copy.agents.eyebrow}
+                    {copy.menu.title}
                   </motion.p>
                   <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
-                    {AGENTS.map((agent) => (
-                      <motion.li key={agent.id} variants={fadeUp(0, 14)}>
-                        <AgentCard agent={agent} variant="compact" onNavigate={close} />
-                      </motion.li>
-                    ))}
+                    {AGENTS.map((agent) => {
+                      const item = copy.agents.items[agent.id];
+                      const active = pathname === agent.href;
+                      return (
+                        <motion.li key={agent.id} variants={fadeUp(0, 14)}>
+                          <Link
+                            href={agent.href}
+                            onClick={close}
+                            aria-current={active ? "page" : undefined}
+                            className="group flex min-h-[4.5rem] items-center gap-4 rounded-[1.5rem] border border-white/15 bg-white/[0.06] p-3 pe-4 outline-none transition-colors duration-300 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold-300"
+                          >
+                            <AgentAvatar agent={agent.id} className="size-14 rounded-2xl" />
+                            <span className="min-w-0 flex-1">
+                              <span className={cn(SERIF, "block text-[1.5rem] font-light leading-none tracking-[-0.02em] rtl:font-sans rtl:font-semibold rtl:tracking-normal", active && "text-gold-300")}>{item.name}</span>
+                              <span className="mt-1.5 block truncate text-[0.8125rem] text-teal-100">{item.role}</span>
+                            </span>
+                            <ArrowRight className="size-5 shrink-0 text-white/60 transition-[translate,color] duration-300 ease-out-soft group-hover:translate-x-1 group-hover:text-gold-300 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden />
+                          </Link>
+                        </motion.li>
+                      );
+                    })}
                   </ul>
 
-                  <ul className="mt-9 border-t border-white/15">
+                  <ul className="mt-8 border-t border-white/15">
                     {links.map((link, index) => {
                       const active = link.id === activeId;
                       return (

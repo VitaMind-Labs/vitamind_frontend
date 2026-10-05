@@ -44,6 +44,10 @@ export type MiraMessage = {
   partial?: "stopped" | "interrupted";
   /** Stable React key: a streamed reply keeps it from its first word to its final form. */
   renderKey?: string;
+  /** Mira could not read the visitor's message as an answer: it did not count and the question stays open. */
+  notice?: "unreadable";
+  /** The visitor's message that Mira did not count. */
+  notCounted?: boolean;
 };
 
 export type ChatOption = {
