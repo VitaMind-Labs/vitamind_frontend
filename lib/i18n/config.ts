@@ -98,7 +98,7 @@ const arabicHomeLanding = {
   process: { eyebrow: "الرحلة", title: "كيف نعمل", titleA: "كيف", titleB: "نعمل", stepLabel: "الخطوة", steps: [["ابدأ مع ميرا", "محادثة موجَّهة وخاصة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان. ترصد ميرا الإشارات وتوجّهك إلى الخطوة التالية المناسبة — ولا تشخّص أبداً.", ["فحص منظم", "إشارات لا تشخيص", "مجاني دون حساب"]], ["تابع في لومينا", "بعد إنشاء حسابك تصبح لومينا مساحتك اليومية: فحص ومفكرة خاصة وبضعة أهداف بسيطة.", ["الفحص اليومي", "المفكرة الذكية", "أهداف يومية"]], ["شاهد تطوّرك", "تصبح الأيام صورة يومية منظمة، ثم رؤية أطول: خطّك المرجعي واتجاهاتك واستمرار الإشارات وأنماطك.", ["خط مرجعي شخصي", "الاتجاهات", "الأنماط"]], ["شارك مع مختصك", "في كل شهر تتحول معلوماتك إلى ملف منظم، وإلى تقرير للمختص إن فوّضت بذلك.", ["الملف الشهري", "تقرير المختص", "القرار لك"]]] },
   pricing: { eyebrow: "أسعار واضحة", titleA: "اختر الدعم", titleB: "الذي يناسبك", intro: "لا رسوم مخفية. ألغِ اشتراكك في أي وقت. طوّر خطتك عندما تكون مستعداً.", popular: "الأكثر اختياراً", secure: "دفع آمن عبر SSL", trial: "تجربة مجانية 7 أيام", cancel: "إلغاء في أي وقت", plans: [["الأساسي", "/شهرياً", "أدوات أساسية لعافيتك.", ["3 جلسات تقييم شهرياً", "مذكرة نصية", "سجل الجلسات والرؤى", "دعم عبر البريد"], "اختر الأساسي"], ["الاحترافي", "/شهرياً", "رؤى أعمق، مع محادثات صوتية وتقارير للأنماط.", ["جلسات تقييم غير محدودة", "مذكرة صوتية ونصية", "محادثات صوتية مع ميرا", "تحليل الأنماط والتقارير", "دعم أولوية"], "اختر الاحترافي"], ["الوالدان", "/شهرياً", "لرفاه الوالدين والأسرة.", ["كل ميزات الاحترافي", "حتى 4 ملفات عائلية", "نظرة عامة عائلية تحت تحكمك", "لوحة رؤى عائلية", "دعم أولوية"], "اختر الوالدين"]] },
   cta: { eyebrow: "ابدأ خطوتك اليوم", titleA: "هل أنت مستعد", titleB: "للخطوة التالية؟", body: "ابدأ بتوجيه مجاني من ميرا، ثم ابنِ صورتك اليومية في لومينا — بإيقاعك أنت.", primary: "ابدأ مجاناً", demo: "شاهد كيف نعمل", benefits: ["توجيه مجاني دون حساب", "تجربة مجانية 7 أيام", "الإلغاء في أي وقت"] },
-  footer: { description: "متابعة يومية واستمرارية في الرعاية لمن يعيشون مع الاضطراب ثنائي القطب أو الفصام أو اضطراب فرط الحركة وتشتت الانتباه. لأن ما يحدث بين الموعدين مهم.", product: "المنتج", company: "المساعدة والحساب", updates: "ابقَ على اطلاع", email: "أدخل بريدك الإلكتروني", privacy: "الخصوصية", terms: "الشروط", cookies: "ملفات الارتباط", links: ["التوجيه مع ميرا", "كيف نعمل", "الخطط والأسعار"], companyLinks: ["الدعم", "تسجيل الدخول", "إنشاء حساب"], rights: "جميع الحقوق محفوظة." },
+  footer: { description: "متابعة يومية واستمرارية في الرعاية لمن يعيشون مع الاضطراب ثنائي القطب أو الفصام أو اضطراب فرط الحركة وتشتت الانتباه. لأن ما يحدث بين الموعدين مهم.", product: "المنتج", company: "المساعدة والحساب", updates: "ابقَ على اطلاع", email: "أدخل بريدك الإلكتروني", privacy: "الخصوصية", terms: "الشروط", cookies: "ملفات الارتباط", links: ["ميرا · التوجيه", "لومينا · المساحة اليومية", "كيف نعمل", "الخطط والأسعار"], companyLinks: ["الدعم", "تسجيل الدخول", "إنشاء حساب"], rights: "جميع الحقوق محفوظة." },
 } as const;
 
 const baseCopy = {
@@ -123,20 +123,9 @@ const baseCopy = {
       backToDashboard: "Back to dashboard",
     },
     header: {
-      links: { agents: "AI agents", plans: "Plans & pricing", support: "Support" },
+      links: { product: "Companions", plans: "Plans & pricing", support: "Support" },
+      menu: { title: "Product" },
       agents: {
-        eyebrow: "Meet Mira",
-        title: "Your first step: a guided, private orientation.",
-        impactLabel: "Key impact",
-        flowTitle: "Your VitaMind journey",
-        flow: [
-          ["Start with Mira", "A guided conversation that spots signals worth a professional look."],
-          ["Track in Lumina", "Your daily space: check-in, journal and goals — a few seconds a day."],
-          ["See your evolution", "Your own baseline, trends and patterns, week after week."],
-          ["Share with your clinician", "A monthly report, only when you choose to share it."],
-        ],
-        trust: ["Private by design", "Orientation, not diagnosis", "English · العربية"],
-        allPlans: "Compare plans",
         items: {
           mira: {
             name: "Mira",
@@ -337,7 +326,7 @@ const baseCopy = {
         eyebrow: "Why VitaMind",
         text: "A consultation sees one moment. Life happens in between. VitaMind turns your days into a clear, personal picture of how you are evolving — so you and your clinician can see what really happened.",
       },
-      footer: { description: "Daily monitoring and continuity of care for people living with bipolar disorder, schizophrenia or ADHD. Because what happens between consultations matters.", product: "Product", company: "Help & account", updates: "Stay updated", email: "Enter your email", privacy: "Privacy", terms: "Terms", cookies: "Cookies", links: ["Orientation with Mira", "How it works", "Plans & pricing"], companyLinks: ["Support", "Sign in", "Create account"], rights: "All rights reserved." },
+      footer: { description: "Daily monitoring and continuity of care for people living with bipolar disorder, schizophrenia or ADHD. Because what happens between consultations matters.", product: "Product", company: "Help & account", updates: "Stay updated", email: "Enter your email", privacy: "Privacy", terms: "Terms", cookies: "Cookies", links: ["Mira · Orientation", "Lumina · Daily space", "How it works", "Plans & pricing"], companyLinks: ["Support", "Sign in", "Create account"], rights: "All rights reserved." },
     },
     auth: {
       badge: "Secure wellness access",
@@ -468,8 +457,8 @@ const baseCopy = {
       composerDictationLive: "Listening… speak now",
       composerDictationUnsupported: "Voice dictation is not supported in this browser.",
       welcomeTitle: "Hi, I'm Mira",
-      welcomeBody: "A calm, private space — answer freely in English or Arabic. I'll ask about 10 questions, and you can always ask for more.",
-      questionsHint: "About 10 questions · ask for more if needed",
+      welcomeBody: "A calm, private space — answer freely in English or Arabic. I'll ask 10 short questions, and you can skip any.",
+      questionsHint: "10 short questions · you can skip any",
       enterHint: "Press Enter to send · Shift + Enter for a new line",
       remaining: "{count} left",
       suggestionsLabel: "Not sure where to start?",
@@ -482,7 +471,17 @@ const baseCopy = {
       greeting: "Hello, {name}",
       miraRole: "AI orientation guide",
       presence: "Here with you",
-      questionCounter: "Question {current} of ~{total}",
+      questionCounter: "Question {current} of {total}",
+      unreadableHint: "Add a few words — empty text or symbols can't be read as an answer.",
+      notCounted: "Not counted",
+      notCountedHint: "Didn't count — the question is still open",
+      finishing: {
+        eyebrow: "All 10 answers received",
+        title: "Preparing your orientation",
+        ready: "Your orientation is ready",
+        steps: ["Reading your answers", "Weighing the signals", "Writing your summary"],
+        opening: "Opening it now…",
+      },
       chapterHints: {
         MORNING: "A gentle start",
         MIDDAY: "Exploring your days",
@@ -491,7 +490,7 @@ const baseCopy = {
       },
       chapterDone: "Done",
       chapterNow: "Now",
-      almostThere: "Almost there — your personal orientation is about {count} answers away.",
+      almostThere: "Almost there — {count} more to go.",
       whatYouGet: {
         title: "What you'll receive",
         items: [
@@ -963,8 +962,8 @@ const arabicDiagnostic = {
   composerDictationLive: "أستمع… تحدث الآن",
   composerDictationUnsupported: "الإملاء الصوتي غير مدعوم في هذا المتصفح.",
   welcomeTitle: "مرحباً، أنا ميرا",
-  welcomeBody: "مساحة هادئة وخاصة — أجب بحرية بالعربية أو الإنجليزية. سأطرح حوالي 10 أسئلة، ويمكنك دائماً طلب المزيد.",
-  questionsHint: "حوالي 10 أسئلة · يمكنك طلب المزيد",
+  welcomeBody: "مساحة هادئة وخاصة — أجب بحرية بالعربية أو الإنجليزية. سأطرح 10 أسئلة قصيرة، ويمكنك تخطي أي سؤال.",
+  questionsHint: "10 أسئلة قصيرة · يمكنك تخطي أي سؤال",
   enterHint: "اضغط Enter للإرسال · Shift + Enter لسطر جديد",
   remaining: "{count} متبقية",
   suggestionsLabel: "لست متأكداً من أين تبدأ؟",
@@ -977,7 +976,17 @@ const arabicDiagnostic = {
   greeting: "مرحباً، {name}",
   miraRole: "مرشدة التوجيه بالذكاء الاصطناعي",
   presence: "هنا معك",
-  questionCounter: "السؤال {current} من ~{total}",
+  questionCounter: "السؤال {current} من {total}",
+  unreadableHint: "اكتب بضع كلمات — النص الفارغ أو الرموز لا تُقرأ كإجابة.",
+  notCounted: "لم يُحتسب",
+  notCountedHint: "لم يُحتسب — السؤال ما زال مفتوحاً",
+  finishing: {
+    eyebrow: "وصلت الإجابات العشر",
+    title: "نُعدّ توجيهك",
+    ready: "توجيهك جاهز",
+    steps: ["نقرأ إجاباتك", "نزن الإشارات", "نكتب ملخصك"],
+    opening: "نفتحه الآن…",
+  },
   chapterHints: {
     MORNING: "بداية هادئة",
     MIDDAY: "استكشاف أيامك",
@@ -986,7 +995,7 @@ const arabicDiagnostic = {
   },
   chapterDone: "مكتمل",
   chapterNow: "الآن",
-  almostThere: "اقتربنا — يفصلك نحو {count} إجابات عن توجيهك الشخصي.",
+  almostThere: "اقتربنا — بقي {count} فقط.",
   whatYouGet: {
     title: "ما الذي ستحصل عليه",
     items: ["ملخص توجيه شخصي", "رؤية واضحة لأبرز المؤشرات", "خطوة تالية مقترحة مع مختص"],
@@ -1138,20 +1147,9 @@ const arabicCopy = {
   common: { close: "إغلاق", loading: "جاري التحميل…", retry: "حاول مرة أخرى" },
   nav: { badge: "واجهة صحة نفسية ديناميكية", language: "اللغة", support: "الدعم", mainNav: "التنقل الرئيسي", signIn: "تسجيل الدخول", signUp: "إنشاء حساب", diagnostic: "ابدأ التوجيه", backHome: "العودة للرئيسية", back: "رجوع", backToPlans: "العودة إلى الخطط", backToDashboard: "العودة إلى لوحتي" },
   header: {
-    links: { agents: "وكلاء الذكاء الاصطناعي", plans: "الخطط والأسعار", support: "الدعم" },
+    links: { product: "الرفيقتان", plans: "الخطط والأسعار", support: "الدعم" },
+    menu: { title: "المنتج" },
     agents: {
-      eyebrow: "تعرّف على ميرا",
-      title: "خطوتك الأولى: توجيه موجَّه وخاص.",
-      impactLabel: "الأثر الأساسي",
-      flowTitle: "رحلتك مع VitaMind",
-      flow: [
-        ["ابدأ مع ميرا", "محادثة موجَّهة ترصد الإشارات التي تستحق نظرة مهنية."],
-        ["تابع في لومينا", "مساحتك اليومية: فحص ومفكرة وأهداف — بضع ثوانٍ كل يوم."],
-        ["شاهد تطوّرك", "خطّك المرجعي واتجاهاتك وأنماطك، أسبوعاً بعد أسبوع."],
-        ["شارك مع مختصك", "تقرير شهري، فقط عندما تختار مشاركته."],
-      ],
-      trust: ["الخصوصية في التصميم", "توجيه لا تشخيص", "English · العربية"],
-      allPlans: "قارن الخطط",
       items: {
         mira: {
           name: "ميرا",

@@ -386,7 +386,7 @@ export const Features = () => {
 
   return (
     <HomeSection id="features" labelledBy="features-title">
-      <SectionHeader variant="editorial" id="features-title" layout="split" counter="02 / 06" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+      <SectionHeader variant="editorial" id="features-title" layout="split" counter="02 / 07" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
       <motion.div variants={stagger(0.08)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="mt-12 md:mt-16 lg:mt-20">
         {/* Below lg the eight cards are a swipe deck, so the section is one screen tall instead of eight; from lg it is the bento. */}

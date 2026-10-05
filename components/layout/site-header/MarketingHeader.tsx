@@ -12,10 +12,10 @@ import { useAuthSession } from "@/hooks/useAuthSession";
 import { ROUTES } from "@/lib/config/routes";
 import { SPRING_SOFT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { AgentsMenu } from "./AgentsMenu";
-import { PRIMARY_LINKS, isActivePath } from "./agents";
+import { PRIMARY_LINKS, activeLinkId } from "./agents";
 import { HeaderShell } from "./HeaderShell";
 import { MobileNavigation } from "./MobileNavigation";
+import { ProductMenu } from "./ProductMenu";
 import { UserMenu } from "./UserMenu";
 
 export const NAV_ITEM =
@@ -34,7 +34,7 @@ function ActivePill() {
 }
 
 /**
- * Public header: product destinations (agents, plans, support) rather than
+ * Public header: product destinations (companions, plans, support) rather than
  * in-page home anchors. Part of the page at the top, a quiet surface on scroll.
  */
 export function MarketingHeader() {
@@ -42,14 +42,14 @@ export function MarketingHeader() {
   const { dictionary } = useLanguage();
   const copy = dictionary.header;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [agentsOpen, setAgentsOpen] = useState(false);
+  const [productOpen, setProductOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const { signedIn, name } = useAuthSession();
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const activeId = PRIMARY_LINKS.find((link) => link.href && isActivePath(pathname, link.href))?.id ?? null;
-  // The pill follows the pointer, rests on the current page, and sits under "AI agents" while its panel is open.
-  const pillId = agentsOpen ? "agents" : (hovered ?? activeId);
+  const activeId = activeLinkId(pathname);
+  // The pill follows the pointer, rests on the current page, and sits under "Companions" while its list is open.
+  const pillId = productOpen ? "product" : (hovered ?? activeId);
 
   // The end of the header follows the visitor: their own menu when signed in, otherwise the way in —
   // and on an auth page, the other auth page (never a link to where they already are).
@@ -62,7 +62,7 @@ export function MarketingHeader() {
     <HeaderShell
       position={pathname === ROUTES.home ? "fixed" : "sticky"}
       surface="capsule"
-      solid={menuOpen || agentsOpen || userOpen}
+      solid={menuOpen || productOpen || userOpen}
       innerClassName="grid grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_1fr]"
     >
       <BrandLogo size="md" className="justify-self-start" />
@@ -77,10 +77,11 @@ export function MarketingHeader() {
               if (!link.href) {
                 return (
                   <li key={link.id} onPointerEnter={() => setHovered(link.id)}>
-                    <AgentsMenu
+                    <ProductMenu
                       triggerClassName={cn(NAV_ITEM, tone)}
                       indicator={showPill ? <ActivePill /> : null}
-                      onOpenChange={setAgentsOpen}
+                      current={activeId === link.id}
+                      onOpenChange={setProductOpen}
                     />
                   </li>
                 );

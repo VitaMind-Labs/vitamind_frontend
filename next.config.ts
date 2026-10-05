@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   // The Mira conversation moved from /diagnostic to /orientation (query strings are kept).
   async redirects() {
     return [
+      // "/" is the home page; /home would be a duplicate URL for search engines.
+      { source: "/home", destination: "/", permanent: true },
       { source: "/diagnostic", destination: "/orientation", permanent: true },
       { source: "/diagnostic/:path*", destination: "/orientation/:path*", permanent: true },
     ];

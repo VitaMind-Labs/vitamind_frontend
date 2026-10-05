@@ -32,7 +32,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         ref={scope}
         className="page-container relative flex flex-1 flex-col pb-12 pt-6 sm:pb-16 sm:pt-10 lg:grid lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] lg:items-stretch lg:gap-10 lg:pt-6 xl:gap-16"
       >
-        <div className="mx-auto flex w-full max-w-[28rem] flex-1 flex-col justify-start sm:justify-center lg:max-w-none lg:py-4">{children}</div>
+        <div className="mx-auto flex w-full max-w-[28rem] flex-1 flex-col justify-start sm:justify-center md:max-w-[34rem] lg:max-w-none lg:py-4">{children}</div>
         <AuthBrandPanel />
       </main>
 

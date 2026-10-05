@@ -25,6 +25,13 @@ type SendResponse = {
   assistant_message: string;
   chapter: MiraChapter;
   chapter_progress: number;
+  /** Questions resolved so far, out of `questions_total` (always 10). An unreadable message does not move it. */
+  questions_answered?: number;
+  questions_total?: number;
+  /** `invalid`: nothing to read (spaces, symbols, repeated or random keys). Not counted; the question stays. */
+  input_status?: "ok" | "invalid";
+  invalid_reason?: "empty" | "symbols" | "repeated" | "mashing";
+  counted?: boolean;
   assessment_complete: boolean;
   safety: MiraSafety;
   result?: MiraAssessmentResult | null;
@@ -113,6 +120,8 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
   const [error, setError] = useState<string | null>(null);
   const [safety, setSafety] = useState<MiraSafety>({ level: "routine", flags: [] });
   const [result, setResult] = useState<MiraAssessmentResult | null>(null);
+  /** The result just arrived with the tenth answer (not restored from history): worth a proper finishing beat. */
+  const [finishedLive, setFinishedLive] = useState(false);
   const [sessionLanguage, setSessionLanguage] = useState<Lang | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
   const [attempt, setAttempt] = useState<MiraAttemptState | null>(null);
@@ -355,12 +364,25 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
         unanswered.current = null;
         setProgress(data.chapter_progress);
         setSafety(data.safety);
+        // Nothing to read: Mira kept the question open and did not count it. Say so on both sides of the exchange.
+        const unreadable = data.input_status === "invalid";
         // The final body is the source of truth; a streamed reply keeps its key so it never remounts.
         setMessages((prev) => [
-          ...prev,
-          { id: uid("mira"), role: "assistant", content: data.assistant_message, chapter: data.chapter, createdAt: new Date().toISOString(), renderKey: streamed ? key : undefined },
+          ...(unreadable ? prev.map((m) => (m.id === localId ? { ...m, notCounted: true } : m)) : prev),
+          {
+            id: uid("mira"),
+            role: "assistant",
+            content: data.assistant_message,
+            chapter: data.chapter,
+            createdAt: new Date().toISOString(),
+            renderKey: streamed ? key : undefined,
+            notice: unreadable ? "unreadable" : undefined,
+          },
         ]);
-        if (data.assessment_complete && data.result) setResult(data.result);
+        if (data.assessment_complete && data.result) {
+          setFinishedLive(true);
+          setResult(data.result);
+        }
       } catch (err) {
         const stopped = live.signal.aborted;
         const problem = classifyTurnFailure(err);
@@ -437,6 +459,7 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
     setProgress(0);
     setSafety({ level: "routine", flags: [] });
     setResult(null);
+    setFinishedLive(false);
     setSessionLanguage(null);
     setSessionReady(false);
     setError(null);
@@ -465,6 +488,7 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
     error,
     safety,
     result,
+    finishedLive,
     attempt,
     blocked,
     /** Signed-in patient: orientation already completed, the chat is locked. */

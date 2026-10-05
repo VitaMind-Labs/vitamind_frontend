@@ -669,7 +669,7 @@ export function DailyRitual() {
 
   return (
     <HomeSection id="ritual" labelledBy="ritual-title" className="border-t border-line">
-      <SectionHeader variant="editorial" layout="split" counter="03 / 06" id="ritual-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+      <SectionHeader variant="editorial" layout="split" counter="04 / 07" id="ritual-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
       <div className="mt-14 md:mt-20">
         {reduce ? (

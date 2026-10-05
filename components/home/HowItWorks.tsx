@@ -1,10 +1,13 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ROUTES } from "@/lib/config/routes";
+import { agentPagesCopy } from "@/lib/i18n/agents";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { BookOpen, Compass, FileText, TrendingUp, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Compass, FileText, TrendingUp, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { pad } from "./accents";
 import { CURTAIN } from "./HomeSection";
@@ -26,12 +29,14 @@ const PANELS = [
     { surface: "bg-[linear-gradient(150deg,#ecdfb6,#c9af6f)]", numeral: "text-teal-900", body: "text-teal-900", label: "text-teal-900", chip: "border-teal-900/20 bg-white/45 text-teal-900", icon: "bg-white/55 text-teal-800", title: "text-teal-900" },
 ] as const;
 
-type PanelProps = { step: Step; index: number; label: string; railX?: MotionValue<number>; stride?: number; className?: string };
+type PanelLink = { href: string; label: string };
+
+type PanelProps = { step: Step; index: number; label: string; link?: PanelLink; railX?: MotionValue<number>; stride?: number; className?: string };
 
 const DRIFT_LIMIT = 56;
 
 /** One step as a large soft panel: the numeral oversized in serif on the start side, the words on the other. */
-function Panel({ step, index, label, railX, stride = 0, className }: PanelProps) {
+function Panel({ step, index, label, link, railX, stride = 0, className }: PanelProps) {
     const tone = PANELS[index % PANELS.length];
     const Icon = ICONS[index % ICONS.length];
     const idle = useMotionValue(0);
@@ -71,6 +76,15 @@ function Panel({ step, index, label, railX, stride = 0, className }: PanelProps)
                         {step[0]}
                     </h3>
                     <p className={cn("mt-4 text-[1.0625rem] leading-8", tone.body)}>{step[1]}</p>
+                    {link ? (
+                        <Link
+                            href={link.href}
+                            className={cn("group/link mt-5 inline-flex min-h-11 items-center gap-2 rounded-md text-[0.9375rem] font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current", tone.title)}
+                        >
+                            <span className="home-link-line">{link.label}</span>
+                            <ArrowRight className="size-4 transition-transform duration-300 ease-out-soft group-hover/link:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover/link:-translate-x-0.5" aria-hidden />
+                        </Link>
+                    ) : null}
                 </div>
 
                 <ul className="flex flex-wrap gap-2">
@@ -86,7 +100,7 @@ function Panel({ step, index, label, railX, stride = 0, className }: PanelProps)
 }
 
 /** Wide screens: a horizontal journey driven by the vertical scroll — the rail slides, the numerals drift against it. */
-function Journey({ steps, label, className }: { steps: readonly Step[]; label: string; className?: string }) {
+function Journey({ steps, label, links, className }: { steps: readonly Step[]; label: string; links: readonly (PanelLink | undefined)[]; className?: string }) {
     const { direction } = useLanguage();
     const total = steps.length;
     const track = useRef<HTMLDivElement>(null);
@@ -121,9 +135,9 @@ function Journey({ steps, label, className }: { steps: readonly Step[]; label: s
         <div ref={track} className={cn("relative h-[340svh]", className)}>
             <div className="sticky top-0 flex h-svh flex-col justify-center gap-8 overflow-hidden py-20">
                 <div ref={frame} className="w-full">
-                    <motion.ol ref={rail} style={{ x }} className="flex w-max gap-6 ps-[max(1.5rem,calc((100vw-76rem)/2))] pe-[max(1.5rem,calc((100vw-76rem)/2))]">
+                    <motion.ol ref={rail} style={{ x }} className="flex w-max gap-6 ps-[max(1.5rem,calc((100vw-var(--container-page))/2))] pe-[max(1.5rem,calc((100vw-var(--container-page))/2))]">
                         {steps.map((step, index) => (
-                            <Panel key={step[0]} step={step} index={index} label={label} railX={x} stride={stride} className="h-[clamp(27rem,66svh,33rem)] w-[min(82vw,62rem)] shrink-0" />
+                            <Panel key={step[0]} step={step} index={index} label={label} link={links[index]} railX={x} stride={stride} className="h-[clamp(27rem,66svh,33rem)] w-[min(82vw,62rem)] shrink-0" />
                         ))}
                     </motion.ol>
                 </div>
@@ -144,15 +158,21 @@ function Journey({ steps, label, className }: { steps: readonly Step[]; label: s
 }
 
 export const HowItWorks = () => {
-    const { dictionary } = useLanguage();
+    const { dictionary, language } = useLanguage();
     const copy = dictionary.homeLanding.process;
     const steps = copy.steps as readonly Step[];
+    // The first two steps are the two agents: each opens her own page.
+    const cards = agentPagesCopy[language].home.cards;
+    const links: readonly (PanelLink | undefined)[] = [
+        { href: ROUTES.mira, label: cards.mira.cta },
+        { href: ROUTES.lumina, label: cards.lumina.cta },
+    ];
     const reduce = useReducedMotion();
 
     const stack = (
         <motion.ol variants={stagger(0.1)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className={cn("page-container space-y-5", !reduce && "lg:hidden")}>
             {steps.map((step, index) => (
-                <Panel key={step[0]} step={step} index={index} label={copy.stepLabel} className="min-h-[24rem] sm:min-h-[22rem]" />
+                <Panel key={step[0]} step={step} index={index} label={copy.stepLabel} link={links[index]} className="min-h-[24rem] sm:min-h-[22rem]" />
             ))}
         </motion.ol>
     );
@@ -160,7 +180,7 @@ export const HowItWorks = () => {
     return (
         <section id="how-it-works" aria-labelledby="process-title" className={cn("section-pt relative isolate overflow-x-clip bg-canvas", CURTAIN)}>
             <div className="page-container">
-                <SectionHeader variant="editorial" counter="05 / 06" id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
+                <SectionHeader variant="editorial" counter="06 / 07" id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
             </div>
 
             <div className="mt-14 md:mt-20">
@@ -168,7 +188,7 @@ export const HowItWorks = () => {
                     stack
                 ) : (
                     <>
-                        <Journey steps={steps} label={copy.stepLabel} className="hidden lg:block" />
+                        <Journey steps={steps} label={copy.stepLabel} links={links} className="hidden lg:block" />
                         {stack}
                     </>
                 )}

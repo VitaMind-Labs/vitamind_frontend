@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -33,8 +33,10 @@ import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { useMiraChat, type MiraPhase } from "../hooks/useMiraChat";
 import { questionPosition } from "../lib/chapters";
+import { hasReadableContent } from "../lib/input";
 import { MIRA_STREAM_COPY } from "../lib/stream-copy";
 import { useVisitorName } from "../lib/visitor";
+import { FINISH_STEP_MS, FinishingScreen } from "./FinishingScreen";
 import { MiraAvatar, MiraMessage } from "./MiraMessage";
 import { NameIntake } from "./NameIntake";
 import { CompactProgress, SessionRail } from "./SessionProgress";
@@ -172,6 +174,7 @@ export function MiraChatExperience({
     error,
     safety,
     result,
+    finishedLive,
     attempt,
     blocked,
     completed,
@@ -180,10 +183,15 @@ export function MiraChatExperience({
     restart,
   } = useMiraChat(chatId, language, { locked });
 
-  // A completed orientation lives on its own route — never fall back into the chat flow.
+  // A completed orientation lives on its own route — never fall back into the chat flow. When it has just been
+  // finished, the hand-over takes a proper beat (the finishing screen); a restored one opens straight away.
+  const reduceMotion = useReducedMotion();
   useEffect(() => {
-    if (result && sessionId) router.replace(`${ROUTES.orientation}/result/${encodeURIComponent(sessionId)}`);
-  }, [result, sessionId, router]);
+    if (!result || !sessionId) return;
+    const wait = finishedLive ? (reduceMotion ? 1400 : FINISH_STEP_MS * 3 + 1100) : 0;
+    const timer = window.setTimeout(() => router.replace(`${ROUTES.orientation}/result/${encodeURIComponent(sessionId)}`), wait);
+    return () => window.clearTimeout(timer);
+  }, [result, sessionId, finishedLive, reduceMotion, router]);
 
   const showNameIntake = !blocked && !completed && !result && !name && !nameSkipped;
   const conversationLanguage = language;
@@ -241,6 +249,11 @@ export function MiraChatExperience({
   function handleSend() {
     const text = input.trim();
     if (!text || busy || result || completed) return;
+    // Only symbols or spaces: nothing Mira could read as an answer. Say so here instead of sending it.
+    if (!hasReadableContent(text)) {
+      showHint(diagnostic.unreadableHint);
+      return;
+    }
     stopDictation();
     setInput("");
     if (inputRef.current) inputRef.current.style.height = "auto";
@@ -326,7 +339,8 @@ export function MiraChatExperience({
 
   const position = questionPosition(progress);
   const showAlmostThere = !completed && !result && !error && safety.level !== "urgent" && progress >= 0.7 && position.remaining > 0;
-  const canSend = Boolean(input.trim()) && !busy && !completed;
+  const unreadableDraft = input.trim().length > 0 && !hasReadableContent(input);
+  const canSend = Boolean(input.trim()) && !unreadableDraft && !busy && !completed;
   const showSuggestions = !completed && !result && !input.trim() && messages.length <= 1 && !showNameIntake;
   const multiline = input.includes("\n") || input.length > 90;
 
@@ -355,12 +369,16 @@ export function MiraChatExperience({
           </div>
         </div>
       ) : result ? (
-        <div className="relative flex min-h-[24rem] flex-1 items-center justify-center px-4" role="status">
-          <span className="orientation-glass inline-flex items-center gap-3 rounded-full px-5 py-3 text-sm font-medium text-ink">
-            <LogoSpinner size={16} />
-            {diagnostic.resultPage.loading}
-          </span>
-        </div>
+        finishedLive ? (
+          <FinishingScreen />
+        ) : (
+          <div className="relative flex min-h-[24rem] flex-1 items-center justify-center px-4" role="status">
+            <span className="orientation-glass inline-flex items-center gap-3 rounded-full px-5 py-3 text-sm font-medium text-ink">
+              <LogoSpinner size={16} />
+              {diagnostic.resultPage.loading}
+            </span>
+          </div>
+        )
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -455,6 +473,8 @@ export function MiraChatExperience({
                       key={message.renderKey ?? message.id}
                       streaming={message.streaming}
                       partial={message.partial}
+                      notice={message.notice}
+                      notCounted={message.notCounted}
                       onRetry={retry}
                       id={message.id}
                       role={message.role}
@@ -707,7 +727,14 @@ export function MiraChatExperience({
                 </div>
 
                 <div className={cn("mt-2.5 flex items-center justify-between gap-3 px-2 text-[0.8125rem] text-ink-soft", completed && "hidden")}>
-                  <span className="tabular-nums">{input.length > 0 ? `${input.length.toLocaleString()} / 10,000` : diagnostic.questionsHint}</span>
+                  {unreadableDraft ? (
+                    <span role="status" className="inline-flex items-center gap-1.5 font-medium text-gold-700">
+                      <Info className="size-3.5 shrink-0" aria-hidden />
+                      {diagnostic.unreadableHint}
+                    </span>
+                  ) : (
+                    <span className="tabular-nums">{input.length > 0 ? `${input.length.toLocaleString()} / 10,000` : diagnostic.questionsHint}</span>
+                  )}
                   <span className="hidden sm:inline">{diagnostic.enterHint}</span>
                 </div>
 

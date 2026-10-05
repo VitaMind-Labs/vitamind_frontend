@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { OrientationPage } from "@/features/diagnostic";
+import { ROUTES } from "@/lib/config/routes";
+import { pageMetadata } from "@/lib/config/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Orientation with Mira",
-  description: "A private, guided orientation conversation with Mira — not a medical diagnosis.",
-};
+  description:
+    "A private, guided conversation with Mira about ADHD, bipolar disorder and psychotic symptoms. It points you to the right next step — it is not a medical diagnosis.",
+  path: ROUTES.orientation,
+});
 
 export default function Page() {
   return <OrientationPage />;

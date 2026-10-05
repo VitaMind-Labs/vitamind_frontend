@@ -264,7 +264,7 @@ function PaymentForm() {
     <>
       <CheckoutSteps current={1} className="mb-12" />
       <PaymentHero />
-      <div className="mx-auto grid w-full max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-10">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-10 2xl:max-w-7xl 2xl:grid-cols-[minmax(0,1fr)_28rem]">
         {/* Order summary — first on small screens so the plan is always confirmed before card details. */}
         <motion.aside
           aria-label={copy.summaryTitle}
