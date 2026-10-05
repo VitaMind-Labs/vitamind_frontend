@@ -170,7 +170,7 @@ export const ConditionsSection = () => {
 
   return (
     <HomeSection id="conditions" labelledBy="conditions-title" tone="tint">
-      <SectionHeader variant="editorial" id="conditions-title" layout="split" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+      <SectionHeader variant="editorial" id="conditions-title" layout="split" counter="04 / 06" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
       <ol className={cn("mt-14 flex flex-col md:mt-20", stack ? "gap-[14vh] lg:gap-[24vh]" : "gap-5 lg:gap-6")}>
         {items.map((condition, i) => (

@@ -197,32 +197,28 @@ export const Hero = () => {
             </div>
 
             {/* ===== Product stage ===== */}
-            <div id="care" className="relative z-10 pb-24 pt-16 md:pb-36 md:pt-24">
-                <motion.div
-                    initial={reduce ? false : { opacity: 0, y: 48, clipPath: "inset(10% 5% 0% 5% round 2.5rem)" }}
-                    whileInView={{ opacity: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 1.75rem)" }}
-                    viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-                    transition={{ duration: 1.3, ease: EASE_OUT }}
-                    className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
-                >
-                    <CareJourney />
-
-                    {/* What the journey stands for — a quiet line beneath it, never a card over it */}
-                    <ul className="mx-auto mt-9 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-[0.9375rem] text-ink-soft">
-                        <li className="flex items-center gap-2.5">
-                            <span className="flex size-7 items-center justify-center rounded-full bg-sage-100 text-sage-700">
-                                <Check className="size-3.5" strokeWidth={2.25} aria-hidden />
-                            </span>
-                            <span className="font-medium text-ink">{copy.insight}</span>
-                            <span aria-hidden className="h-3.5 w-px bg-line-strong" />
-                            <span>{copy.pattern}</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                            <ShieldCheck className="size-[1.125rem] text-teal-700" aria-hidden />
-                            <span>{copy.encrypted}</span>
-                        </li>
-                    </ul>
-                </motion.div>
+            <div id="care" className="relative z-10 pb-20 pt-12 md:pb-32 md:pt-20">
+                <div className="page-container">
+                    <CareJourney>
+                        {/* What the journey stands for — quiet lines, never a card over it */}
+                        <ul className="space-y-4 text-[0.9375rem] leading-6 text-ink-soft">
+                            <li className="flex items-start gap-3">
+                                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-sage-100 text-sage-700">
+                                    <Check className="size-3.5" strokeWidth={2.25} aria-hidden />
+                                </span>
+                                <span className="min-w-0">
+                                    <span className="font-medium text-ink">{copy.insight}</span>
+                                    <span aria-hidden> · </span>
+                                    {copy.pattern}
+                                </span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <ShieldCheck className="mt-0.5 size-5 shrink-0 text-teal-700" aria-hidden />
+                                <span className="min-w-0">{copy.encrypted}</span>
+                            </li>
+                        </ul>
+                    </CareJourney>
+                </div>
             </div>
         </section>
     );

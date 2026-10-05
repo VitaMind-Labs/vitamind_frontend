@@ -321,7 +321,7 @@ export function ProgressStrip() {
   }, [history.data]);
 
   return (
-    <GlassCard className="flex flex-col gap-4 sm:flex-row sm:items-center" aria-labelledby="progress-title">
+    <GlassCard className="flex h-full flex-col gap-4 sm:flex-row sm:items-center 2xl:flex-col 2xl:items-stretch" aria-labelledby="progress-title">
       <span className="stat-tile stat-tile-sage shrink-0"><Flame className="size-5" aria-hidden /></span>
       <div className="min-w-0 flex-1">
         <h2 id="progress-title" className="text-base font-semibold text-ink">{copy.home.progress.title}</h2>
@@ -329,7 +329,7 @@ export function ProgressStrip() {
           <p className="mt-0.5 text-sm leading-relaxed text-ink-soft">{fill(copy.home.progress.body, { n: days })}</p>
         )}
       </div>
-      <div className="w-full sm:w-48">
+      <div className="w-full sm:w-48 2xl:w-full">
         <p className="mb-1 text-xs text-muted-foreground">{copy.home.progress.moodTrend}</p>
         <Sparkline values={moodSeries} color="var(--color-teal-600)" height={44} domain={[0, 10]} />
       </div>

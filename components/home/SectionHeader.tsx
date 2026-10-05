@@ -22,6 +22,8 @@ type SectionHeaderProps = {
   variant?: "classic" | "editorial";
   /** Surface the header sits on (editorial only). */
   tone?: "light" | "dark";
+  /** Editorial only: a "03 / 06" index pill and a hairline that runs to the end of the row. */
+  counter?: string;
   className?: string;
 };
 
@@ -37,6 +39,7 @@ export function SectionHeader({
   as = "h2",
   variant = "classic",
   tone = "light",
+  counter,
   className,
 }: SectionHeaderProps) {
   const centered = align === "center";
@@ -44,6 +47,7 @@ export function SectionHeader({
   const editorial = variant === "editorial";
   const dark = tone === "dark";
   const Heading = as === "h1" ? motion.h1 : motion.h2;
+  const indexed = editorial && !!counter;
 
   return (
     <motion.header
@@ -53,11 +57,23 @@ export function SectionHeader({
       viewport={REVEAL_VIEWPORT}
       className={cn(
         split ? "grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-10" : editorial ? "max-w-4xl" : "max-w-3xl",
+        indexed && !centered && "max-w-none",
         centered && "mx-auto text-center",
         className,
       )}
     >
-      <div className={cn(split && "lg:col-span-7")}>
+      {indexed ? (
+        <motion.div variants={fadeUp(0, 10)} className={cn("flex items-center gap-4", centered && "justify-center", split && "lg:col-span-12")}>
+          <span
+            dir="ltr"
+            className={cn("rounded-full border px-3 py-1 font-mono text-[0.75rem] tabular-nums leading-none", dark ? "border-white/25 text-teal-100" : "border-line-strong text-ink-soft")}
+          >
+            {counter}
+          </span>
+          {centered ? null : <span aria-hidden className={cn("h-px flex-1", dark ? "bg-white/15" : "bg-line")} />}
+        </motion.div>
+      ) : null}
+      <div className={cn(split && "lg:col-span-7", indexed && !centered && !split && "max-w-4xl")}>
         <motion.p
           variants={fadeUp()}
           className={cn(editorial ? LABEL : "home-eyebrow", "flex items-center gap-3", centered && "justify-center", editorial && (dark ? "text-teal-200" : "text-teal-700"))}

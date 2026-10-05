@@ -3,10 +3,10 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT, REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { motion, useInView } from "framer-motion";
-import { Activity, BarChart3, BookOpen, Brain, Compass, FileText, HeartPulse, Target, type LucideIcon } from "lucide-react";
-import { useRef } from "react";
-import { ACCENTS, type Accent } from "./accents";
+import { motion, useInView, useMotionValue, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { Activity, ArrowLeft, ArrowRight, BarChart3, BookOpen, Brain, Compass, FileText, HeartPulse, Target, type LucideIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { ACCENTS, pad, type Accent } from "./accents";
 import { CountUp } from "./CountUp";
 import { HomeSection } from "./HomeSection";
 import { SectionHeader } from "./SectionHeader";
@@ -102,14 +102,14 @@ const TONES: Record<Tone, { surface: string; border: string; wash: string; title
  * Spans pair up on tablet and stack on phones.
  */
 const BENTO: { span: string; tone: Tone }[] = [
-  { span: "md:col-span-2 lg:col-span-7 lg:row-span-2", tone: "deep" },
+  { span: "lg:col-span-7 lg:row-span-2", tone: "deep" },
   { span: "lg:col-span-5", tone: "aqua" },
   { span: "lg:col-span-5", tone: "champagne" },
   { span: "lg:col-span-3", tone: "ivory" },
   { span: "lg:col-span-5", tone: "mist" },
   { span: "lg:col-span-4", tone: "champagne" },
   { span: "lg:col-span-7", tone: "aqua" },
-  { span: "md:col-span-2 lg:col-span-5", tone: "ivory" },
+  { span: "lg:col-span-5", tone: "ivory" },
 ];
 
 type Feature = (typeof FEATURES_DATA)[number] & { title: string; description: string; statLabel: string; layer: string; legend: string[] };
@@ -170,14 +170,71 @@ function NeuralMap() {
   );
 }
 
-function FeatureCard({ feature, layout, lead = false }: { feature: Feature; layout: (typeof BENTO)[number]; lead?: boolean }) {
+/** True from the width where the bento grid takes over from the swipe deck. */
+function useWide() {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)");
+    const update = () => setWide(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return wide;
+}
+
+/**
+ * On small screens a card is a slide: it leans back, shrinks and dims as it leaves the centre of the deck
+ * and comes forward as it arrives — scroll-linked to the deck itself, not to the page.
+ */
+function useSlide(card: RefObject<HTMLElement | null>, deck: RefObject<HTMLElement | null>, active: boolean) {
+  const { scrollXProgress } = useScroll({ container: deck, target: card, axis: "x", offset: ["start end", "end start"] });
+  const scale = useTransform(scrollXProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
+  const opacity = useTransform(scrollXProgress, [0, 0.5, 1], [0.55, 1, 0.55]);
+  const tilt = useTransform(scrollXProgress, [0, 0.5, 1], [6, 0, -6]);
+  return active ? { scale, opacity, rotateY: tilt } : undefined;
+}
+
+function FeatureCard({
+  feature,
+  layout,
+  index,
+  deck,
+  slide,
+  lead = false,
+}: {
+  feature: Feature;
+  layout: (typeof BENTO)[number];
+  index: number;
+  deck: RefObject<HTMLElement | null>;
+  slide: boolean;
+  lead?: boolean;
+}) {
   const tone = TONES[layout.tone];
   const Icon = feature.icon;
   const dark = layout.tone === "deep";
+  const reduce = useReducedMotion();
+  const cardRef = useRef<HTMLElement>(null);
+  const slideStyle = useSlide(cardRef, deck, slide && !reduce);
+
+  /** A soft light follows the pointer across the card (mouse only). */
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (reduce || event.pointerType !== "mouse") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+    event.currentTarget.style.setProperty("--my", `${event.clientY - rect.top}px`);
+  };
 
   return (
-    <motion.article variants={fadeUp(0, lead ? 24 : 28)} className={cn("min-w-0", layout.span)}>
-      <div
+    <motion.article
+      ref={cardRef}
+      variants={fadeUp(0, lead ? 24 : 28)}
+      data-slide
+      className={cn("w-[82%] min-w-0 shrink-0 snap-center min-[640px]:w-[56%] lg:w-auto lg:shrink", layout.span)}
+    >
+      <motion.div
+        style={slideStyle}
+        onPointerMove={onPointerMove}
         className={cn(
           "group relative isolate flex h-full min-w-0 flex-col overflow-hidden rounded-panel border p-6 transition-[transform,border-color] duration-500 ease-out-soft hover:-translate-y-1.5 sm:p-7",
           lead && "sm:p-10",
@@ -187,12 +244,22 @@ function FeatureCard({ feature, layout, lead = false }: { feature: Feature; layo
         )}
       >
         <span aria-hidden className={cn("pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-700 ease-out-soft group-hover:opacity-100", tone.wash)} />
+        <span
+          aria-hidden
+          style={{ background: `radial-gradient(18rem circle at var(--mx, 50%) var(--my, 0%), ${dark ? "rgb(255 255 255 / 0.09)" : "rgb(255 255 255 / 0.7)"}, transparent 70%)` }}
+          className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-500 group-hover:opacity-100 max-md:hidden"
+        />
 
         <div className="flex items-center justify-between gap-3">
           <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-500 ease-out-soft group-hover:-translate-y-0.5", tone.icon)}>
             <Icon className="size-5" strokeWidth={1.5} aria-hidden />
           </span>
-          <span className={cn(LABEL, tone.label)}>{feature.layer}</span>
+          <span className="flex min-w-0 items-center gap-3">
+            <span className={cn(LABEL, "truncate", tone.label)}>{feature.layer}</span>
+            <span dir="ltr" className={cn("rounded-full border px-2.5 py-0.5 font-mono text-[0.75rem] tabular-nums leading-none", dark ? "border-white/20 text-teal-100" : "border-ink/15 text-ink-soft")}>
+              {pad(index + 1)}
+            </span>
+          </span>
         </div>
 
         <span aria-hidden className={cn("mt-7 block h-0.5 w-8 rounded-full", tone.rule, lead && "mt-8")} />
@@ -229,13 +296,47 @@ function FeatureCard({ feature, layout, lead = false }: { feature: Feature; layo
             ) : null}
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.article>
   );
 }
 
+/** Counter, progress and arrows for the swipe deck — the part of the section that is only there on small screens. */
+function DeckControls({ progress, current, total, onGo, labels }: { progress: MotionValue<number>; current: number; total: number; onGo: (index: number) => void; labels: { prev: string; next: string } }) {
+  return (
+    <div className="mt-6 flex items-center gap-4 lg:hidden">
+      <span dir="ltr" className="font-mono text-[0.8125rem] tabular-nums text-ink-soft">
+        {pad(current + 1)} / {pad(total)}
+      </span>
+      <span aria-hidden className="relative h-px flex-1 overflow-hidden bg-line-strong">
+        <motion.span style={{ scaleX: progress }} className="absolute inset-0 origin-left bg-gold rtl:origin-right" />
+      </span>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          aria-label={labels.prev}
+          disabled={current === 0}
+          onClick={() => onGo(current - 1)}
+          className="flex size-11 items-center justify-center rounded-full border border-line-strong text-ink transition-[background-color,opacity] duration-300 hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 disabled:opacity-35"
+        >
+          <ArrowLeft className="size-4 rtl:-scale-x-100" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label={labels.next}
+          disabled={current === total - 1}
+          onClick={() => onGo(current + 1)}
+          className="flex size-11 items-center justify-center rounded-full bg-teal-900 text-white transition-[background-color,opacity] duration-300 hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 disabled:opacity-35"
+        >
+          <ArrowRight className="size-4 rtl:-scale-x-100" aria-hidden />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export const Features = () => {
-  const { dictionary } = useLanguage();
+  const { dictionary, language } = useLanguage();
   const copy = dictionary.homeLanding.features;
   const legend = copy.columns.map((column) => column.title);
   const features = FEATURES_DATA.map((feature, index) => ({
@@ -247,20 +348,60 @@ export const Features = () => {
     legend,
   }));
 
+  const wide = useWide();
+  const deck = useRef<HTMLDivElement>(null);
+  const progress = useMotionValue(0);
+  const [current, setCurrent] = useState(0);
+  const arrows = language === "ar" ? { prev: "السابق", next: "التالي" } : { prev: "Previous", next: "Next" };
+
+  /** Which slide sits nearest the centre of the deck, and how far along the deck is. */
+  const onScroll = useCallback(() => {
+    const node = deck.current;
+    if (!node || wide) return;
+    const box = node.getBoundingClientRect();
+    const middle = box.left + box.width / 2;
+    let best = 0;
+    let bestDistance = Infinity;
+    node.querySelectorAll<HTMLElement>("[data-slide]").forEach((card, i) => {
+      const rect = card.getBoundingClientRect();
+      const distance = Math.abs(rect.left + rect.width / 2 - middle);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = i;
+      }
+    });
+    setCurrent(best);
+    const span = node.scrollWidth - node.clientWidth;
+    progress.set(span > 0 ? Math.min(1, Math.abs(node.scrollLeft) / span) : 0);
+  }, [wide, progress]);
+
+  useEffect(() => {
+    onScroll();
+  }, [onScroll, language]);
+
+  const go = (index: number) => {
+    const target = deck.current?.querySelectorAll<HTMLElement>("[data-slide]")[index];
+    target?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  };
+
   return (
     <HomeSection id="features" labelledBy="features-title">
-      <SectionHeader variant="editorial" id="features-title" layout="split" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+      <SectionHeader variant="editorial" id="features-title" layout="split" counter="02 / 06" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
-      <motion.div
-        variants={stagger(0.08)}
-        initial="hidden"
-        whileInView="show"
-        viewport={REVEAL_VIEWPORT}
-        className="mt-14 grid gap-4 md:mt-20 md:grid-cols-2 lg:grid-cols-12 lg:gap-5"
-      >
-        {features.map((feature, index) => (
-          <FeatureCard key={feature.title} feature={feature} layout={BENTO[index]} lead={index === 0} />
-        ))}
+      <motion.div variants={stagger(0.08)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="mt-12 md:mt-16 lg:mt-20">
+        {/* Below lg the eight cards are a swipe deck, so the section is one screen tall instead of eight; from lg it is the bento. */}
+        <div
+          ref={deck}
+          onScroll={onScroll}
+          style={{ perspective: "1200px" }}
+          className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto overscroll-x-contain px-4 py-3 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-12 lg:gap-5 lg:overflow-visible lg:p-0 [&::-webkit-scrollbar]:hidden"
+        >
+          {features.map((feature, index) => (
+            <FeatureCard key={feature.title} feature={feature} layout={BENTO[index]} index={index} deck={deck} slide={!wide} lead={index === 0} />
+          ))}
+        </div>
+
+        <DeckControls progress={progress} current={current} total={features.length} onGo={go} labels={arrows} />
       </motion.div>
     </HomeSection>
   );

@@ -4,11 +4,12 @@ import { MIRA_MARK_SRC } from "@/components/layout/site-header/AgentAvatar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
 import { FileText, ShieldCheck, TrendingUp, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState, type ReactNode } from "react";
-import { DISPLAY_S, LABEL } from "./typography";
+import { pad } from "./accents";
+import { DISPLAY_M, LABEL, SERIF } from "./typography";
 
 const LUMINA_MARK_SRC = "/assets/lumina-mark.png";
 const MARKER = "size-14";
@@ -139,19 +140,19 @@ function Marker({ art, lit, current }: { art: NodeArt; lit: boolean; current: bo
 }
 
 /**
- * The hero's product stage: one care thread that draws itself as you scroll — teal at the start, gold at the end,
- * like the logo — lighting four steps in turn: Mira, Lumina, your evolution, the clinician report.
+ * The hero's product stage: one care thread running down the middle of the page, with the four steps hung off it
+ * on alternating sides — Mira, Lumina, your evolution, the clinician report. The thread fills teal to gold as you
+ * scroll, each marker lights in turn, and an oversized numeral answers every step from the opposite side.
  * Nothing here pretends to be a screenshot; each step carries a small drawing of what it does.
  */
-export function CareJourney(): ReactNode {
+export function CareJourney({ children }: { children?: ReactNode }): ReactNode {
     const { dictionary } = useLanguage();
     const copy = dictionary.homeLanding.journey;
     const reduce = useReducedMotion();
     const total = copy.nodes.length;
 
     const listRef = useRef<HTMLOListElement>(null);
-    const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 0.8", "end 0.55"] });
-    const progress = useSpring(scrollYProgress, { stiffness: 110, damping: 26, mass: 0.4 });
+    const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 0.75", "end 0.6"] });
     const [reached, setReached] = useState(0);
 
     useMotionValueEvent(scrollYProgress, "change", (value) => {
@@ -162,71 +163,100 @@ export function CareJourney(): ReactNode {
     const lastLit = reduce ? total - 1 : reached;
 
     return (
-        <div className="relative overflow-hidden rounded-panel border border-line bg-white p-6 sm:p-9 lg:p-12">
-            <span aria-hidden className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-teal-300 via-gold to-gold-100" />
-
-            <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
-                <p className={cn(LABEL, "flex items-center gap-3 text-teal-700")}>
+        <div>
+            {/* Introduction: centred over the thread, where it starts */}
+            <motion.div
+                initial={reduce ? false : { opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+                transition={{ duration: 0.9, ease: EASE_OUT }}
+                className="mx-auto max-w-2xl text-center"
+            >
+                <p className={cn(LABEL, "flex items-center justify-center gap-3 text-teal-700")}>
                     <span aria-hidden className="h-px w-8 bg-gold" />
                     {copy.label}
+                    <span aria-hidden className="h-px w-8 bg-gold" />
                 </p>
-                <p className="flex items-center gap-2 text-[0.8125rem] text-ink-soft">
-                    <ShieldCheck className="size-4 text-teal-600" aria-hidden />
-                    {copy.note}
+                <p className="mt-5 flex items-start justify-center gap-2.5 text-start text-[0.9375rem] leading-7 text-ink-soft">
+                    <ShieldCheck className="mt-1 size-4 shrink-0 text-teal-600" aria-hidden />
+                    <span className="min-w-0">{copy.note}</span>
                 </p>
-            </div>
+                {children ? <div className="mx-auto mt-7 max-w-xl text-start">{children}</div> : null}
+                <span aria-hidden className="mx-auto mt-10 block h-12 w-0.5 rounded-full bg-gradient-to-b from-transparent to-teal-600" />
+            </motion.div>
 
-            <ol ref={listRef} className="relative mt-10 grid gap-8 lg:mt-12 lg:grid-cols-4 lg:gap-6">
-                {/* The thread — horizontal on wide screens, vertical beside the steps on small ones */}
-                <span aria-hidden className="absolute inset-x-[12.5%] top-7 hidden h-0.5 -translate-y-1/2 rounded-full bg-line-strong lg:block" />
-                <motion.span
-                    aria-hidden
-                    style={{ scaleX: reduce ? 1 : progress }}
-                    className="absolute inset-x-[12.5%] top-7 hidden h-0.5 origin-left -translate-y-1/2 rounded-full bg-gradient-to-r from-teal-600 via-teal-400 to-gold lg:block rtl:origin-right rtl:bg-gradient-to-l"
-                />
-                <span aria-hidden className="absolute bottom-7 start-7 top-7 w-0.5 -translate-x-1/2 rounded-full bg-line-strong lg:hidden rtl:translate-x-1/2" />
-                <motion.span
-                    aria-hidden
-                    style={{ scaleY: reduce ? 1 : progress }}
-                    className="absolute bottom-7 start-7 top-7 w-0.5 origin-top -translate-x-1/2 rounded-full bg-gradient-to-b from-teal-600 via-teal-400 to-gold lg:hidden rtl:translate-x-1/2"
-                />
-
+            <ol ref={listRef} className="mt-0">
                 {copy.nodes.map((node, index) => {
                     const lit = index <= lastLit;
+                    const last = index === total - 1;
+                    const far = index % 2 === 1; // lands on the end side on wide screens
                     return (
                         <motion.li
                             key={node.name}
-                            initial={reduce ? false : { opacity: 0, y: 24 }}
+                            initial={reduce ? false : { opacity: 0, y: 36 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-                            transition={{ duration: 0.8, delay: index * 0.08, ease: EASE_OUT }}
+                            transition={{ duration: 0.9, ease: EASE_OUT }}
                             aria-current={index === lastLit ? "step" : undefined}
-                            className="relative ps-[4.75rem] lg:ps-0 lg:pt-[5.25rem]"
+                            className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 sm:gap-x-7 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-x-14"
                         >
-                            <span className="absolute start-0 top-0 lg:start-1/2 lg:-translate-x-1/2 lg:rtl:translate-x-1/2">
+                            {/* The spine: marker, then the thread down to the next step */}
+                            <div className="col-start-1 row-start-1 flex flex-col items-center lg:col-start-2">
                                 <Marker art={ART[index]} lit={lit} current={index === lastLit} />
-                            </span>
+                                {!last ? (
+                                    <span aria-hidden className="relative mt-3 w-0.5 flex-1 rounded-full bg-line-strong">
+                                        <span
+                                            className={cn(
+                                                "absolute inset-0 origin-top rounded-full bg-gradient-to-b from-teal-600 to-gold transition-transform duration-1000 ease-out-soft",
+                                                index < lastLit ? "scale-y-100" : "scale-y-0",
+                                            )}
+                                        />
+                                    </span>
+                                ) : null}
+                            </div>
 
+                            {/* The step */}
                             <div
                                 className={cn(
-                                    "group flex h-full flex-col rounded-2xl border bg-white p-5 transition-[border-color,transform,opacity] duration-700 ease-out-soft hover:-translate-y-1",
-                                    lit ? "border-teal-200 opacity-100" : "border-line opacity-60",
+                                    "col-start-2 row-start-1 min-w-0 transition-opacity duration-700 ease-out-soft",
+                                    last ? "pb-0" : "pb-14 lg:pb-20",
+                                    far ? "lg:col-start-3" : "lg:col-start-1 lg:text-end",
+                                    lit ? "opacity-100" : "opacity-55",
                                 )}
                             >
-                                <div className="rounded-xl bg-teal-50 px-4 py-3">
+                                <div className={cn("rounded-2xl bg-teal-50 px-5 py-4 sm:max-w-[16rem]", !far && "lg:ms-auto")} aria-hidden>
                                     <Visual index={index} on={lit} />
                                 </div>
-                                <p className={cn(LABEL, "mt-5 text-gold-700")}>{node.kicker}</p>
-                                <h3 className={cn(DISPLAY_S, "mt-2 text-ink")}>{node.name}</h3>
-                                <p className="mt-2 text-[0.9375rem] leading-[1.7] text-ink-soft">{node.body}</p>
-                                <ul className="mt-auto flex flex-wrap gap-2 pt-5">
+                                <p className={cn(LABEL, "mt-6 flex items-center gap-3 text-gold-700", !far && "lg:flex-row-reverse")}>
+                                    <span className="tabular-nums" dir="ltr">
+                                        {pad(index + 1)}
+                                    </span>
+                                    <span aria-hidden className="h-px w-6 bg-gold" />
+                                    {node.kicker}
+                                </p>
+                                <h3 className={cn(DISPLAY_M, "mt-3 text-ink")}>{node.name}</h3>
+                                <p className={cn("mt-3 max-w-xl text-[1rem] leading-[1.75] text-ink-soft", !far && "lg:ms-auto")}>{node.body}</p>
+                                <ul className={cn("mt-5 flex flex-wrap gap-2", !far && "lg:justify-end")}>
                                     {node.chips.map((chip) => (
-                                        <li key={chip} className="rounded-full border border-line bg-surface-muted px-3 py-1 text-[0.8125rem] font-medium text-ink-soft">
+                                        <li key={chip} className="rounded-full border border-line bg-white px-3 py-1 text-[0.8125rem] font-medium text-ink-soft">
                                             {chip}
                                         </li>
                                     ))}
                                 </ul>
                             </div>
+
+                            {/* The numeral on the opposite side: a large, quiet answer to the step */}
+                            <span
+                                aria-hidden
+                                className={cn(
+                                    SERIF,
+                                    "pointer-events-none hidden select-none self-start text-[clamp(7rem,13vw,12rem)] font-extralight leading-[0.8] tracking-[-0.06em] tabular-nums transition-colors duration-1000 ease-out-soft lg:row-start-1 lg:block rtl:tracking-normal",
+                                    far ? "lg:col-start-1 lg:text-end" : "lg:col-start-3",
+                                    lit ? "text-teal-200" : "text-line",
+                                )}
+                            >
+                                {pad(index + 1)}
+                            </span>
                         </motion.li>
                     );
                 })}

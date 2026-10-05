@@ -3,7 +3,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { BookOpen, Compass, FileText, TrendingUp, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { pad } from "./accents";
@@ -26,28 +26,33 @@ const PANELS = [
     { surface: "bg-[linear-gradient(150deg,#ecdfb6,#c9af6f)]", numeral: "text-teal-900", body: "text-teal-900", label: "text-teal-900", chip: "border-teal-900/20 bg-white/45 text-teal-900", icon: "bg-white/55 text-teal-800", title: "text-teal-900" },
 ] as const;
 
-type PanelProps = { step: Step; index: number; label: string; numeralX?: MotionValue<number>; className?: string };
+type PanelProps = { step: Step; index: number; label: string; railX?: MotionValue<number>; stride?: number; className?: string };
+
+const DRIFT_LIMIT = 56;
 
 /** One step as a large soft panel: the numeral oversized in serif on the start side, the words on the other. */
-function Panel({ step, index, label, numeralX, className }: PanelProps) {
+function Panel({ step, index, label, railX, stride = 0, className }: PanelProps) {
     const tone = PANELS[index % PANELS.length];
     const Icon = ICONS[index % ICONS.length];
+    const idle = useMotionValue(0);
+    // The numeral lags its own panel a little as the rail passes, then settles. Measured per panel and capped, so it never reaches the words.
+    const drift = useTransform(railX ?? idle, (value) => Math.max(-DRIFT_LIMIT, Math.min(DRIFT_LIMIT, (value + index * stride) * -0.12)));
 
     return (
         <motion.li variants={fadeUp(0, 28)} className={cn("relative isolate flex overflow-hidden rounded-[2.5rem]", tone.surface, className)}>
             <motion.span
                 aria-hidden
-                style={numeralX ? { x: numeralX } : undefined}
+                style={railX ? { x: drift } : undefined}
                 className={cn(
                     SERIF,
-                    "pointer-events-none absolute -bottom-[0.1em] start-5 select-none text-[clamp(7rem,22vw,20rem)] font-extralight opacity-20 lg:opacity-100 leading-none tracking-[-0.06em] tabular-nums lg:start-8 rtl:tracking-normal",
+                    "pointer-events-none absolute -bottom-[0.1em] start-6 hidden select-none text-[clamp(7rem,min(17vw,40svh),16rem)] font-extralight leading-none tracking-[-0.06em] tabular-nums md:block lg:start-8 rtl:tracking-normal",
                     tone.numeral,
                 )}
             >
                 {pad(index + 1)}
             </motion.span>
 
-            <div className="relative ms-auto flex w-full flex-col justify-between gap-8 p-6 sm:p-9 sm:max-w-[28rem] lg:max-w-[30rem] lg:p-12">
+            <div className="relative ms-auto flex w-full flex-col justify-between gap-8 p-6 sm:p-9 sm:max-w-[28rem] lg:max-w-[30rem] lg:gap-6 lg:p-10 xl:p-12">
                 <div className="flex items-center gap-3">
                     <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-full", tone.icon)}>
                         <Icon className="size-5" strokeWidth={1.5} aria-hidden />
@@ -55,6 +60,10 @@ function Panel({ step, index, label, numeralX, className }: PanelProps) {
                     <p className={cn(LABEL, tone.label)}>
                         {label} {pad(index + 1)}
                     </p>
+                    {/* Small screens: the numeral sits in the panel's header instead of behind the words */}
+                    <span aria-hidden className={cn(SERIF, "ms-auto text-[3.25rem] font-extralight leading-none tracking-[-0.05em] tabular-nums opacity-70 md:hidden rtl:tracking-normal", tone.numeral)}>
+                        {pad(index + 1)}
+                    </span>
                 </div>
 
                 <div>
@@ -101,7 +110,7 @@ function Journey({ steps, label, className }: { steps: readonly Step[]; label: s
 
     const sign = direction === "rtl" ? 1 : -1;
     const x = useTransform(scrollYProgress, [0.04, 0.96], [0, sign * shift]);
-    const numeralX = useTransform(x, (value) => value * -0.1);
+    const stride = total > 1 ? shift / (total - 1) : 0;
 
     useMotionValueEvent(scrollYProgress, "change", (value) => {
         const next = Math.min(total - 1, Math.max(0, Math.floor(value * total)));
@@ -114,7 +123,7 @@ function Journey({ steps, label, className }: { steps: readonly Step[]; label: s
                 <div ref={frame} className="w-full">
                     <motion.ol ref={rail} style={{ x }} className="flex w-max gap-6 ps-[max(1.5rem,calc((100vw-76rem)/2))] pe-[max(1.5rem,calc((100vw-76rem)/2))]">
                         {steps.map((step, index) => (
-                            <Panel key={step[0]} step={step} index={index} label={label} numeralX={numeralX} className="h-[min(33rem,66svh)] w-[min(82vw,62rem)] shrink-0" />
+                            <Panel key={step[0]} step={step} index={index} label={label} railX={x} stride={stride} className="h-[clamp(27rem,66svh,33rem)] w-[min(82vw,62rem)] shrink-0" />
                         ))}
                     </motion.ol>
                 </div>
@@ -151,7 +160,7 @@ export const HowItWorks = () => {
     return (
         <section id="how-it-works" aria-labelledby="process-title" className={cn("section-pt relative isolate overflow-x-clip bg-canvas", CURTAIN)}>
             <div className="page-container">
-                <SectionHeader variant="editorial" id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
+                <SectionHeader variant="editorial" counter="05 / 06" id="process-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
             </div>
 
             <div className="mt-14 md:mt-20">
