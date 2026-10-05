@@ -23,9 +23,9 @@ export const LANGS: {
 const arabicHomeLanding = {
   nav: { home: "الرئيسية", features: "الميزات", process: "كيف نعمل", pricing: "الأسعار", getStarted: "ابدأ الآن", menu: "فتح القائمة", close: "إغلاق القائمة" },
   hero: { titleA: "عقلك", titleB: "يستحق عناية أفضل", subtitle: "لمن يعيشون مع الاضطراب ثنائي القطب أو الفصام أو اضطراب فرط الحركة وتشتت الانتباه: تابع أيامك، وافهم كيف تتطوّر، واحمل صورة واضحة إلى مختصك.", primary: "ابدأ رحلتك", demo: "شاهد العرض", discover: "اكتشف المزيد", preview: "معاينة مباشرة", dashboard: ["لوحة التحكم", "التحليلات", "الدعم", "المذكرات", "الإعدادات"], stats: ["مؤشر العافية", "التتابع", "الجلسات"], scoreChange: "+4.2٪", days: "أيام", thisMonth: "هذا الشهر", baseline: "المسار النفسي", last30: "آخر 30 يوماً", stable: "مستقر", insight: "بين موعدين", pattern: "لا يضيع شيء مهم", encrypted: "خاص في التصميم — أنت تختار ما يُشارَك" },
-  features: { eyebrow: "ما تفعله MindWeave", titleA: "من سؤال أول إلى", titleB: "متابعة أوضح.", intro: "خيط واحد يجمع كل شيء: معلوماتك اليومية أنت، تتحول خطوة بعد خطوة إلى ما تستطيع أنت ومختصك الاستفادة منه فعلاً.", columns: [{ title: "الأساس", description: "من هنا تبدأ الصورة" }, { title: "الفهم", description: "ما تكشفه أسابيعك" }, { title: "الممارسة اليومية", description: "ثوانٍ قليلة كل يوم" }], cards: [["صورة يومية متصلة", "يجتمع الفحص اليومي والمفكرة والأهداف في يوم واحد منظم: المزاج والطاقة والتركيز والتوتر والنوم وما أنجزته.", "إشارات يومياً"], ["التوجيه مع ميرا", "محادثة موجَّهة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان، تُبرز الإشارات التي تستحق تقييماً مهنياً.", "مجالات"], ["الفحص اليومي", "المزاج والطاقة والتركيز والتوتر والنوم في ثوانٍ، بلا استبيانات طويلة.", "في اليوم"], ["المفكرة الذكية", "اكتب بتلقائية بالإنجليزية أو العربية الخليجية أو بالاثنتين. تُستخرج المواضيع والمشاعر والإشارات — ولا يُصدر أي تشخيص.", "لغتان أو مزيج"], ["أهداف بسيطة", "أهداف يومية قليلة — قيد الانتظار أو منجزة أو جزئية أو فائتة — لتتابع نشاطك لا لتحاكم نفسك.", "أهداف يومياً"], ["خطّك الشخصي المرجعي", "تتعلم MindWeave ما هو معتاد لديك وتقارنك بتاريخك أنت، لا بدرجة عامة.", "مرجع واحد: لك"], ["الاتجاهات والأنماط", "استمرار الإشارة وتكرارها وما يظهر معاً — تُوصَف كارتباطات ملاحَظة لا كأسباب.", "أسابيع لقراءة اتجاه"], ["تقرير المختص", "يتحول الملف الشهري إلى تقرير منظم لا يُشارَك إلا بتفويضك، مع الأدلة وحدود البيانات.", "في كل ملف شهري"]] },
+  features: { eyebrow: "ما تفعله VitaMind", titleA: "من سؤال أول إلى", titleB: "متابعة أوضح.", intro: "خيط واحد يجمع كل شيء: معلوماتك اليومية أنت، تتحول خطوة بعد خطوة إلى ما تستطيع أنت ومختصك الاستفادة منه فعلاً.", columns: [{ title: "الأساس", description: "من هنا تبدأ الصورة" }, { title: "الفهم", description: "ما تكشفه أسابيعك" }, { title: "الممارسة اليومية", description: "ثوانٍ قليلة كل يوم" }], cards: [["صورة يومية متصلة", "يجتمع الفحص اليومي والمفكرة والأهداف في يوم واحد منظم: المزاج والطاقة والتركيز والتوتر والنوم وما أنجزته.", "إشارات يومياً"], ["التوجيه مع ميرا", "محادثة موجَّهة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان، تُبرز الإشارات التي تستحق تقييماً مهنياً.", "مجالات"], ["الفحص اليومي", "المزاج والطاقة والتركيز والتوتر والنوم في ثوانٍ، بلا استبيانات طويلة.", "في اليوم"], ["المفكرة الذكية", "اكتب بتلقائية بالإنجليزية أو العربية الخليجية أو بالاثنتين. تُستخرج المواضيع والمشاعر والإشارات — ولا يُصدر أي تشخيص.", "لغتان أو مزيج"], ["أهداف بسيطة", "أهداف يومية قليلة — قيد الانتظار أو منجزة أو جزئية أو فائتة — لتتابع نشاطك لا لتحاكم نفسك.", "أهداف يومياً"], ["خطّك الشخصي المرجعي", "تتعلم VitaMind ما هو معتاد لديك وتقارنك بتاريخك أنت، لا بدرجة عامة.", "مرجع واحد: لك"], ["الاتجاهات والأنماط", "استمرار الإشارة وتكرارها وما يظهر معاً — تُوصَف كارتباطات ملاحَظة لا كأسباب.", "أسابيع لقراءة اتجاه"], ["تقرير المختص", "يتحول الملف الشهري إلى تقرير منظم لا يُشارَك إلا بتفويضك، مع الأدلة وحدود البيانات.", "في كل ملف شهري"]] },
   journey: {
-    label: "رحلة MindWeave",
+    label: "رحلة VitaMind",
     note: "دعم للتوجيه والمتابعة — وليس تشخيصاً.",
     nodes: [
       { kicker: "التوجيه", name: "ميرا", body: "محادثة موجَّهة ترصد الإشارات التي تستحق نظرة مهنية.", chips: ["اضطراب الانتباه", "ثنائي القطب", "إشارات ذهانية"] },
@@ -38,7 +38,7 @@ const arabicHomeLanding = {
     eyebrow: "لومينا · مساحتك اليومية",
     titleA: "لحظات يومية صغيرة،",
     titleB: "صورة أوضح.",
-    intro: "لومينا هي المكان الذي تُحفظ فيه أيامك: فحص سريع، ومفكرة خاصة، وبضعة أهداف بسيطة. ومع الأسابيع تقرأها MindWeave مقارنةً بخطّك المرجعي أنت — لا بدرجة عامة.",
+    intro: "لومينا هي المكان الذي تُحفظ فيه أيامك: فحص سريع، ومفكرة خاصة، وبضعة أهداف بسيطة. ومع الأسابيع تقرأها VitaMind مقارنةً بخطّك المرجعي أنت — لا بدرجة عامة.",
     capture: {
       checkin: { name: "الفحص اليومي", body: "المزاج والطاقة والتركيز والتوتر والنوم في ثوانٍ.", rows: ["المزاج", "الطاقة", "التركيز", "التوتر", "النوم"], hoursUnit: "س" },
       journal: {
@@ -54,7 +54,7 @@ const arabicHomeLanding = {
     understand: {
       eyebrow: "مع الأسابيع",
       name: "خطّك المرجعي أنت",
-      body: "تقارنك MindWeave بتاريخك أنت: ما هو معتاد لديك، وإلى أين يتجه، وما يظهر معاً.",
+      body: "تقارنك VitaMind بتاريخك أنت: ما هو معتاد لديك، وإلى أين يتجه، وما يظهر معاً.",
       metric: "التركيز",
       week: "الأسبوع",
       baseline: "خطّك المرجعي",
@@ -92,8 +92,8 @@ const arabicHomeLanding = {
     progress: "تقدم الجلسة",
   },
   statement: {
-    eyebrow: "لماذا MindWeave",
-    text: "تلتقط الاستشارة لحظة واحدة، أما الحياة فتجري بين الموعدين. تحوّل MindWeave أيامك إلى صورة واضحة وشخصية لتطوّرك، ليرى كلٌّ منك ومن مختصك ما جرى فعلاً.",
+    eyebrow: "لماذا VitaMind",
+    text: "تلتقط الاستشارة لحظة واحدة، أما الحياة فتجري بين الموعدين. تحوّل VitaMind أيامك إلى صورة واضحة وشخصية لتطوّرك، ليرى كلٌّ منك ومن مختصك ما جرى فعلاً.",
   },
   process: { eyebrow: "الرحلة", title: "كيف نعمل", titleA: "كيف", titleB: "نعمل", stepLabel: "الخطوة", steps: [["ابدأ مع ميرا", "محادثة موجَّهة وخاصة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان. ترصد ميرا الإشارات وتوجّهك إلى الخطوة التالية المناسبة — ولا تشخّص أبداً.", ["فحص منظم", "إشارات لا تشخيص", "مجاني دون حساب"]], ["تابع في لومينا", "بعد إنشاء حسابك تصبح لومينا مساحتك اليومية: فحص ومفكرة خاصة وبضعة أهداف بسيطة.", ["الفحص اليومي", "المفكرة الذكية", "أهداف يومية"]], ["شاهد تطوّرك", "تصبح الأيام صورة يومية منظمة، ثم رؤية أطول: خطّك المرجعي واتجاهاتك واستمرار الإشارات وأنماطك.", ["خط مرجعي شخصي", "الاتجاهات", "الأنماط"]], ["شارك مع مختصك", "في كل شهر تتحول معلوماتك إلى ملف منظم، وإلى تقرير للمختص إن فوّضت بذلك.", ["الملف الشهري", "تقرير المختص", "القرار لك"]]] },
   pricing: { eyebrow: "أسعار واضحة", titleA: "اختر الدعم", titleB: "الذي يناسبك", intro: "لا رسوم مخفية. ألغِ اشتراكك في أي وقت. طوّر خطتك عندما تكون مستعداً.", popular: "الأكثر اختياراً", secure: "دفع آمن عبر SSL", trial: "تجربة مجانية 7 أيام", cancel: "إلغاء في أي وقت", plans: [["الأساسي", "/شهرياً", "أدوات أساسية لعافيتك.", ["3 جلسات تقييم شهرياً", "مذكرة نصية", "سجل الجلسات والرؤى", "دعم عبر البريد"], "اختر الأساسي"], ["الاحترافي", "/شهرياً", "رؤى أعمق، مع محادثات صوتية وتقارير للأنماط.", ["جلسات تقييم غير محدودة", "مذكرة صوتية ونصية", "محادثات صوتية مع ميرا", "تحليل الأنماط والتقارير", "دعم أولوية"], "اختر الاحترافي"], ["الوالدان", "/شهرياً", "لرفاه الوالدين والأسرة.", ["كل ميزات الاحترافي", "حتى 4 ملفات عائلية", "نظرة عامة عائلية تحت تحكمك", "لوحة رؤى عائلية", "دعم أولوية"], "اختر الوالدين"]] },
@@ -203,7 +203,7 @@ const baseCopy = {
         encrypted: "Private by design — you choose what is shared",
       },
       features: {
-        eyebrow: "What MindWeave does", titleA: "From a first question to", titleB: "a clearer follow-up.", intro: "One thread runs through everything: your own daily information, turned step by step into something you and your clinician can actually use.",
+        eyebrow: "What VitaMind does", titleA: "From a first question to", titleB: "a clearer follow-up.", intro: "One thread runs through everything: your own daily information, turned step by step into something you and your clinician can actually use.",
         columns: [{ title: "Foundation", description: "Where the picture begins" }, { title: "Understanding", description: "What your weeks reveal" }, { title: "Daily practice", description: "A few seconds, every day" }],
         cards: [
           ["A daily picture, connected", "Check-in, journal and goals come together as one structured day: mood, energy, focus, stress, sleep and what you got done.", "daily signals"],
@@ -211,13 +211,13 @@ const baseCopy = {
           ["Daily check-in", "Mood, energy, focus, stress and sleep in a few seconds — no long questionnaires.", "a day, at most"],
           ["Smart Journal", "Write naturally in English, Gulf Arabic or both. Themes, emotions and signals are extracted — never a diagnosis.", "languages, or both"],
           ["Simple goals", "A few daily goals — pending, completed, partial or missed — to follow your activity, not to judge you.", "goals a day"],
-          ["Your personal baseline", "MindWeave learns what is usual for you and compares you with your own history, not with a generic score.", "baseline: yours"],
+          ["Your personal baseline", "VitaMind learns what is usual for you and compares you with your own history, not with a generic score.", "baseline: yours"],
           ["Trends & patterns", "Persistence, recurrence and signals that appear together — described as associations, never as causes.", "weeks to read a trend"],
           ["Clinician report", "A monthly profile becomes a structured report, shared only when you authorize it, with its evidence and its limits.", "in each monthly profile"],
         ],
       },
       journey: {
-        label: "The MindWeave journey",
+        label: "The VitaMind journey",
         note: "Orientation and monitoring support — never a diagnosis.",
         nodes: [
           { kicker: "Orientation", name: "Mira", body: "A guided conversation that spots signals worth a professional look.", chips: ["ADHD", "Bipolar", "Psychosis signals"] },
@@ -230,7 +230,7 @@ const baseCopy = {
         eyebrow: "Lumina · your daily space",
         titleA: "Small daily moments,",
         titleB: "a clearer picture.",
-        intro: "Lumina is where your days are kept: a quick check-in, a private journal and a few simple goals. Over the weeks, MindWeave reads them against your own baseline — never against a generic score.",
+        intro: "Lumina is where your days are kept: a quick check-in, a private journal and a few simple goals. Over the weeks, VitaMind reads them against your own baseline — never against a generic score.",
         capture: {
           checkin: { name: "Daily check-in", body: "Mood, energy, focus, stress and sleep, in a few seconds.", rows: ["Mood", "Energy", "Focus", "Stress", "Sleep"], hoursUnit: "h" },
           journal: {
@@ -246,7 +246,7 @@ const baseCopy = {
         understand: {
           eyebrow: "Over the weeks",
           name: "Your own baseline",
-          body: "MindWeave compares you with your own history: what is usual for you, where it is heading, and what tends to appear together.",
+          body: "VitaMind compares you with your own history: what is usual for you, where it is heading, and what tends to appear together.",
           metric: "Focus",
           week: "Week",
           baseline: "Your baseline",
@@ -334,8 +334,8 @@ const baseCopy = {
         progress: "Session progress",
       },
       statement: {
-        eyebrow: "Why MindWeave",
-        text: "A consultation sees one moment. Life happens in between. MindWeave turns your days into a clear, personal picture of how you are evolving — so you and your clinician can see what really happened.",
+        eyebrow: "Why VitaMind",
+        text: "A consultation sees one moment. Life happens in between. VitaMind turns your days into a clear, personal picture of how you are evolving — so you and your clinician can see what really happened.",
       },
       footer: { description: "Daily monitoring and continuity of care for people living with bipolar disorder, schizophrenia or ADHD. Because what happens between consultations matters.", product: "Product", company: "Help & account", updates: "Stay updated", email: "Enter your email", privacy: "Privacy", terms: "Terms", cookies: "Cookies", links: ["Orientation with Mira", "How it works", "Plans & pricing"], companyLinks: ["Support", "Sign in", "Create account"], rights: "All rights reserved." },
     },
@@ -358,7 +358,7 @@ const baseCopy = {
         eyebrow: "Your mind · Our care",
         titleA: "Understand your days,",
         titleB: "one at a time.",
-        body: "Create your account to enter Lumina — your daily space for check-ins, a private journal and simple goals. Over time, MindWeave builds a clear picture of how you are evolving.",
+        body: "Create your account to enter Lumina — your daily space for check-ins, a private journal and simple goals. Over time, VitaMind builds a clear picture of how you are evolving.",
         points: ["Mira orients you, never diagnoses", "Lumina keeps your days: check-in, journal, goals", "You decide what your clinician sees"],
         quote: "Between two consultations, your experience still counts.",
       },
@@ -373,7 +373,7 @@ const baseCopy = {
       passwordPlaceholder: "Enter your password",
       confirmPassword: "Confirm password",
       confirmPasswordPlaceholder: "Repeat your password",
-      signInButton: "Enter MindWeave",
+      signInButton: "Enter VitaMind",
       signUpButton: "Create my account",
       magicLink: "Sign in using magic link",
       gmailButton: "Continue with Google",
@@ -821,7 +821,7 @@ const baseCopy = {
       faqEyebrow: "Quick answers",
       faqTitle: "Frequently asked questions",
       faq: [
-        { question: "Is MindWeave a medical diagnosis?", answer: "No. Mira offers orientation and screening to point you to the right next step, and Lumina helps you track your days. Neither gives a diagnosis or replaces a qualified professional." },
+        { question: "Is VitaMind a medical diagnosis?", answer: "No. Mira offers orientation and screening to point you to the right next step, and Lumina helps you track your days. Neither gives a diagnosis or replaces a qualified professional." },
         { question: "What is the difference between Mira and Lumina?", answer: "Mira is the orientation agent: a guided conversation that identifies signals worth a professional evaluation. Lumina is your daily space once you have an account: check-in, journal and goals." },
         { question: "Who can see my journal and check-ins?", answer: "Only you, unless you authorize sharing. When you do, your clinician receives a structured monthly report — and you can change your choice at any time." },
         { question: "How is my information protected?", answer: "Your experience is designed with privacy in mind. We only use the information needed to provide the service and support your journey." },
@@ -1134,7 +1134,7 @@ const arabicDiagnostic = {
 } as const;
 
 const arabicCopy = {
-  brand: "MindWeave",
+  brand: "VitaMind",
   common: { close: "إغلاق", loading: "جاري التحميل…", retry: "حاول مرة أخرى" },
   nav: { badge: "واجهة صحة نفسية ديناميكية", language: "اللغة", support: "الدعم", mainNav: "التنقل الرئيسي", signIn: "تسجيل الدخول", signUp: "إنشاء حساب", diagnostic: "ابدأ التوجيه", backHome: "العودة للرئيسية", back: "رجوع", backToPlans: "العودة إلى الخطط", backToDashboard: "العودة إلى لوحتي" },
   header: {
@@ -1177,14 +1177,14 @@ const arabicCopy = {
     },
   },
   home: {
-    titleA: "تعرف على MindWeave،",
+    titleA: "تعرف على VitaMind،",
     titleB: "خطوتك الأولى",
     titleC: "نحو الوضوح",
     subtitle: "مساحة محادثة هادئة وموجهة تساعدك على وصف شعورك قبل التقييم السريري الرسمي.",
     chips: ["تشتت الانتباه · ASRS-v1.1", "ثنائي القطب · MDQ", "خطر الذهان · PQ-B", "الفحص اليومي · لومينا", "المفكرة الذكية", "تقرير شهري للمختص"],
     cta: "ابدأ جلسة تشخيص",
     secondaryCta: "أنشئ حسابك",
-    disclaimer: "ليس تشخيصاً طبياً. MindWeave توجيه يكمّل الرعاية المتخصصة.",
+    disclaimer: "ليس تشخيصاً طبياً. VitaMind توجيه يكمّل الرعاية المتخصصة.",
     featureTitle: "تواصل أول أكثر إنسانية",
     featureBody: "يدعم الصوت، متعدد اللغات، ومصمم ليجعل الخطوة الأولى أكثر أماناً.",
     previewTop: "تدفق محادثة خاص",
@@ -1210,7 +1210,7 @@ const arabicCopy = {
       eyebrow: "عقلك · رعايتنا",
       titleA: "افهم أيامك،",
       titleB: "يوماً بيوم.",
-      body: "أنشئ حسابك لتدخل إلى لومينا — مساحتك اليومية للفحص والمفكرة الخاصة وأهداف بسيطة. ومع الوقت تبني MindWeave صورة واضحة لتطوّرك.",
+      body: "أنشئ حسابك لتدخل إلى لومينا — مساحتك اليومية للفحص والمفكرة الخاصة وأهداف بسيطة. ومع الوقت تبني VitaMind صورة واضحة لتطوّرك.",
       points: ["ميرا توجّهك ولا تشخّص", "لومينا تحفظ أيامك: فحص ومفكرة وأهداف", "أنت تقرر ما يراه مختصك"],
       quote: "بين موعدين، تجربتك ما زالت مهمة.",
     },
@@ -1225,7 +1225,7 @@ const arabicCopy = {
     passwordPlaceholder: "أدخل كلمة المرور",
     confirmPassword: "تأكيد كلمة المرور",
     confirmPasswordPlaceholder: "أعد كلمة المرور",
-    signInButton: "الدخول إلى MindWeave",
+    signInButton: "الدخول إلى VitaMind",
     signUpButton: "إنشاء حسابي",
     magicLink: "تسجيل الدخول باستخدام رابط سحري",
     gmailButton: "المتابعة باستخدام Google",
@@ -1388,7 +1388,7 @@ const arabicCopy = {
     faqEyebrow: "إجابات سريعة",
     faqTitle: "الأسئلة الشائعة",
     faq: [
-      { question: "هل MindWeave تشخيص طبي؟", answer: "لا. تقدّم ميرا توجيهاً وفحصاً أولياً يدلّك على الخطوة التالية المناسبة، وتساعدك لومينا على متابعة أيامك. لا أيٌّ منهما يقدّم تشخيصاً أو يحل محل مختص مؤهل." },
+      { question: "هل VitaMind تشخيص طبي؟", answer: "لا. تقدّم ميرا توجيهاً وفحصاً أولياً يدلّك على الخطوة التالية المناسبة، وتساعدك لومينا على متابعة أيامك. لا أيٌّ منهما يقدّم تشخيصاً أو يحل محل مختص مؤهل." },
       { question: "ما الفرق بين ميرا ولومينا؟", answer: "ميرا هي وكيلة التوجيه: محادثة موجَّهة ترصد الإشارات التي تستحق تقييماً مهنياً. أما لومينا فهي مساحتك اليومية بعد إنشاء الحساب: فحص ومفكرة وأهداف." },
       { question: "من يستطيع الاطلاع على مفكرتي وفحوصي؟", answer: "أنت وحدك، ما لم تفوّض بالمشاركة. وعندها يتلقى مختصك تقريراً شهرياً منظماً — ويمكنك تغيير اختيارك في أي وقت." },
       { question: "كيف تتم حماية معلوماتي؟", answer: "صُممت تجربتك مع مراعاة الخصوصية. نستخدم فقط المعلومات اللازمة لتقديم الخدمة ودعم رحلتك." },
