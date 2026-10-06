@@ -19,7 +19,7 @@ import { ProductMenu } from "./ProductMenu";
 import { UserMenu } from "./UserMenu";
 
 export const NAV_ITEM =
-  "relative inline-flex h-10 cursor-pointer items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500";
+  "relative inline-flex h-10 cursor-pointer items-center rounded-full px-3 text-sm font-medium transition-colors xl:px-3.5 duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500";
 
 /** Sliding surface behind the current / hovered destination. */
 function ActivePill() {
@@ -34,8 +34,8 @@ function ActivePill() {
 }
 
 /**
- * Public header: product destinations (companions, plans, support) rather than
- * in-page home anchors. Part of the page at the top, a quiet surface on scroll.
+ * Public header: product destinations (companions, trust and safety, support) rather than in-page home anchors.
+ * Part of the page at the top, a quiet surface on scroll.
  */
 export function MarketingHeader() {
   const pathname = usePathname();
@@ -63,7 +63,7 @@ export function MarketingHeader() {
       position={pathname === ROUTES.home ? "fixed" : "sticky"}
       surface="capsule"
       solid={menuOpen || productOpen || userOpen}
-      innerClassName="grid grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_1fr]"
+      innerClassName="grid grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
     >
       <BrandLogo size="md" className="justify-self-start" />
 
@@ -104,7 +104,7 @@ export function MarketingHeader() {
         </LayoutGroup>
       </nav>
 
-      <div className="flex items-center gap-2 justify-self-end sm:gap-3">
+      <div className="flex items-center gap-2 justify-self-end sm:gap-2.5 xl:gap-3">
         <LanguageSwitcher className="hidden sm:inline-flex" />
         {signedIn ? (
           <div className="hidden lg:block">

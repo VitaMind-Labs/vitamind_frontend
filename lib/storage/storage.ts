@@ -5,7 +5,6 @@ import { DiseaseType } from '../diseases/data';
 const KEYS = {
   USER: 'vitamind_user',
   DISEASE: 'vitamind_disease',
-  SUBSCRIPTION: 'vitamind_subscription',
   JOURNAL_ENTRIES: 'vitamind_journal_entries',
   CHAT_MESSAGES: 'vitamind_chat_messages',
   JOURNAL_RATINGS: 'vitamind_journal_ratings',
@@ -37,13 +36,6 @@ export interface UserData {
   password: string;
   disease: DiseaseType;
   createdAt: string;
-}
-
-export interface SubscriptionData {
-  plan: 'essential' | 'pro';
-  price: number;
-  startDate: string;
-  status: 'active' | 'inactive';
 }
 
 export interface JournalEntry {
@@ -81,17 +73,6 @@ export function getDisease(): DiseaseType | null {
 
 export function setDisease(disease: DiseaseType): void {
   setItem(KEYS.DISEASE, disease);
-}
-
-// Subscription
-export const SUBSCRIPTION_STORAGE_KEY = KEYS.SUBSCRIPTION;
-
-export function getSubscription(): SubscriptionData | null {
-  return getItem<SubscriptionData | null>(KEYS.SUBSCRIPTION, null);
-}
-
-export function setSubscription(sub: SubscriptionData): void {
-  setItem(KEYS.SUBSCRIPTION, sub);
 }
 
 // Journal

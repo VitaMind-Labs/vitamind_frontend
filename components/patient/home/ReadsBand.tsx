@@ -22,8 +22,8 @@ export function ReadsBand() {
   const reads = showsReads(profile.track);
   const library = useLibrary(reads);
 
-  // Home stays quiet when there is nothing to recommend, the plan has ended, or the request failed: the library page explains.
-  if (!reads || library.needsSubscription || library.error || (!library.isLoading && library.items.length === 0)) return null;
+  // Home stays quiet when there is nothing to recommend or the request failed: the library page explains.
+  if (!reads || library.error || (!library.isLoading && library.items.length === 0)) return null;
 
   return (
     <section aria-labelledby="reads-band-title" className="lm-glass mb-6 overflow-hidden">

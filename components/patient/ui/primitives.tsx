@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
-import { AlertCircle, Inbox, LockKeyhole, type LucideIcon } from "lucide-react";
+import { AlertCircle, Inbox, type LucideIcon } from "lucide-react";
 import { SERIF } from "@/components/home/typography";
 import { Button } from "@/components/ui/button";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
@@ -104,15 +104,3 @@ export function ErrorState({ message, onRetry }: { message?: string; onRetry?: (
   );
 }
 
-/** Shown where a screen needs an active plan but the trial or plan has ended. */
-export function SubscriptionGate() {
-  const copy = usePatientCopy();
-  return (
-    <GlassCard className="mx-auto max-w-xl text-center">
-      <span className="stat-tile stat-tile-gold mx-auto"><LockKeyhole className="size-5" aria-hidden /></span>
-      <h2 className="mt-4 text-lg font-semibold text-ink">{copy.shell.subscription.title}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{copy.shell.subscription.body}</p>
-      <Button asChild className="mt-5"><Link href="/subscription">{copy.shell.subscription.cta}</Link></Button>
-    </GlassCard>
-  );
-}

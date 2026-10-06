@@ -63,7 +63,8 @@ export const AGENTS: ReadonlyArray<{
 /** Top-level destinations (no in-page home anchors). `product` opens the Mira / Lumina list; the others are plain links. */
 export const PRIMARY_LINKS = [
   { id: "product", href: null },
-  { id: "plans", href: ROUTES.plans },
+  { id: "tracks", href: ROUTES.tracks },
+  { id: "trust", href: ROUTES.trust },
   { id: "support", href: ROUTES.support },
 ] as const;
 
@@ -73,8 +74,8 @@ export function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** The primary destination the path belongs to: a plain link, or "product" on any agent page. */
+/** The primary destination the path belongs to: a plain link, or "product" on any agent page (the orientation chat is Mira's own space). */
 export function activeLinkId(pathname: string): PrimaryLinkId | null {
-  if (AGENTS.some((agent) => isActivePath(pathname, agent.href))) return "product";
+  if (isActivePath(pathname, ROUTES.orientation) || AGENTS.some((agent) => isActivePath(pathname, agent.href))) return "product";
   return PRIMARY_LINKS.find((link) => link.href && isActivePath(pathname, link.href))?.id ?? null;
 }

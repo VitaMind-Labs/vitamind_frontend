@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { billingApi, type MySubscription } from "@/lib/api/billing";
 import { careApi, clinicalApi, type ConsentInput } from "@/lib/api/patient";
 import type { AssignedExercise, Consent, Exercise } from "@/lib/api/patient-types";
 import { invalidatePatientData, usePatientResource } from "@/hooks/usePatientResource";
@@ -45,8 +44,4 @@ export function useConsents() {
   }, []);
 
   return { ...resource, update };
-}
-
-export function useSubscription() {
-  return usePatientResource<MySubscription | null>("billing:subscription", () => billingApi.mySubscription(), { staleMs: 60_000 });
 }

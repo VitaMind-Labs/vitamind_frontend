@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import {
   Activity,
   AlertTriangle,
-  ArrowRight,
   CalendarDays,
   Check,
   Compass,
@@ -12,11 +10,8 @@ import {
   Download,
   Gauge,
   Info,
-  ListChecks,
-  RefreshCw,
   ShieldCheck,
   Stethoscope,
-  Target,
   Volume2,
   VolumeX,
   XCircle,
@@ -24,8 +19,7 @@ import {
 import { MotionConfig, motion } from "framer-motion";
 import { useState, type ReactNode } from "react";
 import { Grain, WaveLines } from "@/components/home/Atmosphere";
-import { CountUp } from "@/components/home/CountUp";
-import { BODY_SM, DISPLAY_L, DISPLAY_M, DISPLAY_S, LABEL, SERIF } from "@/components/home/typography";
+import { BODY_SM, DISPLAY_L, DISPLAY_M, DISPLAY_S, LABEL } from "@/components/home/typography";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { copy, LANGS } from "@/lib/i18n/config";
@@ -34,15 +28,13 @@ import { EASE_OUT, REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { useSpeech } from "@/hooks/useSpeech";
 import type { MiraAssessmentResult } from "../types";
-import { buildSignupHref } from "../lib/funnel";
-import { MatchStrengthMeter, SignalGauge, SignalList, SignalRadar, type SignalDatum } from "./SignalCharts";
+import { MatchStrengthMeter, SignalList, SignalRadar, type SignalDatum } from "./SignalCharts";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
 
 interface MiraResultProps {
   result: MiraAssessmentResult;
   transcript: Array<{ role: "user" | "assistant"; content: string }>;
   sessionId: string;
-  onRestart: () => void;
   /** Finalizes the session (consumes one attempt) then produces the downloadable report. */
   onDownload?: () => void | Promise<void>;
   isFinalizing?: boolean;
@@ -50,6 +42,8 @@ interface MiraResultProps {
   viewerName?: string;
   /** When the conversation finished (last transcript message), shown in the report header. */
   completedAt?: string | null;
+  /** Screen-only block that closes the report (the way on to Lumina). Never part of the printed report. */
+  aside?: ReactNode;
 }
 
 function humanize(key: string) {
@@ -94,56 +88,51 @@ function SectionTitle({ id, icon, title, hint }: { id?: string; icon: ReactNode;
   );
 }
 
-/**
- * One "at a glance" figure: icon tile, label, value. Hairlines between tiles follow the
- * grid (1 → 2 → 4 columns) via logical borders, so RTL mirrors for free.
- */
-function MetricTile({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+/** One figure of the cover's strip. Hairlines between tiles follow the layout (stacked, then side by side) and mirror in RTL. */
+function CoverMetric({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <motion.div
       variants={fadeUp(0, 10)}
-      className={cn(
-        "group min-w-0 border-line p-5 transition-colors duration-300 hover:bg-teal-50/50 sm:p-7",
-        "border-b last:border-b-0",
-        "sm:[&:nth-child(odd)]:border-e sm:[&:nth-child(n+3)]:border-b-0",
-        "lg:border-b-0 lg:border-e lg:last:border-e-0",
-      )}
+      className="min-w-0 border-white/15 p-4 sm:p-5 [&:not(:first-child)]:border-t sm:[&:not(:first-child)]:border-s sm:[&:not(:first-child)]:border-t-0 print:border-line"
     >
-      <dt className={cn(LABEL, "flex items-center gap-2.5 text-ink-soft")}>
-        <span
-          aria-hidden
-          className="flex size-8 items-center justify-center rounded-xl bg-teal-50 text-teal-700 transition-transform duration-500 ease-out-soft group-hover:-translate-y-0.5 print:hidden"
-        >
+      <p className={cn(LABEL, "flex items-center gap-2.5 text-teal-200")}>
+        <span aria-hidden className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gold-300 print:hidden">
           {icon}
         </span>
-        {label}
-      </dt>
-      <dd className="mt-4 min-w-0">{children}</dd>
+        <span className="min-w-0">{label}</span>
+      </p>
+      <div className="mt-3.5 min-w-0">{children}</div>
     </motion.div>
   );
 }
 
-function ObservationCard({ title, icon, items, tone = "default" }: { title: string; icon: ReactNode; items: string[]; tone?: "default" | "muted" }) {
-  if (items.length === 0) return null;
+/** A status pill for the cover strip: a dot and a short phrase. */
+function StatusPill({ tone, children }: { tone: "ok" | "info" | "alert"; children: ReactNode }) {
   return (
-    <motion.section
-      {...reveal}
-      aria-label={title}
+    <p
       className={cn(
-        "rounded-panel border p-6 transition-[transform,box-shadow] duration-500 ease-out-soft sm:p-8",
-        tone === "muted" ? "border-line bg-white/80" : "border-line bg-white shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-soft-hover)]",
+        "inline-flex max-w-full items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.9375rem] font-semibold",
+        tone === "alert" ? "bg-rose-50 text-rose-700" : "bg-white/10 text-white",
       )}
     >
-      <h3 className={cn(DISPLAY_S, "flex items-center gap-3 text-ink")}>
-        <span
-          aria-hidden
-          className={cn("flex size-9 shrink-0 items-center justify-center rounded-full", tone === "muted" ? "bg-rose-50 text-rose-700" : "bg-sage-50 text-sage-700")}
-        >
+      <span aria-hidden className={cn("size-2 shrink-0 rounded-full", tone === "alert" ? "bg-rose" : tone === "info" ? "bg-gold-300" : "bg-sage")} />
+      <span className="min-w-0">{children}</span>
+    </p>
+  );
+}
+
+/** One list of observations inside the shared card; hairlines separate the lists. */
+function ObservationGroup({ title, icon, items, tone = "default" }: { title: string; icon: ReactNode; items: string[]; tone?: "default" | "muted" }) {
+  if (items.length === 0) return null;
+  return (
+    <section aria-label={title} className="min-w-0 py-5 first:pt-0 last:pb-0">
+      <h3 className={cn(DISPLAY_S, "flex items-center gap-3 text-[1.25rem] text-ink")}>
+        <span aria-hidden className={cn("flex size-9 shrink-0 items-center justify-center rounded-full", tone === "muted" ? "bg-rose-50 text-rose-700" : "bg-sage-50 text-sage-700")}>
           {icon}
         </span>
         {title}
       </h3>
-      <ul className="mt-5 space-y-3.5">
+      <ul className="mt-4 space-y-3">
         {items.map((item) => (
           <li key={item} className="flex items-start gap-3 text-[1rem] leading-7 text-ink-soft">
             <span aria-hidden className={cn("mt-3 size-1.5 shrink-0 rounded-full", tone === "muted" ? "bg-rose" : "bg-gold")} />
@@ -151,11 +140,11 @@ function ObservationCard({ title, icon, items, tone = "default" }: { title: stri
           </li>
         ))}
       </ul>
-    </motion.section>
+    </section>
   );
 }
 
-export function MiraResult({ result, sessionId, onRestart, onDownload, isFinalizing, viewerName, completedAt }: MiraResultProps) {
+export function MiraResult({ result, sessionId, onDownload, isFinalizing, viewerName, completedAt, aside }: MiraResultProps) {
   const { dictionary } = useLanguage();
   const reportCopy = copy[result.language];
   const reportDictionary = reportCopy.diagnostic;
@@ -167,7 +156,8 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
 
   const entries = Object.entries(result.condition_scores || {}).sort((a, b) => b[1] - a[1]);
   const pathwayLabel = displayOrientation(result.orientation);
-  const observationColumns = [result.supporting_features, result.contradictory_features, result.missing_information].filter((items) => items.length > 0).length;
+  const hasObservations = result.supporting_features.length + result.contradictory_features.length + result.missing_information.length > 0;
+  const hasSide = hasObservations || !!result.recommended_test;
 
   const signals: SignalDatum[] = entries.map(([key, score]) => ({
     key,
@@ -175,7 +165,6 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
     percent: Math.max(0, Math.min(100, Math.round(score * 100))),
     raw: score,
   }));
-  const strongest = signals[0];
 
   const spokenReport = [
     mira.recommendationTitle,
@@ -191,8 +180,6 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
   const { state: speech, toggle } = useSpeech(spokenReport, reportLanguage);
   const speaking = speech === "speaking" || speech === "loading";
 
-  // Conversion funnel: signup → subscription → dashboard. Carry the session so it links to the new account.
-  const signupHref = buildSignupHref(sessionId);
   const heroTitle = viewerName ? fill(resultPage.heroTitleNamed, { name: viewerName }) : resultPage.heroTitle;
   const urgent = result.safety.level === "urgent";
   const metricsCopy = resultPage.metrics;
@@ -221,19 +208,19 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="mx-auto w-full max-w-5xl space-y-5 lg:space-y-6" dir={result.language === "ar" ? "rtl" : "ltr"}>
-        {/* ── 1. The cover: the orientation at a glance, on deep teal ─────────────────────────── */}
+      <div className="w-full space-y-4 lg:space-y-5" dir={result.language === "ar" ? "rtl" : "ltr"}>
+        {/* ── 1. The cover: the orientation, who it is for, the three things a clinician looks for first ── */}
         <motion.section
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: EASE_OUT }}
           aria-labelledby="orientation-result-title"
-          className="result-hero relative isolate overflow-hidden rounded-[2rem] bg-deep text-white shadow-float"
+          className="result-hero relative isolate overflow-hidden rounded-[1.75rem] bg-deep text-white shadow-float sm:rounded-[2rem]"
         >
           <span className="print:hidden"><Grain /></span>
           <span className="print:hidden"><WaveLines tone="deep" className="inset-y-0" /></span>
 
-          <div className="relative grid gap-10 p-7 pb-16 sm:p-11 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_18.5rem] lg:gap-14">
+          <div className="relative grid gap-7 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-12 lg:p-10">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <p className={cn(LABEL, "inline-flex items-center gap-2.5 rounded-full border border-gold-300/40 bg-gold/10 px-3.5 py-1.5 text-gold-300")}>
@@ -251,28 +238,22 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
                 )}
               </div>
 
-              <p className="mt-9 text-[1.125rem] text-teal-100">{heroTitle}</p>
-              <p className={cn(LABEL, "mt-6 text-teal-200")}>{mira.orientationResult}</p>
-              <h1 id="orientation-result-title" className={cn(DISPLAY_L, "mt-3 max-w-3xl text-[clamp(2.25rem,3.8vw+1rem,4.25rem)] text-white")}>
+              <p className="mt-7 text-[1.0625rem] text-teal-100 sm:text-[1.125rem]">{heroTitle}</p>
+              <p className={cn(LABEL, "mt-5 text-teal-200")}>{mira.orientationResult}</p>
+              <h1 id="orientation-result-title" className={cn(DISPLAY_L, "mt-3 max-w-4xl text-[clamp(2rem,2.4vw+1.1rem,3.5rem)] leading-[1.06] text-white")}>
                 {pathwayLabel}
               </h1>
-              <p className="mt-6 max-w-xl text-[1.0625rem] leading-8 text-teal-100">{resultPage.heroBody}</p>
-              {pathways[result.recommended_pathway] && (
-                <p className="mt-7 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[0.875rem] font-medium text-white">
-                  <Compass className="size-4 text-gold-300" aria-hidden />
-                  {pathways[result.recommended_pathway]}
-                </p>
-              )}
+              <p className="mt-5 max-w-2xl text-[1rem] leading-7 text-teal-100 sm:text-[1.0625rem] sm:leading-8">{resultPage.heroBody}</p>
             </div>
 
             {/* Actions — screen only. */}
-            <div className="flex flex-col gap-2.5 self-start rounded-3xl border border-white/15 bg-white/[0.07] p-3.5 backdrop-blur-sm print:hidden">
+            <div className="grid grid-cols-2 gap-2 self-start rounded-3xl border border-white/15 bg-white/[0.07] p-2.5 backdrop-blur-sm sm:gap-2.5 sm:p-3.5 lg:grid-cols-1 print:hidden">
               <Button
                 type="button"
                 size="lg"
                 onClick={toggle}
                 aria-label={speaking ? reportDictionary.stopListening : mira.readAloud}
-                className="h-auto min-h-13 w-full justify-start whitespace-normal bg-white py-2.5 text-start text-ink shadow-[0_18px_36px_-18px_rgb(0_0_0/0.6)] hover:bg-gold-100 hover:text-ink focus-visible:ring-offset-ink"
+                className="h-auto min-h-13 w-full justify-start whitespace-normal bg-white py-2.5 text-start text-ink max-sm:min-h-16 max-sm:rounded-2xl max-sm:flex-col max-sm:justify-center max-sm:gap-1.5 max-sm:px-2 max-sm:text-center max-sm:text-[0.8125rem] max-sm:leading-snug shadow-[0_18px_36px_-18px_rgb(0_0_0/0.6)] hover:bg-gold-100 hover:text-ink focus-visible:ring-offset-ink"
               >
                 {speech === "loading" ? <LogoSpinner size={18} /> : speaking ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}
                 <span aria-live="polite">{speaking ? reportDictionary.listening : mira.readAloud}</span>
@@ -284,7 +265,7 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
                 onClick={() => (onDownload ? void onDownload() : window.print())}
                 disabled={isFinalizing}
                 aria-busy={isFinalizing}
-                className="h-auto min-h-13 w-full justify-start whitespace-normal border-white/25 bg-white/5 py-2.5 text-start text-white hover:border-white/50 hover:bg-white/10 hover:text-white focus-visible:ring-offset-ink"
+                className="h-auto min-h-13 w-full justify-start whitespace-normal border-white/25 bg-white/5 py-2.5 text-start text-white max-sm:min-h-16 max-sm:rounded-2xl max-sm:flex-col max-sm:justify-center max-sm:gap-1.5 max-sm:px-2 max-sm:text-center max-sm:text-[0.8125rem] max-sm:leading-snug hover:border-white/50 hover:bg-white/10 hover:text-white focus-visible:ring-offset-ink"
               >
                 {isFinalizing ? <LogoSpinner size={18} /> : <Download aria-hidden />}
                 <span>{mira.download}</span>
@@ -293,76 +274,38 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
                 type="button"
                 onClick={copySessionId}
                 title={`${dictionary.diagnostic.session}: ${sessionId}`}
-                className="mt-1 inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-xl text-[0.8125rem] text-teal-100 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-gold-300"
+                className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-xl text-[0.8125rem] text-teal-100 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-300 col-span-2 lg:hidden"
               >
                 {copied ? <Check className="size-3.5 text-gold-300" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
                 {dictionary.diagnostic.session}
-                <span className="font-mono" dir="ltr">{sessionId.slice(0, 8)}</span>
+                <span className="whitespace-nowrap font-mono" dir="ltr">{sessionId.slice(0, 8)}</span>
               </button>
             </div>
           </div>
-        </motion.section>
 
-        {/* ── 2. At a glance — the four figures a reader (or a clinician) looks for first. Rests on the cover. ── */}
-        <motion.section
-          {...reveal}
-          aria-labelledby="glance-title"
-          className="relative z-10 -mt-14 overflow-hidden rounded-panel border border-line bg-white shadow-float sm:mx-6 sm:-mt-16 lg:mx-10 print:mx-0 print:mt-0"
-        >
-          <h2 id="glance-title" className="sr-only">{metricsCopy.title}</h2>
-          <motion.dl variants={stagger(0.08, 0.1)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricTile icon={<Gauge className="size-4" />} label={metricsCopy.match}>
-              <MatchStrengthMeter
-                level={result.match_strength}
-                label={metricsCopy.match}
-                levelLabel={mira.matchLevels[result.match_strength] ?? result.match_strength}
-                hideLabel
-              />
-            </MetricTile>
-            <MetricTile icon={<Target className="size-4" />} label={metricsCopy.strongest}>
-              {strongest ? (
-                <>
-                  <p className="flex items-baseline gap-1.5">
-                    <span className={cn(SERIF, "text-[2.5rem] font-light leading-none tracking-[-0.04em] tabular-nums text-ink")} dir="ltr">
-                      <CountUp value={String(strongest.percent)} />
-                    </span>
-                    <span className="text-[0.8125rem] text-ink-muted" dir="ltr">/100</span>
-                  </p>
-                  <p className="mt-1.5 truncate text-[0.9375rem] text-ink-soft">{strongest.label}</p>
-                  <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-teal-100">
-                    <motion.span
-                      className="block h-full origin-left rounded-full bg-[linear-gradient(90deg,var(--color-teal-600),var(--color-gold))] rtl:origin-right"
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: strongest.percent / 100 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.1, delay: 0.3, ease: EASE_OUT }}
-                    />
-                  </span>
-                </>
-              ) : (
-                <p className="text-[0.9375rem] text-ink-muted">—</p>
-              )}
-            </MetricTile>
-            <MetricTile icon={<ListChecks className="size-4" />} label={metricsCopy.signals}>
-              <p className="flex items-baseline gap-2">
-                <span className={cn(SERIF, "text-[2.5rem] font-light leading-none tracking-[-0.04em] tabular-nums text-ink")}>
-                  <CountUp value={String(signals.length)} />
-                </span>
-                <span className="text-[0.9375rem] text-ink-soft">{metricsCopy.signalsUnit}</span>
-              </p>
-            </MetricTile>
-            <MetricTile icon={<Stethoscope className="size-4" />} label={urgent ? metricsCopy.safety : metricsCopy.review}>
-              <p
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.9375rem] font-semibold",
-                  urgent ? "bg-rose-50 text-rose-700" : result.requires_clinician_review ? "bg-teal-50 text-teal-800" : "bg-sage-50 text-sage-700",
-                )}
-              >
-                <span aria-hidden className={cn("size-2 rounded-full", urgent ? "bg-rose" : result.requires_clinician_review ? "bg-teal-500" : "bg-sage")} />
-                {urgent ? metricsCopy.safetyUrgent : result.requires_clinician_review ? metricsCopy.reviewRecommended : metricsCopy.reviewOptional}
-              </p>
-            </MetricTile>
-          </motion.dl>
+          {/* At a glance: rests inside the cover, so nothing floats over the edge of it. */}
+          <div className="relative border-t border-white/15 print:border-line">
+            <h2 className="sr-only">{metricsCopy.title}</h2>
+            <motion.div variants={stagger(0.08, 0.2)} initial="hidden" animate="show" className="grid sm:grid-cols-3">
+              <CoverMetric icon={<Gauge className="size-4" />} label={metricsCopy.match}>
+                <MatchStrengthMeter
+                  level={result.match_strength}
+                  label={metricsCopy.match}
+                  levelLabel={mira.matchLevels[result.match_strength] ?? result.match_strength}
+                  hideLabel
+                  tone="inverse"
+                />
+              </CoverMetric>
+              <CoverMetric icon={<Stethoscope className="size-4" />} label={metricsCopy.review}>
+                <StatusPill tone={result.requires_clinician_review ? "info" : "ok"}>
+                  {result.requires_clinician_review ? metricsCopy.reviewRecommended : metricsCopy.reviewOptional}
+                </StatusPill>
+              </CoverMetric>
+              <CoverMetric icon={<ShieldCheck className="size-4" />} label={metricsCopy.safety}>
+                <StatusPill tone={urgent ? "alert" : "ok"}>{urgent ? metricsCopy.safetyUrgent : metricsCopy.safetyRoutine}</StatusPill>
+              </CoverMetric>
+            </motion.div>
+          </div>
         </motion.section>
 
         {urgent && (
@@ -380,91 +323,77 @@ export function MiraResult({ result, sessionId, onRestart, onDownload, isFinaliz
           </motion.div>
         )}
 
-        {/* ── 3. Signal comparison: radar + strongest signal + exact numbers ── */}
-        {signals.length > 0 && (
-          <motion.section {...reveal} aria-labelledby="signals-title" className="surface-card !rounded-panel p-6 sm:p-9">
-            <SectionTitle id="signals-title" icon={<Activity className="size-5" strokeWidth={1.5} aria-hidden />} title={mira.scoresTitle} hint={mira.scoresHint} />
+        {/* ── 2. The reading: the signals on the left; the next step and what Mira noticed on the right ── */}
+        <div className="grid gap-4 lg:grid-cols-12 lg:gap-5 print:block print:space-y-4">
+          {signals.length > 0 && (
+            <motion.section {...reveal} aria-labelledby="signals-title" className={cn("surface-card !rounded-panel flex min-w-0 flex-col p-5 sm:p-8", hasSide ? "lg:col-span-7" : "lg:col-span-12")}>
+              <SectionTitle id="signals-title" icon={<Activity className="size-5" strokeWidth={1.5} aria-hidden />} title={mira.scoresTitle} hint={mira.scoresHint} />
 
-            <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-9">
-              <div className="min-w-0 rounded-3xl border border-teal-100 bg-[radial-gradient(circle_at_50%_45%,var(--color-teal-50),#ffffff_78%)] p-2 sm:p-5">
-                <SignalRadar data={signals} label={mira.scoresTitle} />
-              </div>
-
-              <div className="flex min-w-0 flex-col gap-5">
-                {strongest && (
-                  <div className="flex items-center justify-center gap-4 rounded-3xl border border-gold-100 bg-gold-50/60 p-5 sm:justify-start">
-                    <SignalGauge percent={strongest.percent} label={strongest.label} caption={mira.strongestSignal} />
-                  </div>
-                )}
-                <div className="min-w-0 border-t border-line pt-4">
-                  <SignalList data={signals} />
+              <div className="mt-6 grid flex-1 content-center gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] xl:items-center xl:gap-8">
+                <div className="min-w-0 rounded-3xl border border-teal-100 bg-[radial-gradient(circle_at_50%_45%,var(--color-teal-50),#ffffff_78%)] p-1 sm:p-4">
+                  <SignalRadar data={signals} label={mira.scoresTitle} />
+                </div>
+                <div className="min-w-0">
+                  <SignalList data={signals} strongestLabel={mira.strongestSignal} />
                 </div>
               </div>
-            </div>
-          </motion.section>
-        )}
+            </motion.section>
+          )}
 
-        {/* ── 4. Observations ── */}
-        <div className={cn("grid gap-5 lg:gap-6", observationColumns > 1 && (observationColumns > 2 ? "md:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2"))}>
-          <ObservationCard title={mira.supportingTitle} icon={<Check className="size-4" aria-hidden />} items={result.supporting_features} />
-          <ObservationCard title={mira.flagsTitle} icon={<XCircle className="size-4" aria-hidden />} items={result.contradictory_features} tone="muted" />
-          <ObservationCard title={mira.missingTitle} icon={<Info className="size-4" aria-hidden />} items={result.missing_information} />
+          {hasSide && (
+            <div className={cn("flex min-w-0 flex-col gap-4 lg:gap-5", signals.length > 0 ? "lg:col-span-5" : "lg:col-span-12")}>
+              {result.recommended_test && (
+                <motion.section
+                  {...reveal}
+                  className="group relative overflow-hidden rounded-panel border border-teal-100 bg-white p-5 shadow-[var(--shadow-soft)] transition-shadow duration-500 hover:shadow-[var(--shadow-soft-hover)] sm:p-7"
+                >
+                  <span aria-hidden className="pointer-events-none absolute inset-y-6 start-0 w-1 rounded-full bg-[linear-gradient(180deg,var(--color-teal-500),var(--color-gold))]" />
+                  <span aria-hidden className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-[radial-gradient(circle,var(--color-gold-100),transparent_70%)] print:hidden" />
+                  <div className="relative flex items-start gap-4 sm:gap-5">
+                    <span
+                      aria-hidden
+                      className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[radial-gradient(circle_at_30%_25%,var(--color-teal-600),var(--color-teal-900))] text-white shadow-brand transition-transform duration-500 ease-out-soft group-hover:-rotate-6 sm:size-14"
+                    >
+                      <Compass className="size-6" strokeWidth={1.5} />
+                    </span>
+                    <div className="min-w-0">
+                      <h2 className={cn(LABEL, "text-teal-700")}>{mira.nextStep}</h2>
+                      <p className={cn(DISPLAY_M, "mt-2.5 text-[clamp(1.375rem,1vw+1.1rem,1.875rem)] leading-snug text-ink first-letter:uppercase")}>{result.recommended_test}</p>
+                    </div>
+                  </div>
+                </motion.section>
+              )}
+
+              {hasObservations && (
+                <motion.div {...reveal} className="min-w-0 divide-y divide-line rounded-panel border border-line bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7 print:shadow-none">
+                  <ObservationGroup title={mira.supportingTitle} icon={<Check className="size-4" aria-hidden />} items={result.supporting_features} />
+                  <ObservationGroup title={mira.flagsTitle} icon={<XCircle className="size-4" aria-hidden />} items={result.contradictory_features} tone="muted" />
+                  <ObservationGroup title={mira.missingTitle} icon={<Info className="size-4" aria-hidden />} items={result.missing_information} />
+                </motion.div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* ── 5. Suggested next step ── */}
-        {result.recommended_test && (
-          <motion.section
-            {...reveal}
-            className="group relative overflow-hidden rounded-panel border border-teal-100 bg-white p-6 shadow-[var(--shadow-soft)] transition-shadow duration-500 hover:shadow-[var(--shadow-soft-hover)] sm:p-9"
-          >
-            <span aria-hidden className="pointer-events-none absolute inset-y-6 start-0 w-1 rounded-full bg-[linear-gradient(180deg,var(--color-teal-500),var(--color-gold))]" />
-            <span aria-hidden className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-[radial-gradient(circle,var(--color-gold-100),transparent_70%)] print:hidden" />
-            <div className="relative flex items-start gap-5">
-              <span
-                aria-hidden
-                className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-[radial-gradient(circle_at_30%_25%,var(--color-teal-600),var(--color-teal-900))] text-white shadow-brand transition-transform duration-500 ease-out-soft group-hover:-rotate-6 print:hidden"
-              >
-                <Compass className="size-6" strokeWidth={1.5} />
-              </span>
-              <div className="min-w-0">
-                <h2 className={cn(LABEL, "text-teal-700")}>{mira.nextStep}</h2>
-                <p className={cn(DISPLAY_M, "mt-3 text-[clamp(1.5rem,1.4vw+1.1rem,2.25rem)] first-letter:uppercase text-ink")}>{result.recommended_test}</p>
-              </div>
+        {/* ── 3. The way on (screen only) ── */}
+        {aside}
+
+        {/* ── 4. Clinical note and privacy: one strip, the note is part of the printed report ── */}
+        <motion.section {...reveal} className="grid gap-5 rounded-panel border border-gold-100 bg-gold-50 p-5 sm:p-7 md:grid-cols-2 md:gap-0">
+          <div className="flex items-start gap-4 md:pe-8">
+            <Info className="mt-0.5 size-5 shrink-0 text-gold-700" aria-hidden />
+            <div className="min-w-0 text-[0.9375rem] leading-7 text-ink-soft">
+              <p className="text-[1rem] font-semibold text-ink">{mira.noteTitle}</p>
+              <p className="mt-1.5">{result.disclaimer || mira.screeningNote}</p>
             </div>
-          </motion.section>
-        )}
-
-        {/* ── 6. Clinical note (part of the printed report) ── */}
-        <motion.section {...reveal} className="flex items-start gap-4 rounded-panel border border-gold-100 bg-gold-50 p-6 sm:p-7">
-          <Info className="mt-0.5 size-5 shrink-0 text-gold-700" aria-hidden />
-          <div className="min-w-0 text-[0.9375rem] leading-7 text-ink-soft">
-            <p className="text-[1rem] font-semibold text-ink">{mira.noteTitle}</p>
-            <p className="mt-1.5">{result.disclaimer || mira.screeningNote}</p>
           </div>
-        </motion.section>
-
-        {/* ── 7. Actions (screen only) ── */}
-        <motion.section {...reveal} className="surface-card !rounded-panel p-6 sm:p-8 print:hidden">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {!urgent && (
-              <Button asChild variant="default" size="lg" className="group min-h-14 shadow-brand">
-                <Link href={signupHref}>
-                  {dictionary.diagnostic.result.signupCta}
-                  <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden />
-                </Link>
-              </Button>
-            )}
-            <Button type="button" variant="outline" size="lg" onClick={onRestart} className={cn("min-h-14", urgent && "sm:col-span-2")}>
-              <RefreshCw aria-hidden />
-              {mira.newSession}
-            </Button>
+          <div className="flex items-start gap-4 border-gold-100 md:border-s md:ps-8 print:hidden">
+            <ShieldCheck className="mt-0.5 size-5 shrink-0 text-sage-700" aria-hidden />
+            <div className="min-w-0 text-[0.9375rem] leading-7 text-ink-soft">
+              <p className="text-[1rem] font-semibold text-ink">{mira.privacyTitle}</p>
+              <p className="mt-1.5">{mira.privacyBody}</p>
+            </div>
           </div>
-          <p className="mt-5 inline-flex items-start gap-2.5 border-t border-line pt-5 text-[0.875rem] leading-6 text-ink-soft">
-            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-sage-700" aria-hidden />
-            <span>
-              {mira.privacyTitle} · {mira.privacyBody}
-            </span>
-          </p>
         </motion.section>
       </div>
     </MotionConfig>

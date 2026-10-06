@@ -1,11 +1,12 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ROUTES } from "@/lib/config/routes";
+import { useAuthSession } from "@/hooks/useAuthSession";
+import { ROUTES, agentEntryHref } from "@/lib/config/routes";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Check, Play } from "lucide-react";
+import { ArrowRight, Check, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 import { Magnetic, WordReveal } from "./AnimationUtilities";
@@ -48,6 +49,7 @@ function Horizon({ progress }: { progress: ReturnType<typeof useScroll>["scrollY
 export const CTASection = () => {
     const { dictionary } = useLanguage();
     const copy = dictionary.homeLanding.cta;
+    const { signedIn } = useAuthSession();
     const ref = useRef<HTMLElement>(null);
     const reduce = useReducedMotion();
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end end"] });
@@ -90,7 +92,7 @@ export const CTASection = () => {
                                 {copy.body}
                             </motion.p>
 
-                            <motion.div variants={fadeUp(0, 24)} className="relative">
+                            <motion.div variants={fadeUp(0, 24)} className="relative m-4 lg:m-0">
                                 {/* A slow dashed ring turns around the button */}
                                 <motion.span
                                     aria-hidden
@@ -100,7 +102,7 @@ export const CTASection = () => {
                                 />
                                 <Magnetic strength={0.3}>
                                     <Link
-                                        href={ROUTES.orientation}
+                                        href={agentEntryHref("mira", signedIn)}
                                         className="group relative grid size-40 place-items-center overflow-hidden rounded-full bg-white text-ink shadow-[0_24px_48px_-28px_rgb(0_0_0/0.45)] transition-transform duration-500 ease-out-soft hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-gold-300 md:size-48"
                                     >
                                         {/* Warmth floods in from the pointer's side of the disc */}
@@ -124,15 +126,15 @@ export const CTASection = () => {
                                 </li>
                             ))}
                         </ul>
-                        <a
-                            href="#how-it-works"
+                        <Link
+                            href={ROUTES.support}
                             className="group inline-flex w-fit items-center gap-3 rounded-md text-[0.9375rem] font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-300"
                         >
                             <span className="flex size-9 items-center justify-center rounded-full border border-white/25 bg-white/5 transition-[transform,background-color] duration-300 group-hover:scale-110 group-hover:bg-white/15">
-                                <Play className="size-3.5 fill-current rtl:-scale-x-100" aria-hidden />
+                                <Mail className="size-3.5" aria-hidden />
                             </span>
                             <span className="home-link-line">{copy.demo}</span>
-                        </a>
+                        </Link>
                     </motion.div>
                 </motion.div>
             </div>

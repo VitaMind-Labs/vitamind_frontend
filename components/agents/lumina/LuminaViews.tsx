@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "framer-motion";
 import { Check, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { MoodEmoji } from "@/components/patient/ui/MoodEmoji";
+import { MOOD_LEVELS } from "@/lib/patient/moods";
 import { HEATMAP, SIGNAL_LEVELS, monthSeries, smoothPath } from "./chartData";
 
 const CHART_W = 600;
@@ -57,6 +59,20 @@ export function CheckinView({ copy }: { copy: LuminaPreviewCopy }) {
       <motion.p {...rise(0, reduce)} className={cn(SERIF, "text-[1.75rem] font-light tracking-[-0.02em] text-ink rtl:font-normal rtl:tracking-normal")}>
         {copy.greeting}
       </motion.p>
+      <motion.ul {...rise(0.1, reduce)} dir="ltr" aria-hidden className="mt-5 flex items-center justify-between gap-1.5 rounded-2xl bg-canvas p-2 sm:justify-start sm:gap-3">
+        {MOOD_LEVELS.map((level, index) => (
+          <motion.li
+            key={level.level}
+            initial={reduce ? false : { opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: index === 3 ? 1.12 : 1 }}
+            transition={{ type: "spring", stiffness: 320, damping: 20, delay: 0.2 + index * 0.07 }}
+            className={cn("flex size-11 items-center justify-center rounded-xl text-[1.875rem] sm:size-12", index === 3 ? "bg-white shadow-float" : "opacity-70")}
+            style={index === 3 ? { boxShadow: `0 0 0 2px ${level.color}` } : undefined}
+          >
+            <MoodEmoji level={level} />
+          </motion.li>
+        ))}
+      </motion.ul>
       <ul className="mt-6 space-y-5">
         {copy.signals.map((signal, row) => (
           <motion.li key={signal} {...rise(0.15 + row * 0.08, reduce)} className="grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-4 sm:grid-cols-[7rem_1fr_1.5rem]">

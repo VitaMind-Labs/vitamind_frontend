@@ -12,15 +12,16 @@ function validateLanguage(language: string | undefined): language is "en" | "ar"
   return language === "en" || language === "ar";
 }
 
-/** Anti-abuse identity extracted from the browser request and passed through to Nest. */
+/** The caller's identity, passed through to Nest. Mira has no anonymous mode: no bearer token, no call. */
 function identity(request: Request) {
   const fingerprint = request.headers.get(FINGERPRINT_HEADER);
   const forwarded = request.headers.get("x-forwarded-for");
   const clientIp = forwarded?.split(",")[0]?.trim() || request.headers.get("x-real-ip");
-  // The patient's token, when signed in: Nest treats an invalid one as anonymous.
   const authorization = request.headers.get("authorization");
   return { fingerprint, clientIp, authorization };
 }
+
+const unauthorized = () => jsonError("Sign in to talk to Mira.", 401);
 
 type MiraProxyBody = {
   action?: "start" | "message" | "finalize";
@@ -35,21 +36,28 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const resource = requestUrl.searchParams.get("resource");
   const id = identity(request);
+  const sessionId = requestUrl.searchParams.get("sessionId") || requestUrl.searchParams.get("session_id");
+
+  // Only the liveness probe is open: everything else is the signed-in patient's own.
+  if (!resource && !sessionId) {
+    const result = await miraApi.health();
+    return Response.json(result.payload, { status: result.status });
+  }
+  if (!id.authorization) return unauthorized();
 
   if (resource === "attempts") {
     const result = await miraApi.attempts(id);
     return Response.json(result.payload, { status: result.status });
   }
 
-  const sessionId = requestUrl.searchParams.get("sessionId") || requestUrl.searchParams.get("session_id");
+  if (!sessionId) return jsonError("sessionId is required", 400);
 
   if (resource === "history") {
-    if (!sessionId) return jsonError("sessionId is required", 400);
     const result = await miraApi.history(sessionId, id);
     return Response.json(result.payload, { status: result.status });
   }
 
-  const result = sessionId ? await miraApi.get(sessionId, id) : await miraApi.health();
+  const result = await miraApi.get(sessionId, id);
   return Response.json(result.payload, { status: result.status });
 }
 
@@ -57,8 +65,10 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const sessionId = searchParams.get("sessionId") || searchParams.get("session_id");
   if (!sessionId) return jsonError("sessionId is required", 400);
+  const id = identity(request);
+  if (!id.authorization) return unauthorized();
 
-  const result = await miraApi.remove(sessionId, identity(request));
+  const result = await miraApi.remove(sessionId, id);
   return Response.json(result.payload, { status: result.status });
 }
 
@@ -71,6 +81,7 @@ export async function POST(request: Request) {
   }
 
   const id = identity(request);
+  if (!id.authorization) return unauthorized();
 
   // Finalize ("download report"): consumes one attempt. No language required.
   if (body.action === "finalize") {

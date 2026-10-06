@@ -8,6 +8,8 @@ export const metadata: Metadata = pageMetadata({
   description:
     "A private, guided conversation with Mira about ADHD, bipolar disorder and psychotic symptoms. It points you to the right next step — it is not a medical diagnosis.",
   path: ROUTES.orientation,
+  // Members only: signed-out visitors are sent to create an account first.
+  noindex: true,
 });
 
 export default function Page() {

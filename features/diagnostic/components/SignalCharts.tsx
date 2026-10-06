@@ -7,17 +7,35 @@ import {
   PolarRadiusAxis,
   Radar,
   RadarChart,
-  PolarAngleAxis as RAAxis,
-  RadialBar,
-  RadialBarChart,
   ResponsiveContainer,
 } from "recharts";
-import { CountUp } from "@/components/home/CountUp";
-import { SERIF } from "@/components/home/typography";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export type SignalDatum = { key: string; label: string; percent: number; raw: number };
+
+/** Axis label split over two lines when it is long, so the longest spectrum name is never clipped by the chart edge. */
+type TickProps = { x?: number | string; y?: number | string; cy?: number | string; textAnchor?: string; payload?: { value?: string | number } };
+
+function AxisTick({ x: rawX = 0, y: rawY = 0, cy: rawCy = 0, textAnchor, payload }: TickProps) {
+  const x = Number(rawX);
+  const y = Number(rawY);
+  const cy = Number(rawCy);
+  const text = String(payload?.value ?? "");
+  const words = text.split(" ");
+  const lines = text.length > 14 && words.length > 1 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "), words.slice(Math.ceil(words.length / 2)).join(" ")] : [text];
+  // Labels above the centre sit higher, so the second line never touches the chart.
+  const dy = y < cy ? -(lines.length - 1) * 15 : 0;
+  return (
+    <text x={x} y={y + dy} textAnchor={textAnchor as "start" | "middle" | "end" | undefined} fill="var(--color-ink-soft)" fontSize={12.5} fontWeight={500}>
+      {lines.map((line, i) => (
+        <tspan key={line} x={x} dy={i === 0 ? 0 : 15}>
+          {line}
+        </tspan>
+      ))}
+    </text>
+  );
+}
 
 /**
  * Primary comparison chart: a radar/spider chart is the right chart type here
@@ -29,11 +47,11 @@ export function SignalRadar({ data, label }: { data: SignalDatum[]; label: strin
   const chartData = data.map((d) => ({ subject: d.label, value: d.percent, fullMark: 100 }));
 
   return (
-    <div className="h-72 w-full sm:h-80" role="img" aria-label={label}>
+    <div className="h-72 w-full sm:h-80 xl:h-[22rem]" role="img" aria-label={label}>
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart data={chartData} margin={{ top: 12, right: 32, bottom: 12, left: 32 }}>
+        <RadarChart data={chartData} margin={{ top: 24, right: 36, bottom: 24, left: 36 }} outerRadius="76%">
           <PolarGrid stroke="var(--color-line-strong)" strokeOpacity={0.7} />
-          <PolarAngleAxis dataKey="subject" tick={{ fill: "var(--color-ink-soft)", fontSize: 12.5, fontWeight: 500 }} />
+          <PolarAngleAxis dataKey="subject" tick={(props) => <AxisTick {...props} />} />
           <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
           <Radar
             name={label}
@@ -54,7 +72,7 @@ export function SignalRadar({ data, label }: { data: SignalDatum[]; label: strin
 }
 
 /** Exact numeric readout that pairs with the radar — accessible list, one row per condition, each with its own bar. */
-export function SignalList({ data }: { data: SignalDatum[] }) {
+export function SignalList({ data, strongestLabel }: { data: SignalDatum[]; strongestLabel?: string }) {
   return (
     <ul className="space-y-1">
       {data.map((item, i) => {
@@ -66,7 +84,10 @@ export function SignalList({ data }: { data: SignalDatum[] }) {
             className="rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-teal-50/70"
           >
             <div className="flex items-center justify-between gap-3">
-              <span className={cn("min-w-0 truncate text-[0.9375rem]", strongest ? "font-semibold text-ink" : "text-ink-soft")}>{item.label}</span>
+              <span className="min-w-0">
+                <span className={cn("block text-[0.9375rem] leading-snug", strongest ? "font-semibold text-ink" : "text-ink-soft")}>{item.label}</span>
+                {strongest && strongestLabel ? <span className="mt-0.5 block text-[0.75rem] font-medium text-gold-700">{strongestLabel}</span> : null}
+              </span>
               <span className="shrink-0 text-[0.9375rem] font-semibold tabular-nums text-ink" dir="ltr">
                 {item.percent}
                 <span className="text-[0.8125rem] font-normal text-ink-muted">/100</span>
@@ -85,41 +106,6 @@ export function SignalList({ data }: { data: SignalDatum[] }) {
         );
       })}
     </ul>
-  );
-}
-
-export function SignalGauge({ percent, label, caption }: { percent: number; label: string; caption: string }) {
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <figure className="flex flex-col items-center text-center">
-      <div className="relative size-36 sm:size-40">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadialBarChart data={[{ name: label, value: percent }]} innerRadius="80%" outerRadius="100%" startAngle={90} endAngle={-270} barSize={10}>
-            <RAAxis type="number" domain={[0, 100]} tick={false} axisLine={false} />
-            <RadialBar
-              dataKey="value"
-              cornerRadius={6}
-              fill="var(--color-teal-700)"
-              background={{ fill: "var(--color-teal-100)" }}
-              isAnimationActive={!reduceMotion}
-              animationDuration={1300}
-              animationEasing="ease-out"
-            />
-          </RadialBarChart>
-        </ResponsiveContainer>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={cn(SERIF, "text-[2.5rem] font-light leading-none tracking-[-0.04em] tabular-nums text-ink")} dir="ltr">
-            <CountUp value={String(percent)} />
-          </span>
-          <span className="mt-1 text-[0.8125rem] text-ink-muted">/100</span>
-        </div>
-      </div>
-      <figcaption className="mt-3">
-        <span className="block text-[0.8125rem] text-ink-muted">{caption}</span>
-        <span className="mt-0.5 block text-[1rem] font-semibold text-ink">{label}</span>
-      </figcaption>
-    </figure>
   );
 }
 

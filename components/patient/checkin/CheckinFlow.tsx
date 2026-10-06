@@ -8,15 +8,15 @@ import {
   TrendingUp, Trash2, Zap,
 } from "lucide-react";
 import { LuminaLogo } from "@/components/patient/ui/LuminaLogo";
-import { ErrorState, Skeleton, SubscriptionGate } from "@/components/patient/ui/primitives";
+import { ErrorState, Skeleton } from "@/components/patient/ui/primitives";
 import { MoodPicker } from "@/components/patient/ui/MoodPicker";
+import { MoodEmoji } from "@/components/patient/ui/MoodEmoji";
 import { ScaleSlider } from "@/components/patient/ui/ScaleSlider";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
 import type { CheckinInput } from "@/lib/api/patient";
 import type { Checkin, CheckinGoal, GoalStatus } from "@/lib/api/patient-types";
 import { useCheckinHistory, useSetGoalStatus, useSubmitCheckin, useTodayCheckin } from "@/hooks/patient/useCheckin";
-import { usePatient } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { fill } from "@/lib/i18n/patient";
@@ -64,14 +64,13 @@ const goalsLocked = (checkin: Checkin | null) => Boolean(checkin?.goals.some((go
  * stage's light and the brand ramp inside it), and they can change it at any point.
  */
 export function CheckinFlow() {
-  const { profile } = usePatient();
   const today = useTodayCheckin();
 
   if (today.error && today.data === undefined) return <ErrorState onRetry={() => void today.refresh()} />;
   if (today.data === undefined) return <CheckinSkeleton />;
 
   // Remounted per saved check-in so a stale answer set never leaks across days.
-  return <CheckinStepper key={today.data?.id ?? "new"} saved={today.data} canWrite={profile.hasAccess} />;
+  return <CheckinStepper key={today.data?.id ?? "new"} saved={today.data} />;
 }
 
 function CheckinSkeleton() {
@@ -92,7 +91,7 @@ function MoodStage({ mood, children, className }: { mood: MoodLevel | null; chil
   );
 }
 
-function CheckinStepper({ saved, canWrite }: { saved: Checkin | null; canWrite: boolean }) {
+function CheckinStepper({ saved }: { saved: Checkin | null }) {
   const copy = usePatientCopy();
   const { direction } = useLanguage();
   const reduce = useReducedMotion();
@@ -116,7 +115,6 @@ function CheckinStepper({ saved, canWrite }: { saved: Checkin | null; canWrite: 
 
   if (saved && !editing && !result) return <AlreadyDone checkin={saved} onEdit={() => { setEditing(true); setStarted(true); }} />;
   if (result) return <CheckinResultView checkin={result} />;
-  if (!canWrite) return <SubscriptionGate />;
   if (!started) return <StartCard onBegin={() => setStarted(true)} />;
 
   const answered = item.key === "goals" ? goals.some((title) => title.trim()) : touched.has(item.key);
@@ -236,11 +234,7 @@ function CheckinStepper({ saved, canWrite }: { saved: Checkin | null; canWrite: 
 
         {error && (
           <p role="alert" className="mt-4 rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">
-            {error instanceof ApiError && error.status === 403
-              ? copy.checkin.subscriptionRequired
-              : error instanceof ApiError && error.code === "GOALS_ALREADY_TRACKED"
-                ? copy.checkin.goalsTracked
-                : copy.checkin.error}
+            {error instanceof ApiError && error.code === "GOALS_ALREADY_TRACKED" ? copy.checkin.goalsTracked : copy.checkin.error}
           </p>
         )}
 
@@ -368,7 +362,7 @@ function CompanionPanel({ mood, children }: { mood: MoodLevel | null; children?:
         <LuminaLogo size={44} presence />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink">{c.title}</p>
-          {mood && <p className="text-xs text-ink-muted">{copy.moods.label}: <span aria-hidden>{mood.emoji}</span> {copy.moods.levels[mood.level - 1].name}</p>}
+          {mood && <p className="text-xs text-ink-muted">{copy.moods.label}: <MoodEmoji level={mood} className="align-[-0.15em] text-base" /> {copy.moods.levels[mood.level - 1].name}</p>}
         </div>
       </div>
       <AnimatePresence mode="wait">
@@ -527,7 +521,7 @@ function Snapshot({ checkin }: { checkin: Checkin }) {
   const mood = moodForLevel(checkin.mood);
   return (
     <div className="flex flex-wrap gap-2">
-      <span className="chip">{copy.dimensions.mood}: {mood?.emoji} {checkin.mood}/5</span>
+      <span className="chip">{copy.dimensions.mood}: {mood && <MoodEmoji level={mood} className="align-[-0.15em] text-base" />} {checkin.mood}/5</span>
       <span className="chip">{copy.dimensions.energy}: {checkin.energy}/5</span>
       <span className="chip">{copy.dimensions.focus}: {checkin.focus}/5</span>
       <span className="chip">{copy.dimensions.sleep}: {checkin.sleepHours}{copy.checkin.q.sleep.unit}</span>
@@ -545,7 +539,7 @@ function CheckinResultView({ checkin }: { checkin: Checkin }) {
     <MoodStage mood={mood} className="grid lg:grid-cols-[minmax(0,1fr)_21rem]">
       <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: EASE_OUT }} className="flex flex-col gap-6 p-6 sm:p-10">
         <div className="flex flex-col items-start gap-3">
-          <span className="text-6xl leading-none" aria-hidden>{mood?.emoji}</span>
+          {mood && <MoodEmoji level={mood} className="text-[4.5rem]" />}
           <h2 className="text-[clamp(1.625rem,1.2rem+1.4vw,2.25rem)] font-semibold leading-tight tracking-tight text-ink">{copy.checkin.result.title}</h2>
           <p className="text-sm text-ink-soft">{copy.checkin.result.saved}</p>
           {streak >= 2 && <span className="chip chip-pending"><Flame className="size-3" aria-hidden />{fill(copy.checkin.result.streak, { n: streak })}</span>}

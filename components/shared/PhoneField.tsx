@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
-import { AsYouType, getCountries, getCountryCallingCode, parsePhoneNumberFromString, type CountryCode } from "libphonenumber-js/min";
+import { AsYouType, getCountries, getCountryCallingCode, getExampleNumber, parsePhoneNumberFromString, validatePhoneNumberLength, type CountryCode } from "libphonenumber-js/min";
+import examples from "libphonenumber-js/examples.mobile.json";
 import { Check, ChevronDown } from "lucide-react";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -37,6 +38,27 @@ export function toE164(value: PhoneValue): string | null {
   return parsed?.isValid() ? parsed.number : null;
 }
 
+export type PhoneStatus = "empty" | "tooShort" | "tooLong" | "invalid" | "valid";
+
+/** Live verdict for the number typed so far, for its selected country: length first, then the country's own ranges. */
+export function phoneStatus(value: PhoneValue): PhoneStatus {
+  if (!value.national.replace(/\D/g, "")) return "empty";
+  const length = validatePhoneNumberLength(value.national, value.country);
+  if (length === "TOO_SHORT") return "tooShort";
+  if (length === "TOO_LONG") return "tooLong";
+  return toE164(value) ? "valid" : "invalid";
+}
+
+/** A well-formed mobile example for the country, in national format: the placeholder and the hint. */
+export function phoneExample(country: CountryCode): string {
+  return getExampleNumber(country, examples)?.formatNational() ?? "";
+}
+
+/** Localised country name, for messages such as "Valid number for Saudi Arabia". */
+export function countryName(country: CountryCode, language: Lang): string {
+  return new Intl.DisplayNames([language], { type: "region" }).of(country) ?? country;
+}
+
 function Flag({ code, className }: { code: CountryCode; className?: string }) {
   return <Icon icon={`circle-flags:${code.toLowerCase()}`} className={cn("size-5 shrink-0", className)} aria-hidden />;
 }
@@ -48,6 +70,8 @@ type PhoneFieldProps = {
   language: Lang;
   placeholder?: string;
   invalid?: boolean;
+  valid?: boolean;
+  onBlur?: () => void;
   countryLabel: string;
   searchPlaceholder: string;
   noResults: string;
@@ -57,7 +81,7 @@ type PhoneFieldProps = {
  * Country code picker (flag + dial code, searchable) joined to a national-number input that
  * formats as the patient types. The number itself is checked with `toE164`.
  */
-export function PhoneField({ id, value, onChange, language, placeholder, invalid, countryLabel, searchPlaceholder, noResults }: PhoneFieldProps) {
+export function PhoneField({ id, value, onChange, language, placeholder, invalid, valid, onBlur, countryLabel, searchPlaceholder, noResults }: PhoneFieldProps) {
   const [open, setOpen] = useState(false);
   const countries = useMemo(() => buildCountries(language), [language]);
   const current = countries.find((option) => option.code === value.country);
@@ -77,7 +101,7 @@ export function PhoneField({ id, value, onChange, language, placeholder, invalid
             className={cn(
               "flex h-12 shrink-0 items-center gap-2 rounded-control border bg-white px-3 text-[0.9375rem] text-ink shadow-xs outline-none transition-[border-color,box-shadow] duration-200",
               "hover:border-teal-300 focus-visible:border-teal-500 focus-visible:shadow-focus",
-              invalid ? "border-rose" : "border-line-strong",
+              invalid ? "border-rose" : valid ? "border-teal-400" : "border-line-strong",
             )}
           >
             <Flag code={value.country} />
@@ -119,13 +143,14 @@ export function PhoneField({ id, value, onChange, language, placeholder, invalid
         autoComplete="tel-national"
         value={value.national}
         onChange={(event) => type(event.target.value)}
-        placeholder={placeholder}
+        placeholder={phoneExample(value.country) || placeholder}
+        onBlur={onBlur}
         aria-invalid={invalid || undefined}
         aria-describedby={invalid ? `${id}-error` : undefined}
         className={cn(
           "h-12 w-full min-w-0 rounded-control border bg-white px-4 text-[0.9375rem] tabular-nums text-ink shadow-xs outline-none transition-[border-color,box-shadow] duration-200",
           "placeholder:text-ink-subtle hover:border-teal-300 focus:border-teal-500 focus:shadow-focus",
-          invalid ? "border-rose focus:shadow-[0_0_0_4px_rgb(184_112_112/0.16)]" : "border-line-strong",
+          invalid ? "border-rose focus:shadow-[0_0_0_4px_rgb(184_112_112/0.16)]" : valid ? "border-teal-400" : "border-line-strong",
         )}
       />
     </div>

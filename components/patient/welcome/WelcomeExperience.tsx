@@ -24,7 +24,7 @@ const holdFor = (text: string, arabic: boolean) => Math.max(1800, text.length * 
 const REDIRECT_MS = 3200;
 
 /**
- * The first thing a new patient sees after subscribing: a 3D presence, a spoken welcome (with
+ * The first thing a new patient sees after signing up: a 3D presence, a spoken welcome (with
  * captions, and a silent path) and a hand-off to the first check-in. No navigation, no dashboard
  * chrome — only a language switch and "skip".
  */

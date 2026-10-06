@@ -7,7 +7,8 @@ import { DISPLAY_S } from "@/components/home/typography";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { StepStories, SwipeArea } from "../StepStories";
 import { BrowserFrame } from "../frames";
 import { useAgentPage } from "../shared";
 import { CheckinView, JournalView, ReportView, TrendView } from "./LuminaViews";
@@ -17,7 +18,8 @@ const STEP_SECONDS = 7;
 
 /**
  * The month, told as four views of one dashboard. Steps play by themselves while the section is on screen and
- * stop for good the moment the reader picks one; below lg the steps are a row of tabs above the window.
+ * stop for good the moment the reader picks one. From lg they are a list beside the window; below lg the story of the steps
+ * sits above the window (a swipe on either moves the tour). One timer drives both layouts.
  */
 export function LuminaProcess() {
   const { page, copy } = useAgentPage("lumina");
@@ -37,17 +39,28 @@ export function LuminaProcess() {
     { title: preview.views.report.title, node: <ReportView key="report" copy={preview} /> },
   ];
 
+  // The one clock of the tour; the fills drawn in the list and in the story only picture it.
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setTimeout(() => setActive((value) => (value + 1) % steps.length), STEP_SECONDS * 1000);
+    return () => window.clearTimeout(timer);
+  }, [playing, active, steps.length]);
+
   const choose = (index: number) => {
     setTouched(true);
     setActive(index);
   };
+  const step = (delta: 1 | -1) => choose((active + delta + steps.length) % steps.length);
 
   return (
-    <HomeSection id="flow" labelledBy="flow-title">
-      <SectionHeader variant="editorial" id="flow-title" counter="02 / 03" eyebrow={page.flow.eyebrow} titleA={page.flow.titleA} titleB={page.flow.titleB} />
+    <HomeSection id="flow" labelledBy="flow-title" tone="tint">
+      <SectionHeader variant="editorial" id="flow-title" counter="03 / 04" eyebrow={page.flow.eyebrow} titleA={page.flow.titleA} titleB={page.flow.titleB} />
 
-      <div ref={ref} className="mt-12 grid gap-8 lg:mt-16 lg:grid-cols-12 lg:gap-12">
-        <ol className="grid grid-cols-2 gap-2.5 lg:col-span-4 lg:grid-cols-1 lg:gap-3">
+      <SwipeArea onStep={step} className="mt-10 lg:contents">
+      <div ref={ref} className="grid gap-8 lg:mt-16 lg:grid-cols-12 lg:gap-12">
+        <div className="lg:col-span-4">
+          <StepStories className="lg:hidden" steps={steps} active={active} playing={playing} seconds={STEP_SECONDS} stepLabel={page.flow.stepLabel} onSelect={choose} />
+        <ol className="hidden gap-3 lg:grid">
           {steps.map(([title, line], index) => {
             const current = index === active;
             return (
@@ -58,10 +71,10 @@ export function LuminaProcess() {
                   onClick={() => choose(index)}
                   className={cn(
                     "relative flex w-full cursor-pointer items-start gap-3.5 overflow-hidden rounded-2xl border p-4 text-start outline-none transition-[background-color,border-color,box-shadow] duration-300 focus-visible:ring-2 focus-visible:ring-teal-500 sm:p-5",
-                    current ? "border-gold-100 bg-[linear-gradient(155deg,var(--color-gold-50),#ffffff_80%)] shadow-soft-hover" : "border-line bg-canvas hover:border-teal-200",
+                    current ? "border-gold-100 bg-[linear-gradient(155deg,var(--color-gold-50),#ffffff_80%)] shadow-soft-hover" : "border-line bg-white hover:border-teal-200",
                   )}
                 >
-                  <span dir="ltr" className={cn("flex size-9 shrink-0 items-center justify-center rounded-full font-mono text-[0.75rem] tabular-nums transition-colors duration-300", current ? "bg-ink text-white" : "bg-white text-ink-soft ring-1 ring-line")}>
+                  <span dir="ltr" className={cn("flex size-9 shrink-0 items-center justify-center rounded-full font-mono text-[0.75rem] tabular-nums transition-colors duration-300", current ? "bg-ink text-white" : "bg-canvas text-ink-soft ring-1 ring-line")}>
                     {pad(index + 1)}
                   </span>
                   <span className="min-w-0">
@@ -76,7 +89,6 @@ export function LuminaProcess() {
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: STEP_SECONDS, ease: "linear" }}
-                      onAnimationComplete={() => setActive((value) => (value + 1) % steps.length)}
                     />
                   )}
                 </button>
@@ -84,6 +96,7 @@ export function LuminaProcess() {
             );
           })}
         </ol>
+        </div>
 
         <div className="relative lg:col-span-8">
           <span aria-hidden className="pointer-events-none absolute -inset-6 -z-10 rounded-[3rem] bg-[radial-gradient(60%_60%_at_50%_40%,rgb(230_213_170/0.4),transparent)]" />
@@ -104,6 +117,7 @@ export function LuminaProcess() {
           <p className="mt-4 text-center text-[0.75rem] text-ink-muted">{preview.caption}</p>
         </div>
       </div>
+      </SwipeArea>
     </HomeSection>
   );
 }

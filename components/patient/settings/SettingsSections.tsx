@@ -2,14 +2,14 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Bell, CreditCard, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { Bell, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import { EmptyState, ErrorState, GlassCard, Skeleton } from "@/components/patient/ui/primitives";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useConsents, useSubscription } from "@/hooks/patient/useCare";
+import { useConsents } from "@/hooks/patient/useCare";
 import { useReminderPrefs } from "@/hooks/patient/useNotifications";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
@@ -248,37 +248,6 @@ export function PrivacySection() {
       ) : (
         <ul className="space-y-3">{consents.data.map((consent) => <ConsentCard key={consent.assignmentId} consent={consent} />)}</ul>
       )}
-    </Section>
-  );
-}
-
-export function PlanSection() {
-  const copy = usePatientCopy();
-  const s = copy.settings.subscription;
-  const { language } = useLanguage();
-  const { profile } = usePatient();
-  const subscription = useSubscription();
-  const status = subscription.data?.subscriptionStatus ?? profile.subscription.status;
-  const date = (value: string | null | undefined) => (value ? formatDay(value, language, { month: "long", day: "numeric", year: "numeric" }) : null);
-  const line =
-    status === "TRIAL" && date(profile.subscription.trialEndDate)
-      ? fill(s.trialEnds, { date: date(profile.subscription.trialEndDate) ?? "" })
-      : date(profile.subscription.endDate)
-        ? fill(s.renews, { date: date(profile.subscription.endDate) ?? "" })
-        : null;
-
-  return (
-    <Section icon={<CreditCard className="size-[1.125rem]" aria-hidden />} title={s.title}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm text-muted-foreground">{s.status}</p>
-          <p className="text-lg font-semibold text-ink">{s.statusLabels[status as keyof typeof s.statusLabels] ?? s.none}
-            {subscription.data?.subscriptionPlan?.name ? <span className="ms-2 text-sm font-normal text-ink-soft">{subscription.data.subscriptionPlan.name}</span> : null}
-          </p>
-          {line && <p className="mt-0.5 text-xs text-muted-foreground">{line}</p>}
-        </div>
-        <Button asChild variant="outline"><Link href="/subscription">{s.manage}</Link></Button>
-      </div>
     </Section>
   );
 }

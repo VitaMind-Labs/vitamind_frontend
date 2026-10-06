@@ -3,10 +3,11 @@
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { DayWelcome } from "@/components/patient/home/DayWelcome";
-import { PlanTracker } from "@/components/patient/home/PlanTracker";
 import { ReadsBand } from "@/components/patient/home/ReadsBand";
 import { PlanCard, ProgressStrip, RecommendedExerciseCard, SignalsCard, TrendCard, WellbeingCard } from "@/components/patient/home/HomeCards";
+import { SparkCard } from "@/components/patient/home/SparkCard";
 import { HomeSidePanel } from "@/components/patient/home/HomePanels";
+import { usePatient } from "@/hooks/patient/usePatient";
 import { useCalmTrack } from "@/hooks/useCalmTrack";
 import { EASE_OUT } from "@/lib/motion";
 
@@ -26,9 +27,16 @@ function Cell({ index, className, children }: { index: number; className: string
   );
 }
 
+/** Spark's full-width row, for ADHD patients (the rest of the grid keeps its own positions). */
+function SparkSlot() {
+  const { profile } = usePatient();
+  if (profile.track !== "ADHD") return null;
+  return <div className="mb-5 lg:mb-6"><SparkCard /></div>;
+}
+
 /**
  * Home. The day's welcome first (greeting, three numbers that count up), then — for the tracks that have one — a warm band
- * of reading, the paid plan at a glance in four small cards, then a calm structured overview:
+ * of reading, then a calm structured overview:
  * today's wellbeing, the trend and signals, a small plan and — beside them — today's goals.
  * Every card loads on its own, so the page fills in progressively.
  */
@@ -37,8 +45,8 @@ export default function HomePage() {
     <div>
       <DayWelcome />
       <ReadsBand />
-
-      <div className="mb-5 lg:mb-6"><PlanTracker /></div>
+      {/* ADHD only: the card renders nothing for every other track. */}
+      <SparkSlot />
 
       {/* Two columns from tablet; the goals panel joins as a third column only where there is real room (2xl). */}
       <div className="grid gap-5 md:grid-cols-2 lg:gap-6 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(21rem,25rem)] 2xl:items-start">

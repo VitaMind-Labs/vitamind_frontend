@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { MOOD_LEVELS } from "@/lib/patient/moods";
+import { MoodEmoji } from "@/components/patient/ui/MoodEmoji";
 import { cn } from "@/lib/utils";
 
 /**
@@ -59,9 +60,7 @@ export function MoodPicker({
                 : undefined
             }
           >
-            <span className={cn("leading-none", size === "lg" ? "text-[2rem]" : "text-2xl")} aria-hidden style={{ filter: active ? "none" : "grayscale(0.35)" }}>
-              {level.emoji}
-            </span>
+            <MoodEmoji level={level} className={cn("transition-[filter,transform] duration-300", size === "lg" ? "text-[2.5rem]" : "text-[2rem]", active ? "scale-110" : "opacity-80 grayscale-[0.25]")} />
             <span className={cn("max-w-full truncate px-0.5 text-[0.6875rem] font-medium leading-tight sm:text-xs", active ? "text-ink" : "text-muted-foreground")} style={active ? { color: level.color } : undefined}>
               {labels[index]}
             </span>

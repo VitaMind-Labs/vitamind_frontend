@@ -35,11 +35,6 @@ const en = {
     eyebrows: { home: "Your day", checkin: "Daily ritual", mira: "Guided orientation", journal: "Your private space", reports: "Your journey", settings: "Your preferences" },
     notAlone: { title: "Every step counts", body: "VitaMind is with you, today and always." },
     greeting: { morning: "Good morning, {name}", afternoon: "Good afternoon, {name}", evening: "Good evening, {name}", night: "Hello, {name}" },
-    subscription: {
-      title: "An active plan is needed",
-      body: "Your trial has ended or your plan is paused. Choose a plan to keep checking in and journaling.",
-      cta: "See plans",
-    },
     notifications: {
       title: "Notifications", empty: "You're all caught up.", markAllRead: "Mark all as read", open: "Open notifications",
       checkinTitle: "Time for your daily check-in", checkinBody: "One quiet minute shows you how today is going.",
@@ -101,7 +96,21 @@ const en = {
       title: "Today's plan", subtitle: "Small steps. Big impact.", empty: "Nothing planned yet — try a short exercise below.",
       assigned: "From your care team", suggested: "Suggested for you", markDone: "Mark done", completed: "Done today", start: "Start",
     },
-    exercise: { title: "Recommended exercise", subtitle: "Based on your current state", start: "Start now", low: "Low effort", finish: "I finished", stop: "Close", inhale: "Breathe in", hold: "Hold", exhale: "Breathe out" },
+    exercise: {
+      title: "Recommended exercise", subtitle: "Picked for how today looks", start: "Start now", low: "Low effort", finish: "I finished", stop: "Close", inhale: "Breathe in", hold: "Hold", exhale: "Breathe out",
+      why: "Why this one", whyDefault: "A gentle reset that fits most days.", whySleep: "You slept little, so something restful comes first.",
+      kinds: { BREATHING: "Breathing", GROUNDING: "Grounding", SLEEP: "Sleep", RELAXATION: "Relaxation", ACTIVITY: "Movement", OTHER: "Mindfulness" },
+      steps: "{n} steps",
+    },
+    spark: {
+      title: "Spark", subtitle: "One small thing. Then the next.", badge: "Focus",
+      ask: "What is one thing you want to move forward today?", placeholder: "e.g. reply to emails, then book the dentist", plan: "Break it down",
+      hint: "Separate tasks with a comma or “then”. Spark keeps this on your device only.",
+      template: ["Get what you need for “{task}” in front of you", "Do just the first 5 minutes of “{task}”", "Stop, breathe, and decide: one more round or done"],
+      progress: "{a} of {b} done", allDone: "All done. That took real effort — well done.", another: "New task", restart: "Start over",
+      focus: "Focus timer", start: "Start", pause: "Pause", reset: "Reset", minutes: "{n} min", running: "Focus on one step only", finished: "Round complete — take a breath.",
+      today: "Focus today: {m} min · {n}×", none: "No focus round yet today",
+    },
     progress: { title: "Consistency builds clarity", body: "You've checked in {n} of the last 7 days. Each check-in sharpens your picture — keep the rhythm going.", moodTrend: "Mood trend" },
     reads: {
       title: "Reading to help you feel lighter", subtitle: "Calm, trusted articles to read at your own pace — from WHO, NIMH, NICE and the NHS.",
@@ -112,20 +121,6 @@ const en = {
       doneLine: "You've already shown up for yourself today. That is real progress.",
       motif: { ADHD: "Focus · Momentum", BIPOLAR: "Balance · Rhythm", SCHIZOPHRENIA: "Calm · Grounding", UNSPECIFIED: "Care · Clarity" },
       stats: { checkins: "Check-ins this month", streak: "Day streak", together: "Days with VitaMind" },
-    },
-    care: {
-      title: "What your care gives you", subtitle: "Everything your plan keeps ready for you",
-      plan: "Your plan", daysLeft: "days left",
-      perDay: "About {amount} a day for support that knows you",
-      trialEnds: "Free trial until {date}", renews: "Runs until {date}",
-      included: "Included",
-      includes: {
-        checkin: { name: "Daily check-in", body: "Mood, energy, focus, sleep and up to three goals — one quiet minute a day." },
-        journal: { name: "Smart Journal", body: "A private place to write, with patterns read over time." },
-        reports: { name: "Weekly & monthly reports", body: "A calm look back at your journey, built from what you shared." },
-      },
-      manage: "Manage plan", none: "No active plan yet", noneBody: "Choose a plan to keep your daily tools going.", plans: "See plans",
-      status: { TRIAL: "Free trial", ACTIVE: "Active", EXPIRED: "Ended", CANCELLED: "Cancelled", SUSPENDED: "Paused" },
     },
   },
   checkin: {
@@ -165,7 +160,6 @@ const en = {
       streak: "{n}-day streak", snapshot: "Today's snapshot", journal: "Write in your journal", home: "Back to Home",
     },
     error: "We couldn't save your check-in. Your answers are still here — please try again.",
-    subscriptionRequired: "Check-ins are part of your plan.",
     companion: {
       title: "Your check-in", path: "Today's path", answered: "Answered", upcoming: "Up next",
       pickMood: "Pick how you feel — this space will follow you.",
@@ -348,7 +342,6 @@ const en = {
       journal: "Journal sharing", journalOptions: { NONE: "Nothing", FLAGGED_EXCERPTS: "Passages I choose", FULL: "Everything not marked private" },
       alerts: "Safety alerts", alertsBody: "Let my clinician know if my check-ins or journal suggest I may need urgent support.", accept: "Accept and start sharing", saveError: "We couldn't update that choice.",
     },
-    subscription: { title: "Plan", status: "Status", manage: "Manage plan", none: "No active plan", statusLabels: { TRIAL: "Free trial", ACTIVE: "Active", EXPIRED: "Expired", CANCELLED: "Cancelled", SUSPENDED: "Paused" }, trialEnds: "Trial ends {date}", renews: "Runs until {date}" },
     session: { title: "Session", signOut: "Sign out of this device" },
   },
   library: {
@@ -401,11 +394,6 @@ const ar: PatientCopy = {
     eyebrows: { home: "يومك", checkin: "طقسك اليومي", mira: "التوجيه الموجَّه", journal: "مساحتك الخاصة", reports: "رحلتك", settings: "تفضيلاتك" },
     notAlone: { title: "كل خطوة لها قيمتها", body: "VitaMind معك اليوم وكل يوم." },
     greeting: { morning: "صباح الخير، {name}", afternoon: "طاب يومك، {name}", evening: "مساء الخير، {name}", night: "مرحبًا، {name}" },
-    subscription: {
-      title: "تلزمك خطة نشطة",
-      body: "انتهت فترتك التجريبية أو أُوقفت خطتك. اختر خطة لتواصل الفحص اليومي والكتابة في مفكرتك.",
-      cta: "عرض الخطط",
-    },
     notifications: {
       title: "الإشعارات", empty: "لا جديد لديك.", markAllRead: "تحديد الكل كمقروء", open: "فتح الإشعارات",
       checkinTitle: "حان وقت فحصك اليومي", checkinBody: "دقيقة هادئة تُريك كيف يسير يومك.",
@@ -467,7 +455,21 @@ const ar: PatientCopy = {
       title: "خطة اليوم", subtitle: "خطوات صغيرة. أثر كبير.", empty: "لا شيء مخطط بعد — جرّب تمرينًا قصيرًا أدناه.",
       assigned: "من فريق رعايتك", suggested: "مقترح لك", markDone: "تم", completed: "أُنجز اليوم", start: "ابدأ",
     },
-    exercise: { title: "تمرين موصى به", subtitle: "بحسب حالتك الحالية", start: "ابدأ الآن", low: "جهد قليل", finish: "أنهيت التمرين", stop: "إغلاق", inhale: "شهيق", hold: "احبس", exhale: "زفير" },
+    exercise: {
+      title: "تمرين موصى به", subtitle: "اخترناه بحسب يومك", start: "ابدأ الآن", low: "جهد قليل", finish: "أنهيت التمرين", stop: "إغلاق", inhale: "شهيق", hold: "احبس", exhale: "زفير",
+      why: "لماذا هذا التمرين", whyDefault: "إعادة ضبط لطيفة تناسب أغلب الأيام.", whySleep: "نمتَ قليلًا، لذا نبدأ بما يريحك.",
+      kinds: { BREATHING: "تنفّس", GROUNDING: "تثبيت", SLEEP: "نوم", RELAXATION: "استرخاء", ACTIVITY: "حركة", OTHER: "يقظة ذهنية" },
+      steps: "{n} خطوات",
+    },
+    spark: {
+      title: "سبارك", subtitle: "شيء صغير واحد. ثم التالي.", badge: "تركيز",
+      ask: "ما الشيء الواحد الذي تريد تقدمه اليوم؟", placeholder: "مثال: الرد على الرسائل، ثم حجز موعد الطبيب", plan: "قسِّمه إلى خطوات",
+      hint: "افصل المهام بفاصلة أو «ثم». يحتفظ سبارك بهذا على جهازك فقط.",
+      template: ["جهّز ما تحتاجه لـ«{task}» أمامك", "ابدأ بأول 5 دقائق فقط من «{task}»", "توقف وتنفّس وقرر: جولة أخرى أم يكفي"],
+      progress: "أُنجز {a} من {b}", allDone: "تم كل شيء. بذلتَ جهدًا حقيقيًا — أحسنت.", another: "مهمة جديدة", restart: "ابدأ من جديد",
+      focus: "مؤقت التركيز", start: "ابدأ", pause: "إيقاف مؤقت", reset: "إعادة", minutes: "{n} د", running: "ركّز على خطوة واحدة فقط", finished: "انتهت الجولة — خذ نفسًا.",
+      today: "تركيز اليوم: {m} د · {n}×", none: "لا جولة تركيز اليوم بعد",
+    },
     progress: { title: "الانتظام يصنع الوضوح", body: "أجريتَ الفحص {n} من آخر 7 أيام. كل فحص يزيد صورتك وضوحًا — حافظ على الإيقاع.", moodTrend: "اتجاه المزاج" },
     reads: {
       title: "قراءات تساعدك على الشعور بالخفّة", subtitle: "مقالات هادئة وموثوقة تقرؤها بوتيرتك — من منظمة الصحة العالمية وNIMH وNICE وNHS.",
@@ -478,20 +480,6 @@ const ar: PatientCopy = {
       doneLine: "حضرتَ لأجل نفسك اليوم. وهذا تقدّم حقيقي.",
       motif: { ADHD: "تركيز · زخم", BIPOLAR: "توازن · إيقاع", SCHIZOPHRENIA: "هدوء · ثبات", UNSPECIFIED: "عناية · وضوح" },
       stats: { checkins: "فحوصات هذا الشهر", streak: "أيام متتالية", together: "أيام مع VitaMind" },
-    },
-    care: {
-      title: "ما تمنحك إياه رعايتك", subtitle: "كل ما تُبقيه خطتك جاهزًا لك",
-      plan: "خطتك", daysLeft: "يومًا متبقيًا",
-      perDay: "نحو {amount} في اليوم لدعمٍ يعرفك",
-      trialEnds: "تجربة مجانية حتى {date}", renews: "سارية حتى {date}",
-      included: "متضمَّن",
-      includes: {
-        checkin: { name: "الفحص اليومي", body: "المزاج والطاقة والتركيز والنوم وحتى ثلاثة أهداف — دقيقة هادئة كل يوم." },
-        journal: { name: "المفكرة الذكية", body: "مكان خاص للكتابة، تُقرأ فيه الأنماط عبر الزمن." },
-        reports: { name: "تقارير أسبوعية وشهرية", body: "نظرة هادئة على رحلتك، مبنية على ما شاركتَه." },
-      },
-      manage: "إدارة الخطة", none: "لا توجد خطة نشطة بعد", noneBody: "اختر خطة لتستمر أدواتك اليومية.", plans: "عرض الخطط",
-      status: { TRIAL: "فترة تجريبية", ACTIVE: "نشطة", EXPIRED: "منتهية", CANCELLED: "ملغاة", SUSPENDED: "موقوفة" },
     },
   },
   checkin: {
@@ -531,7 +519,6 @@ const ar: PatientCopy = {
       streak: "{n} أيام متتالية", snapshot: "لمحة اليوم", journal: "اكتب في مفكرتك", home: "العودة إلى الرئيسية",
     },
     error: "تعذّر حفظ فحصك. إجاباتك ما زالت هنا — حاول مرة أخرى.",
-    subscriptionRequired: "الفحص اليومي جزء من خطتك.",
     companion: {
       title: "فحصك اليومي", path: "مسار اليوم", answered: "تمت الإجابة", upcoming: "التالي",
       pickMood: "اختر شعورك — وستتبعك هذه المساحة.",
@@ -714,7 +701,6 @@ const ar: PatientCopy = {
       journal: "مشاركة المفكرة", journalOptions: { NONE: "لا شيء", FLAGGED_EXCERPTS: "مقاطع أختارها", FULL: "كل ما لم أجعله خاصًا" },
       alerts: "تنبيهات السلامة", alertsBody: "دع معالجي يعلم إذا أوحت فحوصاتي أو مفكرتي بأنني قد أحتاج دعمًا عاجلًا.", accept: "قبول وبدء المشاركة", saveError: "تعذّر تحديث هذا الخيار.",
     },
-    subscription: { title: "الخطة", status: "الحالة", manage: "إدارة الخطة", none: "لا توجد خطة نشطة", statusLabels: { TRIAL: "فترة تجريبية", ACTIVE: "نشطة", EXPIRED: "منتهية", CANCELLED: "ملغاة", SUSPENDED: "موقوفة" }, trialEnds: "تنتهي التجربة في {date}", renews: "سارية حتى {date}" },
     session: { title: "الجلسة", signOut: "تسجيل الخروج من هذا الجهاز" },
   },
   library: {

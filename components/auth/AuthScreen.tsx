@@ -1,21 +1,25 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { clearDiagnosticClaim, fingerprintHeaders, getDiagnosticClaimToken, getStoredDiagnosticSessionId } from "@/features/diagnostic";
 import { authApi } from "@/lib/api/auth";
-import { hasValidSession, type AuthTokens } from "@/lib/api/tokens";
+import { ApiError, api } from "@/lib/api/client";
+import { clearTokens, hasValidSession } from "@/lib/api/tokens";
 import { AuthLoading } from "@/components/auth/AuthLayout";
+import { PasswordChecklist, passwordMeetsPolicy } from "@/components/auth/PasswordChecklist";
 import { setUser } from "@/lib/storage/storage";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormField, IconInput } from "@/components/shared/FormField";
-import { defaultCountry, PhoneField, toE164, type PhoneValue } from "@/components/shared/PhoneField";
+import { countryName, defaultCountry, PhoneField, phoneExample, phoneStatus, toE164, type PhoneValue } from "@/components/shared/PhoneField";
 import { DURATION, EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, Eye, EyeOff, Lock, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { ROUTES } from "@/lib/config/routes";
+import { recordConsent } from "@/lib/patient/consent";
 import { prefetchPatientHome } from "@/lib/patient/prefetch";
 import { cn } from "@/lib/utils";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
@@ -23,16 +27,27 @@ import { LogoSpinner } from "@/components/shared/LogoLoader";
 type AuthMode = "signin" | "signup";
 
 /**
- * Funnel: signup → subscription → dashboard. Honour internal redirects to the
- * subscription/payment or dashboard areas; ignore anything else (open-redirect safe).
+ * Funnel: sign up + consent → Mira's orientation → dashboard (check-in, journal, library).
+ * Mira and the dashboard need an account; Mira sends an account that already finished to the dashboard, so the
+ * orientation is the default landing after either form. Honour internal redirects only (open-redirect safe).
  */
 function safeRedirect(redirect: string | null) {
-  return redirect && /^\/(subscription|dashboard)(\/|\?|$)/.test(redirect) ? redirect : "/dashboard";
+  return redirect && /^\/(dashboard|orientation)(\/|\?|$)/.test(redirect) ? redirect : ROUTES.orientation;
 }
 
 const noSubscribe = () => () => {};
 type FormValues = { nickname: string; email: string; password: string; confirmPassword: string };
-type FieldName = keyof FormValues | "phone";
+type FieldName = keyof FormValues | "phone" | "consent";
+
+/** Which control to focus when a field fails validation. */
+const FIELD_IDS: Record<FieldName, string> = {
+  nickname: "auth-nickname",
+  email: "auth-email",
+  phone: "auth-phone",
+  password: "auth-password",
+  confirmPassword: "auth-confirm-password",
+  consent: "auth-consent",
+};
 
 const LINK_CLASS =
   "rounded-md font-semibold text-teal-700 underline-offset-4 transition-colors duration-200 hover:text-teal-800 hover:underline";
@@ -63,16 +78,34 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   // Already signed in with a live session: skip the form and go straight to the patient space.
   const signedIn = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
 
+  // A token in storage is not proof of a session: the API confirms it before the form is skipped. A rejected
+  // (stale) token is dropped and the form is shown, so the visitor is never sent on without a real sign-in.
+  const [staleSession, setStaleSession] = useState(false);
   useEffect(() => {
     if (!signedIn) return;
-    const target = safeRedirect(searchParams.get("redirect"));
-    if (target.startsWith("/dashboard")) prefetchPatientHome();
-    router.replace(target);
+    let cancelled = false;
+    api
+      .get("/me")
+      .then(() => {
+        if (cancelled) return;
+        const target = safeRedirect(searchParams.get("redirect"));
+        if (target.startsWith("/dashboard")) prefetchPatientHome();
+        router.replace(target);
+      })
+      .catch((reason: unknown) => {
+        if (cancelled) return;
+        if (!(reason instanceof ApiError) || reason.status !== 0) clearTokens();
+        setStaleSession(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [signedIn, router, searchParams]);
 
-  // Sign-in is the way into the dashboard: fetch its code while the patient types, so arriving there is instant.
+  // Both ends of the funnel are one tap away: fetch their code while the patient types.
   useEffect(() => {
     router.prefetch("/dashboard");
+    router.prefetch(ROUTES.orientation);
   }, [router]);
 
   const [values, setValues] = useState<FormValues>({ nickname: "", email: "", password: "", confirmPassword: "" });
@@ -83,66 +116,109 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   const [showConfirm, setShowConfirm] = useState(false);
   // UI preference only — session persistence is unchanged until the backend exposes it.
   const [remember, setRemember] = useState(true);
+  // Explicit, never pre-ticked: no consent, no account, so no Mira.
+  const [consent, setConsent] = useState(false);
+
+  // Fields the visitor has already left: only those show live feedback, so nothing shouts while they are still typing.
+  const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
+  const touch = (field: FieldName) => setTouched((p) => (p[field] ? p : { ...p, [field]: true }));
 
   const set = (f: FieldName) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues(p => ({ ...p, [f]: e.target.value }));
     if (errorField === f) { setError(""); setErrorField(null); }
   };
-  const fail = (field: FieldName, message: string) => { setErrorField(field); setError(message); };
+  const fail = (field: FieldName, message: string) => {
+    setErrorField(field);
+    setError(message);
+    touch(field);
+    toast.error(isSignUp ? auth.toastSignUp : auth.toastForm, { description: message });
+    // Bring the visitor to the problem: focus lands on the field that needs attention.
+    requestAnimationFrame(() => document.getElementById(FIELD_IDS[field])?.focus());
+  };
+
+  /** Server failures in the visitor's language: the raw API text is English, so it is never shown as is. */
+  const apiMessage = (err: unknown) => {
+    if (err instanceof ApiError) {
+      if (err.status === 0) return auth.errors.network;
+      if (err.status === 401) return isSignUp ? auth.errors.generic : auth.errors.invalidCredentials;
+      if (err.status === 409) return isSignUp ? auth.errors.emailTaken : auth.errors.generic;
+      if (err.status === 429) return auth.errors.tooManyRequests;
+      return auth.errors.generic;
+    }
+    if (err instanceof Error && err.message === "This account cannot sign in here.") return auth.errors.cannotSignInHere;
+    return auth.errors.generic;
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setError(""); setErrorField(null);
     if (isSignUp && !values.nickname.trim()) return fail("nickname", auth.errors.nickname);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return fail("email", auth.errors.email);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) return fail("email", auth.errors.email);
     const e164 = isSignUp ? toE164(phone) : null;
-    if (isSignUp && !e164) return fail("phone", auth.errors.phone);
-    if (values.password.length < 8) return fail("password", auth.errors.password);
+    if (isSignUp && !e164) return fail("phone", phoneMessage(phoneStatus(phone)) ?? auth.errors.phone);
+    // Sign-in only needs a password: the policy applies to new passwords, never to an existing account.
+    if (!isSignUp && !values.password) return fail("password", auth.errors.passwordRequired);
+    if (isSignUp && !passwordMeetsPolicy(values.password)) return fail("password", auth.errors.passwordRules);
     if (isSignUp && values.password !== values.confirmPassword) return fail("confirmPassword", auth.errors.confirmPassword);
+    if (isSignUp && !consent) return fail("consent", auth.errors.consent);
 
     startTransition(() => {
       (async () => {
-        const sid = searchParams.get("sessionId") || getStoredDiagnosticSessionId();
-        const claimToken = sid ? getDiagnosticClaimToken(sid) : null;
         const email = values.email.trim();
         try {
-          let session: AuthTokens;
           const target = safeRedirect(searchParams.get("redirect"));
-          if (isSignUp) {
-            const res = await authApi.register({
-              nickname: values.nickname.trim(), email, phone: e164 ?? undefined, password: values.password, lang: language,
-              diagnosticSessionId: sid, diagnosticClaimToken: claimToken,
-            });
-            session = res;
-            if (sid && res.diagnostic?.claimed) clearDiagnosticClaim(sid);
-          } else {
-            session = await authApi.login(email, values.password);
-            // Returning visitor who ran Mira anonymously: attach that session (best-effort). The claim carries the
-            // orientation onto the account, which the profile's track is read from, so it still finishes before the
-            // profile is fetched; with nothing to claim, nothing waits.
-            const claiming = sid
-              ? authApi.claimDiagnostic(sid, claimToken, fingerprintHeaders())
-                  .then((claim) => claim.claimed && clearDiagnosticClaim(sid))
-                  .catch(() => undefined)
-              : null;
-            router.prefetch(target);
-            await claiming;
-          }
+          // No leftover session can ride along: only the answer to THIS request opens the space.
+          clearTokens();
+          const session = isSignUp
+            ? await authApi.register({ nickname: values.nickname.trim(), email, phone: e164 ?? undefined, password: values.password, lang: language })
+            : await authApi.login(email, values.password);
+          // Navigate only once the session is really established.
+          if (!hasValidSession()) throw new Error("session-not-established");
+          if (isSignUp && session.user) recordConsent(session.user.id);
+          router.prefetch(target);
           if (session.user) setUser({ id: session.user.id, fullName: session.user.nickname || email, email, password: "", disease: "ADHD", createdAt: new Date().toISOString() });
           // The first screens' data loads in parallel with the navigation itself.
           if (target.startsWith("/dashboard")) prefetchPatientHome();
           router.push(target);
-        } catch (err) { setError(err instanceof Error ? err.message : "Authentication failed"); }
+        } catch (err) {
+          clearTokens();
+          const message = apiMessage(err);
+          setError(message);
+          toast.error(isSignUp ? auth.toastSignUp : auth.toastSignIn, { description: message });
+        }
       })();
     });
   };
 
-  const fieldError = (field: FieldName) => (errorField === field ? error : null);
+  const phoneState = phoneStatus(phone);
+  const country = countryName(phone.country, language);
+  const phoneMessage = (state: ReturnType<typeof phoneStatus>) =>
+    state === "tooShort" ? auth.errors.phoneTooShort : state === "tooLong" ? auth.errors.phoneTooLong : state === "invalid" ? auth.errors.phone : null;
+  const passwordsMatch = values.confirmPassword.length > 0 && values.password === values.confirmPassword;
+
+  // A submit error wins; otherwise the live verdict, once the visitor has left the field (sign-up only).
+  const fieldError = (field: FieldName) => {
+    if (errorField === field) return error;
+    if (!isSignUp) return null;
+    if (field === "phone" && touched.phone) return phoneState === "empty" ? auth.errors.phone : phoneMessage(phoneState);
+    if (field === "confirmPassword" && values.confirmPassword.length > 0 && !passwordsMatch && (touched.confirmPassword || values.confirmPassword.length >= values.password.length)) {
+      return auth.errors.confirmPassword;
+    }
+    return null;
+  };
   const formError = error && !errorField ? error : "";
-  const switchHref = isSignUp ? "/auth/signin" : "/auth/signup";
+  // The switch keeps the visitor's destination and the reason they were sent here.
+  const carried = new URLSearchParams();
+  for (const key of ["from", "redirect"] as const) {
+    const value = searchParams.get(key);
+    if (value) carried.set(key, value);
+  }
+  const switchHref = `${isSignUp ? ROUTES.signIn : ROUTES.signUp}${carried.size ? `?${carried}` : ""}`;
+  const from = searchParams.get("from");
+  const notice = from === "orientation" || from === "lumina" ? auth.notice[from] : null;
   const switchPrompt = isSignUp ? auth.switchToSignIn : auth.subtitleSignIn;
   const switchLink = isSignUp ? auth.switchSignInLink : auth.subtitleSignInLink;
 
-  if (signedIn !== false) return <AuthLoading />;
+  if (signedIn === null || (signedIn && !staleSession)) return <AuthLoading />;
 
   return (
     <motion.section
@@ -171,6 +247,13 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
           {isSignUp ? auth.subtitleSignUp : auth.subtitleWelcome}
         </p>
       </header>
+
+      {notice && (
+        <p role="note" className="mt-6 flex items-start gap-2.5 rounded-xl border border-teal-100 bg-teal-50 px-3.5 py-3 text-[0.875rem] leading-6 text-teal-900">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-teal-700" aria-hidden />
+          {notice}
+        </p>
+      )}
 
       {/* ── SERVER ERROR ─────────────────────────────────────────────── */}
       <AnimatePresence initial={false}>
@@ -258,19 +341,41 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 
         {isSignUp && (
           <motion.div variants={fadeUp(0, 8)}>
-            <FormField id="auth-phone" label={auth.phone} error={fieldError("phone")}>
+            <FormField
+              id="auth-phone"
+              label={auth.phone}
+              error={fieldError("phone")}
+              hint={phoneState !== "valid" && phoneExample(phone.country) ? auth.phoneExample.replace("{example}", phoneExample(phone.country)) : undefined}
+            >
               <PhoneField
                 id="auth-phone"
                 value={phone}
                 onChange={(next) => { setPhone(next); if (errorField === "phone") { setError(""); setErrorField(null); } }}
+                onBlur={() => touch("phone")}
                 language={language}
                 placeholder={auth.phonePlaceholder}
-                invalid={errorField === "phone"}
+                invalid={!!fieldError("phone")}
+                valid={phoneState === "valid"}
                 countryLabel={auth.countryCode}
                 searchPlaceholder={auth.countrySearch}
                 noResults={auth.countryNoResults}
               />
             </FormField>
+            <AnimatePresence initial={false}>
+              {phoneState === "valid" && (
+                <motion.p
+                  role="status"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: EASE_OUT }}
+                  className="mt-1.5 flex items-center gap-1.5 overflow-hidden text-[0.8125rem] leading-5 text-teal-700"
+                >
+                  <Check className="size-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
+                  {auth.phoneValid.replace("{country}", country)}
+                </motion.p>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
 
@@ -285,9 +390,14 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
               placeholder={auth.passwordPlaceholder}
               autoComplete={isSignUp ? "new-password" : "current-password"}
               invalid={errorField === "password"}
+              aria-describedby={isSignUp ? "auth-password-rules" : undefined}
+              onBlur={() => touch("password")}
               trailing={<VisibilityToggle show={showPwd} toggle={() => setShowPwd((p) => !p)} label={showPwd ? auth.hidePassword : auth.showPassword} />}
             />
           </FormField>
+          {isSignUp && (
+            <PasswordChecklist id="auth-password-rules" value={values.password} copy={auth.passwordRules} />
+          )}
         </motion.div>
 
         {isSignUp && (
@@ -301,10 +411,50 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
                 onChange={set("confirmPassword")}
                 placeholder={auth.confirmPasswordPlaceholder}
                 autoComplete="new-password"
-                invalid={errorField === "confirmPassword"}
+                invalid={!!fieldError("confirmPassword")}
+                onBlur={() => touch("confirmPassword")}
+                className={passwordsMatch ? "border-teal-400" : undefined}
                 trailing={<VisibilityToggle show={showConfirm} toggle={() => setShowConfirm((p) => !p)} label={showConfirm ? auth.hideConfirm : auth.showConfirm} />}
               />
             </FormField>
+            <AnimatePresence initial={false}>
+              {passwordsMatch && (
+                <motion.p
+                  role="status"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: EASE_OUT }}
+                  className="mt-1.5 flex items-center gap-1.5 overflow-hidden text-[0.8125rem] leading-5 text-teal-700"
+                >
+                  <Check className="size-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
+                  {auth.passwordsMatch}
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {isSignUp && (
+          <motion.div variants={fadeUp(0, 8)}>
+            <label htmlFor="auth-consent" className="flex cursor-pointer select-none items-start gap-3 text-[0.9375rem] leading-6 text-ink-soft">
+              <Checkbox
+                id="auth-consent"
+                name="consent"
+                checked={consent}
+                aria-invalid={errorField === "consent"}
+                aria-describedby={errorField === "consent" ? "auth-consent-error" : undefined}
+                onCheckedChange={(state) => {
+                  setConsent(state === true);
+                  if (errorField === "consent") { setError(""); setErrorField(null); }
+                }}
+                className="mt-1 h-[1.125rem] w-[1.125rem] shrink-0 rounded-[0.3125rem] border-line-strong bg-white shadow-none transition-colors duration-200 hover:border-teal-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 data-[state=checked]:border-primary [&_svg]:h-3 [&_svg]:w-3"
+              />
+              <span>{auth.consent.label}</span>
+            </label>
+            {errorField === "consent" && (
+              <p id="auth-consent-error" role="alert" className="mt-2 text-[0.8125rem] leading-5 text-rose-700">{error}</p>
+            )}
           </motion.div>
         )}
 

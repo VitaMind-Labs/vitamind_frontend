@@ -10,6 +10,7 @@ import type { ReportInsight, ReportListItem } from "@/lib/api/patient-types";
 import { fill } from "@/lib/i18n/patient";
 import { addDaysLocal, dayOfPeriod, formatDay, formatRange, parseDay } from "@/lib/patient/format";
 import { moodForLevel } from "@/lib/patient/moods";
+import { MoodEmoji } from "@/components/patient/ui/MoodEmoji";
 import { cn } from "@/lib/utils";
 
 export function insightText(insight: ReportInsight, copy: ReturnType<typeof usePatientCopy>): string {
@@ -108,7 +109,7 @@ export function ReportCard({ item, onOpen, locked = false }: { item: ReportListI
           <div>
             <p className="text-xs text-muted-foreground">{copy.reports.metrics.mood}</p>
             <p className="flex items-center gap-2 text-3xl font-semibold tabular-nums text-ink">
-              <span aria-hidden className="text-2xl">{mood?.emoji}</span>
+              {mood && <MoodEmoji level={mood} className="text-3xl" />}
               {item.moodAverage ?? "—"}
               {(up || down) && (
                 <span className={cn("inline-flex items-center gap-0.5 text-xs font-medium", up ? "text-sage-700" : "text-gold-700")}>

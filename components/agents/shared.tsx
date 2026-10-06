@@ -13,7 +13,7 @@ import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvide
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuthSession } from "@/hooks/useAuthSession";
 import { useLanguageTransition } from "@/hooks/useLanguageTransition";
-import { ROUTES } from "@/lib/config/routes";
+import { agentEntryHref } from "@/lib/config/routes";
 import { agentPagesCopy } from "@/lib/i18n/agents";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -35,7 +35,7 @@ export function useAgentPage(agent: AgentId) {
     page: copy[agent],
     identity: dictionary.header.agents.items[agent],
     config: AGENTS.find((candidate) => candidate.id === agent)!,
-    primaryHref: agent === "mira" ? ROUTES.orientation : signedIn ? ROUTES.dashboard : ROUTES.signUp,
+    primaryHref: agentEntryHref(agent, signedIn),
   };
 }
 
@@ -101,15 +101,16 @@ export function StatsStrip({ stats, tone = "light", className }: { stats: readon
   );
 }
 
-function ChipPanel({ yes, title, items }: { yes: boolean; title: string; items: readonly string[] }) {
+function ChipPanel({ yes, title, items, surface }: { yes: boolean; title: string; items: readonly string[]; surface: string }) {
   const Icon = yes ? Check : X;
   return (
-    <motion.div variants={fadeUp(0, 22)} className={cn("rounded-panel border bg-white p-6 sm:p-8", yes ? "border-teal-200" : "border-rose-100")}>
+    <motion.div variants={fadeUp(0, 22)} className={cn("rounded-panel border p-6 sm:p-8", surface, yes ? "border-teal-200" : "border-rose-100")}>
       <h3 className={cn(LABEL, yes ? "text-teal-700" : "text-rose-700")}>{title}</h3>
-      <ul className="mt-5 flex flex-wrap gap-2.5">
+      <motion.ul variants={stagger(0.05, 0.12)} className="mt-5 flex flex-wrap gap-2.5">
         {items.map((item) => (
-          <li
+          <motion.li
             key={item}
+            variants={fadeUp(0, 10)}
             className={cn(
               "inline-flex items-center gap-2 rounded-full border py-2 ps-2.5 pe-4 text-[0.9375rem] font-medium",
               yes ? "border-teal-200 bg-teal-50/70 text-teal-900" : "border-rose-100 bg-rose-50/70 text-rose-700",
@@ -119,27 +120,27 @@ function ChipPanel({ yes, title, items }: { yes: boolean; title: string; items: 
               <Icon className="size-3" strokeWidth={3} aria-hidden />
             </span>
             {item}
-          </li>
+          </motion.li>
         ))}
-      </ul>
+      </motion.ul>
     </motion.div>
   );
 }
 
 /** Clear boundaries as two panels of chips — what the agent does, what she never does — then the other agent. */
-export function Boundaries({ agent, counter }: { agent: AgentId; counter: string }) {
+export function Boundaries({ agent, counter, tone = "tint" }: { agent: AgentId; counter: string; tone?: "tint" | "base" }) {
   const { page } = useAgentPage(agent);
   const { trust, handoff } = page;
   const otherId = OTHER[agent];
   const other = AGENTS.find((candidate) => candidate.id === otherId)!;
 
   return (
-    <HomeSection id="trust" labelledBy="trust-title" tone="tint">
+    <HomeSection id="trust" labelledBy="trust-title" tone={tone}>
       <SectionHeader variant="editorial" id="trust-title" counter={counter} eyebrow={trust.eyebrow} titleA={trust.titleA} titleB={trust.titleB} />
       <motion.div variants={stagger(0.1)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="mt-12 lg:mt-16">
         <div className="grid gap-4 md:grid-cols-2 lg:gap-5">
-          <ChipPanel yes title={trust.doesTitle} items={trust.does} />
-          <ChipPanel yes={false} title={trust.doesNotTitle} items={trust.doesNot} />
+          <ChipPanel yes title={trust.doesTitle} items={trust.does} surface={tone === "base" ? "bg-canvas" : "bg-white"} />
+          <ChipPanel yes={false} title={trust.doesNotTitle} items={trust.doesNot} surface={tone === "base" ? "bg-canvas" : "bg-white"} />
         </div>
         <motion.p variants={fadeUp(0, 10)} className="mt-6 flex items-start gap-3 text-[0.9375rem] leading-7 text-ink-soft">
           <ShieldCheck className="mt-1 size-4 shrink-0 text-teal-600" aria-hidden />
@@ -150,23 +151,23 @@ export function Boundaries({ agent, counter }: { agent: AgentId; counter: string
           <Link
             href={other.href}
             className={cn(
-              "group relative isolate flex items-center gap-5 overflow-hidden rounded-[2rem] border p-5 outline-none transition-[transform,border-color,box-shadow] duration-500 ease-out-soft hover:-translate-y-1 hover:shadow-soft-hover focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 sm:gap-7 sm:p-8",
+              "group relative isolate flex flex-wrap items-center gap-x-5 gap-y-4 overflow-hidden rounded-[2rem] border p-5 outline-none transition-[transform,border-color,box-shadow] duration-500 ease-out-soft hover:-translate-y-1 hover:shadow-soft-hover focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 sm:gap-7 sm:p-8",
               other.tone.surface,
               other.tone.border,
             )}
           >
             <span aria-hidden className={cn("pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-700 ease-out-soft group-hover:opacity-100", other.tone.wash)} />
             <span aria-hidden className={cn("pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r", other.tone.edge)} />
-            <AgentAvatar agent={otherId} className="size-16 shrink-0 rounded-3xl bg-white/80 ring-1 ring-white transition-transform duration-500 ease-out-soft motion-safe:group-hover:scale-105 sm:size-20" />
-            <div className="min-w-0 flex-1">
+            <AgentAvatar agent={otherId} className="order-1 size-16 shrink-0 rounded-3xl bg-white/80 ring-1 ring-white transition-transform duration-500 ease-out-soft motion-safe:group-hover:scale-105 sm:size-20" />
+            <div className="order-3 min-w-0 basis-full sm:order-2 sm:basis-0 sm:flex-1">
               <p className={cn(LABEL, other.tone.text)}>{handoff.eyebrow}</p>
               <p className={cn(DISPLAY_M, "mt-2 text-ink")}>{handoff.title}</p>
               <p className={cn(BODY_SM, "mt-2 text-[1rem]")}>{handoff.body}</p>
             </div>
-            <span className={cn("hidden shrink-0 items-center gap-3 text-[0.9375rem] font-semibold sm:inline-flex", other.tone.text)}>
+            <span className={cn("order-3 hidden shrink-0 items-center gap-3 text-[0.9375rem] font-semibold sm:inline-flex", other.tone.text)}>
               {handoff.cta}
             </span>
-            <span className={cn("flex size-12 shrink-0 items-center justify-center rounded-full transition-colors duration-300", other.tone.arrow)} aria-hidden>
+            <span className={cn("order-2 ms-auto flex size-12 shrink-0 items-center justify-center rounded-full transition-colors duration-300 sm:order-4 sm:ms-0", other.tone.arrow)} aria-hidden>
               <ArrowRight className="size-5 transition-transform duration-300 ease-out-soft group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" />
             </span>
             <span className="sr-only sm:hidden">{handoff.cta}</span>

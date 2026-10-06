@@ -15,7 +15,7 @@ export const SITE = {
   title: `${BRAND.name} — Guided mental wellbeing`,
   /** Plain, claim-free summary: orientation is never a diagnosis. */
   description:
-    "A private space for people living with bipolar disorder, schizophrenia or ADHD: talk with Mira, track your days and bring a clear picture to your clinician.",
+    "An AI-powered mental health support platform for people living with ADHD, bipolar disorder and psychosis, and the clinicians who support them: continuous, personalised monitoring and support between consultations.",
 } as const;
 
 export const NO_INDEX: Metadata["robots"] = { index: false, follow: false };
@@ -65,16 +65,16 @@ export function pageMetadata({ title, description, path, noindex = false }: Page
 /** Pages that belong in the sitemap, in priority order. Private/app routes are intentionally absent. */
 export const SITEMAP_ROUTES: ReadonlyArray<{ path: string; priority: number; changeFrequency: "weekly" | "monthly" }> = [
   { path: ROUTES.home, priority: 1, changeFrequency: "weekly" },
-  { path: ROUTES.orientation, priority: 0.9, changeFrequency: "monthly" },
   { path: ROUTES.mira, priority: 0.8, changeFrequency: "monthly" },
   { path: ROUTES.lumina, priority: 0.8, changeFrequency: "monthly" },
-  { path: ROUTES.plans, priority: 0.8, changeFrequency: "monthly" },
+  { path: ROUTES.tracks, priority: 0.8, changeFrequency: "monthly" },
+  { path: ROUTES.trust, priority: 0.7, changeFrequency: "monthly" },
   { path: ROUTES.support, priority: 0.6, changeFrequency: "monthly" },
   { path: ROUTES.signUp, priority: 0.5, changeFrequency: "monthly" },
 ];
 
 /**
- * Paths crawlers must not fetch (API + signed-in app + checkout). Pages that only need to stay out of
+ * Paths crawlers must not fetch (API + signed-in app). Pages that only need to stay out of
  * results (sign in, personal results) use a noindex tag instead: a robots block would hide that tag.
  */
-export const DISALLOWED_PATHS = ["/api/", "/dashboard", "/welcome", "/subscription/payment"] as const;
+export const DISALLOWED_PATHS = ["/api/", "/dashboard", "/welcome"] as const;

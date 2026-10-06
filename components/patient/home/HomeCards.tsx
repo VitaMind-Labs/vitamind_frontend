@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Activity, BatteryMedium, Brain, Check, ChevronRight, Clock, Flame, HeartPulse, House,
-  Link2, Moon, Target, TrendingUp, Wind, Zap,
+  Link2, ListChecks, Moon, Play, Sparkles, Target, TrendingUp, Wind, Zap,
 } from "lucide-react";
 import { ErrorState, GlassCard, SectionTitle, Skeleton } from "@/components/patient/ui/primitives";
 import { ExerciseSession } from "@/components/patient/ui/ExerciseSession";
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { useCheckinHistory, useTodayCheckin } from "@/hooks/patient/useCheckin";
 import { useAssignedExercises, useCompleteExercise, useCompletedToday, useExerciseCatalog } from "@/hooks/patient/useCare";
+import { useCalmTrack } from "@/hooks/useCalmTrack";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
 import type { Exercise } from "@/lib/api/patient-types";
@@ -258,43 +259,80 @@ export function RecommendedExerciseCard() {
   const { complete } = useCompleteExercise();
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
+  const calm = useCalmTrack();
 
+  const sleepHours = today.data?.sleepHours ?? null;
   const exercise = useMemo(
-    () =>
-      recommendExercise(catalog.data ?? [], profile.track, { sleepHours: today.data?.sleepHours ?? null }),
-    [catalog.data, profile.track, today.data],
+    () => recommendExercise(catalog.data ?? [], profile.track, { sleepHours }),
+    [catalog.data, profile.track, sleepHours],
   );
   const item: LocalizedExercise | null = exercise ? localizeExercise(exercise, language) : null;
 
   if (catalog.isLoading) {
-    return <GlassCard><Skeleton className="h-52" /></GlassCard>;
+    return <GlassCard><Skeleton className="h-72" /></GlassCard>;
   }
   if (!item || !exercise) return null;
 
+  const ex = copy.home.exercise;
+  const Icon = EXERCISE_ICON[exercise.type];
+  const why = sleepHours !== null && sleepHours < 6 && exercise.slug === "sleep-wind-down" ? ex.whySleep : ex.whyDefault;
+  // Rings breathe on a slow loop; tracks that need stillness (and reduced motion) get them static.
+  const still = reduce || calm;
+
   return (
-    <GlassCard className="overflow-hidden p-0" aria-labelledby="exercise-title">
-      <div className="lm-hero relative flex min-h-32 items-end rounded-none border-0 p-5" style={{ boxShadow: "none" }}>
-        <motion.span
-          aria-hidden
-          className="lm-orb absolute end-5 top-4"
-          style={{ "--orb": "4.5rem" } as React.CSSProperties}
-          animate={reduce ? undefined : { scale: [1, 1.08, 1] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <div className="relative">
-          <p className="lm-eyebrow">{copy.home.exercise.title}</p>
-          <p className="mt-0.5 text-xs text-ink-soft">{copy.home.exercise.subtitle}</p>
+    <GlassCard className="group/ex relative overflow-hidden p-0" aria-labelledby="exercise-title">
+      {/* Stage: concentric rings around the exercise's own icon, on the track's soft gradient. */}
+      <div className="lm-hero relative isolate flex min-h-44 items-end overflow-hidden rounded-none border-0 p-5 sm:min-h-48" style={{ boxShadow: "none" }}>
+        <div aria-hidden className="pointer-events-none absolute end-5 top-1/2 flex size-32 -translate-y-1/2 items-center justify-center sm:end-8 sm:size-36">
+          {[1, 0.72, 0.46].map((scale, index) => (
+            <motion.span
+              key={scale}
+              className="absolute inset-0 rounded-full border border-teal-500/30 bg-white/25"
+              style={{ scale }}
+              animate={still ? undefined : { scale: [scale, scale * 1.1, scale], opacity: [0.9, 0.55, 0.9] }}
+              transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: index * 0.5 }}
+            />
+          ))}
+          <span className="relative flex size-14 items-center justify-center rounded-2xl bg-white/80 text-teal-700 shadow-lg shadow-teal-900/10 ring-1 ring-white sm:size-16">
+            <Icon className="size-7 sm:size-8" aria-hidden />
+          </span>
+        </div>
+        <div className="relative min-w-0 max-w-[58%] sm:max-w-[62%]">
+          <p className="lm-eyebrow">{ex.title}</p>
+          <p className="mt-1 text-xs leading-snug text-ink-soft">{ex.subtitle}</p>
         </div>
       </div>
-      <div className="p-5">
-        <h2 id="exercise-title" className="text-lg font-semibold text-ink">{item.title}</h2>
-        <p className="mt-1 text-sm leading-relaxed text-ink-soft">{item.description}</p>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="flex items-center gap-3 text-xs text-muted-foreground">
-            {item.minutes ? <span className="inline-flex items-center gap-1"><Clock className="size-3.5" aria-hidden />{fill(copy.common.min, { n: item.minutes })}</span> : null}
-            <span className="inline-flex items-center gap-1"><House className="size-3.5" aria-hidden />{copy.home.exercise.low}</span>
+
+      <div className="space-y-4 p-5">
+        <div>
+          <h2 id="exercise-title" className="text-lg font-semibold leading-snug text-ink">{item.title}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-ink-soft">{item.description}</p>
+        </div>
+
+        <ul className="flex flex-wrap gap-2 text-xs font-medium text-ink-soft" aria-label={item.title}>
+          <li className="chip"><Icon className="size-3" aria-hidden />{ex.kinds[exercise.type]}</li>
+          {item.minutes ? <li className="chip"><Clock className="size-3" aria-hidden />{fill(copy.common.min, { n: item.minutes })}</li> : null}
+          {item.steps.length ? <li className="chip"><ListChecks className="size-3" aria-hidden />{fill(ex.steps, { n: item.steps.length })}</li> : null}
+          <li className="chip"><House className="size-3" aria-hidden />{ex.low}</li>
+        </ul>
+
+        {item.steps.length > 0 && (
+          <ol className="lm-soft space-y-2 p-3.5">
+            {item.steps.slice(0, 3).map((step, index) => (
+              <li key={index} className="flex items-start gap-2.5 text-[0.8125rem] leading-snug text-ink-soft">
+                <span className="mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-teal-100 text-[0.6875rem] font-semibold text-teal-700">{index + 1}</span>
+                <span className="min-w-0 flex-1">{step}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="flex min-w-0 flex-1 basis-40 items-start gap-1.5 text-xs leading-snug text-muted-foreground">
+            <Sparkles className="mt-px size-3.5 shrink-0 text-gold-600" aria-hidden />
+            <span><span className="font-semibold text-ink-soft">{ex.why}:</span> {why}</span>
           </p>
-          <Button onClick={() => setOpen(true)}>{copy.home.exercise.start}</Button>
+          <Button onClick={() => setOpen(true)} className="w-full sm:w-auto"><Play aria-hidden />{ex.start}</Button>
         </div>
       </div>
       <ExerciseSession
