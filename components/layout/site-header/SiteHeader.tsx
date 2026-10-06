@@ -6,14 +6,12 @@ import { HeaderShell } from "./HeaderShell";
 import { MarketingHeader } from "./MarketingHeader";
 
 /**
- * One header system. Public, support, checkout and auth pages all wear the same capsule (it adapts to the
+ * One header system. Public, support and auth pages all wear the same capsule (it adapts to the
  * visitor and the page); only the orientation chat has its own application chrome.
  */
 type SiteHeaderProps =
   /** Full marketing navigation — landing and public content. */
   | { variant: "public" }
-  /** Checkout — /subscription/*. */
-  | { variant: "checkout"; backHref: string; backLabel: string }
   /** Support pages share the public header (Support shows as the current destination). */
   | { variant: "support" }
   /** Application chrome — logo, optional centre content, trailing controls (orientation). */
@@ -23,10 +21,6 @@ export function SiteHeader(props: SiteHeaderProps) {
   switch (props.variant) {
     case "public":
     case "support":
-      return <MarketingHeader />;
-
-    case "checkout":
-      // One header everywhere: checkout keeps the public navigation (the steps and "change plan" do the going back).
       return <MarketingHeader />;
 
     case "app":

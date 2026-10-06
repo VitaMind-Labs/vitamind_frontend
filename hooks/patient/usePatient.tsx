@@ -118,11 +118,11 @@ export function PatientProvider({
     if (!unauthorized || signingOut) return;
     clearTokens();
     clearPatientCache();
-    router.replace(`${ROUTES.signIn}?redirect=${encodeURIComponent(pathname || ROUTES.dashboard)}`);
+    router.replace(`${ROUTES.signIn}?from=lumina&redirect=${encodeURIComponent(pathname || ROUTES.dashboard)}`);
   }, [unauthorized, signingOut, router, pathname]);
 
   // Only the first arrival is forced through the welcome; it marks onboarding complete when it ends.
-  const needsWelcome = Boolean(profile && !profile.hasCompletedOnboarding && profile.hasAccess && !hasSeenWelcome(profile.id));
+  const needsWelcome = Boolean(profile && !profile.hasCompletedOnboarding && !hasSeenWelcome(profile.id));
   const onWelcomeFlow = pathname === WELCOME_ROUTE;
 
   useEffect(() => {

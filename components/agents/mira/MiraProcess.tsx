@@ -3,26 +3,50 @@
 import { pad } from "@/components/home/accents";
 import { HomeSection } from "@/components/home/HomeSection";
 import { SectionHeader } from "@/components/home/SectionHeader";
-import { BODY, DISPLAY_M, DISPLAY_S, LABEL } from "@/components/home/typography";
-import { EASE_OUT } from "@/lib/motion";
+import { BODY, DISPLAY_M, LABEL } from "@/components/home/typography";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { EASE_OUT, REVEAL_VIEWPORT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { StepStories, SwipeArea } from "../StepStories";
 import { PhoneFrame } from "../frames";
 import { useAgentPage } from "../shared";
 import { DaysScreen, HelloScreen, ResultScreen, SafetyScreen } from "./MiraScreens";
 
+/** How long each step is shown while the tour plays itself below lg. */
+const STEP_SECONDS = 6;
+
 /**
  * The walk-through, told by one phone. From lg the phone stays put while the steps scroll past and its screen follows
- * the step in view; below lg the steps are numbered buttons and the phone changes on tap.
+ * the step in view. Below lg the steps are a story above the phone: they play by themselves while the
+ * section is on screen, a swipe or a tap takes over for good, and the phone's screen follows.
  */
 export function MiraProcess() {
   const { page, copy } = useAgentPage("mira");
   const { screens, chapters } = copy.mira.preview;
   const reduce = useReducedMotion();
   const [active, setActive] = useState(0);
+  const [touched, setTouched] = useState(false);
   const items = useRef<(HTMLLIElement | null)[]>([]);
+  const stage = useRef<HTMLDivElement>(null);
   const steps = page.flow.steps;
+  const wide = useMediaQuery("(min-width: 1024px)");
+  const inView = useInView(stage, { margin: "-15% 0px -15% 0px" });
+  const playing = !wide && inView && !touched && !reduce;
+
+  // The one clock of the small-screen tour: it moves on after STEP_SECONDS and stops for good once the reader takes over.
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setTimeout(() => setActive((value) => (value + 1) % steps.length), STEP_SECONDS * 1000);
+    return () => window.clearTimeout(timer);
+  }, [playing, active, steps.length]);
+
+  const choose = (index: number) => {
+    setTouched(true);
+    setActive(index);
+  };
+  const step = (delta: 1 | -1) => choose((active + delta + steps.length) % steps.length);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -45,40 +69,19 @@ export function MiraProcess() {
       <span aria-hidden className="pointer-events-none absolute -top-40 end-[-12%] -z-10 size-[44rem] rounded-full bg-[radial-gradient(closest-side,rgb(134_186_188/0.26),transparent)]" />
       <SectionHeader variant="editorial" tone="dark" id="flow-title" counter="02 / 03" eyebrow={page.flow.eyebrow} titleA={page.flow.titleA} titleB={page.flow.titleB} />
 
-      <div className="mt-12 grid gap-10 lg:mt-20 lg:grid-cols-12 lg:gap-16">
-        <div className="lg:col-span-5">
-          {/* Below lg: numbered buttons and the step they open */}
-          <div className="lg:hidden">
-            <div className="relative flex items-center justify-between">
-              <span aria-hidden className="absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-white/20" />
-              <motion.span
-                aria-hidden
-                className="absolute start-5 top-1/2 h-px origin-left -translate-y-1/2 bg-gold-300 rtl:origin-right"
-                style={{ width: "calc(100% - 2.5rem)" }}
-                animate={{ scaleX: active / (steps.length - 1) }}
-                transition={{ duration: 0.5, ease: EASE_OUT }}
-              />
-              {steps.map(([title], index) => (
-                <button
-                  key={title}
-                  type="button"
-                  aria-label={title}
-                  aria-current={index === active ? "step" : undefined}
-                  onClick={() => setActive(index)}
-                  className={cn(
-                    "relative flex size-11 cursor-pointer items-center justify-center rounded-full border font-mono text-[0.8125rem] tabular-nums transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-300",
-                    index <= active ? "border-gold-300 bg-gold-300 text-teal-900" : "border-white/25 bg-teal-900 text-teal-100",
-                  )}
-                >
-                  {pad(index + 1)}
-                </button>
-              ))}
-            </div>
-            <div aria-live="polite" className="mt-8 text-center">
-              <p className={cn(DISPLAY_S, "text-white")}>{steps[active][0]}</p>
-              <p className="mt-2 text-[1.0625rem] text-teal-100">{steps[active][1]}</p>
-            </div>
-          </div>
+      <SwipeArea onStep={step} className="mt-10 lg:contents">
+        <div ref={stage} className="grid gap-8 lg:mt-20 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            {/* Below lg: the story above the phone */}
+            <motion.div
+              className="lg:hidden"
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={REVEAL_VIEWPORT}
+              transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.1 }}
+            >
+              <StepStories steps={steps} active={active} playing={playing} seconds={STEP_SECONDS} stepLabel={page.flow.stepLabel} tone="dark" onSelect={choose} />
+            </motion.div>
 
           {/* From lg: tall steps; the one in the middle of the screen is lit */}
           <ol className="relative hidden lg:block">
@@ -113,17 +116,24 @@ export function MiraProcess() {
           </ol>
         </div>
 
-        <div className="lg:col-span-7 lg:sticky lg:top-[max(5rem,calc(50svh-20.5rem))] lg:self-start">
+          <motion.div
+            initial={{ opacity: 0, y: 44, scale: 0.96 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={REVEAL_VIEWPORT}
+            transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.1 }}
+            className="lg:col-span-7 lg:sticky lg:top-[max(5rem,calc(50svh-20.5rem))] lg:self-start"
+          >
           <div className="relative mx-auto flex max-w-md items-center justify-center py-4">
             <span aria-hidden className="pointer-events-none absolute inset-x-[-10%] top-1/2 aspect-square -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(163_205_209/0.28),transparent)]" />
-            <PhoneFrame className="max-w-[clamp(16.5rem,calc((100svh-7rem)*0.4865),20rem)]">
-              <AnimatePresence mode="wait" initial={false}>
+            <PhoneFrame className="max-w-[min(15.5rem,calc((100svh-17rem)*0.4865))] sm:max-w-[clamp(16.5rem,calc((100svh-7rem)*0.4865),20rem)]">
+              {/* The next screen fades in over the one leaving, so the phone is never blank between steps. */}
+              <AnimatePresence initial={false}>
                 <motion.div
                   key={active}
-                  className="h-full"
+                  className="absolute inset-0"
                   initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: EASE_OUT } }}
-                  exit={{ opacity: 0, transition: { duration: 0.18 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.3 } }}
                 >
                   {screen}
                 </motion.div>
@@ -131,8 +141,9 @@ export function MiraProcess() {
             </PhoneFrame>
           </div>
           <p className="mt-4 text-center text-[0.75rem] text-teal-200">{copy.mira.preview.caption}</p>
+          </motion.div>
         </div>
-      </div>
+      </SwipeArea>
     </HomeSection>
   );
 }

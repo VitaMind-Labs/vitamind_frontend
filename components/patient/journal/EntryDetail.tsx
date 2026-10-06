@@ -14,6 +14,7 @@ import type { JournalEntry } from "@/lib/api/patient-types";
 import { fill } from "@/lib/i18n/patient";
 import { formatDay } from "@/lib/patient/format";
 import { moodFor, type EmotionKey } from "@/lib/patient/moods";
+import { MoodEmoji } from "@/components/patient/ui/MoodEmoji";
 import { invalidatePatientData, usePatientResource } from "@/hooks/usePatientResource";
 
 /** One entry in full: read, edit, delete, retry the read, or share a passage with the care team. */
@@ -104,7 +105,7 @@ function EntryBody({ entry, onClose }: { entry: JournalEntry; onClose: () => voi
   return (
     <div className="mt-1">
       <div className="flex items-center gap-3 pe-10">
-        <span className="flex size-12 items-center justify-center rounded-2xl text-2xl" style={{ background: mood?.soft ?? "#e3eeef" }} aria-hidden>{mood?.emoji ?? "📝"}</span>
+        <span className="flex size-12 items-center justify-center rounded-2xl text-2xl" style={{ background: mood?.soft ?? "#e3eeef" }} aria-hidden>{mood ? <MoodEmoji level={mood} className="text-3xl" /> : "📝"}</span>
         <div>
           <h2 className="text-lg font-semibold text-ink">{formatDay(entry.createdAt, language, { weekday: "long", month: "long", day: "numeric" })}</h2>
           <p className="text-xs text-muted-foreground"><AnalysisNote entry={entry} /></p>

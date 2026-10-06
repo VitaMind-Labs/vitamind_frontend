@@ -1,7 +1,8 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { agentPagesCopy } from "@/lib/i18n/agents";
+import { healthcareCopy } from "@/lib/i18n/healthcare";
+import { homeBridgeCopy, homeLoopCopy } from "@/lib/i18n/homeStory";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -12,17 +13,14 @@ import { useEffect, useState } from "react";
 export function SectionRail() {
     const { dictionary, language } = useLanguage();
     const copy = dictionary.homeLanding;
-    const agents = agentPagesCopy[language].home;
     const [active, setActive] = useState("home");
 
     const items = [
         { id: "home", label: copy.nav.home },
-        { id: "features", label: copy.nav.features },
-        { id: "agents", label: agents.eyebrow },
-        { id: "ritual", label: copy.ritual.eyebrow },
-        { id: "conditions", label: copy.conditions.eyebrow },
-        { id: "how-it-works", label: copy.nav.process },
-        { id: "pricing", label: copy.nav.pricing },
+        { id: "why", label: homeBridgeCopy[language].rail },
+        { id: "how", label: homeLoopCopy[language].rail },
+        { id: "healthcare", label: healthcareCopy[language].rail },
+        { id: "cta", label: copy.nav.getStarted },
     ];
 
     useEffect(() => {

@@ -11,10 +11,7 @@ export type Profile = {
   language: "EN" | "AR";
   track: PatientTrack;
   hasCompletedOnboarding: boolean;
-  /** Active subscription or live trial: writes (check-in, journal) need it. */
-  hasAccess: boolean;
   memberSince: string;
-  subscription: { status: "TRIAL" | "ACTIVE" | "EXPIRED" | "CANCELLED" | "SUSPENDED"; planId: string | null; trialEndDate: string | null; endDate: string | null };
   careTeam: { hasClinician: boolean; count: number };
 };
 
@@ -181,12 +178,6 @@ export type Consent = {
   monitoringNoticeAckAt: string | null;
 };
 
-export type SubscriptionInfo = {
-  hasActiveSubscription?: boolean;
-  status?: string;
-  plan?: { id?: string; name?: string } | null;
-  [key: string]: unknown;
-};
 
 // ---- Check-in reports (`/me/checkins/reports/weekly|monthly`), built by the longitudinal service
 

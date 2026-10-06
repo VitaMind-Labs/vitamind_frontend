@@ -6,9 +6,11 @@ import { BODY, LABEL, SERIF } from "@/components/home/typography";
 import { AgentAvatar } from "@/components/layout/site-header";
 import { EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { ArrowDown, Check, FileText, LockKeyhole } from "lucide-react";
 import type { ReactNode } from "react";
+import { MoodEmoji } from "@/components/patient/ui/MoodEmoji";
+import { MOOD_LEVELS } from "@/lib/patient/moods";
 import { AgentStatusPill } from "../AgentStatusPill";
 import { PillLink, StatsStrip, useAgentPage } from "../shared";
 import { SIGNAL_LEVELS } from "./chartData";
@@ -51,15 +53,33 @@ function SignalRing() {
   const preview = copy.lumina.preview;
   const reduce = useReducedMotion();
 
+  // The ring leans a few degrees towards the pointer, then settles. Mouse only, and still under reduced motion.
+  const tiltX = useSpring(useMotionValue(0), { stiffness: 90, damping: 18 });
+  const tiltY = useSpring(useMotionValue(0), { stiffness: 90, damping: 18 });
+  const lean = (event: React.PointerEvent<HTMLElement>) => {
+    if (reduce || event.pointerType !== "mouse") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    tiltY.set(((event.clientX - rect.left) / rect.width - 0.5) * 10);
+    tiltX.set(-((event.clientY - rect.top) / rect.height - 0.5) * 10);
+  };
+  const settle = () => {
+    tiltX.set(0);
+    tiltY.set(0);
+  };
+
   return (
-    <figure className="relative mx-auto w-full max-w-[30rem]">
-      <div className="relative aspect-square w-full">
+    <figure className="relative mx-auto w-full max-w-[30rem]" onPointerMove={lean} onPointerLeave={settle}>
+      <motion.div style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: 1100 }} className="relative aspect-square w-full">
         <div aria-hidden>
           {/* Orbit: a dashed ring that turns, with one gold light on it */}
           <motion.span className="absolute inset-[2%] rounded-full border border-dashed border-white/20" animate={reduce ? undefined : { rotate: 360 }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }}>
             <span className="absolute start-1/2 top-0 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold shadow-[0_0_16px_4px_rgb(201_175_111/0.6)]" />
           </motion.span>
-          <span className="absolute inset-[16%] rounded-full bg-[radial-gradient(closest-side,rgb(43_112_128/0.55),rgb(17_76_97/0.2)_70%,transparent)]" />
+          <motion.span
+            className="absolute inset-[16%] rounded-full bg-[radial-gradient(closest-side,rgb(43_112_128/0.55),rgb(17_76_97/0.2)_70%,transparent)]"
+            animate={reduce ? undefined : { scale: [1, 1.06, 1], opacity: [0.85, 1, 0.85] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          />
 
           <svg viewBox="0 0 200 200" className="absolute inset-[11%] size-[78%]">
             <defs>
@@ -117,11 +137,19 @@ function SignalRing() {
             </motion.span>
           </div>
         ))}
-
-      </div>
+      </motion.div>
 
       {/* The journal and the report, resting under the ring */}
-      <div className="mt-4 hidden flex-wrap items-center justify-center gap-3 sm:flex">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <Glass delay={0} seconds={9}>
+          <ul className="flex items-center gap-1" aria-hidden>
+            {MOOD_LEVELS.map((level, index) => (
+              <li key={level.level} className={cn("rounded-full p-1 text-[1.5rem] transition-transform duration-300", index === 3 ? "scale-110 bg-white/30 ring-1 ring-gold-100" : "bg-white/10 opacity-80")}>
+                <MoodEmoji level={level} />
+              </li>
+            ))}
+          </ul>
+        </Glass>
         <Glass delay={0.2} seconds={7}>
           <ul className="flex gap-1.5" aria-hidden>
             {preview.views.journal.themes.map((theme) => (

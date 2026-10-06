@@ -35,7 +35,7 @@ function Tile({ index, tone, title, line, tag, className, children, large = fals
       initial="hidden"
       whileInView="show"
       viewport={REVEAL_VIEWPORT}
-      className={cn("group relative isolate flex min-h-[15rem] flex-col overflow-hidden rounded-panel border p-6 transition-[transform,border-color] duration-500 ease-out-soft hover:-translate-y-1 sm:p-7", t.surface, t.border, className)}
+      className={cn("group relative isolate flex min-h-[15rem] flex-col overflow-hidden rounded-panel border p-6 transition-[transform,border-color,box-shadow] duration-500 ease-out-soft hover:-translate-y-1 hover:shadow-soft-hover sm:p-7", t.surface, t.border, className)}
     >
       <div className="flex items-center justify-between gap-3">
         <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-2xl", t.icon)}>
@@ -109,7 +109,7 @@ export function LuminaBento() {
 
   return (
     <HomeSection id="role" labelledBy="role-title" tone="tint">
-      <SectionHeader variant="editorial" id="role-title" counter="01 / 03" eyebrow={page.role.eyebrow} titleA={page.role.titleA} titleB={page.role.titleB} />
+      <SectionHeader variant="editorial" id="role-title" counter="01 / 04" eyebrow={page.role.eyebrow} titleA={page.role.titleA} titleB={page.role.titleB} />
 
       <motion.div variants={stagger(0.08)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-5">
         <Tile index={0} tone="deep" title={items[0][0]} line={items[0][1]} tag={items[0][2]} large className="sm:col-span-2 lg:row-span-2">

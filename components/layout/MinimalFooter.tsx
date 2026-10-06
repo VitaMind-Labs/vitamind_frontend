@@ -12,7 +12,7 @@ type MinimalFooterProps = {
   className?: string;
 };
 
-/** Closing line for focused flows (checkout, support): reassurance + copyright, never marketing navigation. */
+/** Closing line for focused flows (support): reassurance + copyright, never marketing navigation. */
 export function MinimalFooter({ note, showLanguage = true, className }: MinimalFooterProps) {
   return (
     <footer className={cn("page-container flex flex-col items-center gap-3 py-6 text-xs text-ink-muted sm:flex-row sm:justify-between", className)}>

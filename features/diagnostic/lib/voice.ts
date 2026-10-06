@@ -1,5 +1,6 @@
 "use client";
 
+import { getAccessToken } from "@/lib/api/tokens";
 import { LANGS, type Lang } from "@/lib/i18n/config";
 
 let currentAudio: HTMLAudioElement | null = null;
@@ -120,9 +121,10 @@ export async function speakDiagnosticText(text: string, language: Lang) {
     }
 
     console.log("🎙️ Attempting ElevenLabs API call...");
+    const token = getAccessToken();
     const response = await fetch("/api/voice", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ text: cleanText, language }),
     });
 

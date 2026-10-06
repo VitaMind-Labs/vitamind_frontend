@@ -16,13 +16,13 @@ type SectionHeaderProps = {
   align?: "start" | "center";
   /** `split` places the intro in the end column on large screens (editorial). */
   layout?: "stack" | "split";
-  /** `h1` when the header opens a page (e.g. /subscription) rather than a home section. */
+  /** `h1` when the header opens a page (e.g. /trust) rather than a home section. */
   as?: "h1" | "h2";
   /** `editorial` is the home-page treatment: serif display, quiet label. Other pages keep `classic`. */
   variant?: "classic" | "editorial";
   /** Surface the header sits on (editorial only). */
   tone?: "light" | "dark";
-  /** Editorial only: a "03 / 06" index pill and a hairline that runs to the end of the row. */
+  /** Editorial only: a "03 / 06" index set at the start of the eyebrow line, before its label. */
   counter?: string;
   className?: string;
 };
@@ -57,28 +57,25 @@ export function SectionHeader({
       viewport={REVEAL_VIEWPORT}
       className={cn(
         split ? "grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-10" : editorial ? "max-w-4xl" : "max-w-3xl",
-        indexed && !centered && "max-w-none",
         centered && "mx-auto text-center",
         className,
       )}
     >
-      {indexed ? (
-        <motion.div variants={fadeUp(0, 10)} className={cn("flex items-center gap-4", centered && "justify-center", split && "lg:col-span-12")}>
-          <span
-            dir="ltr"
-            className={cn("rounded-full border px-3 py-1 font-mono text-[0.75rem] tabular-nums leading-none", dark ? "border-white/25 text-teal-100" : "border-line-strong text-ink-soft")}
-          >
-            {counter}
-          </span>
-          {centered ? null : <span aria-hidden className={cn("h-px flex-1", dark ? "bg-white/15" : "bg-line")} />}
-        </motion.div>
-      ) : null}
-      <div className={cn(split && "lg:col-span-7", indexed && !centered && !split && "max-w-4xl")}>
+      <div className={cn(split && "lg:col-span-7")}>
         <motion.p
           variants={fadeUp()}
-          className={cn(editorial ? LABEL : "home-eyebrow", "flex items-center gap-3", centered && "justify-center", editorial && (dark ? "text-teal-200" : "text-teal-700"))}
+          className={cn(editorial ? LABEL : "home-eyebrow", "flex flex-wrap items-center gap-x-3 gap-y-1", centered && "justify-center", editorial && (dark ? "text-teal-200" : "text-teal-700"))}
         >
-          <span aria-hidden className={cn("h-px w-8 shrink-0", dark ? "bg-gold-300" : "bg-gold")} />
+          {indexed ? (
+            <>
+              <span dir="ltr" className={cn("font-mono text-[0.8125rem] font-medium normal-case tracking-normal tabular-nums", dark ? "text-gold-300" : "text-gold-600")}>
+                {counter}
+              </span>
+              <span aria-hidden className={cn("h-px w-8 shrink-0", dark ? "bg-white/25" : "bg-line-strong")} />
+            </>
+          ) : (
+            <span aria-hidden className={cn("h-px w-8 shrink-0", dark ? "bg-gold-300" : "bg-gold")} />
+          )}
           {eyebrow}
         </motion.p>
 

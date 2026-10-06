@@ -360,7 +360,7 @@ export function MiraChatExperience({
             <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-muted">{diagnostic.blocked.body}</p>
             <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
               <Button asChild variant="default" size="lg">
-                <Link href={`${ROUTES.signUp}?redirect=${ROUTES.plans}`}>{diagnostic.blocked.cta}</Link>
+                <Link href={ROUTES.dashboard}>{diagnostic.blocked.cta}</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link href={ROUTES.support}>{diagnostic.blocked.support}</Link>

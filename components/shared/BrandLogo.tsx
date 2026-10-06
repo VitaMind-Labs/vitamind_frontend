@@ -4,9 +4,9 @@ import { BRAND } from "@/lib/config/brand";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
-  sm: "h-9",
-  md: "h-11 sm:h-12",
-  lg: "h-14 sm:h-16",
+  sm: "h-8",
+  md: "h-8 sm:h-9",
+  lg: "h-12 sm:h-14",
   xl: "h-24 sm:h-28",
 } as const;
 

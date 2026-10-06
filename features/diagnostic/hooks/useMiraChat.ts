@@ -9,7 +9,6 @@ import { copy, LANGUAGE_STORAGE_KEY, normalizeLanguage, type Lang } from "@/lib/
 import type { MiraAssessmentResult, MiraAttemptState, MiraChapter, MiraMessage, MiraSafety } from "../types";
 import { deriveChapter } from "../lib/chapters";
 import { fingerprintHeaders } from "../lib/fingerprint";
-import { storeDiagnosticClaimToken, storeDiagnosticSessionId } from "../lib/session";
 
 type StartResponse = {
   session_id: string;
@@ -17,8 +16,6 @@ type StartResponse = {
   assistant_message: string;
   language: Lang;
   attempt?: MiraAttemptState;
-  /** One-time proof used to attach this anonymous session at signup. */
-  claim_token?: string;
 };
 
 type SendResponse = {
@@ -199,8 +196,6 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
       setBlocked(false);
       if (data.attempt) setAttempt(data.attempt);
       if (storageKey) window.localStorage.setItem(storageKey, data.session_id);
-      storeDiagnosticSessionId(data.session_id);
-      if (data.claim_token) storeDiagnosticClaimToken(data.session_id, data.claim_token);
       setSessionId(data.session_id);
       setProgress(0);
       pushAssistant(data.assistant_message, data.chapter);

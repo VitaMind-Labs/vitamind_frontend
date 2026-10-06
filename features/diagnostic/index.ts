@@ -12,14 +12,6 @@ export { TypingIndicator } from "./components/TypingIndicator";
 export { useMiraChat } from "./hooks/useMiraChat";
 export { createChatId } from "./lib/chat";
 export { FINGERPRINT_HEADER, fingerprintHeaders } from "./lib/fingerprint";
-export { buildSignupHref } from "./lib/funnel";
-export {
-  clearDiagnosticClaim,
-  getDiagnosticClaimToken,
-  getStoredDiagnosticSessionId,
-  storeDiagnosticClaimToken,
-  storeDiagnosticSessionId,
-} from "./lib/session";
 export { readVisitorName, useVisitorName } from "./lib/visitor";
 export type {
   MiraAssessmentResult,

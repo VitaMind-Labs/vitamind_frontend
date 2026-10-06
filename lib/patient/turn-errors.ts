@@ -7,7 +7,6 @@ import { StreamInterrupted, StreamTurnError } from "@/lib/api/stream";
  */
 export type TurnFailureKind =
   | "support" // emergency resources came with the failure: show the support card
-  | "subscription"
   | "offline"
   | "timeout"
   | "rateLimited"
@@ -40,7 +39,6 @@ export function classifyTurnFailure(error: unknown): TurnFailure {
   const partialText = error instanceof StreamTurnError ? error.partialText : "";
   const base = { code: error.code, emergencyResources, partialText };
 
-  if (error.code === "SUBSCRIPTION_REQUIRED") return { ...base, kind: "subscription" };
   if (emergencyResources.length > 0) return { ...base, kind: "support" };
   if (error.isTimeout) return { ...base, kind: "timeout" };
   if (error.isNetwork) return { ...base, kind: "offline" };

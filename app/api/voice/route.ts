@@ -4,6 +4,7 @@ import {
   getVoiceId,
   type VoiceLanguage,
 } from "@/lib/config/voice";
+import { isSignedInPatient } from "@/lib/api/server-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,14 +14,16 @@ type VoiceBody = {
   language?: VoiceLanguage;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
   return Response.json({
-    enabled: Boolean(getVoiceApiKey()),
+    // Visitors never get the paid voice: the browser's own voice is used for them.
+    enabled: Boolean(getVoiceApiKey()) && (await isSignedInPatient(request)),
     provider: "elevenlabs",
   });
 }
 
 export async function POST(request: Request) {
+  if (!(await isSignedInPatient(request))) return Response.json({ error: "Sign in to use the voice." }, { status: 401 });
   const apiKey = getVoiceApiKey();
 
   if (!apiKey) {
@@ -60,11 +63,8 @@ export async function POST(request: Request) {
   });
 
   if (!response.ok) {
-    const detail = await response.text();
-    return Response.json(
-      { error: "ElevenLabs request failed", detail },
-      { status: response.status },
-    );
+    // The provider's own error text stays on the server.
+    return Response.json({ error: "Voice request failed" }, { status: response.status });
   }
 
   const audio = await response.arrayBuffer();

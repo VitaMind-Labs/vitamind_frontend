@@ -1,13 +1,13 @@
 "use client";
 
-import { motion, useScroll } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { useEffect, useState, type ReactNode } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
- * The one header height used by every header in the app (public, checkout, auth,
+ * The one header height used by every header in the app (public, auth,
  * orientation and the patient top bar), so switching pages never shifts the chrome.
  */
 export const HEADER_HEIGHT = "h-16 lg:h-[4.5rem]";
@@ -27,7 +27,7 @@ export function useScrolled(threshold = 12) {
 
 /**
  * Smart header: tucks away while the reader scrolls down, returns the moment they scroll up.
- * Always visible near the top, and whenever `locked` (a menu is open).
+ * Always visible near the top, whenever `locked` (a menu is open) and while keyboard focus is inside it.
  */
 function useHeaderHidden(enabled: boolean, locked: boolean) {
   const [hidden, setHidden] = useState(false);
@@ -44,7 +44,8 @@ function useHeaderHidden(enabled: boolean, locked: boolean) {
         if (y < 160) setHidden(false);
         else if (delta > 10) setHidden(true);
         else if (delta < -10) setHidden(false);
-        last = y;
+        // Only move the reference once a real direction change was read, so slow drags still register.
+        if (Math.abs(delta) > 10 || y < 160) last = y;
         frame = 0;
       });
     };
@@ -63,7 +64,7 @@ type HeaderShellProps = {
   /** `fixed` floats over hero media; `sticky` reserves its own space; `static` stays in flow. */
   position?: "fixed" | "sticky" | "static";
   /**
-   * `edge` — full-width, part of the page at the top; a hairline surface fades in on scroll (marketing, checkout).
+   * `edge` — full-width, part of the page at the top; a hairline surface fades in on scroll (marketing).
    * `bar`  — floating pill surface (application chrome).
    * `capsule` — marketing: wide and open at the top, condenses into a floating glass capsule on scroll,
    *            tucks away while reading down and returns on the way up.
@@ -84,16 +85,23 @@ export function HeaderShell({ children, position = "sticky", surface = "edge", s
   const { direction } = useLanguage();
   const scrolled = useScrolled();
   const raised = scrolled || solid;
-  const hidden = useHeaderHidden(surface === "capsule", solid);
+  const reduce = useReducedMotion();
+  const [focusInside, setFocusInside] = useState(false);
+  const hidden = useHeaderHidden(surface === "capsule", solid || focusInside);
   const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 180, damping: 28, restDelta: 0.001 });
 
   if (surface === "capsule") {
     return (
       <motion.header
         dir={direction}
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: hidden ? "-140%" : 0 }}
-        transition={{ duration: 0.55, ease: EASE_OUT }}
+        initial={reduce ? { opacity: 0 } : { opacity: 0, y: "-30%" }}
+        animate={reduce ? { opacity: 1 } : { opacity: hidden ? 0 : 1, y: hidden ? "-130%" : "0%" }}
+        transition={{ duration: hidden ? 0.35 : 0.5, ease: EASE_OUT }}
+        onFocusCapture={() => setFocusInside(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusInside(false);
+        }}
         className={cn(
           "pointer-events-none z-50 w-full px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 sm:pt-4",
           position === "fixed" && "fixed inset-x-0 top-0",
@@ -105,8 +113,8 @@ export function HeaderShell({ children, position = "sticky", surface = "edge", s
         <div
           className={cn(
             HEADER_HEIGHT,
-            "pointer-events-auto relative mx-auto flex w-full items-center gap-2 rounded-full border px-3 transition-[max-width,background-color,border-color,box-shadow] duration-500 ease-out-soft sm:gap-3 sm:px-4",
-            raised ? "max-w-[64rem] border-white/70 bg-white/80 shadow-float ring-1 ring-line/50 backdrop-blur-xl" : "max-w-page border-transparent bg-transparent",
+            "pointer-events-auto relative mx-auto flex w-full items-center gap-2 rounded-full border px-3 transition-[max-width,background-color,border-color,box-shadow] duration-500 ease-out-soft motion-reduce:transition-none sm:gap-3 sm:px-4",
+            raised ? "max-w-[min(64rem,100%)] border-white/70 bg-white/80 shadow-float ring-1 ring-line/50 backdrop-blur-xl" : "max-w-page border-transparent bg-transparent",
             innerClassName,
           )}
         >
@@ -116,7 +124,7 @@ export function HeaderShell({ children, position = "sticky", surface = "edge", s
             aria-hidden
             className={cn("pointer-events-none absolute inset-x-8 -bottom-px h-px overflow-hidden transition-opacity duration-500", raised ? "opacity-100" : "opacity-0")}
           >
-            <motion.span style={{ scaleX: scrollYProgress }} className="block h-full origin-left bg-[linear-gradient(90deg,var(--color-teal-500),var(--color-gold))] rtl:origin-right" />
+            <motion.span style={{ scaleX: reduce ? scrollYProgress : progress }} className="block h-full origin-left bg-[linear-gradient(90deg,var(--color-teal-500),var(--color-gold))] rtl:origin-right" />
           </span>
         </div>
       </motion.header>
@@ -127,7 +135,7 @@ export function HeaderShell({ children, position = "sticky", surface = "edge", s
     return (
       <motion.header
         dir={direction}
-        initial={{ opacity: 0, y: -8 }}
+        initial={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: EASE_OUT }}
         className={cn(
@@ -162,7 +170,7 @@ export function HeaderShell({ children, position = "sticky", surface = "edge", s
   return (
     <motion.header
       dir={direction}
-      initial={{ opacity: 0, y: -12 }}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: EASE_OUT }}
       className={cn(

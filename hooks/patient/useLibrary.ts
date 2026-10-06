@@ -91,8 +91,6 @@ export function useLibrary(enabled = true) {
     reason: resource.data?.reason,
     isLoading: resource.isLoading,
     error: resource.error,
-    /** The subscription or trial has ended. */
-    needsSubscription: resource.error instanceof ApiError && resource.error.code === "SUBSCRIPTION_REQUIRED",
     refresh: resource.refresh,
     loadMore,
     loadingMore,

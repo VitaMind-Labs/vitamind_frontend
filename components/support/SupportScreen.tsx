@@ -9,10 +9,12 @@ import { MinimalFooter } from "@/components/layout/MinimalFooter";
 import { FormField, IconInput } from "@/components/shared/FormField";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ROUTES } from "@/lib/config/routes";
 import { EASE_OUT, REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { CheckCircle2, Clock, Globe2, LifeBuoy, Lock, Mail, MessageSquare, Plus, Send, UserRound } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock, Globe2, LifeBuoy, Lock, Mail, MessageSquare, Plus, Send, UserRound } from "lucide-react";
+import Link from "next/link";
 import { useId, useState } from "react";
 
 const CHANNEL_ICONS = [Clock, Lock, Globe2] as const;
@@ -39,9 +41,9 @@ function FaqItem({ item, index, open, onToggle }: { item: { question: string; an
                     aria-expanded={open}
                     aria-controls={panelId}
                     onClick={onToggle}
-                    className="group flex w-full items-start gap-4 py-5 ps-5 text-start outline-none transition-colors focus-visible:bg-white/70 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500 sm:gap-5"
+                    className="group flex w-full items-start gap-4 py-5 ps-5 text-start outline-none transition-colors hover:bg-white/60 focus-visible:bg-white/70 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500 sm:gap-5"
                 >
-                    <span className="mt-1.5 text-[0.8125rem] font-medium tabular-nums text-ink-muted" aria-hidden>
+                    <span className="mt-1.5 text-[0.8125rem] font-medium tabular-nums text-ink-muted transition-colors duration-300 group-hover:text-gold-700" aria-hidden>
                         {pad(index + 1)}
                     </span>
                     <span className={cn(SERIF, "min-w-0 flex-1 text-[1.1875rem] font-normal leading-snug tracking-[-0.01em] transition-colors duration-300 sm:text-[1.3125rem]", open ? "text-ink" : "text-ink-soft group-hover:text-ink")}>
@@ -64,7 +66,7 @@ function FaqItem({ item, index, open, onToggle }: { item: { question: string; an
                         transition={{ duration: 0.4, ease: EASE_OUT }}
                         className="overflow-hidden"
                     >
-                        <p className="pb-6 ps-[3.25rem] pe-12 text-[1rem] leading-7 text-ink-soft sm:ps-[3.75rem]">{item.answer}</p>
+                        <p className="pb-6 ps-[3.25rem] pe-3 text-[1rem] sm:pe-12 leading-7 text-ink-soft sm:ps-[3.75rem]">{item.answer}</p>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -137,8 +139,8 @@ export function SupportScreen() {
                             {copy.channels.map((channel, i) => {
                                 const Icon = CHANNEL_ICONS[i] ?? Clock;
                                 return (
-                                    <motion.li key={channel.title} variants={fadeUp(0, 12)} className="flex items-start gap-4 py-5">
-                                        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-teal-100 bg-white text-teal-700 shadow-xs">
+                                    <motion.li key={channel.title} variants={fadeUp(0, 12)} className="group -mx-3 flex items-start gap-4 rounded-2xl px-3 py-5 transition-[background-color,transform] duration-500 ease-out-soft hover:bg-white/70 hover:translate-x-1 rtl:hover:-translate-x-1">
+                                        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-teal-100 bg-white text-teal-700 shadow-xs transition-[background-color,border-color,color,transform] duration-500 ease-out-soft group-hover:-rotate-6 group-hover:scale-105 group-hover:border-teal-700 group-hover:bg-teal-700 group-hover:text-white">
                                             <Icon className="size-5" strokeWidth={1.5} aria-hidden />
                                         </span>
                                         <span className="min-w-0">
@@ -153,7 +155,7 @@ export function SupportScreen() {
 
                     {/* ── Form and answers ───────────────────────────────────────────────── */}
                     <div className="mt-16 grid gap-10 sm:mt-20 lg:grid-cols-12 lg:items-start lg:gap-12">
-                        <motion.section {...reveal} className="rounded-panel border border-line bg-white p-6 shadow-[var(--shadow-soft)] sm:p-9 lg:col-span-7" aria-labelledby="support-form-title">
+                        <motion.section {...reveal} className="rounded-panel border border-line bg-white p-6 shadow-[var(--shadow-soft)] transition-[border-color,box-shadow] duration-500 ease-out-soft focus-within:border-teal-200 focus-within:shadow-[var(--shadow-soft-hover)] sm:p-9 lg:col-span-7" aria-labelledby="support-form-title">
                             <div className="mb-8 flex items-start gap-4">
                                 <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-teal-700">
                                     <Mail className="size-5" strokeWidth={1.5} aria-hidden />
@@ -178,7 +180,7 @@ export function SupportScreen() {
                                                     setSubject(label);
                                                 }}
                                                 className={cn(
-                                                    "min-h-10 cursor-pointer rounded-full border px-4 text-[0.875rem] font-medium transition-[background-color,border-color,color,box-shadow] duration-300 ease-out-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500",
+                                                    "min-h-10 cursor-pointer rounded-full border px-4 text-[0.875rem] font-medium transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-out-soft hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500",
                                                     topic === i ? "border-transparent bg-primary text-white shadow-brand" : "border-line-strong bg-white text-ink-soft hover:border-teal-300 hover:text-teal-800",
                                                 )}
                                             >
@@ -270,8 +272,15 @@ export function SupportScreen() {
                                 ))}
                             </motion.ul>
 
-                            <motion.aside variants={fadeUp(0, 14)} role="note" className="mt-6 flex items-start gap-4 rounded-panel border border-gold-100 bg-gold-50 p-5 sm:p-6">
-                                <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-gold-700 shadow-xs">
+                            <motion.p variants={fadeUp(0, 14)} className="mt-5">
+                                <Link href={ROUTES.trust} className="inline-flex min-h-10 items-center gap-2 rounded-md text-[0.9375rem] font-semibold text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500">
+                                    <span className="home-link-line">{copy.faqMore}</span>
+                                    <ArrowRight className="size-4 rtl:-scale-x-100" aria-hidden />
+                                </Link>
+                            </motion.p>
+
+                            <motion.aside variants={fadeUp(0, 14)} role="note" className="group mt-6 flex items-start gap-4 rounded-panel border border-gold-100 bg-gold-50 p-5 transition-[box-shadow,transform,border-color] duration-500 ease-out-soft hover:-translate-y-0.5 hover:border-gold-300 hover:shadow-[var(--shadow-soft-hover)] sm:p-6">
+                                <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-gold-700 shadow-xs transition-transform duration-500 ease-out-soft group-hover:rotate-12 group-hover:scale-105">
                                     <LifeBuoy className="size-5" strokeWidth={1.5} aria-hidden />
                                 </span>
                                 <div className="min-w-0">

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { ArrowLeft, BookHeart, ShieldCheck } from "lucide-react";
 import { ArticleCard } from "@/components/patient/library/ArticleCard";
-import { EmptyState, ErrorState, PageIntro, Skeleton, SubscriptionGate } from "@/components/patient/ui/primitives";
+import { EmptyState, ErrorState, PageIntro, Skeleton } from "@/components/patient/ui/primitives";
 import { Button } from "@/components/ui/button";
 import { useLibrary } from "@/hooks/patient/useLibrary";
 import { usePatient } from "@/hooks/patient/usePatient";
@@ -16,6 +18,11 @@ export function LibraryView() {
   const copy = usePatientCopy().library;
   const { profile } = usePatient();
   const reads = showsReads(profile.track);
+  const router = useRouter();
+  // ADHD has no library: send a typed URL home instead of showing a dead page.
+  useEffect(() => {
+    if (profile.track === "ADHD") router.replace("/dashboard");
+  }, [profile.track, router]);
   const library = useLibrary(reads);
 
   const back = (
@@ -26,6 +33,8 @@ export function LibraryView() {
       </Link>
     </Button>
   );
+
+  if (profile.track === "ADHD") return null;
 
   if (!reads) {
     return (
@@ -42,9 +51,7 @@ export function LibraryView() {
     <div className="lm-rise">
       <PageIntro eyebrow={copy.eyebrow} icon={BookHeart} title={copy.title} subtitle={fill(copy.subtitle, { topic })} action={back} />
 
-      {library.needsSubscription ? (
-        <SubscriptionGate />
-      ) : library.error ? (
+      {library.error ? (
         <ErrorState onRetry={() => void library.refresh()} />
       ) : library.isLoading ? (
         <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-busy>

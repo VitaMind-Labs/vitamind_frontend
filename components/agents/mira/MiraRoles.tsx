@@ -4,7 +4,7 @@ import { pad } from "@/components/home/accents";
 import { HomeSection } from "@/components/home/HomeSection";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { BODY_SM, DISPLAY_S, LABEL } from "@/components/home/typography";
-import { EASE_OUT } from "@/lib/motion";
+import { EASE_OUT, REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
@@ -30,12 +30,12 @@ export function MiraRoles() {
       <SectionHeader variant="editorial" id="role-title" counter="01 / 03" eyebrow={page.role.eyebrow} titleA={page.role.titleA} titleB={page.role.titleB} />
 
       <div className="mt-12 grid items-start gap-10 lg:mt-16 lg:grid-cols-12 lg:gap-16">
-        <ul className="border-t border-line lg:col-span-7">
+        <motion.ul variants={stagger(0.09)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="border-t border-line lg:col-span-7">
           {page.role.items.map(([title, line, tag], index) => {
             const isOpen = open === index;
             const panelId = `${baseId}-${index}`;
             return (
-              <li key={title} className="relative border-b border-line">
+              <motion.li key={title} variants={fadeUp(0, 24)} className="relative border-b border-line">
                 <span aria-hidden className={cn("absolute inset-y-4 start-0 w-0.5 origin-center rounded-full bg-gold transition-transform duration-500 ease-out-soft", isOpen ? "scale-y-100" : "scale-y-0")} />
                 <h3>
                   <button
@@ -73,12 +73,19 @@ export function MiraRoles() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </li>
+              </motion.li>
             );
           })}
-        </ul>
+        </motion.ul>
 
-        <div aria-hidden className="hidden lg:col-span-5 lg:block lg:sticky lg:top-28">
+        <motion.div
+          aria-hidden
+          initial={{ opacity: 0, y: 36, scale: 0.96 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={REVEAL_VIEWPORT}
+          transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.15 }}
+          className="hidden lg:col-span-5 lg:block lg:sticky lg:top-28"
+        >
           <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[2.5rem] border border-teal-200 bg-[linear-gradient(155deg,var(--color-teal-100),#ffffff_92%)]">
             {[0, 1, 2].map((ring) => (
               <motion.span
@@ -104,7 +111,7 @@ export function MiraRoles() {
               </motion.div>
             </AnimatePresence>
           </div>
-        </div>
+        </motion.div>
       </div>
     </HomeSection>
   );

@@ -8,6 +8,7 @@ import { homeSerif } from "@/components/home/fonts";
 import { SiteHeader } from "@/components/layout/site-header";
 import { GridBackdrop } from "@/components/shared/GridBackdrop";
 import { LogoLoader } from "@/components/shared/LogoLoader";
+import { Toaster } from "@/components/ui/sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageTransition } from "@/hooks/useLanguageTransition";
 import { BRAND } from "@/lib/config/brand";
@@ -25,6 +26,8 @@ export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div dir={direction} className={cn(homeSerif.variable, "relative isolate flex min-h-dvh flex-col overflow-x-clip bg-canvas text-ink")}>
       <GridBackdrop />
+      {/* Validation and sign-in failures surface here as well as inline, so they are never missed. */}
+      <Toaster position="top-center" richColors closeButton dir={direction} />
 
       <SiteHeader variant="public" />
 
@@ -49,6 +52,14 @@ export function AuthLayout({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Shown while the page works out whether the visitor already has a session (and while it redirects them). It covers
+ * the whole screen — header, form and brand panel included — so a signed-in visitor never sees the sign-in page at all.
+ */
 export function AuthLoading() {
-  return <LogoLoader size={64} className="min-h-[20rem] w-full" />;
+  return (
+    <div role="status" aria-live="polite" className="fixed inset-0 z-[100] flex items-center justify-center bg-canvas">
+      <LogoLoader size={64} className="w-full" />
+    </div>
+  );
 }

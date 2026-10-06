@@ -60,12 +60,27 @@ export type LuminaPreviewCopy = {
   bento: { goals: string; week: string };
 };
 
-type AgentSectionCard = { points: readonly string[]; cta: string };
+export type LuminaTracksCopy = {
+  eyebrow: string;
+  titleA: string;
+  titleB: string;
+  intro: string;
+  /** What every user does, whatever the condition. */
+  sharedTitle: string;
+  sharedLine: string;
+  /** The interactive mood card of the shared routine: five levels, one supportive line each. */
+  mood: { title: string; prompt: string; levels: readonly string[]; messages: readonly string[]; saved: string };
+  cards: readonly { tag: string; title: string; line: string; points: readonly string[] }[];
+  /** Illustrative content for the small live previews inside the two cards (shown under the page's "example content" caption). */
+  demo: {
+    spark: { heading: string; tasks: readonly string[]; steps: readonly string[]; reminder: string; tip: string };
+    library: { heading: string; items: readonly Pair[]; breathe: string };
+  };
+};
 
 export type AgentPagesCopy = {
   mira: AgentPageCopy & { preview: MiraPreviewCopy };
-  lumina: AgentPageCopy & { preview: LuminaPreviewCopy };
-  home: { eyebrow: string; titleA: string; titleB: string; intro: string; cards: { mira: AgentSectionCard; lumina: AgentSectionCard } };
+  lumina: AgentPageCopy & { preview: LuminaPreviewCopy; tracks: LuminaTracksCopy };
 };
 
 const en: AgentPagesCopy = {
@@ -73,20 +88,20 @@ const en: AgentPagesCopy = {
     seo: {
       title: "Mira — guided orientation and structured screening",
       description:
-        "Meet Mira, VitaMind's orientation agent: a private, guided conversation with validated screening questions for ADHD, bipolar disorder and psychotic symptoms, and a clear summary to bring to a clinician. Free, no account needed.",
+        "Meet Mira, VitaMind's orientation agent: a private, guided conversation built on established screening tools for ADHD, bipolar disorder and psychotic symptoms, and a clear summary to bring to a clinician. Included with your VitaMind account.",
     },
     hero: {
       eyebrow: "Mira · Orientation agent",
       titleA: "A first conversation",
       titleB: "that notices what matters.",
-      body: "A calm, guided conversation — then a clear summary to bring to a professional. Orientation, never a diagnosis.",
+      body: "A calm, guided conversation — then a clear summary to bring to a professional. An orientation that supports clinical assessment; it is not a diagnosis.",
       primary: "Start with Mira",
       secondary: "See how it works",
     },
     stats: [
       ["~10", "minutes"],
       ["3", "screening areas"],
-      ["0", "accounts needed"],
+      ["1", "per account"],
     ],
     role: {
       eyebrow: "What Mira does",
@@ -94,11 +109,11 @@ const en: AgentPagesCopy = {
       titleB: "and human-first.",
       items: [
         ["Gentle intake", "About ten questions, four short chapters.", "Intake"],
-        ["Validated screening", "ASRS · MDQ · PQ-B, asked naturally.", "Screening"],
+        ["Established screening tools", "ASRS · MDQ · PQ-B, asked in a natural conversation.", "Screening"],
         ["Structured triage", "Signals become a match level and a next step.", "Triage"],
         ["Risk detection", "A safety check runs the whole time.", "Safety"],
         ["A report to bring", "Key signals, ready for a professional.", "Report"],
-        ["Private, bilingual", "English or Arabic. No account to begin.", "Private"],
+        ["Private, bilingual", "English or Arabic. Included with your account.", "Private"],
       ],
     },
     flow: {
@@ -116,11 +131,11 @@ const en: AgentPagesCopy = {
     trust: {
       eyebrow: "Clear boundaries",
       titleA: "Orientation,",
-      titleB: "never a diagnosis.",
+      titleB: "not a diagnosis.",
       doesTitle: "Mira does",
-      does: ["Validated screening", "Plain-language signals", "A next-step suggestion", "Escalates when you may be at risk"],
+      does: ["Questions based on established tools", "Plain-language signals", "A next-step suggestion", "Alerts a clinician when you may be at risk"],
       doesNotTitle: "Mira never",
-      doesNot: ["Diagnoses", "Prescribes medication", "Replaces a clinician", "Shares without your consent"],
+      doesNot: ["Diagnose", "Recommend treatment or medication", "Replace a clinician", "Share without your consent"],
       note: "In an emergency, contact local emergency services or a qualified clinician immediately.",
     },
     handoff: { eyebrow: "After Mira", title: "Meet Lumina.", body: "Your daily space: check-in, journal, baseline.", cta: "Discover Lumina" },
@@ -128,9 +143,9 @@ const en: AgentPagesCopy = {
       eyebrow: "Begin when you are ready",
       titleA: "Ten minutes.",
       titleB: "One clear picture.",
-      body: "Free. Private. No account needed.",
+      body: "Create your account and give your consent: the orientation opens right away.",
       primary: "Start with Mira",
-      benefits: ["Free, no account", "Private by design", "Not a diagnosis"],
+      benefits: ["Included with your account", "Private by design", "A summary to take away"],
     },
     preview: {
       caption: "Illustration — example content",
@@ -184,7 +199,7 @@ const en: AgentPagesCopy = {
       items: [
         ["A steady companion", "Welcomes you into your day.", "Companion"],
         ["Daily check-in", "Five signals, a few seconds.", "Check-in"],
-        ["Journal analysis", "Themes and emotions — never a diagnosis.", "Journal"],
+        ["Journal analysis", "Themes and emotions, for you and — if you choose — your clinician. Not a diagnosis.", "Journal"],
         ["Continuous monitoring", "You, compared with your own baseline.", "Baseline"],
         ["Progress tracking", "Goals and trends, week after week.", "Progress"],
         ["Professional reports", "A monthly report, shared only by consent.", "Report"],
@@ -209,17 +224,70 @@ const en: AgentPagesCopy = {
       doesTitle: "Lumina does",
       does: ["Compares you with you", "Shows evidence and limits", "Describes patterns, not causes", "Reports only with consent"],
       doesNotTitle: "Lumina never",
-      doesNot: ["Diagnoses or labels", "Scores you against others", "Replaces your clinician", "Shares your journal"],
+      doesNot: ["Diagnose or label", "Score you against others", "Replace your clinician", "Share your journal"],
       note: "Lumina is not an emergency service. If you are in danger, contact local emergency services right away.",
     },
-    handoff: { eyebrow: "Before Lumina", title: "Start with Mira.", body: "A free, private orientation in about ten minutes.", cta: "Meet Mira" },
+    handoff: { eyebrow: "Before Lumina", title: "Start with Mira.", body: "A private orientation in about ten minutes, done once with your account.", cta: "Meet Mira" },
     cta: {
       eyebrow: "Make the days count",
       titleA: "Your next month,",
       titleB: "already clearer.",
-      body: "7-day free trial. Cancel anytime.",
-      primary: "Create your account",
-      benefits: ["7-day free trial", "Cancel anytime", "You decide what is shared"],
+      body: "Your daily space opens once Mira's orientation is done.",
+      primary: "Enter Lumina",
+      benefits: ["Daily check-in and journal", "Private by design", "You decide what is shared"],
+    },
+    tracks: {
+      eyebrow: "Three conditions, one daily thread",
+      titleA: "Built around",
+      titleB: "how you live.",
+      intro: "Lumina adapts to the three conditions VitaMind supports. Whatever the condition, the daily rhythm is the same — and a clinician stays in charge of care.",
+      sharedTitle: "The same daily core, for everyone",
+      sharedLine: "ADHD, bipolar disorder and schizophrenia share one simple routine.",
+      mood: {
+        title: "How are you today?",
+        prompt: "Tap the face that fits. There is no wrong answer.",
+        levels: ["Low", "Down", "Okay", "Good", "Great"],
+        messages: [
+          "A heavy day. Noted, and you are not alone with it.",
+          "Not an easy one. A small step is enough today.",
+          "Steady. A calm day counts too.",
+          "Good to hear. Notice what helped.",
+          "A bright one. Keep a note of what made it so.",
+        ],
+        saved: "Saved to today",
+      },
+      cards: [
+        {
+          tag: "ADHD",
+          title: "Spark, your daily organiser",
+          line: "Spark is the AI assistant inside Lumina, designed for ADHD: it helps you structure your day and manage your tasks.",
+          points: ["Plan and prioritise your day", "Turn big tasks into small, doable steps", "Gentle reminders, never pressure", "Organising tips built for how ADHD works"],
+        },
+        {
+          tag: "Bipolar disorder · Schizophrenia",
+          title: "Psychoeducation and self-management",
+          line: "A library of approved resources to understand your condition, practise coping strategies and recognise your own triggers.",
+          points: ["Psychoeducation in plain language", "Coping strategies you can practise", "Trigger and early-warning awareness", "Reading chosen from your own check-ins"],
+        },
+      ],
+      demo: {
+        spark: {
+          heading: "Today with Spark",
+          tasks: ["Reply to the clinic", "Prepare tomorrow's meeting", "Take a 10-minute walk"],
+          steps: ["Open your notes", "Pick three points", "Send them to yourself"],
+          reminder: "Reminder · 4:00 pm · Prepare tomorrow's meeting",
+          tip: "Tip: start with the smallest step. Five minutes is enough.",
+        },
+        library: {
+          heading: "Library",
+          items: [
+            ["Understanding your triggers", "5 min read"],
+            ["A grounding exercise", "Coping strategy"],
+            ["Sleep and mood", "Psychoeducation"],
+          ],
+          breathe: "Breathe",
+        },
+      },
     },
     preview: {
       caption: "Illustration — example content",
@@ -241,16 +309,6 @@ const en: AgentPagesCopy = {
       bento: { goals: "goals today", week: "This week" },
     },
   },
-  home: {
-    eyebrow: "Meet the agents",
-    titleA: "Two guides,",
-    titleB: "one continuous care.",
-    intro: "Mira opens the conversation; Lumina keeps it going between appointments. Each has her own role — and her own page.",
-    cards: {
-      mira: { points: ["Guided intake and validated screening", "Structured triage and a suggested next step", "Risk detection, with escalation to a human"], cta: "Explore Mira" },
-      lumina: { points: ["Daily check-in and Smart Journal", "Baseline, trends and progress tracking", "Monthly clinician report, with your consent"], cta: "Explore Lumina" },
-    },
-  },
 };
 
 const ar: AgentPagesCopy = {
@@ -258,20 +316,20 @@ const ar: AgentPagesCopy = {
     seo: {
       title: "ميرا — توجيه موجَّه وفحص منظَّم",
       description:
-        "تعرّف على ميرا، وكيلة التوجيه في VitaMind: محادثة خاصة وموجَّهة بأسئلة فحص معتمدة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان، وملخص واضح تحمله إلى مختص. مجانية ودون حاجة إلى حساب.",
+        "تعرّف على ميرا، وكيلة التوجيه في VitaMind: محادثة خاصة وموجَّهة مبنية على أدوات فحص معروفة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان، وملخص واضح تحمله إلى مختص. ضمن حسابك في VitaMind.",
     },
     hero: {
       eyebrow: "ميرا · وكيلة التوجيه",
       titleA: "محادثة أولى",
       titleB: "تلاحظ ما يهم.",
-      body: "محادثة هادئة وموجَّهة، ثم ملخص واضح تحمله إلى مختص. توجيه، وليس تشخيصاً أبداً.",
+      body: "محادثة هادئة وموجَّهة، ثم ملخص واضح تحمله إلى مختص. توجيه يدعم التقييم السريري، وليس تشخيصاً.",
       primary: "ابدأ مع ميرا",
       secondary: "اكتشف كيف تعمل",
     },
     stats: [
       ["~10", "دقائق"],
       ["3", "مجالات فحص"],
-      ["0", "حسابات مطلوبة"],
+      ["1", "لكل حساب"],
     ],
     role: {
       eyebrow: "ما تفعله ميرا",
@@ -279,11 +337,11 @@ const ar: AgentPagesCopy = {
       titleB: "والإنسان أولاً.",
       items: [
         ["استقبال هادئ", "نحو عشرة أسئلة في أربعة فصول قصيرة.", "استقبال"],
-        ["فحص معتمد", "ASRS · MDQ · PQ-B، تُطرح بطبيعية.", "فحص"],
+        ["أدوات فحص معروفة", "ASRS · MDQ · PQ-B، تُطرح ضمن محادثة طبيعية.", "فحص"],
         ["فرز منظَّم", "تتحول الإشارات إلى مستوى تطابق وخطوة تالية.", "فرز"],
         ["رصد المخاطر", "فحص أمان يعمل طوال الوقت.", "أمان"],
         ["تقرير تحمله معك", "الإشارات الرئيسية جاهزة لمختص.", "تقرير"],
-        ["خاصة وبلغتين", "العربية أو الإنجليزية. دون حساب للبدء.", "خاص"],
+        ["خاصة وبلغتين", "العربية أو الإنجليزية. ضمن حسابك.", "خاص"],
       ],
     },
     flow: {
@@ -301,11 +359,11 @@ const ar: AgentPagesCopy = {
     trust: {
       eyebrow: "حدود واضحة",
       titleA: "توجيه،",
-      titleB: "وليس تشخيصاً أبداً.",
+      titleB: "وليس تشخيصاً.",
       doesTitle: "ما تفعله ميرا",
-      does: ["فحص بأسئلة معتمدة", "إشارات بلغة بسيطة", "اقتراح خطوة تالية", "تصعّد حين قد تكون في خطر"],
+      does: ["أسئلة مبنية على أدوات معروفة", "إشارات بلغة بسيطة", "اقتراح خطوة تالية", "تنبّه مختصاً حين قد تكون في خطر"],
       doesNotTitle: "ما لا تفعله ميرا",
-      doesNot: ["لا تشخّص", "لا تصف الأدوية", "لا تحلّ محل المختص", "لا تشارك دون موافقتك"],
+      doesNot: ["لا تشخّص", "لا توصي بعلاج أو دواء", "لا تحلّ محل المختص", "لا تشارك دون موافقتك"],
       note: "في حالات الطوارئ، تواصل فوراً مع خدمات الطوارئ المحلية أو مع مختص مؤهل.",
     },
     handoff: { eyebrow: "بعد ميرا", title: "تعرّف على لومينا.", body: "مساحتك اليومية: فحص ومفكرة وخط مرجعي.", cta: "اكتشف لومينا" },
@@ -313,9 +371,9 @@ const ar: AgentPagesCopy = {
       eyebrow: "ابدأ حين تكون مستعداً",
       titleA: "عشر دقائق.",
       titleB: "صورة واحدة واضحة.",
-      body: "مجاناً وبخصوصية، ودون حساب.",
+      body: "أنشئ حسابك وامنح موافقتك: يُفتح التوجيه فوراً.",
       primary: "ابدأ مع ميرا",
-      benefits: ["مجاني ودون حساب", "خاص في التصميم", "ليس تشخيصاً"],
+      benefits: ["ضمن حسابك", "خاص في التصميم", "ملخص تحمله معك"],
     },
     preview: {
       caption: "توضيحي — محتوى تجريبي",
@@ -369,7 +427,7 @@ const ar: AgentPagesCopy = {
       items: [
         ["رفيقة ثابتة", "تستقبلك في يومك.", "رفيقة"],
         ["الفحص اليومي", "خمس إشارات في ثوانٍ.", "فحص"],
-        ["تحليل المفكرة", "مواضيع ومشاعر — وليس تشخيصاً.", "مفكرة"],
+        ["تحليل المفكرة", "مواضيع ومشاعر، لك ولمختصك إن اخترت. وليست تشخيصاً.", "مفكرة"],
         ["متابعة مستمرة", "أنت، مقارنةً بخطّك المرجعي.", "خط مرجعي"],
         ["تتبّع التقدّم", "أهداف واتجاهات، أسبوعاً بعد أسبوع.", "تقدّم"],
         ["تقارير مهنية", "تقرير شهري، بموافقتك فقط.", "تقرير"],
@@ -397,14 +455,67 @@ const ar: AgentPagesCopy = {
       doesNot: ["لا تشخّص ولا تصنّف", "لا تقيّمك مقارنةً بغيرك", "لا تحلّ محل مختصك", "لا تشارك مفكرتك"],
       note: "لومينا ليست خدمة طوارئ. إن كنت في خطر، تواصل فوراً مع خدمات الطوارئ المحلية.",
     },
-    handoff: { eyebrow: "قبل لومينا", title: "ابدأ مع ميرا.", body: "توجيه مجاني وخاص في نحو عشر دقائق.", cta: "تعرّف على ميرا" },
+    handoff: { eyebrow: "قبل لومينا", title: "ابدأ مع ميرا.", body: "توجيه خاص في نحو عشر دقائق، يُجرى مرة واحدة مع حسابك.", cta: "تعرّف على ميرا" },
     cta: {
       eyebrow: "اجعل أيامك محسوبة",
       titleA: "شهرك القادم،",
       titleB: "أوضح من الآن.",
-      body: "تجربة مجانية 7 أيام. ألغِ في أي وقت.",
-      primary: "أنشئ حسابك",
-      benefits: ["تجربة مجانية 7 أيام", "الإلغاء في أي وقت", "أنت تقرر ما يُشارَك"],
+      body: "تُفتح مساحتك اليومية فور اكتمال توجيه ميرا.",
+      primary: "ادخل إلى لومينا",
+      benefits: ["فحص يومي ومفكرة", "خاص في التصميم", "أنت تقرر ما يُشارَك"],
+    },
+    tracks: {
+      eyebrow: "ثلاث حالات، خيط يومي واحد",
+      titleA: "مصمَّمة حول",
+      titleB: "طريقة عيشك.",
+      intro: "تتكيّف لومينا مع الحالات الثلاث التي تدعمها VitaMind. وأياً كانت الحالة، يبقى الإيقاع اليومي نفسه — ويبقى المختص هو المسؤول عن الرعاية.",
+      sharedTitle: "النواة اليومية نفسها للجميع",
+      sharedLine: "اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب والفصام يتشاركون روتيناً بسيطاً واحداً.",
+      mood: {
+        title: "كيف حالك اليوم؟",
+        prompt: "اضغط على الوجه المناسب. لا توجد إجابة خاطئة.",
+        levels: ["منخفض", "متعب", "عادي", "جيد", "رائع"],
+        messages: [
+          "يوم ثقيل. سجّلناه، ولست وحدك معه.",
+          "ليس يوماً سهلاً. تكفي خطوة صغيرة اليوم.",
+          "مستقر. اليوم الهادئ مهم أيضاً.",
+          "جميل أن تسمع ذلك. لاحظ ما ساعدك.",
+          "يوم مشرق. دوّن ما جعله كذلك.",
+        ],
+        saved: "تم الحفظ لليوم",
+      },
+      cards: [
+        {
+          tag: "فرط الحركة وتشتت الانتباه",
+          title: "سبارك، منظّمك اليومي",
+          line: "سبارك مساعد الذكاء الاصطناعي داخل لومينا، مصمَّم لاضطراب فرط الحركة وتشتت الانتباه: يساعدك على تنظيم يومك وإدارة مهامك.",
+          points: ["خطّط ورتّب أولويات يومك", "حوّل المهام الكبيرة إلى خطوات صغيرة قابلة للتنفيذ", "تذكيرات لطيفة دون أي ضغط", "نصائح تنظيم مبنية على طريقة عمل اضطراب فرط الحركة"],
+        },
+        {
+          tag: "ثنائي القطب · الفصام",
+          title: "التثقيف النفسي والإدارة الذاتية",
+          line: "مكتبة موارد معتمدة لفهم حالتك، وممارسة استراتيجيات التكيّف، والتعرّف على محفّزاتك الخاصة.",
+          points: ["تثقيف نفسي بلغة بسيطة", "استراتيجيات تكيّف يمكنك ممارستها", "الوعي بالمحفّزات والإنذارات المبكرة", "قراءات تُختار من فحوصاتك اليومية"],
+        },
+      ],
+      demo: {
+        spark: {
+          heading: "يومك مع سبارك",
+          tasks: ["الردّ على العيادة", "تحضير اجتماع الغد", "مشي لمدة 10 دقائق"],
+          steps: ["افتح ملاحظاتك", "اختر ثلاث نقاط", "أرسلها إلى نفسك"],
+          reminder: "تذكير · 4:00 مساءً · تحضير اجتماع الغد",
+          tip: "نصيحة: ابدأ بأصغر خطوة. خمس دقائق تكفي.",
+        },
+        library: {
+          heading: "المكتبة",
+          items: [
+            ["فهم محفّزاتك", "قراءة 5 دقائق"],
+            ["تمرين تثبيت", "استراتيجية تأقلم"],
+            ["النوم والمزاج", "تثقيف نفسي"],
+          ],
+          breathe: "تنفّس",
+        },
+      },
     },
     preview: {
       caption: "توضيحي — محتوى تجريبي",
@@ -424,16 +535,6 @@ const ar: AgentPagesCopy = {
         report: { title: "التقرير الشهري", sections: ["الاتجاهات", "الأدلة", "حدود البيانات"], share: "شارك مع مختصي", consent: "بموافقتك فقط" },
       },
       bento: { goals: "أهداف اليوم", week: "هذا الأسبوع" },
-    },
-  },
-  home: {
-    eyebrow: "تعرّف على الوكيلتين",
-    titleA: "دليلتان،",
-    titleB: "ورعاية متصلة.",
-    intro: "تفتح ميرا المحادثة، وتُبقيها لومينا مستمرة بين الموعدين. لكل منهما دورها — وصفحتها.",
-    cards: {
-      mira: { points: ["استقبال موجَّه وفحص معتمد", "فرز منظَّم وخطوة تالية مقترحة", "رصد المخاطر مع تصعيد إلى إنسان"], cta: "اكتشف ميرا" },
-      lumina: { points: ["فحص يومي ومفكرة ذكية", "خط مرجعي واتجاهات وتتبّع للتقدّم", "تقرير شهري للمختص، بموافقتك"], cta: "اكتشف لومينا" },
     },
   },
 };

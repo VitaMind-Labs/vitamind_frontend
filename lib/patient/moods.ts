@@ -7,6 +7,8 @@ export type MoodLevel = {
   level: 1 | 2 | 3 | 4 | 5;
   score: 2 | 4 | 6 | 8 | 10;
   emoji: string;
+  /** The same face as a full-colour Noto Emoji image (Iconify), so it looks identical on every device. */
+  icon: string;
   /**
    * The hue of the level's atmosphere (see [data-mood] in globals.css), from a quiet dusk
    * lavender (low) through the brand teal (okay) to golden-hour amber (very good).
@@ -16,11 +18,11 @@ export type MoodLevel = {
 };
 
 export const MOOD_LEVELS: readonly MoodLevel[] = [
-  { level: 1, score: 2, emoji: "😔", color: "#8a7a8c", soft: "#eee9ee" },
-  { level: 2, score: 4, emoji: "🙁", color: "#678780", soft: "#e4ebe9" },
-  { level: 3, score: 6, emoji: "😐", color: "#518591", soft: "#e3eeef" },
-  { level: 4, score: 8, emoji: "🙂", color: "#5f937a", soft: "#e1eee7" },
-  { level: 5, score: 10, emoji: "😊", color: "#b98522", soft: "#faefd2" },
+  { level: 1, score: 2, emoji: "😔", icon: "noto:pensive-face", color: "#8a7a8c", soft: "#eee9ee" },
+  { level: 2, score: 4, emoji: "🙁", icon: "noto:slightly-frowning-face", color: "#678780", soft: "#e4ebe9" },
+  { level: 3, score: 6, emoji: "😐", icon: "noto:neutral-face", color: "#518591", soft: "#e3eeef" },
+  { level: 4, score: 8, emoji: "🙂", icon: "noto:slightly-smiling-face", color: "#5f937a", soft: "#e1eee7" },
+  { level: 5, score: 10, emoji: "😊", icon: "noto:smiling-face-with-smiling-eyes", color: "#b98522", soft: "#faefd2" },
 ];
 
 /** Nearest level for any 0–10 score. */

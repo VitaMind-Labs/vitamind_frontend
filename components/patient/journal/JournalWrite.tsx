@@ -6,9 +6,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Check, Flame, HeartHandshake, Lightbulb, RotateCcw, ShieldAlert, Sparkles, Wind } from "lucide-react";
 import { AnalysisNote } from "@/components/patient/journal/AnalysisNote";
 import { EMPTY_ENTRY, EntryForm, saveDraft, type EntryValues } from "@/components/patient/journal/EntryForm";
-import { Skeleton, SubscriptionGate } from "@/components/patient/ui/primitives";
+import { Skeleton } from "@/components/patient/ui/primitives";
 import { Button } from "@/components/ui/button";
-import { ApiError } from "@/lib/api/client";
 import type { JournalEntry } from "@/lib/api/patient-types";
 import { useJournalActions, useJournalInsights } from "@/hooks/patient/useJournal";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
@@ -27,7 +26,6 @@ export function JournalWrite({ onOpenInsights, insert }: { onOpenInsights: () =>
   const { create, isSaving } = useJournalActions();
   const [saved, setSaved] = useState<JournalEntry | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [gated, setGated] = useState(false);
   const [formKey, setFormKey] = useState(0);
 
   async function submit(values: EntryValues) {
@@ -45,13 +43,9 @@ export function JournalWrite({ onOpenInsights, insert }: { onOpenInsights: () =>
       setSaved(entry);
       setFormKey((key) => key + 1);
     } catch (caught) {
-      const code = caught instanceof ApiError ? (caught.payload as { code?: string } | undefined)?.code : undefined;
-      if (code === "SUBSCRIPTION_REQUIRED") setGated(true);
-      else setError(copy.journal.saveError);
+      setError(copy.journal.saveError);
     }
   }
-
-  if (gated) return <SubscriptionGate />;
 
   return (
     <div className="space-y-5">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { homeSerif } from "@/components/home/fonts";
 import { cn } from "@/lib/utils";
@@ -11,9 +11,7 @@ import { MiraChatExperience } from "./MiraChatExperience";
 import { createChatId } from "../lib/chat";
 import type { Lang } from "@/lib/i18n/config";
 import { ROUTES } from "@/lib/config/routes";
-import { hasValidSession } from "@/lib/api/tokens";
-
-const noSubscribe = () => () => {};
+import { useOrientationGate } from "../hooks/useOrientationGate";
 
 export function DiagnosticPageClient() {
   const router = useRouter();
@@ -26,9 +24,14 @@ export function DiagnosticPageClient() {
     searchParams.get("diagnostic") ||
     searchParams.get("session");
   const [languageSwitch, setLanguageSwitch] = useState<{ id: number; language: Lang } | null>(null);
-  // A signed-in patient has already completed the orientation (read after mount: the token
-  // lives in localStorage). Known before the chat mounts, so no session is ever started.
-  const isPatient = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
+  // Mira needs an account (no plan) and runs once per account. Settled before the chat mounts, so no
+  // session is ever started for a visitor, or for an account that already finished.
+  const gate = useOrientationGate();
+
+  useEffect(() => {
+    if (gate === "signed-out") router.replace(`${ROUTES.signUp}?from=orientation&redirect=${encodeURIComponent(ROUTES.orientation)}`);
+    else if (gate === "done") router.replace(ROUTES.dashboard);
+  }, [gate, router]);
 
   useEffect(() => {
     if (chatId) return;
@@ -38,7 +41,7 @@ export function DiagnosticPageClient() {
     router.replace(`${ROUTES.orientation}?${params.toString()}`);
   }, [chatId, router, searchParams]);
 
-  if (!chatId || isPatient === null) return <OrientationSkeleton />;
+  if (!chatId || gate !== "open") return <OrientationSkeleton />;
 
   return (
     // One viewport-tall column: shared header in flow, experience fills the rest and owns the only scroll area.
@@ -46,7 +49,7 @@ export function DiagnosticPageClient() {
       <OrientationBackdrop />
       <DiagnosticHeader chatId={chatId} onLanguageChange={(nextLanguage) => setLanguageSwitch({ id: Date.now(), language: nextLanguage })} />
       {/* ACTIVE: Mira v5 flow (REST /api/mira → Nest /api/v1/mira/* → Mira agent /api/v1/mira/*). */}
-      <MiraChatExperience chatId={chatId} languageSwitch={languageSwitch} locked={isPatient} />
+      <MiraChatExperience chatId={chatId} languageSwitch={languageSwitch} locked={false} />
     </div>
   );
 }

@@ -14,6 +14,7 @@ import type { JournalEntry } from "@/lib/api/patient-types";
 import { fill } from "@/lib/i18n/patient";
 import { formatDay, formatTime } from "@/lib/patient/format";
 import { moodFor, type EmotionKey } from "@/lib/patient/moods";
+import { MoodEmoji } from "@/components/patient/ui/MoodEmoji";
 import { cn } from "@/lib/utils";
 
 const RANGES = [7, 30, 90] as const;
@@ -111,7 +112,7 @@ function EntryCard({ entry, language, onOpen }: { entry: JournalEntry; language:
           style={{ background: mood ? mood.soft : "rgb(227 238 239 / 0.7)" }}
           aria-hidden
         >
-          {mood?.emoji ?? <BookOpen className="size-5 text-teal-700" />}
+          {mood ? <MoodEmoji level={mood} className="text-2xl" /> : <BookOpen className="size-5 text-teal-700" />}
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline justify-between gap-3">

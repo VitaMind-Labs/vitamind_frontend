@@ -1,5 +1,6 @@
 "use client";
 
+import { getAccessToken } from "@/lib/api/tokens";
 import { LANGS, type Lang } from "@/lib/i18n/config";
 
 /**
@@ -59,11 +60,12 @@ function browserVoice(text: string, language: Lang, callbacks: SpeakCallbacks): 
 
 async function elevenLabsVoice(text: string, language: Lang, callbacks: SpeakCallbacks): Promise<SpeakHandle | null> {
   try {
-    const status = await fetch("/api/voice", { cache: "no-store" });
+    const token = getAccessToken();
+    const status = await fetch("/api/voice", { cache: "no-store", headers: token ? { Authorization: `Bearer ${token}` } : {} });
     if (!status.ok || !(await status.json())?.enabled) return null;
     const response = await fetch("/api/voice", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ text, language }),
     });
     if (!response.ok) return null;

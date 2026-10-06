@@ -114,29 +114,31 @@ export function OrientationResultPage() {
         <div className="relative z-10 print:hidden">
           <DiagnosticHeader chatId={sessionId ?? ""} />
         </div>
-        <main className={cn("relative flex-1 px-4 pt-6 sm:px-6 sm:pt-10 lg:px-8 lg:pb-20", showConversion ? "pb-28" : "pb-12")}>
+        <main className={cn("relative mx-auto w-full max-w-chat flex-1 px-3 pt-3 sm:px-6 sm:pt-5 lg:px-8 lg:pb-10 print:max-w-none print:px-0", showConversion ? "pb-24" : "pb-6")}>
           {state.phase === "loading" && (
-            <div className="relative mx-auto w-full max-w-5xl space-y-5" role="status" aria-live="polite">
-              <div className="relative overflow-hidden rounded-[2rem] bg-deep p-7 pb-16 text-white shadow-float sm:p-11 sm:pb-20">
-                <div className="h-7 w-48 animate-pulse rounded-full bg-white/10" />
-                <div className="mt-9 h-5 w-64 max-w-full animate-pulse rounded-full bg-white/10" />
-                <div className="mt-6 h-12 w-[30rem] max-w-full animate-pulse rounded-2xl bg-white/10" />
-                <div className="mt-9 flex items-center gap-3 text-[0.9375rem] text-teal-100">
-                  <LogoSpinner size={18} />
-                  {diagnostic.resultPage.loading}
+            <div className="relative w-full space-y-4 lg:space-y-5" role="status" aria-live="polite">
+              <div className="relative overflow-hidden rounded-[1.75rem] bg-deep text-white shadow-float sm:rounded-[2rem]">
+                <div className="p-5 sm:p-8 lg:p-10">
+                  <div className="h-7 w-48 max-w-full animate-pulse rounded-full bg-white/10" />
+                  <div className="mt-8 h-5 w-64 max-w-full animate-pulse rounded-full bg-white/10" />
+                  <div className="mt-6 h-12 w-[30rem] max-w-full animate-pulse rounded-2xl bg-white/10" />
+                  <div className="mt-8 flex items-center gap-3 text-[0.9375rem] text-teal-100">
+                    <LogoSpinner size={18} />
+                    {diagnostic.resultPage.loading}
+                  </div>
+                </div>
+                <div className="grid border-t border-white/15 sm:grid-cols-3">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="space-y-3 border-white/15 p-4 sm:p-5 [&:not(:first-child)]:border-t sm:[&:not(:first-child)]:border-s sm:[&:not(:first-child)]:border-t-0">
+                      <div className="h-3 w-24 animate-pulse rounded-full bg-white/10" />
+                      <div className="h-8 w-32 animate-pulse rounded-full bg-white/10" />
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="relative z-10 -mt-14 grid grid-cols-2 overflow-hidden rounded-panel border border-line bg-white shadow-float sm:mx-6 sm:-mt-16 lg:mx-10 lg:grid-cols-4">
-                {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="space-y-3 border-line p-6 [&:not(:last-child)]:border-e">
-                    <div className="h-3 w-24 animate-pulse rounded-full bg-teal-50" />
-                    <div className="h-9 w-16 animate-pulse rounded-lg bg-teal-50" />
-                  </div>
-                ))}
-              </div>
-              <div className="grid gap-5 md:grid-cols-2">
-                <div className="h-44 animate-pulse rounded-panel border border-line bg-white/80" />
-                <div className="h-44 animate-pulse rounded-panel border border-line bg-white/80" />
+              <div className="grid gap-4 lg:grid-cols-12 lg:gap-5">
+                <div className="h-72 animate-pulse rounded-panel border border-line bg-white/80 lg:col-span-7" />
+                <div className="h-72 animate-pulse rounded-panel border border-line bg-white/80 lg:col-span-5" />
               </div>
             </div>
           )}
@@ -160,22 +162,19 @@ export function OrientationResultPage() {
           )}
 
           {state.phase === "ready" && (
-            <div className="relative">
-              <MiraResult
-                result={state.result}
-                transcript={state.transcript}
-                sessionId={sessionId}
-                onRestart={handleRestart}
-                onDownload={handleDownload}
-                isFinalizing={isFinalizing}
-                viewerName={viewerName}
-                completedAt={state.completedAt}
-              />
-              {showConversion && <ResultNextSteps sessionId={sessionId} />}
-            </div>
+            <MiraResult
+              result={state.result}
+              transcript={state.transcript}
+              sessionId={sessionId}
+              onDownload={handleDownload}
+              isFinalizing={isFinalizing}
+              viewerName={viewerName}
+              completedAt={state.completedAt}
+              aside={showConversion ? <ResultNextSteps /> : undefined}
+            />
           )}
         </main>
-        {showConversion && <ResultStickyCta sessionId={sessionId} />}
+        {showConversion && <ResultStickyCta />}
       </div>
     </AudioProvider>
   );

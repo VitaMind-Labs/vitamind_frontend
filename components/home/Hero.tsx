@@ -2,16 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ROUTES } from "@/lib/config/routes";
+import { useAuthSession } from "@/hooks/useAuthSession";
+import { agentEntryHref } from "@/lib/config/routes";
 import { EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { ArrowRight, Check, Play, ShieldCheck } from "lucide-react";
+import { ArrowRight, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 import { Magnetic, WordReveal } from "./AnimationUtilities";
 import { Grain } from "./Atmosphere";
-import { CareJourney } from "./CareJourney";
 import { GLSLHills } from "./GLSLHills";
 import { Marquee } from "./Interactions";
 import { ACCENT_LIGHT, BODY, DISPLAY_XL } from "./typography";
@@ -49,6 +49,7 @@ function Motes() {
     );
 }
 
+
 /** A single brush stroke drawn under the accent phrase once the headline has landed. */
 function Swash() {
     return (
@@ -73,6 +74,7 @@ export const Hero = () => {
     const copy = dictionary.homeLanding.hero;
     const home = dictionary.home;
     const reduce = useReducedMotion();
+    const { signedIn } = useAuthSession();
     const { lead, accent } = splitAccent(copy.titleB);
 
     const heroRef = useRef<HTMLElement>(null);
@@ -103,7 +105,7 @@ export const Hero = () => {
             ref={heroRef}
             id="home"
             onPointerMove={onPointerMove}
-            className="relative isolate overflow-hidden bg-[radial-gradient(60%_46rem_at_0%_12%,rgb(191_221_225/0.5),transparent_70%),radial-gradient(55%_42rem_at_100%_16%,rgb(230_213_170/0.42),transparent_70%),linear-gradient(180deg,#ffffff_0%,var(--color-canvas)_100%)]"
+            className="relative isolate overflow-hidden pb-10 md:pb-16 bg-[radial-gradient(60%_46rem_at_0%_12%,rgb(191_221_225/0.5),transparent_70%),radial-gradient(55%_42rem_at_100%_16%,rgb(230_213_170/0.42),transparent_70%),linear-gradient(180deg,#ffffff_0%,var(--color-canvas)_100%)]"
         >
             <Grain tone="light" />
             <motion.div aria-hidden style={{ background: spotlight }} className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[100svh] min-h-[44rem]" />
@@ -150,7 +152,7 @@ export const Hero = () => {
                             <motion.div variants={fadeUp(0, 16)} className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:gap-4">
                                 <Magnetic className="justify-center" strength={0.22}>
                                     <Button asChild variant="hero" size="lg" className="group min-h-14 w-full px-8 sm:w-auto">
-                                        <Link href={ROUTES.orientation}>
+                                        <Link href={agentEntryHref("mira", signedIn)}>
                                             {copy.primary}
                                             <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden />
                                         </Link>
@@ -158,22 +160,23 @@ export const Hero = () => {
                                 </Magnetic>
                                 <Magnetic className="justify-center" strength={0.12}>
                                     <Button asChild variant="outline" size="lg" className="group min-h-14 w-full border-line-strong bg-white/70 px-6 backdrop-blur sm:w-auto">
-                                        <a href="#how-it-works">
+                                        <a href="#healthcare">
                                             <span className="flex size-8 items-center justify-center rounded-full bg-teal-50 text-teal-700 transition-transform duration-300 group-hover:scale-110">
-                                                <Play className="size-3.5 fill-current rtl:-scale-x-100" aria-hidden />
+                                                <Stethoscope className="size-3.5" aria-hidden />
                                             </span>
                                             {copy.demo}
                                         </a>
                                     </Button>
                                 </Magnetic>
                             </motion.div>
+
                         </motion.div>
                     </div>
                 </motion.div>
 
                 {/* Bottom of the first screen: a cue to keep going, and the screening references drifting by */}
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 2 }} className="pb-7">
-                    <a href="#care" className="group mx-auto mb-6 flex w-fit flex-col items-center gap-3 rounded-md text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-ink-soft transition-colors hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500 rtl:tracking-normal">
+                    <a href="#why" className="group mx-auto mb-6 flex w-fit flex-col items-center gap-3 rounded-md text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-ink-soft transition-colors hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500 rtl:tracking-normal">
                         {copy.discover}
                         <span aria-hidden className="relative h-10 w-px overflow-hidden bg-line-strong">
                             <motion.span
@@ -194,31 +197,6 @@ export const Hero = () => {
                         </Marquee>
                     </div>
                 </motion.div>
-            </div>
-
-            {/* ===== Product stage ===== */}
-            <div id="care" className="relative z-10 pb-20 pt-12 md:pb-32 md:pt-20">
-                <div className="page-container">
-                    <CareJourney>
-                        {/* What the journey stands for — quiet lines, never a card over it */}
-                        <ul className="space-y-4 text-[0.9375rem] leading-6 text-ink-soft">
-                            <li className="flex items-start gap-3">
-                                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-sage-100 text-sage-700">
-                                    <Check className="size-3.5" strokeWidth={2.25} aria-hidden />
-                                </span>
-                                <span className="min-w-0">
-                                    <span className="font-medium text-ink">{copy.insight}</span>
-                                    <span aria-hidden> · </span>
-                                    {copy.pattern}
-                                </span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <ShieldCheck className="mt-0.5 size-5 shrink-0 text-teal-700" aria-hidden />
-                                <span className="min-w-0">{copy.encrypted}</span>
-                            </li>
-                        </ul>
-                    </CareJourney>
-                </div>
             </div>
         </section>
     );
