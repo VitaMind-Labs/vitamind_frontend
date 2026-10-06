@@ -58,8 +58,8 @@ const en: HomeStoryCopy = {
     titleA: "One platform,",
     titleB: "between you and your care.",
     statement:
-      "VitaMind is a mental health support platform. Two AI companions stay with you between consultations, and a licensed clinician follows your care through what you choose to share.",
-    highlight: ["mental", "health", "support", "platform.", "AI", "companions", "licensed", "clinician", "choose"],
+      "VitaMind is a mental health support platform for people living with ADHD, bipolar disorder or psychosis. Mira orients you, Lumina keeps your days between consultations, and a licensed clinician follows your care through what you choose to share.",
+    highlight: ["mental", "health", "support", "platform", "Mira", "Lumina", "licensed", "clinician", "choose"],
     nodes: [
       { label: "You", title: "Everyday life", points: ["Check-in", "Journal", "Goals"] },
       { label: "VitaMind", title: "Mira and Lumina", points: ["Orient", "Follow", "Flag"] },
@@ -72,7 +72,7 @@ const en: HomeStoryCopy = {
     eyebrow: "Who it is for",
     titleA: "Three conditions,",
     titleB: "and the people who treat them.",
-    intro: "VitaMind is for people living with ADHD, bipolar disorder or psychosis, and for the professionals and organisations who care for them.",
+    intro: "Each condition has its own daily rhythm. Choose the path that fits yours, or see how professionals and organisations are involved.",
     people: {
       label: "For people",
       title: "Living with",
@@ -127,8 +127,8 @@ const ar: HomeStoryCopy = {
     titleA: "منصة واحدة،",
     titleB: "بينك وبين رعايتك.",
     statement:
-      "VitaMind منصة دعم للصحة النفسية. رفيقان بالذكاء الاصطناعي يبقيان معك بين الاستشارات، ومختص مرخَّص يتابع رعايتك من خلال ما تختار مشاركته.",
-    highlight: ["دعم", "للصحة", "النفسية.", "رفيقان", "بالذكاء", "الاصطناعي", "مختص", "مرخَّص", "تختار"],
+      "VitaMind منصة دعم للصحة النفسية لمن يعيشون مع اضطراب فرط الحركة وتشتت الانتباه أو الاضطراب ثنائي القطب أو الذهان. ميرا توجّهك، ولومينا تحفظ أيامك بين الاستشارات، ومختص مرخَّص يتابع رعايتك من خلال ما تختار مشاركته.",
+    highlight: ["دعم", "للصحة", "النفسية", "ميرا", "ولومينا", "مختص", "مرخَّص", "تختار"],
     nodes: [
       { label: "أنت", title: "الحياة اليومية", points: ["الفحص اليومي", "المفكرة", "الأهداف"] },
       { label: "VitaMind", title: "ميرا ولومينا", points: ["توجّه", "تتابع", "تنبّه"] },
@@ -141,7 +141,7 @@ const ar: HomeStoryCopy = {
     eyebrow: "لمن هي",
     titleA: "ثلاث حالات،",
     titleB: "ومن يعتنون بأصحابها.",
-    intro: "VitaMind لمن يعيشون مع اضطراب فرط الحركة وتشتت الانتباه أو الاضطراب ثنائي القطب أو الذهان، وللمختصين والمؤسسات التي ترعاهم.",
+    intro: "لكل حالة إيقاعها اليومي. اختر المسار الذي يناسبك، أو اطّلع على كيفية مشاركة المختصين والمؤسسات.",
     people: {
       label: "للأشخاص",
       title: "من يعيشون مع",
