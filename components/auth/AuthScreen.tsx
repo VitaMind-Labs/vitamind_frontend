@@ -28,11 +28,14 @@ type AuthMode = "signin" | "signup";
 
 /**
  * Funnel: sign up + consent → Mira's orientation → dashboard (check-in, journal, library).
- * Mira and the dashboard need an account; Mira sends an account that already finished to the dashboard, so the
- * orientation is the default landing after either form. Honour internal redirects only (open-redirect safe).
+ * A new account lands on the orientation; a returning one on its dashboard, whatever page sent them to the form
+ * (an orientation link must not pull an existing patient back into the chat). Honour internal redirects only
+ * (open-redirect safe): sign-in accepts /dashboard targets, sign-up accepts /dashboard and /orientation.
  */
-function safeRedirect(redirect: string | null) {
-  return redirect && /^\/(dashboard|orientation)(\/|\?|$)/.test(redirect) ? redirect : ROUTES.orientation;
+function safeRedirect(redirect: string | null, mode: AuthMode) {
+  const allowed = mode === "signup" ? /^\/(dashboard|orientation)(\/|\?|$)/ : /^\/dashboard(\/|\?|$)/;
+  if (redirect && allowed.test(redirect)) return redirect;
+  return mode === "signup" ? ROUTES.orientation : ROUTES.dashboard;
 }
 
 const noSubscribe = () => () => {};
@@ -88,7 +91,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
       .get("/me")
       .then(() => {
         if (cancelled) return;
-        const target = safeRedirect(searchParams.get("redirect"));
+        const target = safeRedirect(searchParams.get("redirect"), mode);
         if (target.startsWith("/dashboard")) prefetchPatientHome();
         router.replace(target);
       })
@@ -100,7 +103,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
     return () => {
       cancelled = true;
     };
-  }, [signedIn, router, searchParams]);
+  }, [signedIn, router, searchParams, mode]);
 
   // Both ends of the funnel are one tap away: fetch their code while the patient types.
   useEffect(() => {
@@ -165,7 +168,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
       (async () => {
         const email = values.email.trim();
         try {
-          const target = safeRedirect(searchParams.get("redirect"));
+          const target = safeRedirect(searchParams.get("redirect"), mode);
           // No leftover session can ride along: only the answer to THIS request opens the space.
           clearTokens();
           const session = isSignUp

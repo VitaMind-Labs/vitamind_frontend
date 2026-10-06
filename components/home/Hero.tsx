@@ -50,6 +50,27 @@ function Motes() {
 }
 
 
+/**
+ * First light: a warm champagne glow climbs behind the hills as the page opens, the same sun the page sets on in its last
+ * section. Gradients only, one transform each, and it eases off as you scroll away.
+ */
+function FirstLight({ progress }: { progress: ReturnType<typeof useScroll>["scrollYProgress"] }) {
+    const reduce = useReducedMotion();
+    const y = useTransform(progress, [0, 1], [0, reduce ? 0 : -70]);
+    const fade = useTransform(progress, [0, 0.9], [1, reduce ? 1 : 0.2]);
+
+    return (
+        <motion.div aria-hidden style={{ y, opacity: fade }} className="pointer-events-none absolute inset-x-0 top-[38svh] -z-20 h-[74svh]">
+            <motion.div
+                initial={reduce ? false : { opacity: 0, scale: 0.72, y: 140 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 3.6, delay: 0.2, ease: EASE_OUT }}
+                className="absolute inset-x-[6%] top-0 h-full rounded-[50%] bg-[radial-gradient(closest-side,rgb(243_232_198/0.85),rgb(230_213_170/0.45)_44%,rgb(201_175_111/0.16)_70%,transparent_84%)]"
+            />
+        </motion.div>
+    );
+}
+
 /** A single brush stroke drawn under the accent phrase once the headline has landed. */
 function Swash() {
     return (
@@ -116,6 +137,7 @@ export const Hero = () => {
                     <GLSLHills progress={scrollYProgress} cameraZ={118} />
                 </motion.div>
             </motion.div>
+            <FirstLight progress={scrollYProgress} />
             <Motes />
 
             {/* ===== First screen ===== */}
