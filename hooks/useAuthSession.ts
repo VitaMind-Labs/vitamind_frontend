@@ -1,7 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { getSessionUser, hasValidSession } from "@/lib/api/tokens";
+import { useSessionState } from "@/hooks/useSessionState";
+import { getSessionUser, subscribeSession } from "@/lib/api/tokens";
 
 const SESSION_EVENT = "vitamind:session";
 
@@ -13,7 +14,9 @@ export function notifySessionChange() {
 function subscribe(onChange: () => void) {
   window.addEventListener("storage", onChange);
   window.addEventListener(SESSION_EVENT, onChange);
+  const unsubscribe = subscribeSession(onChange);
   return () => {
+    unsubscribe();
     window.removeEventListener("storage", onChange);
     window.removeEventListener(SESSION_EVENT, onChange);
   };
@@ -21,10 +24,10 @@ function subscribe(onChange: () => void) {
 
 /**
  * Whether this browser holds a usable patient session, and who it belongs to. Renders signed-out on the
- * server and first paint, then settles on the real answer (the tokens live in localStorage).
+ * server and first paint, then settles on the real answer (restored from the HttpOnly refresh cookie).
  */
 export function useAuthSession() {
-  const signedIn = useSyncExternalStore(subscribe, hasValidSession, () => false);
+  const signedIn = useSessionState() === true;
   const name = useSyncExternalStore(subscribe, () => getSessionUser()?.nickname ?? "", () => "");
   return { signedIn, name };
 }

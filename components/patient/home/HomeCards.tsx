@@ -43,7 +43,7 @@ export function WellbeingCard() {
   const today = useTodayCheckin();
 
   return (
-    <GlassCard aria-labelledby="wellbeing-title">
+    <GlassCard data-tour="wellbeing" aria-labelledby="wellbeing-title">
       <SectionTitle title={copy.home.wellbeing.title} subtitle={copy.home.wellbeing.subtitle} />
       <h2 id="wellbeing-title" className="sr-only">{copy.home.wellbeing.title}</h2>
       {today.error ? (
@@ -104,7 +104,7 @@ export function TrendCard() {
   }, [history.data, language]);
 
   return (
-    <GlassCard aria-labelledby="trend-title">
+    <GlassCard data-tour="trend" aria-labelledby="trend-title">
       <SectionTitle
         title={copy.home.trend.title}
         subtitle={copy.home.trend.subtitle}
@@ -195,7 +195,7 @@ export function PlanCard() {
   const localized = active ? localizeExercise(active.exercise, language) : null;
 
   return (
-    <GlassCard aria-labelledby="plan-title">
+    <GlassCard data-tour="plan" aria-labelledby="plan-title">
       <SectionTitle title={copy.home.plan.title} subtitle={copy.home.plan.subtitle} />
       <h2 id="plan-title" className="sr-only">{copy.home.plan.title}</h2>
       {loading ? (

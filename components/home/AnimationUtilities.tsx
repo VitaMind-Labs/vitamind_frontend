@@ -106,12 +106,16 @@ export const WordReveal = ({ children, className, delay = 0, step = 0.055 }: Wor
             {words.map((word, i) => (
                 <span key={`${word}-${i}`}>
                     {/* The mask is padded and pulled back so italics and descenders never clip. */}
-                    <span className="-mx-[0.08em] -my-[0.12em] inline-block overflow-hidden px-[0.08em] py-[0.12em] align-bottom">
+                    <span className="-mx-[0.16em] -my-[0.14em] inline-block overflow-hidden px-[0.16em] py-[0.14em] align-bottom">
+                        {/* Opacity rides with the rise so a word never peeks above the mask edge before its turn. */}
                         <motion.span
-                            className="inline-block"
-                            initial={reduce ? false : { y: "108%" }}
-                            animate={isInView || reduce ? { y: 0 } : { y: "108%" }}
-                            transition={{ duration: 1, ease: EASE_OUT, delay: delay + i * step }}
+                            className="inline-block will-change-transform"
+                            initial={reduce ? false : { y: "110%", opacity: 0 }}
+                            animate={isInView || reduce ? { y: 0, opacity: 1 } : { y: "110%", opacity: 0 }}
+                            transition={{
+                                y: { duration: 1.1, ease: EASE_OUT, delay: delay + i * step },
+                                opacity: { duration: 0.5, ease: "easeOut", delay: delay + i * step },
+                            }}
                         >
                             {word}
                         </motion.span>

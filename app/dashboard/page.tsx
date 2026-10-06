@@ -6,6 +6,7 @@ import { DayWelcome } from "@/components/patient/home/DayWelcome";
 import { ReadsBand } from "@/components/patient/home/ReadsBand";
 import { PlanCard, ProgressStrip, SignalsCard, TrendCard, WellbeingCard } from "@/components/patient/home/HomeCards";
 import { RecommendedExercises } from "@/components/patient/home/RecommendedExercises";
+import { TourReplayButton } from "@/components/patient/tour/TourProvider";
 import { SparkCard } from "@/components/patient/home/SparkCard";
 import { HomeSidePanel } from "@/components/patient/home/HomePanels";
 import { usePatient } from "@/hooks/patient/usePatient";
@@ -62,6 +63,11 @@ export default function HomePage() {
 
       {/* Full width: the featured practice and the ranked list need room to read as one section. */}
       <div className="mt-5 lg:mt-6"><Cell index={6} className="min-w-0"><RecommendedExercises /></Cell></div>
+
+      {/* Small screens have no rail, so the way back into the tour sits here. */}
+      <div className="mt-6 flex justify-center lg:hidden">
+        <TourReplayButton className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-medium text-teal-700 transition-colors hover:bg-teal-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500" />
+      </div>
     </div>
   );
 }

@@ -33,7 +33,7 @@ export function SparkCard() {
   const total = done + today.length;
 
   return (
-    <GlassCard className="relative overflow-hidden">
+    <GlassCard data-tour="spark" className="relative overflow-hidden">
       <span aria-hidden className="pointer-events-none absolute -end-16 -top-16 size-48 rounded-full bg-gold-100/70 blur-3xl" />
       <div className="relative">
         <SectionTitle

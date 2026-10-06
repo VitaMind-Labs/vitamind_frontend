@@ -7,6 +7,7 @@ import { LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { TourReplayButton } from "@/components/patient/tour/TourProvider";
 import { NotificationBell } from "@/components/patient/shell/NotificationBell";
 import { isActive, navFor, PATIENT_NAV } from "@/components/patient/shell/nav";
 import { usePatient } from "@/hooks/patient/usePatient";
@@ -37,7 +38,7 @@ export function PatientRail() {
 
       <nav aria-label={copy.shell.navLabel} className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {main.map(({ key, href, icon: Icon }) => (
-          <Link key={key} href={href} aria-current={isActive(pathname, href) ? "page" : undefined} className="lm-nav-link">
+          <Link key={key} href={href} data-tour={`nav-${key}`} aria-current={isActive(pathname, href) ? "page" : undefined} className="lm-nav-link">
             <Icon className="size-[1.125rem] shrink-0" aria-hidden />
             {copy.shell.nav[key]}
           </Link>
@@ -46,6 +47,7 @@ export function PatientRail() {
 
       <div className="space-y-3 px-3 pb-4">
         <div className="space-y-1 border-t border-white/10 pt-3">
+          <TourReplayButton className="lm-nav-link w-full" />
           <Link href={settings.href} aria-current={isActive(pathname, settings.href) ? "page" : undefined} className="lm-nav-link">
             <settings.icon className="size-[1.125rem] shrink-0" aria-hidden />
             {copy.shell.nav.settings}
@@ -157,6 +159,7 @@ export function PatientTabBar() {
           <Link
             key={key}
             href={href}
+            data-tour={`nav-${key}`}
             aria-current={active ? "page" : undefined}
             className={cn(
               "relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl py-1.5 text-[0.625rem] font-medium leading-tight",

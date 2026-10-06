@@ -1,5 +1,5 @@
 import { EventStreamContentType, fetchEventSource } from "@microsoft/fetch-event-source";
-import { ApiError, messageFrom, readJson, refreshSession, unwrap } from "./client";
+import { ApiError, ensureSession, messageFrom, readJson, refreshSession, unwrap } from "./client";
 import { apiUrl } from "./config";
 import { getAccessToken } from "./tokens";
 
@@ -83,6 +83,7 @@ function parse(data: string): unknown {
 }
 
 async function attempt<T>(options: StreamTurnOptions, retryAuth: boolean): Promise<T> {
+  if (options.auth !== false) await ensureSession();
   const token = options.auth === false ? null : getAccessToken();
   const headers: Record<string, string> = { "Content-Type": "application/json", ...options.headers };
   if (token) headers.Authorization = `Bearer ${token}`;

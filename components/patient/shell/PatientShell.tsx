@@ -6,6 +6,7 @@ import { PatientMobileStrip, PatientRail, PatientTabBar } from "@/components/pat
 import { navFor } from "@/components/patient/shell/nav";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LogoLoader } from "@/components/shared/LogoLoader";
+import { TourProvider } from "@/components/patient/tour/TourProvider";
 import { Button } from "@/components/ui/button";
 import { PatientProvider } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
@@ -123,22 +124,24 @@ export function PatientChrome({ children }: { children: ReactNode }) {
 
   return (
     <PatientGate pending={<PatientShellSkeleton />}>
-      <div data-surface="clean" className={cn(homeSerif.variable, "lm-canvas min-h-dvh text-foreground lg:flex")}>
-        <a
-          href="#patient-main"
-          className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"
-        >
-          {copy.shell.skipToContent}
-        </a>
-        <PatientRail />
-        <div className="min-w-0 flex-1">
-          <PatientMobileStrip />
-          <main id="patient-main" className="mx-auto w-full max-w-[88rem] px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
-            {children}
-          </main>
+      <TourProvider>
+        <div data-surface="clean" className={cn(homeSerif.variable, "lm-canvas min-h-dvh text-foreground lg:flex")}>
+          <a
+            href="#patient-main"
+            className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"
+          >
+            {copy.shell.skipToContent}
+          </a>
+          <PatientRail />
+          <div className="min-w-0 flex-1">
+            <PatientMobileStrip />
+            <main id="patient-main" className="mx-auto w-full max-w-[88rem] px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
+              {children}
+            </main>
+          </div>
+          <PatientTabBar />
         </div>
-        <PatientTabBar />
-      </div>
+      </TourProvider>
     </PatientGate>
   );
 }

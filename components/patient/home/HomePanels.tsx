@@ -37,7 +37,7 @@ function GoalsPanel() {
   const resolved = goals.filter((goal) => goal.status !== "PENDING").length;
 
   return (
-    <GlassCard as="aside" aria-label={g.title} className="flex flex-col gap-4">
+    <GlassCard as="aside" data-tour="goals" aria-label={g.title} className="flex flex-col gap-4">
       <PanelHeader title={g.title} subtitle={goals.length ? fill(g.progress, { a: resolved, b: goals.length }) : g.subtitle} />
 
       {today.error ? (
