@@ -1,10 +1,11 @@
-export { Bridge } from "./Bridge";
-export { CareLoop } from "./CareLoop";
+export { AgentsSection } from "./AgentsSection";
+export { AudienceSection } from "./AudienceSection";
 export { CinematicIntro } from "./CinematicIntro";
 export { CTASection } from "./CTASection";
 export { Footer as FooterSection } from "./Footer";
 export { HealthcareSection } from "./HealthcareSection";
 export { Hero as HeroSection } from "./Hero";
+export { WhatSection } from "./WhatSection";
 export { MarketingHeader as Header } from "@/components/layout/site-header";
 export { CustomCursor, ProgressBar } from "./ProgressBar";
 export { LoadingScreen } from "./LoadingScreen";

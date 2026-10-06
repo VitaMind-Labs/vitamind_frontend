@@ -16,14 +16,15 @@ const NAME_KEY = "vitamind-visitor-name";
 
 export function readVisitorName(): string {
   if (typeof window === "undefined") return "";
+  // A signed-in patient already told us who they are (their signup nickname): it always wins
+  // over a name left in this browser by an earlier visitor or account.
+  const nickname = sanitizeName(getSessionUser()?.nickname ?? "");
+  if (nickname) return nickname;
   try {
-    const stored = window.localStorage.getItem(NAME_KEY);
-    if (stored) return stored;
+    return window.localStorage.getItem(NAME_KEY) ?? "";
   } catch {
-    /* fall through to the signed-in name */
+    return "";
   }
-  // A signed-in patient already told us who they are: no need to ask again.
-  return sanitizeName(getSessionUser()?.nickname ?? "");
 }
 
 export function sanitizeName(raw: string): string {

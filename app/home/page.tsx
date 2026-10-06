@@ -9,7 +9,7 @@ import { homeSerif } from "@/components/home/fonts";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Bridge, CareLoop, CTASection, FooterSection, Header, HealthcareSection, HeroSection } from "@/components/home";
+import { AgentsSection, AudienceSection, CTASection, FooterSection, Header, HealthcareSection, HeroSection, WhatSection } from "@/components/home";
 
 type Phase = "loading" | "intro" | "main";
 
@@ -78,8 +78,9 @@ export default function Home() {
               <SectionRail />
               <div ref={contentRef}>
                 <HeroSection />
-                <Bridge />
-                <CareLoop />
+                <WhatSection />
+                <AudienceSection />
+                <AgentsSection />
                 <HealthcareSection />
                 <CTASection />
                 <FooterSection />

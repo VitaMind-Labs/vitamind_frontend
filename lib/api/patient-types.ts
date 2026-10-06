@@ -250,3 +250,36 @@ export type LibraryRecommendation =
   | { mode: string; type: "NO_RECOMMENDATION"; reason: string };
 
 export type LibraryEventType = "OPENED" | "SAVED" | "USEFUL" | "SOMEWHAT_USEFUL" | "DISMISSED" | "NOT_USEFUL";
+
+// ── Spark (ADHD task assistant) ───────────────────────────────────────────────
+
+export type SparkBucket = "now" | "today" | "later";
+export type SparkStep = { text: string; done: boolean };
+export type SparkTask = {
+  id: string;
+  title: string;
+  category: string;
+  estimateMin: number;
+  bucket: SparkBucket;
+  position: number;
+  /** Why it sits where it does, as a code (always there) and as the engine's sentence in the patient's language (when planned just now). */
+  reasonCode: string;
+  reason: string | null;
+  steps: SparkStep[];
+  rounds: number;
+  aversive: boolean;
+  deferCount: number;
+};
+export type SparkView = {
+  /** The engine could not be reached: the last saved order is shown. */
+  degraded: boolean;
+  headline: string | null;
+  notes: string[];
+  capacity: { mode: "gentle" | "steady" | "strong"; confidence: "low" | "medium" | "high"; sprintMin: number; breakMin: number; dailyBudgetMin: number; maxToday: number; peakHours: number[] } | null;
+  safety: { needsSupport: boolean; message: string | null; emergencyResources: string[] } | null;
+  tasks: SparkTask[];
+  doneToday: { id: string; title: string; completedAt: string }[];
+  stats: { openToday: number; doneToday: number; focusRoundsToday: number; focusMinutesToday: number };
+  /** How many tasks the last piece of text became. */
+  added: number;
+};
