@@ -35,12 +35,12 @@ export function localizeExercise(exercise: Exercise, language: Lang): LocalizedE
   };
 }
 
-/** Which catalog exercises suit each track first (by slug). */
-const TRACK_PICKS: Record<PatientTrack, string[]> = {
-  ADHD: ["focus-sprint", "box-breathing", "short-walk"],
-  BIPOLAR: ["sleep-wind-down", "morning-light", "breathing-4-7-8"],
-  SCHIZOPHRENIA: ["grounding-5-4-3-2-1", "short-walk", "body-scan"],
-  UNSPECIFIED: ["breathing-4-7-8", "short-walk", "body-scan"],
+/** Every catalogue exercise, ordered by how well it suits each track (by slug). */
+const TRACK_ORDER: Record<PatientTrack, string[]> = {
+  ADHD: ["focus-sprint", "box-breathing", "short-walk", "morning-light", "body-scan", "breathing-4-7-8", "grounding-5-4-3-2-1", "sleep-wind-down"],
+  BIPOLAR: ["sleep-wind-down", "morning-light", "breathing-4-7-8", "body-scan", "short-walk", "box-breathing", "grounding-5-4-3-2-1", "focus-sprint"],
+  SCHIZOPHRENIA: ["grounding-5-4-3-2-1", "short-walk", "body-scan", "breathing-4-7-8", "sleep-wind-down", "box-breathing", "morning-light", "focus-sprint"],
+  UNSPECIFIED: ["breathing-4-7-8", "short-walk", "body-scan", "box-breathing", "grounding-5-4-3-2-1", "morning-light", "sleep-wind-down", "focus-sprint"],
 };
 
 export type ExerciseNeed = { sleepHours: number | null };
@@ -53,7 +53,7 @@ export function recommendExercise(catalog: Exercise[], track: PatientTrack, need
   if (!catalog.length) return null;
   const bySlug = (slug: string) => catalog.find((item) => item.slug === slug);
   if (need.sleepHours !== null && need.sleepHours < 6) return bySlug("sleep-wind-down") ?? catalog[0];
-  for (const slug of TRACK_PICKS[track]) {
+  for (const slug of TRACK_ORDER[track]) {
     const found = bySlug(slug);
     if (found) return found;
   }
@@ -62,7 +62,21 @@ export function recommendExercise(catalog: Exercise[], track: PatientTrack, need
 
 /** The track's suggested exercises, without the one already recommended. */
 export function suggestedExercises(catalog: Exercise[], track: PatientTrack, excludeId?: string, limit = 3): Exercise[] {
-  const ordered = TRACK_PICKS[track].map((slug) => catalog.find((item) => item.slug === slug)).filter((item): item is Exercise => Boolean(item));
+  const ordered = TRACK_ORDER[track].map((slug) => catalog.find((item) => item.slug === slug)).filter((item): item is Exercise => Boolean(item));
   const rest = catalog.filter((item) => !ordered.includes(item));
   return [...ordered, ...rest].filter((item) => item.id !== excludeId).slice(0, limit);
+}
+
+/**
+ * The whole catalogue, best fit first for this patient: a wind-down leads after a short night, then the track's
+ * own order, then anything the order does not name.
+ */
+export function rankedExercises(catalog: Exercise[], track: PatientTrack, need: ExerciseNeed): Exercise[] {
+  const ordered = TRACK_ORDER[track].map((slug) => catalog.find((item) => item.slug === slug)).filter((item): item is Exercise => Boolean(item));
+  const all = [...ordered, ...catalog.filter((item) => !ordered.includes(item))];
+  if (need.sleepHours !== null && need.sleepHours < 6) {
+    const sleep = all.find((item) => item.slug === "sleep-wind-down");
+    if (sleep) return [sleep, ...all.filter((item) => item !== sleep)];
+  }
+  return all;
 }

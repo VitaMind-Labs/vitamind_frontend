@@ -114,7 +114,7 @@ export function HeaderShell({ children, position = "sticky", surface = "edge", s
           className={cn(
             HEADER_HEIGHT,
             "pointer-events-auto relative mx-auto flex w-full items-center gap-2 rounded-full border px-3 transition-[max-width,background-color,border-color,box-shadow] duration-500 ease-out-soft motion-reduce:transition-none sm:gap-3 sm:px-4",
-            raised ? "max-w-[min(64rem,100%)] border-white/70 bg-white/80 shadow-float ring-1 ring-line/50 backdrop-blur-xl" : "max-w-page border-transparent bg-transparent",
+            raised ? "max-w-[min(74rem,100%)] border-white/70 bg-white/80 shadow-float ring-1 ring-line/50 backdrop-blur-xl" : "max-w-page border-transparent bg-transparent",
             innerClassName,
           )}
         >

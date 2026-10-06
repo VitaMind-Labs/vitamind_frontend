@@ -25,7 +25,7 @@ const arabicHomeLanding = {
   hero: { titleA: "رعاية تستمر", titleB: "بين الموعدين", subtitle: "VitaMind منصة دعم للصحة النفسية مدعومة بالذكاء الاصطناعي، لمن يعيشون مع اضطراب فرط الحركة وتشتت الانتباه أو الاضطراب ثنائي القطب أو الذهان، وللمختصين الذين يرافقونهم. تسدّ الفجوة بين الحياة اليومية والرعاية السريرية عبر متابعة ودعم مستمرَّين ومخصَّصين.", primary: "ابدأ الآن", demo: "للمختصين", discover: "اكتشف المزيد", preview: "معاينة مباشرة", dashboard: ["لوحة التحكم", "التحليلات", "الدعم", "المذكرات", "الإعدادات"], stats: ["مؤشر العافية", "التتابع", "الجلسات"], scoreChange: "+4.2٪", days: "أيام", thisMonth: "هذا الشهر", baseline: "المسار النفسي", last30: "آخر 30 يوماً", stable: "مستقر", insight: "بين موعدين", pattern: "لا يضيع شيء مهم", encrypted: "خاص في التصميم — أنت تختار ما يُشارَك" },
   intro: { lineA: "أيامك، مفهومة", lineB: "يوماً بيوم.", tagline: "متابعة يومية · استمرارية في الرعاية", skip: "تخطّي" },
   cta: { eyebrow: "ابدأ خطوتك اليوم", titleA: "هل أنت مستعد", titleB: "للخطوة التالية؟", body: "ابدأ مع ميرا. ويشاركك مختصك متى اخترت.", primary: "ابدأ الآن", demo: "العيادات والمؤسسات: تواصل معنا", benefits: ["التوجيه ضمن حسابك", "بياناتك تبقى خاصة", "أنت تقرر ما يُشارَك"] },
-  footer: { description: "متابعة يومية واستمرارية في الرعاية لمن يعيشون مع الاضطراب ثنائي القطب أو الفصام أو اضطراب فرط الحركة وتشتت الانتباه. لأن ما يحدث بين الموعدين مهم.", product: "المنتج", company: "المساعدة والحساب", updates: "ابقَ على اطلاع", email: "أدخل بريدك الإلكتروني", privacy: "الخصوصية", terms: "الشروط", cookies: "ملفات الارتباط", links: ["ميرا · التوجيه", "لومينا · المساحة اليومية", "المسارات الثلاثة", "للمختصين", "الثقة والأمان"], companyLinks: ["الدعم", "تسجيل الدخول", "إنشاء حساب"], rights: "جميع الحقوق محفوظة." },
+  footer: { description: "متابعة يومية واستمرارية في الرعاية لمن يعيشون مع الاضطراب ثنائي القطب أو الفصام أو اضطراب فرط الحركة وتشتت الانتباه. لأن ما يحدث بين الموعدين مهم.", product: "المنتج", company: "المساعدة والحساب", updates: "ابقَ على اطلاع", email: "أدخل بريدك الإلكتروني", privacy: "الخصوصية", terms: "الشروط", cookies: "ملفات الارتباط", links: ["ميرا · التوجيه", "لومينا · المساحة اليومية", "مسارات الرعاية", "للمختصين", "الثقة والأمان"], companyLinks: ["الدعم", "تسجيل الدخول", "إنشاء حساب"], rights: "جميع الحقوق محفوظة." },
 } as const;
 
 const baseCopy = {
@@ -49,7 +49,7 @@ const baseCopy = {
       backToDashboard: "Back to dashboard",
     },
     header: {
-      links: { product: "Companions", tracks: "The three tracks", trust: "Trust & safety", support: "Support" },
+      links: { product: "Companions", tracks: "Care paths", trust: "Trust & safety", support: "Support" },
       menu: { title: "Product" },
       agents: {
         items: {
@@ -127,7 +127,7 @@ const baseCopy = {
       },
       cta: { eyebrow: "Start your next step today", titleA: "Ready to take", titleB: "the next step?", body: "Start with Mira. Your clinician joins whenever you choose.", primary: "Get started", demo: "Clinics and institutions: contact us", benefits: ["Orientation included with your account", "Your data stays private", "You decide what is shared"] },
       intro: { lineA: "Your days, understood", lineB: "one at a time.", tagline: "Daily monitoring · continuity of care", skip: "Skip" },
-      footer: { description: "Daily monitoring and continuity of care for people living with bipolar disorder, schizophrenia or ADHD. Because what happens between consultations matters.", product: "Product", company: "Help & account", updates: "Stay updated", email: "Enter your email", privacy: "Privacy", terms: "Terms", cookies: "Cookies", links: ["Mira · Orientation", "Lumina · Daily space", "The three tracks", "For clinicians", "Trust & safety"], companyLinks: ["Support", "Sign in", "Create account"], rights: "All rights reserved." },
+      footer: { description: "Daily monitoring and continuity of care for people living with bipolar disorder, schizophrenia or ADHD. Because what happens between consultations matters.", product: "Product", company: "Help & account", updates: "Stay updated", email: "Enter your email", privacy: "Privacy", terms: "Terms", cookies: "Cookies", links: ["Mira · Orientation", "Lumina · Daily space", "Care paths", "For clinicians", "Trust & safety"], companyLinks: ["Support", "Sign in", "Create account"], rights: "All rights reserved." },
     },
     auth: {
       badge: "Secure wellness access",
@@ -813,7 +813,7 @@ const arabicCopy = {
   common: { close: "إغلاق", loading: "جاري التحميل…", retry: "حاول مرة أخرى" },
   nav: { badge: "واجهة صحة نفسية ديناميكية", language: "اللغة", support: "الدعم", mainNav: "التنقل الرئيسي", signIn: "تسجيل الدخول", signUp: "إنشاء حساب", diagnostic: "ابدأ التوجيه", backHome: "العودة للرئيسية", back: "رجوع", backToDashboard: "العودة إلى لوحتي" },
   header: {
-    links: { product: "الرفيقتان", tracks: "المسارات الثلاثة", trust: "الثقة والأمان", support: "الدعم" },
+    links: { product: "الرفيقتان", tracks: "مسارات الرعاية", trust: "الثقة والأمان", support: "الدعم" },
     menu: { title: "المنتج" },
     agents: {
       items: {

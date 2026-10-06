@@ -6,7 +6,7 @@ import { ROUTES } from "@/lib/config/routes";
 import { homeLoopCopy } from "@/lib/i18n/homeStory";
 import { EASE_OUT, REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
 import { ArrowRight, Stethoscope, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRef, type ReactNode } from "react";
@@ -112,23 +112,22 @@ function Drawing({ art, strong, soft }: { art: Art; strong: string; soft: string
 }
 
 /**
- * The thread that joins the three steps. It fills teal to gold as the section arrives, then a soft light keeps
- * travelling along it. Horizontal on wide screens (mirrored in RTL), vertical beside the cards on small ones.
+ * The thread that joins the four steps. It follows the reader: it fills teal to gold as they scroll through the steps, so it
+ * shows their place in the journey, and a soft light keeps travelling along what is already drawn. Horizontal on wide
+ * screens (mirrored in RTL), vertical beside the cards on small ones, one stretch per step.
  */
-function Thread({ axis, className }: { axis: "x" | "y"; className: string }) {
+function Thread({ axis, className, progress, from = 0, to = 1 }: { axis: "x" | "y"; className: string; progress: MotionValue<number>; from?: number; to?: number }) {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const visible = useInView(ref, { margin: "0px 0px -10% 0px" });
   const horizontal = axis === "x";
+  const fill = useTransform(progress, [from, to], [0, 1], { clamp: true });
 
   return (
     <div ref={ref} aria-hidden className={cn("absolute overflow-hidden rounded-full bg-line-strong", className)}>
       <motion.span
         className={cn("absolute inset-0 rounded-full", horizontal ? "origin-left bg-gradient-to-r from-teal-600 to-gold" : "origin-top bg-gradient-to-b from-teal-600 to-gold")}
-        initial={reduce ? false : horizontal ? { scaleX: 0 } : { scaleY: 0 }}
-        whileInView={horizontal ? { scaleX: 1 } : { scaleY: 1 }}
-        viewport={REVEAL_VIEWPORT}
-        transition={{ duration: 1.8, delay: 0.2, ease: EASE_OUT }}
+        style={horizontal ? { scaleX: fill } : { scaleY: fill }}
       />
       {!reduce && visible ? (
         <motion.span
@@ -141,13 +140,17 @@ function Thread({ axis, className }: { axis: "x" | "y"; className: string }) {
   );
 }
 
-/** Numbered stop on the thread, with a ring that breathes out from it. */
-function Marker({ index }: { index: number }) {
+/** Numbered stop on the thread: it fills with teal once the thread reaches it, and a ring breathes out from it. */
+function Marker({ index, at, progress }: { index: number; at: number; progress: MotionValue<number> }) {
   const reduce = useReducedMotion();
+  const lit = useTransform(progress, [at - 0.03, at + 0.03], [0, 1], { clamp: true });
+  const unlit = useTransform(lit, [0, 1], [1, 0]);
+  const pop = useTransform(lit, [0, 0.6, 1], [1, 1.14, 1]);
   return (
-    <span
+    <motion.span
       aria-hidden
-      className="absolute start-0 top-0 z-10 flex size-12 items-center justify-center rounded-full border border-teal-600 bg-white font-mono text-[0.9375rem] font-medium tabular-nums text-teal-800 shadow-[0_0_0_5px_var(--color-teal-100)] lg:start-1/2 lg:-translate-x-1/2 lg:rtl:translate-x-1/2"
+      style={{ scale: pop }}
+      className="absolute start-0 top-0 z-10 flex size-12 items-center justify-center rounded-full border border-teal-600 bg-white font-mono text-[0.9375rem] font-medium tabular-nums shadow-[0_0_0_5px_var(--color-teal-100)] lg:start-1/2 lg:-translate-x-1/2 lg:rtl:translate-x-1/2"
     >
       {!reduce && (
         <motion.span
@@ -156,8 +159,14 @@ function Marker({ index }: { index: number }) {
           transition={{ duration: 2.8, delay: 1.2 + index * 0.9, repeat: Infinity, ease: "easeOut" }}
         />
       )}
-      <span dir="ltr">{index + 1}</span>
-    </span>
+      <motion.span className="absolute inset-0 rounded-full bg-teal-600" style={{ opacity: lit }} />
+      <motion.span dir="ltr" className="relative text-teal-800" style={{ opacity: unlit }}>
+        {index + 1}
+      </motion.span>
+      <motion.span dir="ltr" className="absolute text-white" style={{ opacity: lit }}>
+        {index + 1}
+      </motion.span>
+    </motion.span>
   );
 }
 
@@ -179,6 +188,14 @@ type StepCardProps = {
 
 /** One step: a single link. It lifts on hover and the neighbouring colour washes in. */
 function StepCard({ href, tone, media, art, strong, soft, kicker, name, role, body, cta }: StepCardProps) {
+  /** A soft light follows the pointer across the card. Plain CSS variables, so nothing re-renders. */
+  const follow = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType !== "mouse") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+    event.currentTarget.style.setProperty("--my", `${event.clientY - rect.top}px`);
+  };
+
   const className = cn(
     "group relative isolate flex h-full flex-col overflow-hidden rounded-[1.75rem] border p-6 outline-none transition-[transform,border-color,box-shadow] duration-500 ease-out-soft hover:-translate-y-1.5 hover:shadow-soft-hover focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:p-7",
     tone.surface,
@@ -187,6 +204,7 @@ function StepCard({ href, tone, media, art, strong, soft, kicker, name, role, bo
   const inner = (
     <>
       <span aria-hidden className={cn("pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-700 ease-out-soft group-hover:opacity-100", tone.wash)} />
+      <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(16rem_circle_at_var(--mx,50%)_var(--my,0%),rgb(255_255_255/0.85),transparent_70%)] opacity-0 transition-opacity duration-500 ease-out-soft group-hover:opacity-100" />
       <span aria-hidden className={cn("pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r", tone.edge)} />
 
       <div className="flex items-center justify-between gap-4">
@@ -213,11 +231,11 @@ function StepCard({ href, tone, media, art, strong, soft, kicker, name, role, bo
   );
 
   return href.startsWith("#") ? (
-    <a href={href} className={className}>
+    <a href={href} className={className} onPointerMove={follow}>
       {inner}
     </a>
   ) : (
-    <Link href={href} className={className}>
+    <Link href={href} className={className} onPointerMove={follow}>
       {inner}
     </Link>
   );
@@ -275,17 +293,26 @@ export const CareLoop = () => {
     },
   ];
 
+  // The reader's place in the journey: 0 as the steps arrive, 1 once they are all in view. Fully drawn under reduced motion.
+  const reduce = useReducedMotion();
+  const listRef = useRef<HTMLOListElement>(null);
+  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 78%", "end 72%"] });
+  const smooth = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.6 });
+  const settled = useMotionValue(1);
+  const journey = reduce ? settled : smooth;
+  const stops = steps.length - 1;
+
   return (
     <HomeSection id="how" labelledBy="how-title" tone="tint">
       <SectionHeader variant="editorial" id="how-title" layout="split" counter="02 / 03" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
-      <motion.ol variants={stagger(0.14, 0.1)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="relative mt-14 grid gap-8 md:mt-20 lg:grid-cols-4 lg:gap-5">
-        <Thread axis="x" className="inset-x-[calc(12.5%-0.5rem)] top-[1.4375rem] hidden h-0.5 lg:block rtl:-scale-x-100" />
+      <motion.ol ref={listRef} variants={stagger(0.14, 0.1)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="relative mt-14 grid gap-8 md:mt-20 lg:grid-cols-4 lg:gap-5">
+        <Thread axis="x" progress={journey} className="inset-x-[calc(12.5%-0.5rem)] top-[1.4375rem] hidden h-0.5 lg:block rtl:-scale-x-100" />
 
         {steps.map((step, index) => (
           <motion.li key={step.name} variants={fadeUp(0, 28)} className="relative ps-16 lg:ps-0 lg:pt-20">
-            {index < steps.length - 1 ? <Thread axis="y" className="-bottom-14 start-[1.4375rem] top-6 w-0.5 lg:hidden" /> : null}
-            <Marker index={index} />
+            {index < steps.length - 1 ? <Thread axis="y" progress={journey} from={index / stops} to={(index + 1) / stops} className="-bottom-14 start-[1.4375rem] top-6 w-0.5 lg:hidden" /> : null}
+            <Marker index={index} at={index / stops} progress={journey} />
             <StepCard
               href={step.href}
               tone={step.tone}

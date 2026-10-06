@@ -6,9 +6,10 @@ import { healthcareCopy, type HealthcareCopy } from "@/lib/i18n/healthcare";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, Lock, ShieldAlert, Stethoscope } from "lucide-react";
+import { ArrowRight, Lock, ShieldAlert, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { Grain, WaveLines } from "./Atmosphere";
+import { DrawCheck } from "./DrawCheck";
 import { HomeSection } from "./HomeSection";
 import { SectionHeader } from "./SectionHeader";
 import { DISPLAY_S } from "./typography";
@@ -98,9 +99,9 @@ export const HealthcareSection = () => {
             </span>
             <h3 className={cn(DISPLAY_S, "mt-6 text-ink")}>{copy.charge.title}</h3>
             <ul className="mt-5 space-y-3">
-              {copy.charge.points.map((point) => (
+              {copy.charge.points.map((point, index) => (
                 <li key={point} className="flex items-start gap-3 text-[0.9375rem] leading-6 text-ink-soft">
-                  <Check className="mt-1 size-4 shrink-0 text-teal-700" strokeWidth={2.25} aria-hidden />
+                  <DrawCheck className="mt-1 size-4 shrink-0 text-teal-700" strokeWidth={2.5} delay={0.3 + index * 0.18} />
                   {point}
                 </li>
               ))}
@@ -113,9 +114,9 @@ export const HealthcareSection = () => {
             </span>
             <h3 className={cn(DISPLAY_S, "mt-6 text-ink")}>{copy.governance.title}</h3>
             <ul className="mt-5 space-y-3">
-              {copy.governance.points.map((point) => (
+              {copy.governance.points.map((point, index) => (
                 <li key={point} className="flex items-start gap-3 text-[0.9375rem] leading-6 text-ink-soft">
-                  <Check className="mt-1 size-4 shrink-0 text-sage-700" strokeWidth={2.25} aria-hidden />
+                  <DrawCheck className="mt-1 size-4 shrink-0 text-sage-700" strokeWidth={2.5} delay={0.5 + index * 0.18} />
                   {point}
                 </li>
               ))}
