@@ -8,6 +8,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { notifySessionChange } from "@/hooks/useAuthSession";
 import { authApi } from "@/lib/api/auth";
 import { ROUTES } from "@/lib/config/routes";
+import { prefetchPatientHome } from "@/lib/patient/prefetch";
+import { useRouter } from "next/navigation";
 import { EASE_OUT, SPRING_SOFT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +26,7 @@ export function UserMenu({ name, onOpenChange }: { name: string; onOpenChange?: 
   const { dictionary, direction } = useLanguage();
   const nav = dictionary.dashboard.navigation;
   const reduce = useReducedMotion();
+  const router = useRouter();
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -56,6 +59,12 @@ export function UserMenu({ name, onOpenChange }: { name: string; onOpenChange?: 
     };
   }, [open, setOpen]);
 
+  /** On intent only (hover / focus): load the dashboard code and the profile before the click that needs them. */
+  const warmDashboard = useCallback(() => {
+    router.prefetch(ROUTES.dashboard);
+    prefetchPatientHome();
+  }, [router]);
+
   async function signOut() {
     setLeaving(true);
     await authApi.logout().catch(() => undefined);
@@ -80,6 +89,8 @@ export function UserMenu({ name, onOpenChange }: { name: string; onOpenChange?: 
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
+        onPointerEnter={warmDashboard}
+        onFocus={warmDashboard}
         onClick={() => setOpen(!open)}
         className="group inline-flex min-h-11 cursor-pointer items-center gap-2.5 rounded-full border border-line bg-white/80 py-1 ps-1 pe-3 text-sm font-semibold text-ink shadow-xs backdrop-blur transition-[border-color,box-shadow] duration-300 ease-out-soft hover:border-teal-200 hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
       >

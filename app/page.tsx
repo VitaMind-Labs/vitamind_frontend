@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { BRAND } from "@/lib/config/brand";
 import { ROOT_SOCIAL, SITE } from "@/lib/config/site";
-import Home from "./home/page";
+import { cookies } from "next/headers";
+import { HomeExperience } from "@/components/home/HomeExperience";
+import { HOME_INTRO_COOKIE } from "@/lib/config/home";
 
 export const metadata: Metadata = {
   title: { absolute: SITE.title },
@@ -32,7 +34,8 @@ const STRUCTURED_DATA = {
   ],
 };
 
-export default function Page() {
+export default async function Page() {
+  const introSeen = (await cookies()).get(HOME_INTRO_COOKIE)?.value === "1";
   return (
     <>
       <script
@@ -40,7 +43,7 @@ export default function Page() {
         // Static, server-built object: nothing user-controlled is serialised.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA).replace(/</g, "\\u003c") }}
       />
-      <Home />
+      <HomeExperience introSeen={introSeen} />
     </>
   );
 }

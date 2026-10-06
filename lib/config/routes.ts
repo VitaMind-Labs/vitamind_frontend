@@ -9,6 +9,8 @@ export const ROUTES = {
   support: "/support",
   signIn: "/auth/signin",
   signUp: "/auth/signup",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
   dashboard: "/dashboard",
 } as const;
 
