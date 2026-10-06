@@ -14,9 +14,12 @@ import Link from "next/link";
 import { useRef } from "react";
 import { Magnetic, WordReveal } from "./AnimationUtilities";
 import { Grain } from "./Atmosphere";
-import { GLSLHills } from "./GLSLHills";
+import dynamic from "next/dynamic";
 import { Marquee } from "./Interactions";
 import { ACCENT_LIGHT, BODY, DISPLAY_XL } from "./typography";
+
+/** three.js is the heaviest part of the page and sits behind the headline: it loads after first paint. */
+const GLSLHills = dynamic(() => import("./GLSLHills").then((m) => m.GLSLHills), { ssr: false });
 
 /** "deserves better care" → plain lead + the last two words as the olive-gold accent. */
 function splitAccent(text: string, accentWords = 2) {

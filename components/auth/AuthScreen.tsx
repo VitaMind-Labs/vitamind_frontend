@@ -473,7 +473,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
               />
               {auth.rememberMe}
             </label>
-            <Link href="/support" className={`${LINK_CLASS} inline-flex min-h-11 items-center text-[0.9375rem] font-medium`}>
+            <Link href={ROUTES.forgotPassword} className={`${LINK_CLASS} inline-flex min-h-11 items-center text-[0.9375rem] font-medium`}>
               {auth.forgotPassword}
             </Link>
           </motion.div>
