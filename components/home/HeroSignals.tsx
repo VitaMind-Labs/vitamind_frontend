@@ -99,7 +99,7 @@ function CheckIn() {
                   className="absolute -inset-px rounded-full bg-teal-600"
                   initial={reduce ? false : { scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 14, delay: 2.6 }}
+                  transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1], delay: 2.6 }}
                 />
                 <span className="relative size-1.5 rounded-full bg-white" />
               </>

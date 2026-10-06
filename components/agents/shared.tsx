@@ -128,7 +128,7 @@ function ChipPanel({ yes, title, items, surface }: { yes: boolean; title: string
 }
 
 /** Clear boundaries as two panels of chips — what the agent does, what she never does — then the other agent. */
-export function Boundaries({ agent, counter, tone = "tint" }: { agent: AgentId; counter: string; tone?: "tint" | "base" }) {
+export function Boundaries({ agent, counter, tone = "tint" }: { agent: AgentId; counter?: string; tone?: "tint" | "base" }) {
   const { page } = useAgentPage(agent);
   const { trust, handoff } = page;
   const otherId = OTHER[agent];

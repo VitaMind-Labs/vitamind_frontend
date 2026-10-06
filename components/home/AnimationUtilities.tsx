@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, type ComponentPropsWithoutRef, type ReactNode } from "react";
-import { motion, useInView, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
+import { motion, useInView, useMotionValue, useReducedMotion } from "framer-motion";
 import { type VariantProps } from "class-variance-authority";
 
 import { buttonVariants } from "@/components/ui/button";
-import { EASE_OUT, REVEAL_VIEWPORT } from "@/lib/motion";
+import { EASE_OUT, REVEAL_VIEWPORT, glide } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 type ScrollRevealProps = {
@@ -43,22 +43,20 @@ export const Magnetic = ({ children, className, strength = 0.14 }: { children: R
     const reduceMotion = useReducedMotion();
     const x = useMotionValue(0);
     const y = useMotionValue(0);
-    const springX = useSpring(x, { stiffness: 180, damping: 18, mass: 0.2 });
-    const springY = useSpring(y, { stiffness: 180, damping: 18, mass: 0.2 });
 
     const handlePointerMove = (e: React.PointerEvent) => {
         if (reduceMotion || e.pointerType !== "mouse" || !ref.current) return;
         const rect = ref.current.getBoundingClientRect();
-        x.set((e.clientX - rect.left - rect.width / 2) * strength);
-        y.set((e.clientY - rect.top - rect.height / 2) * strength);
+        glide(x, (e.clientX - rect.left - rect.width / 2) * strength, 0.5);
+        glide(y, (e.clientY - rect.top - rect.height / 2) * strength, 0.5);
     };
 
     return (
         <motion.div
             ref={ref}
-            style={{ x: springX, y: springY }}
+            style={{ x, y }}
             onPointerMove={handlePointerMove}
-            onPointerLeave={() => { x.set(0); y.set(0); }}
+            onPointerLeave={() => { glide(x, 0, 0.6); glide(y, 0, 0.6); }}
             className={cn("inline-flex", className)}
         >
             {children}

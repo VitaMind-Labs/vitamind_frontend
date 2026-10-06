@@ -1,17 +1,17 @@
 "use client";
 
 import { AgentShell, Boundaries, Closing } from "../shared";
-import { LuminaBento } from "./LuminaBento";
 import { LuminaHero } from "./LuminaHero";
 import { LuminaProcess } from "./LuminaProcess";
+import { LuminaRoles } from "./LuminaRoles";
 import { LuminaTracks } from "./LuminaTracks";
 
-/** /lumina — a dashboard: today as a ring, a bento of what she does, the month told as four views of one window. */
+/** /lumina — her own app: today in a window, an index of what she holds, the care tracks, a day told as four screens. */
 export function LuminaPage() {
   return (
     <AgentShell>
       <LuminaHero />
-      <LuminaBento />
+      <LuminaRoles />
       <LuminaTracks />
       <LuminaProcess />
       <Boundaries agent="lumina" counter="04 / 04" tone="base" />

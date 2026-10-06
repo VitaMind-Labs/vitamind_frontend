@@ -75,7 +75,7 @@ export function CheckinView({ copy }: { copy: LuminaPreviewCopy }) {
       </motion.ul>
       <ul className="mt-6 space-y-5">
         {copy.signals.map((signal, row) => (
-          <motion.li key={signal} {...rise(0.15 + row * 0.08, reduce)} className="grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-4 sm:grid-cols-[7rem_1fr_1.5rem]">
+          <motion.li key={signal} {...rise(0.15 + row * 0.08, reduce)} className="grid grid-cols-[5.5rem_1fr] items-center gap-4 sm:grid-cols-[7rem_1fr]">
             <span className="truncate text-[0.9375rem] font-medium text-ink-soft">{signal}</span>
             <span className="relative h-2.5 rounded-full bg-line">
               <motion.span
@@ -86,9 +86,6 @@ export function CheckinView({ copy }: { copy: LuminaPreviewCopy }) {
               >
                 <span className="absolute -end-1.5 top-1/2 size-5 -translate-y-1/2 rounded-full border-2 border-gold bg-white shadow-sm" />
               </motion.span>
-            </span>
-            <span dir="ltr" className="text-end font-mono text-[0.8125rem] tabular-nums text-ink-muted">
-              {SIGNAL_LEVELS[row]}
             </span>
           </motion.li>
         ))}

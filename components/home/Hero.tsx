@@ -1,14 +1,12 @@
 "use client";
 
-import { AgentAvatar } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuthSession } from "@/hooks/useAuthSession";
 import { agentEntryHref } from "@/lib/config/routes";
-import { homeStoryCopy } from "@/lib/i18n/homeStory";
 import { EASE_OUT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -40,10 +38,10 @@ function Motes() {
     if (reduce) return null;
     return (
         <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 top-1/3 -z-10 overflow-hidden">
-            {MOTES.map(([left, size, seconds, delay, gold]) => (
+            {MOTES.map(([left, size, seconds, delay, gold], index) => (
                 <motion.span
                     key={left}
-                    className={cn("absolute bottom-0 rounded-full", gold ? "bg-gold shadow-[0_0_14px_3px_rgb(201_175_111/0.45)]" : "bg-teal-300 shadow-[0_0_12px_3px_rgb(134_186_188/0.45)]")}
+                    className={cn("absolute bottom-0 rounded-full", index % 2 === 1 && "max-sm:hidden", gold ? "bg-gold shadow-[0_0_14px_3px_rgb(201_175_111/0.45)]" : "bg-teal-300 shadow-[0_0_12px_3px_rgb(134_186_188/0.45)]")}
                     style={{ left: `${left}%`, width: size, height: size }}
                     initial={{ y: 0, opacity: 0 }}
                     animate={{ y: [0, -420], opacity: [0, 0.9, 0] }}
@@ -73,57 +71,6 @@ function FirstLight({ progress }: { progress: ReturnType<typeof useScroll>["scro
                 className="absolute inset-x-[6%] top-0 h-full rounded-[50%] bg-[radial-gradient(closest-side,rgb(243_232_198/0.85),rgb(230_213_170/0.45)_44%,rgb(201_175_111/0.16)_70%,transparent_84%)]"
             />
         </motion.div>
-    );
-}
-
-/**
- * The product in three parts, right under the buttons: Mira, Lumina, the clinicians. A thread draws through them and a
- * light runs along it; each one jumps to its own section.
- */
-function HeroMap() {
-    const { language } = useLanguage();
-    const reduce = useReducedMotion();
-    const copy = homeStoryCopy[language].heroMap;
-    const hrefs = ["#mira", "#lumina", "#healthcare"] as const;
-
-    return (
-        <motion.nav variants={fadeUp(0, 16)} aria-label={copy.label} className="mx-auto mt-10 w-full max-w-xl sm:mt-12">
-            <ol className="relative grid grid-cols-3 gap-2 sm:gap-4">
-                <span aria-hidden className="absolute inset-x-[16.6%] top-[1.375rem] h-px overflow-hidden bg-line-strong">
-                    <motion.span
-                        className="absolute inset-0 origin-left bg-gradient-to-r from-teal-400 via-gold to-sage rtl:origin-right rtl:bg-gradient-to-l"
-                        initial={reduce ? false : { scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 1.4, delay: 1.9, ease: EASE_OUT }}
-                    />
-                    {reduce ? null : (
-                        <motion.span
-                            className="absolute inset-y-0 w-1/4 bg-gradient-to-r from-transparent via-white to-transparent rtl:-scale-x-100"
-                            animate={{ left: ["-25%", "100%"] }}
-                            transition={{ duration: 3.2, delay: 3.4, repeat: Infinity, repeatDelay: 1.6, ease: "easeInOut" }}
-                        />
-                    )}
-                </span>
-                {copy.items.map((item, index) => (
-                    <li key={item.name}>
-                        <a
-                            href={hrefs[index]}
-                            className="group flex flex-col items-center gap-2 rounded-2xl px-1 pb-1 text-center outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
-                        >
-                            <span className="relative flex size-11 items-center justify-center rounded-2xl bg-white shadow-card ring-1 ring-line transition-[transform,box-shadow] duration-500 ease-out-soft group-hover:-translate-y-1 group-hover:shadow-soft-hover">
-                                {index < 2 ? (
-                                    <AgentAvatar agent={index === 0 ? "mira" : "lumina"} className="size-11 rounded-2xl" />
-                                ) : (
-                                    <Stethoscope className="size-5 text-sage-700" strokeWidth={1.75} aria-hidden />
-                                )}
-                            </span>
-                            <span className="text-[0.875rem] font-semibold text-ink transition-colors group-hover:text-teal-700">{item.name}</span>
-                            <span className="text-[0.75rem] leading-4 text-ink-muted">{item.line}</span>
-                        </a>
-                    </li>
-                ))}
-            </ol>
-        </motion.nav>
     );
 }
 
@@ -174,8 +121,8 @@ export const Hero = () => {
     // A soft light follows the pointer across the mist.
     const mx = useMotionValue(50);
     const my = useMotionValue(36);
-    const sx = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.6 });
-    const sy = useSpring(my, { stiffness: 60, damping: 20, mass: 0.6 });
+    const sx = mx;
+    const sy = my;
     const spotlight = useMotionTemplate`radial-gradient(38rem circle at ${sx}% ${sy}%, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.2) 45%, transparent 70%)`;
 
     const onPointerMove = (event: React.PointerEvent<HTMLElement>) => {
@@ -255,8 +202,6 @@ export const Hero = () => {
                                     </Button>
                                 </Magnetic>
                             </motion.div>
-
-                            <HeroMap />
                         </motion.div>
                     </div>
                 </motion.div>

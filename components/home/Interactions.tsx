@@ -1,15 +1,8 @@
 "use client";
 
-import {
-    motion,
-    useInView,
-    useMotionTemplate,
-    useMotionValue,
-    useReducedMotion,
-    useSpring,
-    useTransform,
-} from "framer-motion";
+import { motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useRef, type ReactNode } from "react";
+import { glide } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -36,6 +29,27 @@ export function Marquee({ children, seconds = 40, className }: { children: React
 }
 
 /**
+ * The product stage: it tips up from the page and settles flat as it arrives. Give it `lg:sticky lg:top-28` to hold the
+ * device still beside its copy while you read. Flat under reduced motion.
+ */
+export function StageRise({ className, children }: { className?: string; children: ReactNode }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const reduce = useReducedMotion();
+    const { scrollYProgress } = useScroll({ target: ref, offset: ["start 96%", "start 45%"] });
+    const scale = useTransform(scrollYProgress, [0, 1], [reduce ? 1 : 0.86, 1]);
+    const rotateX = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : 16, 0]);
+    const opacity = useTransform(scrollYProgress, [0, 0.5], [reduce ? 1 : 0, 1]);
+
+    return (
+        <div ref={ref} style={{ perspective: "1400px" }} className={className}>
+            <motion.div style={{ scale, rotateX, opacity, transformOrigin: "50% 100%" }} className="will-change-transform">
+                {children}
+            </motion.div>
+        </div>
+    );
+}
+
+/**
  * A surface that leans toward the pointer and carries a soft glare. Mouse only; flat for touch
  * and reduced motion so it never fights scrolling.
  */
@@ -44,8 +58,8 @@ export function TiltCard({ children, className, max = 5 }: { children: ReactNode
     const reduce = useReducedMotion();
     const px = useMotionValue(0.5);
     const py = useMotionValue(0.5);
-    const sx = useSpring(px, { stiffness: 120, damping: 20, mass: 0.4 });
-    const sy = useSpring(py, { stiffness: 120, damping: 20, mass: 0.4 });
+    const sx = px;
+    const sy = py;
     const rotateY = useTransform(sx, [0, 1], [-max, max]);
     const rotateX = useTransform(sy, [0, 1], [max, -max]);
     const glareX = useTransform(sx, (v) => `${v * 100}%`);
@@ -56,14 +70,14 @@ export function TiltCard({ children, className, max = 5 }: { children: ReactNode
     const move = (event: React.PointerEvent) => {
         if (reduce || event.pointerType !== "mouse" || !ref.current) return;
         const rect = ref.current.getBoundingClientRect();
-        px.set((event.clientX - rect.left) / rect.width);
-        py.set((event.clientY - rect.top) / rect.height);
-        glareOpacity.set(1);
+        glide(px, (event.clientX - rect.left) / rect.width, 0.5);
+        glide(py, (event.clientY - rect.top) / rect.height, 0.5);
+        glide(glareOpacity, 1, 0.3);
     };
     const leave = () => {
-        px.set(0.5);
-        py.set(0.5);
-        glareOpacity.set(0);
+        glide(px, 0.5, 0.6);
+        glide(py, 0.5, 0.6);
+        glide(glareOpacity, 0, 0.5);
     };
 
     return (

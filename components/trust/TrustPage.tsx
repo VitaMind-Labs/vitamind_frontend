@@ -16,7 +16,8 @@ import { cn } from "@/lib/utils";
 import { ArrowRight, BadgeCheck, Check, Database, LifeBuoy, Lock, Mail, MapPin, Phone, ScrollText, ShieldCheck, type LucideIcon } from "lucide-react";
 import { MotionConfig, motion, useScroll, useSpring } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { TrustSeal } from "./TrustSeal";
 
 const ICONS: Record<TrustId, LucideIcon> = {
   privacy: Lock,
@@ -90,7 +91,7 @@ export function TrustPage() {
   const { language, direction } = useLanguage();
   const copy = trustCopy[language];
   const lead = copy.titleA;
-  const sectionIds = copy.sections.map((section) => section.id);
+  const sectionIds = useMemo(() => copy.sections.map((section) => section.id), [copy.sections]);
   const active = useActiveSection(sectionIds);
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 });
@@ -107,7 +108,8 @@ export function TrustPage() {
         <SiteHeader variant="public" />
 
         <main className="page-container flex-1 pb-20 pt-10 sm:pt-14 lg:pb-28 lg:pt-20">
-          <motion.header variants={stagger(0.08)} initial="hidden" animate="show" className="max-w-3xl">
+          <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+          <motion.header variants={stagger(0.08)} initial="hidden" animate="show" className="lg:col-span-7">
             <motion.p variants={fadeUp()} className={cn(LABEL, "flex items-center gap-3 text-teal-700")}>
               <span aria-hidden className="h-px w-8 bg-gold" />
               {copy.eyebrow}
@@ -128,6 +130,10 @@ export function TrustPage() {
               {copy.principle}
             </motion.p>
           </motion.header>
+          <div className="lg:col-span-5">
+            <TrustSeal ids={sectionIds} icons={ICONS} titles={copy.sections.map((section) => section.title)} active={active as TrustId} />
+          </div>
+          </div>
 
           <div className="mt-14 grid gap-10 lg:mt-20 lg:grid-cols-12 lg:gap-12">
             <nav aria-label={copy.eyebrow} className="lg:col-span-3">

@@ -164,7 +164,7 @@ export const WhatSection = () => {
 
   return (
     <HomeSection id="what" labelledBy="what-title" tone="base">
-      <SectionHeader variant="editorial" id="what-title" counter="01 / 04" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
+      <SectionHeader variant="editorial" id="what-title" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} />
 
       <ScrollStatement text={copy.statement} highlight={copy.highlight} />
 
@@ -182,17 +182,6 @@ export const WhatSection = () => {
         <SideNode node={clinician} icon={<Stethoscope className="size-5" strokeWidth={1.75} aria-hidden />} />
       </motion.div>
 
-      <motion.p
-        variants={fadeUp(0, 12)}
-        initial="hidden"
-        whileInView="show"
-        viewport={REVEAL_VIEWPORT}
-        className="mt-10 flex items-center justify-center gap-4 text-center text-[0.9375rem] font-semibold text-ink md:mt-12"
-      >
-        <span aria-hidden className="hidden h-px w-12 bg-gold sm:block" />
-        {copy.rule}
-        <span aria-hidden className="hidden h-px w-12 bg-gold sm:block" />
-      </motion.p>
     </HomeSection>
   );
 };

@@ -23,9 +23,12 @@ export function StepStories({
   seconds,
   stepLabel,
   tone = "light",
+  counted = true,
   onSelect,
   className,
 }: {
+  /** Show "Step 02 / 04". Off: the current step's name stands in its place. */
+  counted?: boolean;
   steps: readonly Step[];
   active: number;
   /** The tour is advancing by itself: the current segment fills over `seconds`. */
@@ -77,10 +80,16 @@ export function StepStories({
       <div className="mt-3 flex items-center justify-between gap-3">
         <p className={cn(LABEL, "flex items-center gap-2.5", dark ? "text-teal-200" : "text-teal-700")}>
           <span aria-hidden className={cn("h-px w-6", dark ? "bg-gold-300" : "bg-gold")} />
-          {stepLabel}
-          <span dir="ltr" className="font-mono tabular-nums">
-            {pad(active + 1)} / {pad(total)}
-          </span>
+          {counted ? (
+            <>
+              {stepLabel}
+              <span dir="ltr" className="font-mono tabular-nums">
+                {pad(active + 1)} / {pad(total)}
+              </span>
+            </>
+          ) : (
+            steps[active][0]
+          )}
         </p>
         <div className="flex gap-2">
           {[-1, 1].map((delta) => (
