@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Stethoscope } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Magnetic, WordReveal } from "./AnimationUtilities";
 import { Grain } from "./Atmosphere";
 import dynamic from "next/dynamic";
@@ -140,7 +140,7 @@ function Swash() {
                 vectorEffect="non-scaling-stroke"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 0.9 }}
-                transition={{ duration: 1.4, delay: 1.7, ease: EASE_OUT }}
+                transition={{ duration: 1.4, delay: 2.1, ease: EASE_OUT }}
             />
         </svg>
     );
@@ -153,6 +153,14 @@ export const Hero = () => {
     const reduce = useReducedMotion();
     const { signedIn } = useAuthSession();
     const { lead, accent } = splitAccent(copy.titleB);
+
+    // The WebGL hills compile their shaders on the main thread: they wait until the headline has landed,
+    // so the big type never stutters while it rises.
+    const [hillsReady, setHillsReady] = useState(false);
+    useEffect(() => {
+        const timer = window.setTimeout(() => setHillsReady(true), 1600);
+        return () => window.clearTimeout(timer);
+    }, []);
 
     const heroRef = useRef<HTMLElement>(null);
     const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "70% start"] });
@@ -189,8 +197,8 @@ export const Hero = () => {
 
             {/* The landscape — WebGL hills that drift with the pointer and advance as you scroll */}
             <motion.div style={{ y: hillsY }} aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[100svh] min-h-[44rem] [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_78%,transparent)]">
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 2.6, ease: "easeOut" }} className="absolute inset-0">
-                    <GLSLHills progress={scrollYProgress} cameraZ={118} />
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: hillsReady ? 1 : 0 }} transition={{ duration: 2.2, ease: "easeOut" }} className="absolute inset-0">
+                    {hillsReady && <GLSLHills progress={scrollYProgress} cameraZ={118} />}
                 </motion.div>
             </motion.div>
             <FirstLight progress={scrollYProgress} />
@@ -205,16 +213,16 @@ export const Hero = () => {
                     <div className="w-full max-w-6xl">
                         <h1 className={cn(DISPLAY_XL, "mx-auto text-ink")}>
                             <span className="block">
-                                <WordReveal delay={0.3}>{copy.titleA}</WordReveal>
+                                <WordReveal delay={0.45} step={0.07}>{copy.titleA}</WordReveal>
                             </span>
                             <span className="block">
                                 {lead ? (
                                     <>
-                                        <WordReveal delay={0.5}>{lead}</WordReveal>{" "}
+                                        <WordReveal delay={0.7} step={0.07}>{lead}</WordReveal>{" "}
                                     </>
                                 ) : null}
                                 <span className="relative inline-block">
-                                    <WordReveal className={ACCENT_LIGHT} delay={0.75}>
+                                    <WordReveal className={ACCENT_LIGHT} delay={1} step={0.07}>
                                         {accent}
                                     </WordReveal>
                                     <Swash />
@@ -222,7 +230,7 @@ export const Hero = () => {
                             </span>
                         </h1>
 
-                        <motion.div variants={stagger(0.12, 1.1)} initial="hidden" animate="show">
+                        <motion.div variants={stagger(0.12, 1.5)} initial="hidden" animate="show">
                             <motion.p variants={fadeUp(0, 16)} className={cn(BODY, "mx-auto mt-10 max-w-2xl")}>
                                 {copy.subtitle}
                             </motion.p>

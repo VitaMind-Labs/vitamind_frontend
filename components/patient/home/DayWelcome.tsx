@@ -114,7 +114,7 @@ export function DayWelcome() {
   );
 
   return (
-    <section aria-labelledby="day-welcome-title" className="lm-welcome mb-6">
+    <section data-tour="welcome" aria-labelledby="day-welcome-title" className="lm-welcome mb-6">
       <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12 lg:p-10">
         <div className="min-w-0">
           <motion.div {...enter(0)} className="flex flex-wrap items-center gap-2">

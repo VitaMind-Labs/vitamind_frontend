@@ -3,6 +3,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { authApi } from "@/lib/api/auth";
 import { ApiError, api } from "@/lib/api/client";
+import { useSessionState } from "@/hooks/useSessionState";
 import { clearTokens, hasValidSession } from "@/lib/api/tokens";
 import { AuthLoading } from "@/components/auth/AuthLayout";
 import { PasswordChecklist, passwordMeetsPolicy } from "@/components/auth/PasswordChecklist";
@@ -17,7 +18,7 @@ import { AlertCircle, ArrowRight, Check, Eye, EyeOff, Lock, Mail, ShieldCheck, U
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { ROUTES } from "@/lib/config/routes";
 import { recordConsent } from "@/lib/patient/consent";
 import { prefetchPatientHome } from "@/lib/patient/prefetch";
@@ -38,7 +39,6 @@ function safeRedirect(redirect: string | null, mode: AuthMode) {
   return mode === "signup" ? ROUTES.orientation : ROUTES.dashboard;
 }
 
-const noSubscribe = () => () => {};
 type FormValues = { nickname: string; email: string; password: string; confirmPassword: string };
 type FieldName = keyof FormValues | "phone" | "consent";
 
@@ -79,7 +79,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   const auth = dictionary.auth;
   const isSignUp = mode === "signup";
   // Already signed in with a live session: skip the form and go straight to the patient space.
-  const signedIn = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
+  const signedIn = useSessionState();
 
   // A token in storage is not proof of a session: the API confirms it before the form is skipped. A rejected
   // (stale) token is dropped and the form is shown, so the visitor is never sent on without a real sign-in.

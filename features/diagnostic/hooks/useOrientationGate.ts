@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/lib/api/client";
-import { hasValidSession } from "@/lib/api/tokens";
+import { useSessionState } from "@/hooks/useSessionState";
 
 /**
  * Where a visitor stands with Mira, which needs an account and runs once per account:
@@ -12,11 +12,9 @@ import { hasValidSession } from "@/lib/api/tokens";
  */
 export type OrientationGate = "checking" | "signed-out" | "done" | "open";
 
-const noSubscribe = () => () => {};
-
 export function useOrientationGate(): OrientationGate {
-  // `null` on the server and first paint: the tokens live in localStorage.
-  const signedIn = useSyncExternalStore(noSubscribe, hasValidSession, () => null);
+  // `null` on the server and until the session is restored from the refresh cookie.
+  const signedIn = useSessionState();
   const [answer, setAnswer] = useState<"done" | "open" | "signed-out" | null>(null);
 
   useEffect(() => {

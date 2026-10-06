@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { Check, Copy, House, ShieldCheck, Volume2, VolumeX } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAudio } from "@/contexts/AudioContext";
 import { stopAllSpeech } from "@/hooks/useSpeech";
-import { hasValidSession } from "@/lib/api/tokens";
+import { useSessionState } from "@/hooks/useSessionState";
 import type { Lang } from "@/lib/i18n/config";
 import { ROUTES } from "@/lib/config/routes";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export function DiagnosticHeader({ chatId, onLanguageChange }: { chatId: string;
   const [copied, setCopied] = useState(false);
   const diagnostic = dictionary.diagnostic;
   // A signed-in patient returns to their own space; a visitor to the public home.
-  const signedIn = useSyncExternalStore(() => () => undefined, hasValidSession, () => false);
+  const signedIn = useSessionState() === true;
   const backLabel = signedIn ? dictionary.nav.backToDashboard : dictionary.nav.backHome;
 
   const handleCopySession = async () => {

@@ -1,52 +1,76 @@
 "use client";
 
 /**
- * Patient session tokens. Keys are unchanged from the original AuthScreen so
- * existing signed-in visitors stay signed in.
+ * Patient session, split the safe way:
+ * - the short-lived ACCESS token lives only in this module's memory: no storage, nothing for an injected
+ *   script to read at rest, gone on reload;
+ * - the long-lived REFRESH token lives in an HttpOnly cookie that JavaScript cannot see at all
+ *   (see `app/api/session/[action]/route.ts`). On load, `ensureSession` trades it for a fresh access token.
+ * Only the non-secret `{ id, nickname }` of the user is kept in localStorage (the profile cache and greetings
+ * need it before the first network answer).
  */
-const ACCESS_KEY = "vitamind_token";
-const REFRESH_KEY = "vitamind_refresh_token";
 const USER_KEY = "vitamind_user";
 /** The last loaded profile (see lib/patient/profile-cache.ts); it never outlives the session. */
 export const PROFILE_CACHE_KEY = "vitamind_profile_cache";
+/** Keys of the old localStorage sessions: removed on first load, so no token is left lying in storage. */
+const LEGACY_KEYS = ["vitamind_token", "vitamind_refresh_token"];
 
 export type SessionUser = { id: string; nickname: string; tier?: string };
 
+/** What the session routes hand to the browser: the refresh token is never part of it. */
 export type AuthTokens = {
   access_token: string;
-  refresh_token: string;
   user?: SessionUser;
 };
 
-function read(key: string): string | null {
-  if (typeof window === "undefined") return null;
+/** `null` until the first answer from the session route (a reload has no access token yet), then signed in or out. */
+export type SessionState = boolean | null;
+
+let accessToken: string | null = null;
+let state: SessionState = null;
+const listeners = new Set<() => void>();
+
+function emit() {
+  listeners.forEach((listener) => listener());
+}
+
+function setState(next: SessionState) {
+  if (state === next) return;
+  state = next;
+  emit();
+}
+
+if (typeof window !== "undefined") {
   try {
-    return window.localStorage.getItem(key);
+    LEGACY_KEYS.forEach((key) => window.localStorage.removeItem(key));
   } catch {
-    return null;
+    /* storage unavailable: nothing to clean */
   }
+}
+
+export function subscribeSession(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
 export function getAccessToken() {
-  return read(ACCESS_KEY);
+  return accessToken;
 }
 
-export function getRefreshToken() {
-  return read(REFRESH_KEY);
+export function getSessionState(): SessionState {
+  return state;
 }
 
 export function getSessionUser(): SessionUser | null {
-  const raw = read(USER_KEY);
-  if (!raw) return null;
+  if (typeof window === "undefined") return null;
   try {
-    return JSON.parse(raw) as SessionUser;
+    const raw = window.localStorage.getItem(USER_KEY);
+    return raw ? (JSON.parse(raw) as SessionUser) : null;
   } catch {
     return null;
   }
-}
-
-export function isAuthenticated() {
-  return Boolean(getAccessToken());
 }
 
 /** `exp` of a JWT in ms; `undefined` when it has none, `null` when the token cannot be read. */
@@ -61,41 +85,47 @@ function jwtExpiry(token: string): number | undefined | null {
   }
 }
 
-function isLive(token: string | null) {
-  if (!token) return false;
-  const exp = jwtExpiry(token);
+/** A signed-in session whose access token has not run out (an expired one is renewed on the next call). */
+export function hasValidSession() {
+  if (!accessToken || state !== true) return false;
+  const exp = jwtExpiry(accessToken);
   return exp === undefined || (exp !== null && exp > Date.now());
 }
 
-/**
- * A usable patient session on this browser: the access token is still valid, or it expired
- * but the refresh token can renew it. A stale leftover token does not count as signed in.
- */
-export function hasValidSession() {
-  const access = getAccessToken();
-  if (!access) return false;
-  return isLive(access) || isLive(getRefreshToken());
+export function isAuthenticated() {
+  return state === true;
 }
 
 export function saveTokens(tokens: AuthTokens) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(ACCESS_KEY, tokens.access_token);
-    window.localStorage.setItem(REFRESH_KEY, tokens.refresh_token);
-    if (tokens.user) window.localStorage.setItem(USER_KEY, JSON.stringify(tokens.user));
-  } catch {
-    /* storage unavailable — the session simply won't persist */
+  accessToken = tokens.access_token;
+  if (tokens.user && typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(USER_KEY, JSON.stringify(tokens.user));
+    } catch {
+      /* storage unavailable — greetings fall back to the profile */
+    }
   }
+  if (state === true) emit();
+  else setState(true);
 }
 
+/** Forget the session in this tab. (The cookie itself is cleared by the server: logout, or a failed refresh.) */
 export function clearTokens() {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.removeItem(ACCESS_KEY);
-    window.localStorage.removeItem(REFRESH_KEY);
-    window.localStorage.removeItem(USER_KEY);
-    window.localStorage.removeItem(PROFILE_CACHE_KEY);
-  } catch {
-    /* ignore */
+  accessToken = null;
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem(USER_KEY);
+      window.localStorage.removeItem(PROFILE_CACHE_KEY);
+    } catch {
+      /* ignore */
+    }
   }
+  if (state === false) emit();
+  else setState(false);
+}
+
+/** Marks a reload that found no usable session (no cookie, or the network was down) without touching the cookie. */
+export function markSignedOut() {
+  accessToken = null;
+  setState(false);
 }

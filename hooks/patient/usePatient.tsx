@@ -1,12 +1,13 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api/client";
 import { authApi } from "@/lib/api/auth";
 import { profileApi } from "@/lib/api/patient";
 import type { Profile } from "@/lib/api/patient-types";
-import { clearTokens, getAccessToken } from "@/lib/api/tokens";
+import { useSessionState } from "@/hooks/useSessionState";
+import { clearTokens } from "@/lib/api/tokens";
 import { ROUTES } from "@/lib/config/routes";
 import { hasSeenWelcome } from "@/lib/patient/onboarding";
 import { readCachedProfile, writeCachedProfile } from "@/lib/patient/profile-cache";
@@ -32,13 +33,11 @@ type Gate = "checking" | "ready" | "error";
 // The last profile this device loaded is put in the cache before the first screen renders, so a reload
 // paints the real app at once and refreshes in the background. (Server renders have no storage: they
 // show the skeleton, and the cache is read on the client only.)
-if (typeof window !== "undefined" && getAccessToken()) {
+if (typeof window !== "undefined") {
   const cached = readCachedProfile();
   if (cached) seedPatientData("profile", cached);
 }
 
-const noSubscribe = () => () => {};
-const readToken = () => Boolean(getAccessToken());
 
 /**
  * Gate for everything behind sign-in: no token → sign-in; a patient who has not yet seen
@@ -59,8 +58,8 @@ export function PatientProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  // null on the server and during hydration; the real answer straight after, with no extra effect.
-  const hasToken = useSyncExternalStore<boolean | null>(noSubscribe, readToken, () => null);
+  // null on the server and until the session is restored from the refresh cookie.
+  const hasToken = useSessionState();
   const [signingOut, setSigningOut] = useState(false);
   const profileResource = usePatientResource<Profile>(hasToken ? "profile" : null, () => profileApi.get(), { staleMs: 60_000 });
   const { data: profile, error, refresh } = profileResource;

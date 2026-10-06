@@ -26,7 +26,7 @@ export function ReadsBand() {
   if (!reads || library.error || (!library.isLoading && library.items.length === 0)) return null;
 
   return (
-    <section aria-labelledby="reads-band-title" className="lm-glass mb-6 overflow-hidden">
+    <section data-tour="reads" aria-labelledby="reads-band-title" className="lm-glass mb-6 overflow-hidden">
       <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:p-10">
         <div className="min-w-0">
           <p className="lm-eyebrow flex items-center gap-2.5">

@@ -1,5 +1,5 @@
 import { apiUrl } from "./config";
-import { clearTokens, getAccessToken, getRefreshToken, saveTokens, type AuthTokens } from "./tokens";
+import { clearTokens, getAccessToken, getSessionState, markSignedOut, saveTokens, type AuthTokens } from "./tokens";
 
 /**
  * Browser API client for the patient app. Calls the Nest API directly under
@@ -103,24 +103,32 @@ export type RequestOptions = {
 
 let refreshing: Promise<boolean> | null = null;
 
-/** One shared refresh at a time; on failure the session is cleared. */
+/** Asks the same-origin session route to trade the HttpOnly refresh cookie for a new access token. */
+async function requestRefresh(): Promise<"ok" | "rejected" | "unreachable"> {
+  try {
+    const res = await fetch("/api/session/refresh", { method: "POST", cache: "no-store" });
+    if (res.ok) {
+      saveTokens(unwrap<AuthTokens>(await readJson(res)));
+      return "ok";
+    }
+    return res.status >= 500 ? "unreachable" : "rejected";
+  } catch {
+    return "unreachable";
+  }
+}
+
+/**
+ * One shared refresh at a time, and one across tabs too (the rotating refresh token must not be spent twice
+ * at once). On rejection the session is cleared; if the network is down it is not (the cookie is still good).
+ */
 export function refreshSession(): Promise<boolean> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return Promise.resolve(false);
   refreshing ??= (async () => {
     try {
-      const res = await fetch(apiUrl("/auth/refresh"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-        cache: "no-store",
-      });
-      if (!res.ok) throw new Error("refresh failed");
-      saveTokens(unwrap<AuthTokens>(await readJson(res)));
-      return true;
-    } catch {
-      clearTokens();
-      return false;
+      const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
+      const outcome = locks ? await locks.request("vitamind-session-refresh", requestRefresh) : await requestRefresh();
+      if (outcome === "rejected") clearTokens();
+      else if (outcome === "unreachable") markSignedOut();
+      return outcome === "ok";
     } finally {
       refreshing = null;
     }
@@ -128,9 +136,15 @@ export function refreshSession(): Promise<boolean> {
   return refreshing;
 }
 
+/** After a reload there is no access token in memory: the first caller restores the session from the cookie. */
+export function ensureSession(): Promise<boolean> {
+  return getSessionState() === null ? refreshSession() : Promise.resolve(getSessionState() === true);
+}
+
 async function send(path: string, options: RequestOptions, retry: boolean): Promise<Response> {
   const headers: Record<string, string> = { ...options.headers };
   if (options.body !== undefined) headers["Content-Type"] = "application/json";
+  if (options.auth !== false) await ensureSession();
   const token = options.auth === false ? null : getAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
 
