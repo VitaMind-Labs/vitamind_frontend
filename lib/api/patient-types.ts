@@ -10,6 +10,8 @@ export type Profile = {
   email: string;
   language: "EN" | "AR";
   track: PatientTrack;
+  /** Mira's orientation is finished. A patient with neither this nor a clinician's diagnosis cannot enter the dashboard. */
+  orientationCompleted?: boolean;
   hasCompletedOnboarding: boolean;
   memberSince: string;
   careTeam: { hasClinician: boolean; count: number };

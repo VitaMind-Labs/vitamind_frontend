@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api/client";
 import { authApi } from "@/lib/api/auth";
@@ -129,6 +129,37 @@ export function PatientProvider({
     if (needsWelcome && !onWelcomeFlow) router.replace(WELCOME_ROUTE);
   }, [needsWelcome, onWelcomeFlow, router]);
 
+  // No orientation, no dashboard: a patient with neither a finished Mira orientation nor a clinician's
+  // diagnosis is sent to /orientation. The (possibly cached) profile is re-read from the server first, so
+  // someone who has just finished is never bounced back. A finished orientation with no clear pattern still
+  // enters: the orientation page would only answer "already completed".
+  const inDashboard = Boolean(pathname?.startsWith(ROUTES.dashboard));
+  const lacksOrientation = Boolean(
+    profile && !needsWelcome && profile.orientationCompleted === false && profile.track === "UNSPECIFIED",
+  );
+  const [orientationChecked, setOrientationChecked] = useState(false);
+  const checking = useRef(false);
+  useEffect(() => {
+    if (!lacksOrientation || !inDashboard || orientationChecked || checking.current) return;
+    checking.current = true;
+    profileApi
+      .get()
+      .then((fresh) => {
+        if (fresh.orientationCompleted === false && fresh.track === "UNSPECIFIED") {
+          router.replace(ROUTES.orientation);
+        } else {
+          writeCachedProfile(fresh);
+          setOrientationChecked(true);
+          void refresh();
+        }
+      })
+      .catch(() => setOrientationChecked(true)) // a failed check must not lock the patient out
+      .finally(() => {
+        checking.current = false;
+      });
+  }, [lacksOrientation, inDashboard, orientationChecked, refresh, router]);
+  const holdForOrientation = lacksOrientation && inDashboard && !orientationChecked;
+
   const signOut = useCallback(async () => {
     // The live stream closes first: nothing keeps listening for a patient who is leaving.
     setSigningOut(true);
@@ -149,6 +180,7 @@ export function PatientProvider({
   if (gate === "checking") return <>{pending}</>;
   if (gate === "error" || !value) return <>{errorFallback(() => void refresh(), error)}</>;
   if (needsWelcome && !onWelcomeFlow) return <>{pending}</>;
+  if (holdForOrientation) return <>{pending}</>;
   return (
     <PatientContext.Provider value={value}>
       {!signingOut && <LiveUpdates />}
