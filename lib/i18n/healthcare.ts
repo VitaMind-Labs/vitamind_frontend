@@ -22,6 +22,8 @@ export type HealthcareCopy = {
   /** How patient information is governed, in three lines, and the link that opens the full page. */
   governance: { title: string; points: readonly string[]; link: string };
   escalation: { title: string; intro: string; stepLabel: string; steps: readonly Pair[] };
+  /** Words inside the small illustrative previews (report, alert). */
+  mock: { report: string; acknowledged: string; due: string };
 };
 
 const en: HealthcareCopy = {
@@ -59,6 +61,7 @@ const en: HealthcareCopy = {
       ["A human follows up", "Unanswered items escalate to the clinic administrator."],
     ],
   },
+  mock: { report: "Weekly report", acknowledged: "Reviewed · acknowledged", due: "Response due" },
 };
 
 const ar: HealthcareCopy = {
@@ -96,6 +99,7 @@ const ar: HealthcareCopy = {
       ["يتابع إنسان", "ما لا يُجاب عنه يُصعَّد إلى مدير العيادة."],
     ],
   },
+  mock: { report: "التقرير الأسبوعي", acknowledged: "تمت المراجعة والتأكيد", due: "مهلة الاستجابة" },
 };
 
 export const healthcareCopy: Record<Lang, HealthcareCopy> = { en, ar };

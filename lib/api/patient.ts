@@ -16,6 +16,7 @@ import type {
   Profile,
   ReportDetail,
   ReportListItem,
+  SparkView,
 } from "./patient-types";
 
 /**
@@ -142,4 +143,29 @@ export const libraryApi = {
   /** Idempotent on `eventId`. */
   sendEvent: (input: { eventId: string; contentId: string; type: LibraryEventType }) =>
     api.post<{ accepted: boolean; reason?: string }>("/me/library/events", input),
+};
+
+/** The patient's own local date and hour: the backend has no stored timezone, so it plans the day the patient is in. */
+function sparkClock() {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return { date: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`, hour: now.getHours() };
+}
+
+/** Spark, the ADHD task assistant (`/me/spark`). Every call answers with the whole updated view. 403 SPARK_ADHD_ONLY for other tracks. */
+export const sparkApi = {
+  view: () => {
+    const { date, hour } = sparkClock();
+    return api.get<SparkView>(`/me/spark?date=${date}&hour=${hour}`);
+  },
+  /** Free text in, tasks out. The engine can take a moment: it gets the agent timeout. */
+  add: (text: string) => api.post<SparkView>("/me/spark/tasks", { text, ...sparkClock() }, { timeoutMs: AGENT_TIMEOUT_MS }),
+  setStatus: (id: string, status: "TODO" | "DONE") => api.patch<SparkView>(`/me/spark/tasks/${id}`, { status, ...sparkClock() }),
+  defer: (id: string) => api.post<SparkView>(`/me/spark/tasks/${id}/defer`, sparkClock()),
+  setStep: (id: string, index: number, done: boolean) => api.patch<SparkView>(`/me/spark/tasks/${id}/steps/${index}`, { done, ...sparkClock() }),
+  remove: (id: string) => {
+    const { date, hour } = sparkClock();
+    return api.delete<SparkView>(`/me/spark/tasks/${id}?date=${date}&hour=${hour}`);
+  },
+  focus: (minutes: number, taskId?: string) => api.post<SparkView>("/me/spark/focus", { minutes, taskId, ...sparkClock() }),
 };

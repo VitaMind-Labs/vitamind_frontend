@@ -2,7 +2,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { healthcareCopy } from "@/lib/i18n/healthcare";
-import { homeBridgeCopy, homeLoopCopy } from "@/lib/i18n/homeStory";
+import { homeStoryCopy } from "@/lib/i18n/homeStory";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -13,12 +13,14 @@ import { useEffect, useState } from "react";
 export function SectionRail() {
     const { dictionary, language } = useLanguage();
     const copy = dictionary.homeLanding;
+    const story = homeStoryCopy[language];
     const [active, setActive] = useState("home");
 
     const items = [
         { id: "home", label: copy.nav.home },
-        { id: "why", label: homeBridgeCopy[language].rail },
-        { id: "how", label: homeLoopCopy[language].rail },
+        { id: "what", label: story.what.rail },
+        { id: "for", label: story.audience.rail },
+        { id: "agents", label: story.agents.rail },
         { id: "healthcare", label: healthcareCopy[language].rail },
         { id: "cta", label: copy.nav.getStarted },
     ];

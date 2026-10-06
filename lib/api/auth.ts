@@ -21,8 +21,12 @@ function withoutEmpty<T extends Record<string, unknown>>(input: T): Partial<T> {
 export const authApi = {
   async register(input: RegisterInput) {
     const res = await api.post<AuthTokens>("/auth/register", withoutEmpty(input), { auth: false });
-    saveTokens(res);
-    return res;
+    // The nickname chosen at signup is the name Mira uses, even if the response carries no user.
+    const nickname = input.nickname.trim();
+    const withUser: AuthTokens = res.user ? res : { ...res, user: { id: "", nickname } };
+    if (withUser.user && !withUser.user.nickname) withUser.user = { ...withUser.user, nickname };
+    saveTokens(withUser);
+    return withUser;
   },
 
   async login(email: string, password: string) {
