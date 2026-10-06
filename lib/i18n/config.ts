@@ -24,7 +24,7 @@ const arabicHomeLanding = {
   nav: { home: "الرئيسية", features: "الميزات", process: "كيف نعمل", getStarted: "ابدأ الآن", menu: "فتح القائمة", close: "إغلاق القائمة" },
   hero: { titleA: "عقلك لا يتوقف،", titleB: "ورعايتك تبقى معه.", subtitle: "VitaMind منصة دعم للصحة النفسية مدعومة بالذكاء الاصطناعي، لمن يعيشون مع اضطراب فرط الحركة وتشتت الانتباه أو الاضطراب ثنائي القطب أو الذهان، وللمختصين الذين يرافقونهم. تسدّ الفجوة بين الحياة اليومية والرعاية السريرية عبر متابعة ودعم مستمرَّين ومخصَّصين.", primary: "ابدأ الآن", demo: "للمختصين", discover: "اكتشف المزيد", preview: "معاينة مباشرة", dashboard: ["لوحة التحكم", "التحليلات", "الدعم", "المذكرات", "الإعدادات"], stats: ["مؤشر العافية", "التتابع", "الجلسات"], scoreChange: "+4.2٪", days: "أيام", thisMonth: "هذا الشهر", baseline: "المسار النفسي", last30: "آخر 30 يوماً", stable: "مستقر", insight: "بين موعدين", pattern: "لا يضيع شيء مهم", encrypted: "خاص في التصميم — أنت تختار ما يُشارَك" },
   intro: { lineA: "أيامك، مفهومة", lineB: "يوماً بيوم.", tagline: "متابعة يومية · استمرارية في الرعاية", skip: "تخطّي" },
-  cta: { eyebrow: "ابدأ خطوتك اليوم", titleA: "هل أنت مستعد", titleB: "للخطوة التالية؟", body: "ابدأ مع ميرا. ويشاركك مختصك متى اخترت.", primary: "ابدأ الآن", demo: "العيادات والمؤسسات: تواصل معنا", benefits: ["التوجيه ضمن حسابك", "بياناتك تبقى خاصة", "أنت تقرر ما يُشارَك"] },
+  cta: { eyebrow: "ابدأ خطوتك اليوم", titleA: "هل أنت مستعد", titleB: "للخطوة التالية؟", body: "ابدأ مع ميرا. ويشاركك مختصك متى اخترت.", primary: "ابدأ الآن", demo: "العيادات والمؤسسات: تواصل معنا", benefits: ["التوجيه ضمن حسابك", "أنت تقرر ما يُشارَك"] },
   footer: { description: "متابعة يومية واستمرارية في الرعاية لمن يعيشون مع الاضطراب ثنائي القطب أو الفصام أو اضطراب فرط الحركة وتشتت الانتباه. لأن ما يحدث بين الموعدين مهم.", product: "المنتج", company: "المساعدة والحساب", updates: "ابقَ على اطلاع", email: "أدخل بريدك الإلكتروني", privacy: "الخصوصية", terms: "الشروط", cookies: "ملفات الارتباط", links: ["ميرا · التوجيه", "لومينا · المساحة اليومية", "مسارات الرعاية", "للمختصين", "الثقة والأمان"], companyLinks: ["الدعم", "تسجيل الدخول", "إنشاء حساب"], rights: "جميع الحقوق محفوظة." },
 } as const;
 
@@ -125,7 +125,7 @@ const baseCopy = {
           ["Share with your clinician", "Each month your information becomes a structured profile and, if you authorize it, a clinician report.", ["Monthly profile", "Clinician report", "You decide"]],
         ],
       },
-      cta: { eyebrow: "Start your next step today", titleA: "Ready to take", titleB: "the next step?", body: "Start with Mira. Your clinician joins whenever you choose.", primary: "Get started", demo: "Clinics and institutions: contact us", benefits: ["Orientation included with your account", "Your data stays private", "You decide what is shared"] },
+      cta: { eyebrow: "Start your next step today", titleA: "Ready to take", titleB: "the next step?", body: "Start with Mira. Your clinician joins whenever you choose.", primary: "Get started", demo: "Clinics and institutions: contact us", benefits: ["Orientation included with your account", "You decide what is shared"] },
       intro: { lineA: "Your days, understood", lineB: "one at a time.", tagline: "Daily monitoring · continuity of care", skip: "Skip" },
       footer: { description: "Daily monitoring and continuity of care for people living with bipolar disorder, schizophrenia or ADHD. Because what happens between consultations matters.", product: "Product", company: "Help & account", updates: "Stay updated", email: "Enter your email", privacy: "Privacy", terms: "Terms", cookies: "Cookies", links: ["Mira · Orientation", "Lumina · Daily space", "Care paths", "For clinicians", "Trust & safety"], companyLinks: ["Support", "Sign in", "Create account"], rights: "All rights reserved." },
     },
@@ -496,6 +496,7 @@ const baseCopy = {
       urgentTitle: "Need help right now?",
       urgentBody: "Support cannot respond urgently. If you are in danger or thinking of harming yourself, contact your local emergency services now.",
       counter: "{n} / {max}",
+      thread: { you: "You", question: "Can my clinician see my journal?", team: "Care-support team", reply: "Only if you choose to share it. You can change that at any time in your settings.", eta: "Reply within one business day" },
       faqEyebrow: "Quick answers",
       faqTitle: "Frequently asked questions",
       faqMore: "How we protect your information",
@@ -969,6 +970,7 @@ const arabicCopy = {
     urgentTitle: "تحتاج مساعدة الآن؟",
     urgentBody: "لا يستطيع الدعم الرد بشكل عاجل. إذا كنت في خطر أو تفكر في إيذاء نفسك، فتواصل مع خدمات الطوارئ المحلية الآن.",
     counter: "{n} / {max}",
+    thread: { you: "أنت", question: "هل يستطيع مختصي رؤية مفكرتي؟", team: "فريق دعم الرعاية", reply: "فقط إذا اخترت مشاركتها. ويمكنك تغيير ذلك في أي وقت من إعداداتك.", eta: "رد خلال يوم عمل واحد" },
     faqEyebrow: "إجابات سريعة",
     faqTitle: "الأسئلة الشائعة",
     faqMore: "كيف نحمي معلوماتك",

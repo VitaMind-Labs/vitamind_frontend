@@ -3,8 +3,9 @@ import type { Lang } from "@/lib/i18n/config";
 /**
  * Copy for the home page's story, in the order a first-time visitor needs it:
  *
- * - `heroMap`: the three parts of VitaMind as one quiet line under the hero buttons.
- * - `what`: what VitaMind is, as one statement and one picture (you · VitaMind · your clinician).
+ * Each fact is said once. The hero says what to do, `what` says what VitaMind is (you · VitaMind · your clinician), and the
+ * professional's role is left to `healthcare.ts`, so no section repeats another.
+ * - `what`: what VitaMind is, as one statement and one picture.
  * - `audience`: who it is for: people living with ADHD, bipolar disorder or psychosis, and the professionals around them.
  * - `agents`: what Mira does (once) and what Lumina does (every day), three lines each.
  * How professionals are involved lives in `healthcare.ts`. Each block only says what the visitor needs to understand the
@@ -15,7 +16,6 @@ import type { Lang } from "@/lib/i18n/config";
 type Pair = readonly [title: string, line: string];
 
 export type HomeStoryCopy = {
-  heroMap: { label: string; items: readonly { name: string; line: string }[] };
   what: {
     rail: string;
     eyebrow: string;
@@ -27,7 +27,6 @@ export type HomeStoryCopy = {
     highlight: readonly string[];
     nodes: readonly { label: string; title: string; points: readonly string[] }[];
     consent: string;
-    rule: string;
   };
   audience: {
     rail: string;
@@ -36,7 +35,6 @@ export type HomeStoryCopy = {
     titleB: string;
     intro: string;
     people: { label: string; title: string; conditions: readonly Pair[]; link: string };
-    unsure: { title: string; line: string; cta: string };
     pros: { label: string; title: string; items: readonly Pair[]; cta: string };
   };
   agents: {
@@ -54,14 +52,6 @@ export type HomeStoryCopy = {
 type AgentChapter = { when: string; role: string; lead: string; does: readonly string[]; boundary: string; cta: string };
 
 const en: HomeStoryCopy = {
-  heroMap: {
-    label: "VitaMind in three parts",
-    items: [
-      { name: "Mira", line: "Orientation, once" },
-      { name: "Lumina", line: "Your daily space" },
-      { name: "Clinicians", line: "Always in charge" },
-    ],
-  },
   what: {
     rail: "What it is",
     eyebrow: "What VitaMind is",
@@ -76,7 +66,6 @@ const en: HomeStoryCopy = {
       { label: "Your clinician", title: "Clinical care", points: ["Reviews", "Decides", "Follows up"] },
     ],
     consent: "Only with your consent",
-    rule: "AI guides and flags · the professional decides",
   },
   audience: {
     rail: "Who it is for",
@@ -94,7 +83,6 @@ const en: HomeStoryCopy = {
       ],
       link: "Explore the care tracks",
     },
-    unsure: { title: "Not sure yet?", line: "Mira's orientation helps you see which signals are worth discussing with a professional.", cta: "Start with Mira" },
     pros: {
       label: "For professionals",
       title: "And those who care for them",
@@ -111,7 +99,7 @@ const en: HomeStoryCopy = {
     eyebrow: "Two AI companions",
     titleA: "One to begin,",
     titleB: "one for every day.",
-    intro: "Both come with your account, in English and Arabic. Neither one diagnoses: that stays with a licensed professional.",
+    intro: "Both come with your account, in English and Arabic: one conversation to begin, then a space that stays with you.",
     then: "Then, every day",
     mira: {
       when: "Once · about 10 minutes",
@@ -126,21 +114,13 @@ const en: HomeStoryCopy = {
       role: "Daily space",
       lead: "Your space between consultations, kept and understood.",
       does: ["A quick check-in and a private journal", "Your trends, compared with your own baseline", "A monthly report, shared only if you agree"],
-      boundary: "Spark for ADHD · a resource library for bipolar disorder and psychosis.",
+      boundary: "A daily space, not an emergency service: in danger, contact local emergency services.",
       cta: "Discover Lumina",
     },
   },
 };
 
 const ar: HomeStoryCopy = {
-  heroMap: {
-    label: "VitaMind في ثلاثة أجزاء",
-    items: [
-      { name: "ميرا", line: "التوجيه، مرة واحدة" },
-      { name: "لومينا", line: "مساحتك اليومية" },
-      { name: "المختصون", line: "القرار لهم دائماً" },
-    ],
-  },
   what: {
     rail: "ما هي",
     eyebrow: "ما هي VitaMind",
@@ -155,7 +135,6 @@ const ar: HomeStoryCopy = {
       { label: "مختصك", title: "الرعاية السريرية", points: ["يراجع", "يقرّر", "يتابع"] },
     ],
     consent: "بموافقتك فقط",
-    rule: "الذكاء الاصطناعي يوجّه وينبّه · والمختص يقرّر",
   },
   audience: {
     rail: "لمن هي",
@@ -173,7 +152,6 @@ const ar: HomeStoryCopy = {
       ],
       link: "استكشف مسارات الرعاية",
     },
-    unsure: { title: "لست متأكداً بعد؟", line: "يساعدك توجيه ميرا على رؤية الإشارات التي تستحق نقاشاً مع مختص.", cta: "ابدأ مع ميرا" },
     pros: {
       label: "للمختصين",
       title: "ومن يعتنون بهم",
@@ -190,7 +168,7 @@ const ar: HomeStoryCopy = {
     eyebrow: "رفيقان بالذكاء الاصطناعي",
     titleA: "واحدة للبداية،",
     titleB: "وأخرى لكل يوم.",
-    intro: "كلتاهما ضمن حسابك، بالعربية والإنجليزية. ولا تشخّص أيّ منهما: التشخيص يبقى لمختص مرخَّص.",
+    intro: "كلتاهما ضمن حسابك، بالعربية والإنجليزية: محادثة للبداية، ثم مساحة تبقى معك.",
     then: "ثم، كل يوم",
     mira: {
       when: "مرة واحدة · نحو 10 دقائق",
@@ -205,7 +183,7 @@ const ar: HomeStoryCopy = {
       role: "المساحة اليومية",
       lead: "مساحتك بين الاستشارات، محفوظة ومفهومة.",
       does: ["فحص يومي سريع ومفكرة خاصة", "اتجاهاتك مقارنةً بخطّك المرجعي", "تقرير شهري لا يُشارَك إلا بموافقتك"],
-      boundary: "سبارك لفرط الحركة وتشتت الانتباه · ومكتبة موارد للاضطراب ثنائي القطب والذهان.",
+      boundary: "مساحة يومية، وليست خدمة طوارئ: عند الخطر تواصل مع خدمات الطوارئ المحلية.",
       cta: "اكتشف لومينا",
     },
   },

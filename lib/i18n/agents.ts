@@ -58,6 +58,8 @@ export type LuminaPreviewCopy = {
     report: { title: string; sections: readonly string[]; share: string; consent: string };
   };
   bento: { goals: string; week: string };
+  /** The first screen of the app, as the window on /lumina and the hero draw it. */
+  home: { wellbeing: string; wellbeingLine: string; signalsTitle: string; signals: readonly string[]; planTitle: string; plan: readonly string[]; nextTitle: string; nextLine: string };
 };
 
 export type LuminaTracksCopy = {
@@ -180,10 +182,10 @@ const en: AgentPagesCopy = {
         "Meet Lumina, VitaMind's daily companion: a quick check-in, a private bilingual journal, simple goals, your own baseline and a monthly clinician report you share only with your consent.",
     },
     hero: {
-      eyebrow: "Lumina · Daily companion",
+      eyebrow: "Lumina · Your daily space",
       titleA: "Your days,",
       titleB: "kept and understood.",
-      body: "A quick check-in, a private journal and your own baseline — turned into a report only when you choose.",
+      body: "Check in for a few seconds, write freely, and watch your own baseline take shape. A clinician sees a report only when you decide to share it.",
       primary: "Enter Lumina",
       secondary: "See how it works",
     },
@@ -193,28 +195,28 @@ const en: AgentPagesCopy = {
       ["1", "monthly report"],
     ],
     role: {
-      eyebrow: "What Lumina does",
-      titleA: "A steady presence,",
-      titleB: "week after week.",
+      eyebrow: "What Lumina holds",
+      titleA: "Everything your day needs,",
+      titleB: "nothing it doesn't.",
       items: [
-        ["A steady companion", "Welcomes you into your day.", "Companion"],
-        ["Daily check-in", "Five signals, a few seconds.", "Check-in"],
-        ["Journal analysis", "Themes and emotions, for you and — if you choose — your clinician. Not a diagnosis.", "Journal"],
-        ["Continuous monitoring", "You, compared with your own baseline.", "Baseline"],
-        ["Progress tracking", "Goals and trends, week after week.", "Progress"],
-        ["Professional reports", "A monthly report, shared only by consent.", "Report"],
+        ["A calm welcome", "Opens on how you are today, not on a wall of numbers.", "Today"],
+        ["Daily check-in", "Mood, energy, focus, stress and sleep. Seconds, not forms.", "Check-in"],
+        ["Smart journal", "Write in English, Gulf Arabic or both. Lumina lifts out themes and emotions; it never labels you.", "Journal"],
+        ["Your own baseline", "You, compared with you. A line inside your usual range is a steady month.", "Baseline"],
+        ["Goals that bend", "Done, partly done or missed: every day counts and none of them judges you.", "Goals"],
+        ["A report you control", "A monthly summary for your clinician, shared only if you switch it on.", "Report"],
       ],
     },
     flow: {
-      eyebrow: "How Lumina works",
+      eyebrow: "A day with Lumina",
       titleA: "A few seconds a day,",
       titleB: "a clearer month.",
       stepLabel: "Step",
       steps: [
-        ["Check in", "Five signals. Seconds."],
-        ["Write freely", "English, Gulf Arabic, or both."],
-        ["See your evolution", "Baseline, trends, patterns."],
-        ["Share by choice", "A report, only when you agree."],
+        ["Check in", "Five signals, a few taps. That is the whole routine."],
+        ["Write freely", "English, Gulf Arabic or both, in your own words."],
+        ["Watch it take shape", "Your baseline, your trends and the patterns worth noticing."],
+        ["Share by choice", "A monthly report for your clinician, only when you switch it on."],
       ],
     },
     trust: {
@@ -307,6 +309,16 @@ const en: AgentPagesCopy = {
         report: { title: "Monthly report", sections: ["Trends", "Evidence", "Data limits"], share: "Share with my clinician", consent: "Only with your consent" },
       },
       bento: { goals: "goals today", week: "This week" },
+      home: {
+        wellbeing: "Today's wellbeing",
+        wellbeingLine: "How you are, at a glance",
+        signalsTitle: "Recent signals",
+        signals: ["Your sleep has improved this week", "Mood steady over seven days", "Focus is higher in the morning"],
+        planTitle: "Today's plan",
+        plan: ["Breathing exercise", "Morning light", "Journal your thoughts"],
+        nextTitle: "Within your usual range",
+        nextLine: "Nothing to act on today.",
+      },
     },
   },
 };
@@ -408,10 +420,10 @@ const ar: AgentPagesCopy = {
         "تعرّف على لومينا، رفيقة VitaMind اليومية: فحص سريع، ومفكرة خاصة بلغتين، وأهداف بسيطة، وخطّك المرجعي، وتقرير شهري للمختص لا يُشارَك إلا بموافقتك.",
     },
     hero: {
-      eyebrow: "لومينا · الرفيقة اليومية",
+      eyebrow: "لومينا · مساحتك اليومية",
       titleA: "أيامك،",
       titleB: "محفوظة ومفهومة.",
-      body: "فحص سريع ومفكرة خاصة وخطّك المرجعي — يتحول إلى تقرير حين تختار فقط.",
+      body: "سجّل يومك في ثوانٍ، واكتب بحرية، وشاهد خطّك المرجعي يتشكّل. لا يرى المختص تقريراً إلا حين تقرر أنت مشاركته.",
       primary: "ادخل إلى لومينا",
       secondary: "اكتشف كيف تعمل",
     },
@@ -421,28 +433,28 @@ const ar: AgentPagesCopy = {
       ["1", "تقرير شهري"],
     ],
     role: {
-      eyebrow: "ما تفعله لومينا",
-      titleA: "حضور ثابت،",
-      titleB: "أسبوعاً بعد أسبوع.",
+      eyebrow: "ما تحمله لومينا",
+      titleA: "كل ما يحتاجه يومك،",
+      titleB: "ولا شيء زائد.",
       items: [
-        ["رفيقة ثابتة", "تستقبلك في يومك.", "رفيقة"],
-        ["الفحص اليومي", "خمس إشارات في ثوانٍ.", "فحص"],
-        ["تحليل المفكرة", "مواضيع ومشاعر، لك ولمختصك إن اخترت. وليست تشخيصاً.", "مفكرة"],
-        ["متابعة مستمرة", "أنت، مقارنةً بخطّك المرجعي.", "خط مرجعي"],
-        ["تتبّع التقدّم", "أهداف واتجاهات، أسبوعاً بعد أسبوع.", "تقدّم"],
-        ["تقارير مهنية", "تقرير شهري، بموافقتك فقط.", "تقرير"],
+        ["استقبال هادئ", "تفتح على حالك اليوم، لا على جدار من الأرقام.", "اليوم"],
+        ["الفحص اليومي", "المزاج والطاقة والتركيز والتوتر والنوم. ثوانٍ، لا استمارات.", "فحص"],
+        ["المفكرة الذكية", "اكتب بالعربية الخليجية أو الإنجليزية أو بهما معاً. تستخرج لومينا المواضيع والمشاعر ولا تصنّفك أبداً.", "مفكرة"],
+        ["خطّك المرجعي", "أنت مقارنةً بنفسك. خط داخل نطاقك المعتاد يعني شهراً مستقراً.", "خط مرجعي"],
+        ["أهداف مرنة", "منجزة أو جزئية أو فائتة: كل يوم يُحسب ولا حكم على أحد.", "أهداف"],
+        ["تقرير بيدك", "ملخص شهري لمختصك، لا يُشارَك إلا إن فعّلته أنت.", "تقرير"],
       ],
     },
     flow: {
-      eyebrow: "كيف تعمل لومينا",
+      eyebrow: "يوم مع لومينا",
       titleA: "ثوانٍ كل يوم،",
       titleB: "وشهر أوضح.",
       stepLabel: "الخطوة",
       steps: [
-        ["افحص يومك", "خمس إشارات. ثوانٍ."],
-        ["اكتب بحرية", "الإنجليزية أو الخليجية أو الاثنتان."],
-        ["شاهد تطوّرك", "خط مرجعي واتجاهات وأنماط."],
-        ["شارك بالاختيار", "تقرير، حين توافق فقط."],
+        ["سجّل يومك", "خمس إشارات ببضع لمسات. هذا هو الروتين كله."],
+        ["اكتب بحرية", "بالعربية الخليجية أو الإنجليزية أو بهما، بكلماتك."],
+        ["شاهد الصورة تتشكّل", "خطّك المرجعي واتجاهاتك والأنماط التي تستحق الانتباه."],
+        ["شارك بالاختيار", "تقرير شهري لمختصك، حين تفعّله فقط."],
       ],
     },
     trust: {
@@ -535,6 +547,16 @@ const ar: AgentPagesCopy = {
         report: { title: "التقرير الشهري", sections: ["الاتجاهات", "الأدلة", "حدود البيانات"], share: "شارك مع مختصي", consent: "بموافقتك فقط" },
       },
       bento: { goals: "أهداف اليوم", week: "هذا الأسبوع" },
+      home: {
+        wellbeing: "حالك اليوم",
+        wellbeingLine: "نظرة سريعة على حالك",
+        signalsTitle: "إشارات حديثة",
+        signals: ["نومك تحسّن هذا الأسبوع", "مزاجك مستقر منذ سبعة أيام", "تركيزك أعلى في الصباح"],
+        planTitle: "خطة اليوم",
+        plan: ["تمرين تنفّس", "ضوء الصباح", "دوّن أفكارك"],
+        nextTitle: "ضمن نطاقك المعتاد",
+        nextLine: "لا شيء يستدعي تصرفاً اليوم.",
+      },
     },
   },
 };

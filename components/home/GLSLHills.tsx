@@ -26,15 +26,15 @@ class Plane {
     mesh: THREE.Mesh;
     time: number;
 
-    constructor(speed: number, planeSize: number) {
+    constructor(speed: number, planeSize: number, segments: number) {
         this.uniforms = { time: { value: 0 } };
-        this.mesh = this.createMesh(planeSize);
+        this.mesh = this.createMesh(planeSize, segments);
         this.time = speed;
     }
 
-    createMesh(planeSize: number): THREE.Mesh {
+    createMesh(planeSize: number, segments: number): THREE.Mesh {
         return new THREE.Mesh(
-            new THREE.PlaneGeometry(planeSize, planeSize, planeSize, planeSize),
+            new THREE.PlaneGeometry(planeSize, planeSize, segments, segments),
             new THREE.RawShaderMaterial({
                 uniforms: this.uniforms,
                 vertexShader: `
@@ -181,7 +181,10 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
         const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 10000);
-        const plane = new Plane(speed, planeSize);
+        // Phones get a lighter mesh (the vertex shader runs three noise passes per vertex); the hills read the same.
+        const segments = window.matchMedia("(max-width: 767px)").matches ? Math.round(planeSize * 0.75) : planeSize;
+        const plane = new Plane(speed, planeSize, segments);
+        const target = new THREE.Vector3();
 
         let lastTime = performance.now();
         let animationFrameId: number = 0;
@@ -214,7 +217,7 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
             look.y += (look.ty - look.y) * 0.04;
             look.p += ((reduceMotion ? 0 : (progress?.get() ?? 0)) - look.p) * 0.08;
             camera.position.set(look.x * 7, 16 - look.y * 3 + look.p * 10, cameraZ - look.p * 38);
-            camera.lookAt(new THREE.Vector3(look.x * -4, 28 + look.p * 8, 0));
+            camera.lookAt(target.set(look.x * -4, 28 + look.p * 8, 0));
         };
 
         const render = () => {
@@ -244,8 +247,13 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
             animationFrameId = 0;
         };
 
-        // Only animate while the hero is on screen; reduced motion renders a single still frame.
-        const observer = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()));
+        // Only animate while the hero is on screen and the tab is visible; reduced motion renders a single still frame.
+        let onScreen = false;
+        const sync = () => (onScreen && !document.hidden ? start() : stop());
+        const observer = new IntersectionObserver(([entry]) => {
+            onScreen = entry.isIntersecting;
+            sync();
+        });
 
         renderer.setClearColor(0x000000, 0);
         camera.position.set(0, 16, cameraZ);
@@ -254,6 +262,7 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
 
         window.addEventListener('resize', resize);
         window.addEventListener('pointermove', onPointerMove, { passive: true });
+        document.addEventListener('visibilitychange', sync);
         resize();
         render();
         observer.observe(container);
@@ -261,6 +270,7 @@ const GLSLHills = ({ width = '100%', height = '100%', cameraZ = 125, planeSize =
         return () => {
             window.removeEventListener('resize', resize);
             window.removeEventListener('pointermove', onPointerMove);
+            document.removeEventListener('visibilitychange', sync);
             observer.disconnect();
             stop();
             renderer.dispose();

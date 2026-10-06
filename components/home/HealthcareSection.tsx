@@ -6,13 +6,16 @@ import { healthcareCopy, type HealthcareCopy } from "@/lib/i18n/healthcare";
 import { EASE_OUT, REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Lock, ShieldAlert, Stethoscope } from "lucide-react";
+import { ArrowRight, BellRing, Eye, Flag, Lock, ShieldAlert, Stethoscope, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { Grain, WaveLines } from "./Atmosphere";
 import { DrawCheck } from "./DrawCheck";
 import { HomeSection } from "./HomeSection";
 import { SectionHeader } from "./SectionHeader";
 import { DISPLAY_S } from "./typography";
+
+/** One mark per step of the path: seen, flagged, alerted, handled by a person. */
+const STEP_ICONS = [Eye, Flag, BellRing, UserCheck] as const;
 
 const ONCE = { once: true, margin: "0px 0px -10% 0px" } as const;
 
@@ -94,7 +97,7 @@ function ConsentPreview() {
                 initial={reduce ? false : { x: 0 }}
                 whileInView={{ x: 16 }}
                 viewport={ONCE}
-                transition={{ type: "spring", stiffness: 380, damping: 24, delay: 0.6 + index * 0.4 }}
+                transition={{ duration: 0.5, ease: EASE_OUT, delay: 0.6 + index * 0.4 }}
               />
             </span>
           ) : (
@@ -166,9 +169,11 @@ function SafetyPath({ copy, due }: { copy: HealthcareCopy["escalation"]; due: st
           const alert = index === 2;
           return (
             <motion.li key={title} variants={fadeUp(0, 14)} className="relative flex items-start gap-4 lg:flex-col lg:gap-5">
-              <span className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border border-gold/50 bg-teal-900 text-[0.9375rem] font-medium tabular-nums text-gold-300">
-                <span className="sr-only">{copy.stepLabel} </span>
-                <span dir="ltr">{index + 1}</span>
+              <span className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border border-gold/50 bg-teal-900 text-gold-300">
+                {(() => {
+                  const Icon = STEP_ICONS[index % STEP_ICONS.length];
+                  return <Icon aria-hidden className="size-[1.125rem]" strokeWidth={1.75} />;
+                })()}
                 {alert ? (
                   <svg aria-hidden viewBox="0 0 48 48" className="absolute -inset-1.5 size-[calc(100%+0.75rem)] -rotate-90">
                     <motion.circle
@@ -216,7 +221,7 @@ export const HealthcareSection = () => {
 
   return (
     <HomeSection id="healthcare" labelledBy="healthcare-title" tone="tint">
-      <SectionHeader variant="editorial" id="healthcare-title" layout="split" counter="04 / 04" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+      <SectionHeader variant="editorial" id="healthcare-title" layout="split" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
       <div className="mt-12 grid gap-5 md:mt-16 lg:grid-cols-12 lg:gap-6">
           {/* The professional stays in charge */}

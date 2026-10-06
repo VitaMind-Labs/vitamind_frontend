@@ -135,8 +135,8 @@ export function LuminaTracks() {
   const tracks = copy.lumina.tracks;
 
   return (
-    <HomeSection id="tracks" labelledBy="tracks-title" tone="base">
-      <SectionHeader variant="editorial" id="tracks-title" layout="split" counter="02 / 04" eyebrow={tracks.eyebrow} titleA={tracks.titleA} titleB={tracks.titleB} intro={tracks.intro} />
+    <HomeSection id="tracks" labelledBy="tracks-title" tone="tint">
+      <SectionHeader variant="editorial" id="tracks-title" counter="02 / 04" layout="split" eyebrow={tracks.eyebrow} titleA={tracks.titleA} titleB={tracks.titleB} intro={tracks.intro} />
 
       <motion.ul variants={stagger(0.1)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className="mt-12 grid gap-5 md:mt-16 lg:grid-cols-2 lg:gap-6">
         {tracks.cards.map((card, index) => {
@@ -179,7 +179,7 @@ export function LuminaTracks() {
         initial="hidden"
         whileInView="show"
         viewport={REVEAL_VIEWPORT}
-        className="mt-5 grid gap-8 rounded-panel border border-line bg-canvas p-6 sm:p-8 lg:mt-6 lg:grid-cols-12 lg:items-center lg:gap-10"
+        className="mt-5 grid gap-8 rounded-panel border border-line bg-white p-6 sm:p-8 lg:mt-6 lg:grid-cols-12 lg:items-center lg:gap-10"
       >
         <div className="lg:col-span-6">
           <h3 className={cn(DISPLAY_S, "text-ink")}>{tracks.sharedTitle}</h3>

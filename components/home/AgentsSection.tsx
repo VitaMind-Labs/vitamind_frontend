@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DrawCheck } from "./DrawCheck";
 import { HomeSection } from "./HomeSection";
+import { StageRise, TiltCard } from "./Interactions";
 import { SectionHeader } from "./SectionHeader";
 import { BODY, DISPLAY_L, LABEL } from "./typography";
 
@@ -284,7 +285,7 @@ type Chapter = HomeStoryCopy["agents"]["mira"];
 function AgentChapter({ id, agent, name, copy, mock, flip }: { id: string; agent: (typeof AGENTS)[number]; name: string; copy: Chapter; mock: ReactNode; flip?: boolean }) {
   const mira = agent.id === "mira";
   return (
-    <div id={id} className="grid scroll-mt-24 items-center gap-10 lg:grid-cols-12 lg:gap-12">
+    <div id={id} className="grid scroll-mt-24 gap-10 lg:grid-cols-12 lg:items-start lg:gap-12">
       <motion.div variants={stagger(0.08)} initial="hidden" whileInView="show" viewport={REVEAL_VIEWPORT} className={cn("lg:col-span-5", flip && "lg:order-2 lg:col-start-8")}>
         <motion.div variants={fadeUp(0, 14)} className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <AgentAvatar agent={agent.id} className="size-16 rounded-[1.25rem] shadow-card ring-1 ring-white" />
@@ -335,15 +336,9 @@ function AgentChapter({ id, agent, name, copy, mock, flip }: { id: string; agent
         </motion.div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.97 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={REVEAL_VIEWPORT}
-        transition={{ duration: 0.9, ease: EASE_OUT }}
-        className={cn("mx-auto w-full max-w-xl lg:col-span-6 lg:max-w-none", flip ? "lg:order-1 lg:col-start-1" : "lg:col-start-7")}
-      >
-        {mock}
-      </motion.div>
+      <StageRise className={cn("mx-auto w-full max-w-xl lg:sticky lg:top-28 lg:col-span-6 lg:max-w-none lg:self-start", flip ? "lg:order-1 lg:col-start-1" : "lg:col-start-7")}>
+        <TiltCard max={4}>{mock}</TiltCard>
+      </StageRise>
     </div>
   );
 }
@@ -374,7 +369,7 @@ export const AgentsSection = () => {
 
   return (
     <HomeSection id="agents" labelledBy="agents-title" tone="base">
-      <SectionHeader variant="editorial" id="agents-title" layout="split" counter="03 / 04" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
+      <SectionHeader variant="editorial" id="agents-title" layout="split" eyebrow={copy.eyebrow} titleA={copy.titleA} titleB={copy.titleB} intro={copy.intro} />
 
       <div className="mt-14 md:mt-20">
         <AgentChapter id="mira" agent={mira} name={names.mira.name} copy={copy.mira} mock={<MiraMock />} />

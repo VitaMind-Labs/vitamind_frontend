@@ -2,6 +2,7 @@
 
 import { WordReveal } from "@/components/home/AnimationUtilities";
 import { Grain } from "@/components/home/Atmosphere";
+import { DrawCheck } from "@/components/home/DrawCheck";
 import { homeSerif } from "@/components/home/fonts";
 import { ACCENT_LIGHT, BODY, BODY_SM, DISPLAY_L, DISPLAY_S, LABEL, SERIF } from "@/components/home/typography";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -13,9 +14,10 @@ import { ROUTES } from "@/lib/config/routes";
 import { EASE_OUT, REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Clock, Globe2, LifeBuoy, Lock, Mail, MessageSquare, Plus, Send, UserRound } from "lucide-react";
+import { ArrowRight, Clock, Globe2, LifeBuoy, Lock, Mail, MessageSquare, Plus, Send, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";
+import { SupportThread } from "./SupportThread";
 
 const CHANNEL_ICONS = [Clock, Lock, Globe2] as const;
 const MESSAGE_MAX = 2000;
@@ -114,7 +116,7 @@ export function SupportScreen() {
 
                 <main className="page-container flex-1 pb-20 pt-10 sm:pt-14 lg:pb-28 lg:pt-20">
                     {/* ── Opening: the question, and what to expect ─────────────────────── */}
-                    <div className="grid items-end gap-12 lg:grid-cols-12 lg:gap-10">
+                    <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
                         <motion.header variants={stagger(0.08)} initial="hidden" animate="show" className="lg:col-span-7">
                             <motion.p variants={fadeUp()} className={cn(LABEL, "flex items-center gap-3 text-teal-700")}>
                                 <span aria-hidden className="h-px w-8 bg-gold" />
@@ -135,7 +137,11 @@ export function SupportScreen() {
                             </motion.p>
                         </motion.header>
 
-                        <motion.ul variants={stagger(0.1, 0.3)} initial="hidden" animate="show" className="divide-y divide-line-strong/60 border-y border-line-strong/60 lg:col-span-5">
+                        <div className="lg:col-span-5">
+                        <motion.div variants={fadeUp(0.25, 22)} initial="hidden" animate="show" className="mb-7">
+                            <SupportThread copy={copy.thread} />
+                        </motion.div>
+                        <motion.ul variants={stagger(0.1, 0.4)} initial="hidden" animate="show" className="divide-y divide-line-strong/60 border-y border-line-strong/60">
                             {copy.channels.map((channel, i) => {
                                 const Icon = CHANNEL_ICONS[i] ?? Clock;
                                 return (
@@ -151,6 +157,7 @@ export function SupportScreen() {
                                 );
                             })}
                         </motion.ul>
+                        </div>
                     </div>
 
                     {/* ── Form and answers ───────────────────────────────────────────────── */}
@@ -246,7 +253,7 @@ export function SupportScreen() {
                                                 transition={{ duration: 0.4, ease: EASE_OUT }}
                                                 className="flex items-center gap-2.5 rounded-full border border-sage-100 bg-sage-50 px-4 py-2.5 text-[0.9375rem] font-medium text-sage-700"
                                             >
-                                                <CheckCircle2 className="size-5 shrink-0" aria-hidden />
+                                                <DrawCheck className="size-5 shrink-0" strokeWidth={2.5} />
                                                 {copy.success}
                                             </motion.p>
                                         )}

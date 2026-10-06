@@ -1,107 +1,46 @@
 "use client";
 
-import { pad } from "@/components/home/accents";
 import { HomeSection } from "@/components/home/HomeSection";
 import { SectionHeader } from "@/components/home/SectionHeader";
-import { DISPLAY_S } from "@/components/home/typography";
 import { EASE_OUT } from "@/lib/motion";
-import { cn } from "@/lib/utils";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import { StepStories, SwipeArea } from "../StepStories";
-import { BrowserFrame } from "../frames";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { StickyTour } from "../StickyTour";
 import { useAgentPage } from "../shared";
+import { AppWindow, type AppScreen } from "./AppWindow";
 import { CheckinView, JournalView, ReportView, TrendView } from "./LuminaViews";
 
-/** How long each step is shown while the tour plays itself. */
-const STEP_SECONDS = 7;
+/** The rail item each step lights: check-in, journal, home (the month), reports. */
+const RAIL: readonly AppScreen[] = [1, 2, 0, 4];
 
 /**
- * The month, told as four views of one dashboard. Steps play by themselves while the section is on screen and
- * stop for good the moment the reader picks one. From lg they are a list beside the window; below lg the story of the steps
- * sits above the window (a swipe on either moves the tour). One timer drives both layouts.
+ * A day with Lumina, told by its own app on the deep section, like /mira's phone: the window stays put while the steps scroll
+ * past, the rail's marker glides to the screen of the step in view, and the screen draws itself again.
  */
 export function LuminaProcess() {
   const { page, copy } = useAgentPage("lumina");
   const preview = copy.lumina.preview;
-  const steps = page.flow.steps;
   const reduce = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { margin: "-20% 0px -20% 0px" });
-  const [active, setActive] = useState(0);
-  const [touched, setTouched] = useState(false);
-  const playing = inView && !touched && !reduce;
 
   const views = [
-    { title: preview.views.checkin.title, node: <CheckinView key="checkin" copy={preview} /> },
-    { title: preview.views.journal.title, node: <JournalView key="journal" copy={preview} /> },
-    { title: preview.views.trend.title, node: <TrendView key="trend" copy={preview} /> },
-    { title: preview.views.report.title, node: <ReportView key="report" copy={preview} /> },
+    <CheckinView key="checkin" copy={preview} />,
+    <JournalView key="journal" copy={preview} />,
+    <TrendView key="trend" copy={preview} />,
+    <ReportView key="report" copy={preview} />,
   ];
 
-  // The one clock of the tour; the fills drawn in the list and in the story only picture it.
-  useEffect(() => {
-    if (!playing) return;
-    const timer = window.setTimeout(() => setActive((value) => (value + 1) % steps.length), STEP_SECONDS * 1000);
-    return () => window.clearTimeout(timer);
-  }, [playing, active, steps.length]);
-
-  const choose = (index: number) => {
-    setTouched(true);
-    setActive(index);
-  };
-  const step = (delta: 1 | -1) => choose((active + delta + steps.length) % steps.length);
-
   return (
-    <HomeSection id="flow" labelledBy="flow-title" tone="tint">
-      <SectionHeader variant="editorial" id="flow-title" counter="03 / 04" eyebrow={page.flow.eyebrow} titleA={page.flow.titleA} titleB={page.flow.titleB} />
+    <HomeSection id="flow" labelledBy="flow-title" tone="deep">
+      <span aria-hidden className="pointer-events-none absolute -top-40 end-[-12%] -z-10 size-[44rem] rounded-full bg-[radial-gradient(closest-side,rgb(201_175_111/0.22),transparent)]" />
+      <SectionHeader variant="editorial" tone="dark" id="flow-title" counter="03 / 04" eyebrow={page.flow.eyebrow} titleA={page.flow.titleA} titleB={page.flow.titleB} />
 
-      <SwipeArea onStep={step} className="mt-10 lg:contents">
-      <div ref={ref} className="grid gap-8 lg:mt-16 lg:grid-cols-12 lg:gap-12">
-        <div className="lg:col-span-4">
-          <StepStories className="lg:hidden" steps={steps} active={active} playing={playing} seconds={STEP_SECONDS} stepLabel={page.flow.stepLabel} onSelect={choose} />
-        <ol className="hidden gap-3 lg:grid">
-          {steps.map(([title, line], index) => {
-            const current = index === active;
-            return (
-              <li key={title}>
-                <button
-                  type="button"
-                  aria-current={current ? "step" : undefined}
-                  onClick={() => choose(index)}
-                  className={cn(
-                    "relative flex w-full cursor-pointer items-start gap-3.5 overflow-hidden rounded-2xl border p-4 text-start outline-none transition-[background-color,border-color,box-shadow] duration-300 focus-visible:ring-2 focus-visible:ring-teal-500 sm:p-5",
-                    current ? "border-gold-100 bg-[linear-gradient(155deg,var(--color-gold-50),#ffffff_80%)] shadow-soft-hover" : "border-line bg-white hover:border-teal-200",
-                  )}
-                >
-                  <span dir="ltr" className={cn("flex size-9 shrink-0 items-center justify-center rounded-full font-mono text-[0.75rem] tabular-nums transition-colors duration-300", current ? "bg-ink text-white" : "bg-canvas text-ink-soft ring-1 ring-line")}>
-                    {pad(index + 1)}
-                  </span>
-                  <span className="min-w-0">
-                    <span className={cn(DISPLAY_S, "block text-[1.125rem] sm:text-[1.3125rem]", current ? "text-ink" : "text-ink-soft")}>{title}</span>
-                    <span className={cn("block overflow-hidden text-[0.875rem] leading-6 text-ink-soft transition-[max-height,opacity,margin] duration-500 ease-out-soft", current ? "mt-1 max-h-12 opacity-100" : "max-h-0 opacity-0")}>{line}</span>
-                  </span>
-                  {current && playing && (
-                    <motion.span
-                      key={`${active}-progress`}
-                      aria-hidden
-                      className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-gold rtl:origin-right"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: STEP_SECONDS, ease: "linear" }}
-                    />
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-        </div>
-
-        <div className="relative lg:col-span-8">
-          <span aria-hidden className="pointer-events-none absolute -inset-6 -z-10 rounded-[3rem] bg-[radial-gradient(60%_60%_at_50%_40%,rgb(230_213_170/0.4),transparent)]" />
-          <BrowserFrame title={views[active].title}>
-            <div className="min-h-[24rem] sm:min-h-[26rem]">
+      <StickyTour
+        steps={page.flow.steps}
+        stepLabel={page.flow.stepLabel}
+        caption={preview.caption}
+        glow="rgb(230_213_170/0.2)"
+        stage={(active) => (
+          <AppWindow active={RAIL[active]}>
+            <div className="min-h-[22rem] sm:min-h-[26rem]">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={active}
@@ -109,15 +48,13 @@ export function LuminaProcess() {
                   animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_OUT } }}
                   exit={{ opacity: 0, transition: { duration: 0.16 } }}
                 >
-                  {views[active].node}
+                  {views[active]}
                 </motion.div>
               </AnimatePresence>
             </div>
-          </BrowserFrame>
-          <p className="mt-4 text-center text-[0.75rem] text-ink-muted">{preview.caption}</p>
-        </div>
-      </div>
-      </SwipeArea>
+          </AppWindow>
+        )}
+      />
     </HomeSection>
   );
 }

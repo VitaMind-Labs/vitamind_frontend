@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import { REVEAL_VIEWPORT, fadeUp, stagger } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { WordReveal } from "./AnimationUtilities";
@@ -56,6 +57,7 @@ export function SectionHeader({
       whileInView="show"
       viewport={REVEAL_VIEWPORT}
       className={cn(
+        "relative",
         split ? "grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-10" : editorial ? "max-w-4xl" : "max-w-3xl",
         centered && "mx-auto text-center",
         className,
