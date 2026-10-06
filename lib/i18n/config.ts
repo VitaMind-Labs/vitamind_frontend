@@ -22,7 +22,7 @@ export const LANGS: {
 
 const arabicHomeLanding = {
   nav: { home: "الرئيسية", features: "الميزات", process: "كيف نعمل", getStarted: "ابدأ الآن", menu: "فتح القائمة", close: "إغلاق القائمة" },
-  hero: { titleA: "عقلك لا يتوقف،", titleB: "ورعايتك تبقى معه.", subtitle: "VitaMind منصة دعم للصحة النفسية مدعومة بالذكاء الاصطناعي، لمن يعيشون مع اضطراب فرط الحركة وتشتت الانتباه أو الاضطراب ثنائي القطب أو الذهان، وللمختصين الذين يرافقونهم. تسدّ الفجوة بين الحياة اليومية والرعاية السريرية عبر متابعة ودعم مستمرَّين ومخصَّصين.", primary: "ابدأ الآن", demo: "للمختصين", discover: "اكتشف المزيد", preview: "معاينة مباشرة", dashboard: ["لوحة التحكم", "التحليلات", "الدعم", "المذكرات", "الإعدادات"], stats: ["مؤشر العافية", "التتابع", "الجلسات"], scoreChange: "+4.2٪", days: "أيام", thisMonth: "هذا الشهر", baseline: "المسار النفسي", last30: "آخر 30 يوماً", stable: "مستقر", insight: "بين موعدين", pattern: "لا يضيع شيء مهم", encrypted: "خاص في التصميم — أنت تختار ما يُشارَك" },
+  hero: { titleA: "عقلك لا يتوقف،", titleB: "ورعايتك تبقى معه.", subtitle: "دعم بين الاستشارات، ورؤية أوضح وأبكر للمختصين الذين يرعونك.", primary: "ابدأ الآن", demo: "للمختصين", discover: "اكتشف المزيد", preview: "معاينة مباشرة", dashboard: ["لوحة التحكم", "التحليلات", "الدعم", "المذكرات", "الإعدادات"], stats: ["مؤشر العافية", "التتابع", "الجلسات"], scoreChange: "+4.2٪", days: "أيام", thisMonth: "هذا الشهر", baseline: "المسار النفسي", last30: "آخر 30 يوماً", stable: "مستقر", insight: "بين موعدين", pattern: "لا يضيع شيء مهم", encrypted: "خاص في التصميم — أنت تختار ما يُشارَك" },
   intro: { lineA: "أيامك، مفهومة", lineB: "يوماً بيوم.", tagline: "متابعة يومية · استمرارية في الرعاية", skip: "تخطّي" },
   cta: { eyebrow: "ابدأ خطوتك اليوم", titleA: "هل أنت مستعد", titleB: "للخطوة التالية؟", body: "ابدأ مع ميرا. ويشاركك مختصك متى اخترت.", primary: "ابدأ الآن", demo: "العيادات والمؤسسات: تواصل معنا", benefits: ["التوجيه ضمن حسابك", "أنت تقرر ما يُشارَك"] },
   footer: { description: "متابعة يومية واستمرارية في الرعاية لمن يعيشون مع الاضطراب ثنائي القطب أو الفصام أو اضطراب فرط الحركة وتشتت الانتباه. لأن ما يحدث بين الموعدين مهم.", product: "المنتج", company: "المساعدة والحساب", updates: "ابقَ على اطلاع", email: "أدخل بريدك الإلكتروني", privacy: "الخصوصية", terms: "الشروط", cookies: "ملفات الارتباط", links: ["ميرا · التوجيه", "لومينا · المساحة اليومية", "مسارات الرعاية", "للمختصين", "الثقة والأمان"], companyLinks: ["الدعم", "تسجيل الدخول", "إنشاء حساب"], rights: "جميع الحقوق محفوظة." },
@@ -100,7 +100,7 @@ const baseCopy = {
       hero: {
         titleA: "Your mind doesn't pause.",
         titleB: "Neither does your care.",
-        subtitle: "VitaMind is an AI-powered mental health support platform for people living with ADHD, bipolar disorder and psychosis, and the clinicians who support them. It bridges everyday life and clinical care through continuous, personalised monitoring and support.",
+        subtitle: "Support between consultations, and clearer, earlier visibility for the clinicians who care for you.",
         primary: "Get started",
         demo: "For clinicians",
         discover: "Discover",

@@ -15,7 +15,7 @@ export const SITE = {
   title: `${BRAND.name} — Guided mental wellbeing`,
   /** Plain, claim-free summary: orientation is never a diagnosis. */
   description:
-    "An AI-powered mental health support platform for people living with ADHD, bipolar disorder and psychosis, and the clinicians who support them: continuous, personalised monitoring and support between consultations.",
+    "A mental health support platform for people living with ADHD, bipolar disorder or psychosis: Mira orients you, Lumina keeps your days between consultations, and a licensed clinician follows your care through what you choose to share.",
 } as const;
 
 export const NO_INDEX: Metadata["robots"] = { index: false, follow: false };
