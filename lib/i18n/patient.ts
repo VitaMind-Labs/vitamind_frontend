@@ -33,7 +33,7 @@ const en = {
     signOut: "Sign out",
     skipToContent: "Skip to content",
     eyebrows: { home: "Your day", checkin: "Daily ritual", mira: "Guided orientation", journal: "Your private space", spark: "Your task assistant", reports: "Your journey", settings: "Your preferences" },
-    notAlone: { title: "Every step counts", body: "VitaMind is with you, today and always." },
+    notAlone: { title: "Every step counts", body: "SynQ is with you, today and always." },
     greeting: { morning: "Good morning, {name}", afternoon: "Good afternoon, {name}", evening: "Good evening, {name}", night: "Hello, {name}" },
     notifications: {
       title: "Notifications", empty: "You're all caught up.", markAllRead: "Mark all as read", open: "Open notifications",
@@ -129,7 +129,7 @@ const en = {
       readyLine: "One quiet minute shows you how today is going.",
       doneLine: "You've already shown up for yourself today. That is real progress.",
       motif: { ADHD: "Focus · Momentum", BIPOLAR: "Balance · Rhythm", SCHIZOPHRENIA: "Calm · Grounding", UNSPECIFIED: "Care · Clarity" },
-      stats: { checkins: "Check-ins this month", streak: "Day streak", together: "Days with VitaMind" },
+      stats: { checkins: "Check-ins this month", streak: "Day streak", together: "Days with SynQ" },
     },
   },
   tour: {
@@ -278,7 +278,7 @@ const en = {
       ],
       helpline: "Find a free helpline in your country",
       helplineUrl: "https://findahelpline.com",
-      careTeam: "Contact VitaMind support",
+      careTeam: "Contact SynQ support",
     },
     labels: {
       themes: { work: "Work", study: "Study", family: "Family", relationships: "Relationships", sleep: "Sleep", social: "Social life", finance: "Money", routine: "Routine", health: "Health", goals: "Goals" },
@@ -365,8 +365,8 @@ const en = {
     title: "Settings", subtitle: "Your account, reminders and privacy — in your control.",
     profile: { title: "Profile", nickname: "Display name", email: "Email", language: "Language", track: "Your focus area", memberSince: "Member since {date}", save: "Save changes", saved: "Profile updated.", taken: "That name is already taken.", error: "We couldn't update your profile." },
     reminders: {
-      title: "Daily reminder", body: "A gentle nudge to check in. Reminders appear while VitaMind is open in your browser.", enable: "Daily check-in reminder", time: "Reminder time",
-      browser: "Browser notifications", browserBody: "Also show a system notification.", allow: "Allow notifications", denied: "Blocked in your browser settings.", unsupported: "Not supported in this browser.", testTitle: "VitaMind", testBody: "This is how your reminder will look.",
+      title: "Daily reminder", body: "A gentle nudge to check in. Reminders appear while SynQ is open in your browser.", enable: "Daily check-in reminder", time: "Reminder time",
+      browser: "Browser notifications", browserBody: "Also show a system notification.", allow: "Allow notifications", denied: "Blocked in your browser settings.", unsupported: "Not supported in this browser.", testTitle: "SynQ", testBody: "This is how your reminder will look.",
     },
     privacy: {
       title: "Privacy & care team", body: "Choose what each clinician can see. Changes apply immediately and are logged.",
@@ -374,6 +374,18 @@ const en = {
       clinician: "{name}", pending: "Waiting for your approval", categories: { mood: "Mood", sleep: "Sleep", medication: "Medication", exercises: "Exercises", diagnostics: "Orientation results" },
       journal: "Journal sharing", journalOptions: { NONE: "Nothing", FLAGGED_EXCERPTS: "Passages I choose", FULL: "Everything not marked private" },
       alerts: "Safety alerts", alertsBody: "Let my clinician know if my check-ins or journal suggest I may need urgent support.", accept: "Accept and start sharing", saveError: "We couldn't update that choice.",
+      reconfirm: {
+        bannerTitle: "Check what you share with your clinician", bannerBody: "Please look at what is shared and confirm it. Nothing changes unless you change it.", bannerCta: "Review",
+        confirm: "Confirm what I share", confirmed: "Thank you. Your choices are confirmed.", dueNote: "To confirm before {date}",
+        gateTitle: "Confirm what you share", gateBody: "Your care team can see the categories below. Confirm them as they are, or change them in your settings first.",
+        gateReview: "Change in settings", gateShared: "Shared", gateNotShared: "Not shared",
+      },
+    },
+    orientationConsent: {
+      title: "Consent to your orientation", body: "Your answers to Mira are processed for your orientation and follow-up. You can withdraw this at any time.",
+      granted: "Consent given", withdrawn: "Consent withdrawn", since: "Since {date}", accept: "Give my consent", withdraw: "Withdraw my consent",
+      pendingNote: "Mira is paused until you accept again. You will continue exactly where you stopped.",
+      doneNote: "Your orientation is complete. It is saved to your account and can't be retaken, whatever you choose here.", error: "We couldn't update your consent.",
     },
     session: { title: "Session", signOut: "Sign out of this device" },
   },
@@ -442,13 +454,13 @@ const en = {
     disclaimer: "General information from public health sources, not medical advice. Talk to your clinician about anything that concerns you.",
   },
   welcome: {
-    tap: "Welcome to VitaMind", tapBody: "Tap to begin — with sound for the full welcome.", noSound: "Continue without sound",
+    tap: "Welcome to SynQ", tapBody: "Tap to begin — with sound for the full welcome.", noSound: "Continue without sound",
     lines: [
       "Hello, {name}. Welcome to Lumina.",
-      "Your daily space: a quick check-in, a private journal and a few simple goals. Over time, VitaMind shows you your own patterns — and shares them with your clinician only if you choose.",
+      "Your daily space: a quick check-in, a private journal and a few simple goals. Over time, SynQ shows you your own patterns — and shares them with your clinician only if you choose.",
       "Let's begin with your first check-in. It takes about a minute, and you can skip anything.",
     ],
-    voiceText: "Hello {name}. Welcome to Lumina, your daily space. A quick check-in, a private journal and a few simple goals. Over time, VitaMind shows you your own patterns, and shares them with your clinician only if you choose. Let's begin with your first check-in. It takes about a minute, and you can skip anything.",
+    voiceText: "Hello {name}. Welcome to Lumina, your daily space. A quick check-in, a private journal and a few simple goals. Over time, SynQ shows you your own patterns, and shares them with your clinician only if you choose. Let's begin with your first check-in. It takes about a minute, and you can skip anything.",
     continue: "Start my first check-in", skip: "Skip for now", mute: "Mute", unmute: "Unmute", replay: "Hear it again", safe: "Private · Supportive · Yours",
   },
 };
@@ -469,7 +481,7 @@ const ar: PatientCopy = {
     signOut: "تسجيل الخروج",
     skipToContent: "تخطَّ إلى المحتوى",
     eyebrows: { home: "يومك", checkin: "طقسك اليومي", mira: "التوجيه الموجَّه", journal: "مساحتك الخاصة", spark: "مساعد مهامك", reports: "رحلتك", settings: "تفضيلاتك" },
-    notAlone: { title: "كل خطوة لها قيمتها", body: "VitaMind معك اليوم وكل يوم." },
+    notAlone: { title: "كل خطوة لها قيمتها", body: "SynQ معك اليوم وكل يوم." },
     greeting: { morning: "صباح الخير، {name}", afternoon: "طاب يومك، {name}", evening: "مساء الخير، {name}", night: "مرحبًا، {name}" },
     notifications: {
       title: "الإشعارات", empty: "لا جديد لديك.", markAllRead: "تحديد الكل كمقروء", open: "فتح الإشعارات",
@@ -565,7 +577,7 @@ const ar: PatientCopy = {
       readyLine: "دقيقة هادئة تُريك كيف يسير يومك.",
       doneLine: "حضرتَ لأجل نفسك اليوم. وهذا تقدّم حقيقي.",
       motif: { ADHD: "تركيز · زخم", BIPOLAR: "توازن · إيقاع", SCHIZOPHRENIA: "هدوء · ثبات", UNSPECIFIED: "عناية · وضوح" },
-      stats: { checkins: "فحوصات هذا الشهر", streak: "أيام متتالية", together: "أيام مع VitaMind" },
+      stats: { checkins: "فحوصات هذا الشهر", streak: "أيام متتالية", together: "أيام مع SynQ" },
     },
   },
   tour: {
@@ -714,7 +726,7 @@ const ar: PatientCopy = {
       ],
       helpline: "اعثر على خط مساعدة مجاني في بلدك",
       helplineUrl: "https://findahelpline.com",
-      careTeam: "تواصل مع دعم VitaMind",
+      careTeam: "تواصل مع دعم SynQ",
     },
     labels: {
       themes: { work: "العمل", study: "الدراسة", family: "العائلة", relationships: "العلاقات", sleep: "النوم", social: "الحياة الاجتماعية", finance: "المال", routine: "الروتين", health: "الصحة", goals: "الأهداف" },
@@ -801,8 +813,8 @@ const ar: PatientCopy = {
     title: "الإعدادات", subtitle: "حسابك وتذكيراتك وخصوصيتك — بيدك.",
     profile: { title: "الملف الشخصي", nickname: "الاسم المعروض", email: "البريد الإلكتروني", language: "اللغة", track: "مجال تركيزك", memberSince: "عضو منذ {date}", save: "حفظ التغييرات", saved: "تم تحديث الملف.", taken: "هذا الاسم مستخدم بالفعل.", error: "تعذّر تحديث ملفك." },
     reminders: {
-      title: "التذكير اليومي", body: "تنبيه لطيف لإجراء الفحص. تظهر التذكيرات أثناء فتح VitaMind في المتصفح.", enable: "تذكير الفحص اليومي", time: "وقت التذكير",
-      browser: "إشعارات المتصفح", browserBody: "أظهر أيضًا إشعارًا من النظام.", allow: "السماح بالإشعارات", denied: "محظورة في إعدادات المتصفح.", unsupported: "غير مدعومة في هذا المتصفح.", testTitle: "VitaMind", testBody: "هكذا سيظهر تذكيرك.",
+      title: "التذكير اليومي", body: "تنبيه لطيف لإجراء الفحص. تظهر التذكيرات أثناء فتح SynQ في المتصفح.", enable: "تذكير الفحص اليومي", time: "وقت التذكير",
+      browser: "إشعارات المتصفح", browserBody: "أظهر أيضًا إشعارًا من النظام.", allow: "السماح بالإشعارات", denied: "محظورة في إعدادات المتصفح.", unsupported: "غير مدعومة في هذا المتصفح.", testTitle: "SynQ", testBody: "هكذا سيظهر تذكيرك.",
     },
     privacy: {
       title: "الخصوصية وفريق الرعاية", body: "اختر ما يمكن لكل معالج رؤيته. تُطبَّق التغييرات فورًا وتُسجَّل.",
@@ -810,6 +822,18 @@ const ar: PatientCopy = {
       clinician: "{name}", pending: "بانتظار موافقتك", categories: { mood: "المزاج", sleep: "النوم", medication: "الدواء", exercises: "التمارين", diagnostics: "نتائج التوجيه" },
       journal: "مشاركة المفكرة", journalOptions: { NONE: "لا شيء", FLAGGED_EXCERPTS: "مقاطع أختارها", FULL: "كل ما لم أجعله خاصًا" },
       alerts: "تنبيهات السلامة", alertsBody: "دع معالجي يعلم إذا أوحت فحوصاتي أو مفكرتي بأنني قد أحتاج دعمًا عاجلًا.", accept: "قبول وبدء المشاركة", saveError: "تعذّر تحديث هذا الخيار.",
+      reconfirm: {
+        bannerTitle: "راجع ما تشاركه مع معالجك", bannerBody: "يُرجى النظر فيما يُشارَك وتأكيده. لا يتغيّر شيء ما لم تغيّره أنت.", bannerCta: "مراجعة",
+        confirm: "تأكيد ما أشاركه", confirmed: "شكرًا. تم تأكيد اختياراتك.", dueNote: "للتأكيد قبل {date}",
+        gateTitle: "أكّد ما تشاركه", gateBody: "يستطيع فريق رعايتك رؤية الفئات أدناه. أكّدها كما هي، أو غيّرها في الإعدادات أولًا.",
+        gateReview: "التغيير في الإعدادات", gateShared: "مشارَك", gateNotShared: "غير مشارَك",
+      },
+    },
+    orientationConsent: {
+      title: "الموافقة على توجيهك", body: "تُعالَج إجاباتك لميرا من أجل توجيهك ومتابعتك. يمكنك سحب موافقتك في أي وقت.",
+      granted: "تم إعطاء الموافقة", withdrawn: "تم سحب الموافقة", since: "منذ {date}", accept: "أوافق", withdraw: "سحب موافقتي",
+      pendingNote: "ميرا متوقفة حتى توافق من جديد. ستتابع بالضبط من حيث توقفت.",
+      doneNote: "اكتمل توجيهك. إنه محفوظ في حسابك ولا يمكن إعادته، مهما اخترت هنا.", error: "تعذّر تحديث موافقتك.",
     },
     session: { title: "الجلسة", signOut: "تسجيل الخروج من هذا الجهاز" },
   },
@@ -878,13 +902,13 @@ const ar: PatientCopy = {
     disclaimer: "معلومات عامة من مصادر صحية عامة وليست نصيحة طبية. تحدّث إلى معالجك عن أي أمر يقلقك.",
   },
   welcome: {
-    tap: "مرحبًا بك في VitaMind", tapBody: "اضغط للبدء — مع الصوت للترحيب الكامل.", noSound: "المتابعة بدون صوت",
+    tap: "مرحبًا بك في SynQ", tapBody: "اضغط للبدء — مع الصوت للترحيب الكامل.", noSound: "المتابعة بدون صوت",
     lines: [
       "مرحبًا {name}، أهلًا بك في لومينا.",
-      "مساحتك اليومية: فحص سريع ومفكرة خاصة وبضعة أهداف بسيطة. ومع الوقت تُريك VitaMind أنماطك، ولا تشاركها مع مختصك إلا إن اخترت ذلك.",
+      "مساحتك اليومية: فحص سريع ومفكرة خاصة وبضعة أهداف بسيطة. ومع الوقت تُريك SynQ أنماطك، ولا تشاركها مع مختصك إلا إن اخترت ذلك.",
       "لنبدأ بفحصك الأول. يستغرق نحو دقيقة، ويمكنك تخطّي أي شيء.",
     ],
-    voiceText: "مرحبًا {name}. أهلًا بك في لومينا، مساحتك اليومية. فحص سريع ومفكرة خاصة وبضعة أهداف بسيطة. ومع الوقت تُريك VitaMind أنماطك، ولا تشاركها مع مختصك إلا إن اخترت ذلك. لنبدأ بفحصك الأول. يستغرق نحو دقيقة، ويمكنك تخطّي أي شيء.",
+    voiceText: "مرحبًا {name}. أهلًا بك في لومينا، مساحتك اليومية. فحص سريع ومفكرة خاصة وبضعة أهداف بسيطة. ومع الوقت تُريك SynQ أنماطك، ولا تشاركها مع مختصك إلا إن اخترت ذلك. لنبدأ بفحصك الأول. يستغرق نحو دقيقة، ويمكنك تخطّي أي شيء.",
     continue: "ابدأ فحصي الأول", skip: "تخطَّ الآن", mute: "كتم", unmute: "تشغيل الصوت", replay: "استمع مرة أخرى", safe: "خاص · داعم · لك",
   },
 };

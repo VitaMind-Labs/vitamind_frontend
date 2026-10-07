@@ -177,6 +177,10 @@ export function MiraChatExperience({
     finishedLive,
     attempt,
     blocked,
+    consentRequired,
+    consentBusy,
+    consentError,
+    acceptConsent,
     completed,
     sessionLanguage,
     sendMessage,
@@ -350,7 +354,27 @@ export function MiraChatExperience({
       aria-label={diagnostic.title}
       className="relative flex min-h-0 flex-1  flex-col overflow-y-auto overflow-x-clip text-ink"
     >
-      {blocked ? (
+      {consentRequired ? (
+        <div className="relative mx-auto flex w-full max-w-lg flex-1 items-center px-4 py-10">
+          <div className="orientation-glass w-full p-6 text-center sm:p-8" role="alertdialog" aria-labelledby="mira-consent-title" aria-describedby="mira-consent-body">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-teal-700 shadow-xs">
+              <ShieldCheck className="h-6 w-6" aria-hidden />
+            </span>
+            <h1 id="mira-consent-title" className="mt-4 text-xl font-semibold text-ink">{diagnostic.consent.title}</h1>
+            <p id="mira-consent-body" className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-muted">{diagnostic.consent.body}</p>
+            <p className="mx-auto mt-3 max-w-sm text-xs leading-5 text-ink-muted">{diagnostic.consent.once}</p>
+            {consentError && <p role="alert" className="mt-3 text-sm text-rose-700">{diagnostic.consent.error}</p>}
+            <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
+              <Button variant="default" size="lg" disabled={consentBusy} onClick={() => void acceptConsent()}>
+                {consentBusy ? diagnostic.consent.accepting : diagnostic.consent.accept}
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href={ROUTES.support}>{diagnostic.consent.support}</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : blocked ? (
         <div className="relative mx-auto flex w-full max-w-lg flex-1 items-center px-4 py-10">
           <div className="orientation-glass w-full p-6 text-center sm:p-8">
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-teal-700 shadow-xs">

@@ -90,7 +90,7 @@ const en: AgentPagesCopy = {
     seo: {
       title: "Mira — guided orientation and structured screening",
       description:
-        "Meet Mira, VitaMind's orientation agent: a private, guided conversation built on established screening tools for ADHD, bipolar disorder and psychotic symptoms, and a clear summary to bring to a clinician. Included with your VitaMind account.",
+        "Meet Mira, SynQ's orientation agent: a private, guided conversation built on established screening tools for ADHD, bipolar disorder and psychotic symptoms, and a clear summary to bring to a clinician. Included with your SynQ account.",
     },
     hero: {
       eyebrow: "Mira · Orientation agent",
@@ -179,7 +179,7 @@ const en: AgentPagesCopy = {
     seo: {
       title: "Lumina — daily check-ins, journal and reports",
       description:
-        "Meet Lumina, VitaMind's daily companion: a quick check-in, a private bilingual journal, simple goals, your own baseline and a monthly clinician report you share only with your consent.",
+        "Meet Lumina, SynQ's daily companion: a quick check-in, a private bilingual journal, simple goals, your own baseline and a monthly clinician report you share only with your consent.",
     },
     hero: {
       eyebrow: "Lumina · Your daily space",
@@ -242,7 +242,7 @@ const en: AgentPagesCopy = {
       eyebrow: "Three conditions, one daily thread",
       titleA: "Built around",
       titleB: "how you live.",
-      intro: "Lumina adapts to the three conditions VitaMind supports. Whatever the condition, the daily rhythm is the same — and a clinician stays in charge of care.",
+      intro: "Lumina adapts to the three conditions SynQ supports. Whatever the condition, the daily rhythm is the same — and a clinician stays in charge of care.",
       sharedTitle: "The same daily core, for everyone",
       sharedLine: "ADHD, bipolar disorder and schizophrenia share one simple routine.",
       mood: {
@@ -328,7 +328,7 @@ const ar: AgentPagesCopy = {
     seo: {
       title: "ميرا — توجيه موجَّه وفحص منظَّم",
       description:
-        "تعرّف على ميرا، وكيلة التوجيه في VitaMind: محادثة خاصة وموجَّهة مبنية على أدوات فحص معروفة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان، وملخص واضح تحمله إلى مختص. ضمن حسابك في VitaMind.",
+        "تعرّف على ميرا، وكيلة التوجيه في SynQ: محادثة خاصة وموجَّهة مبنية على أدوات فحص معروفة حول اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب وأعراض الذهان، وملخص واضح تحمله إلى مختص. ضمن حسابك في SynQ.",
     },
     hero: {
       eyebrow: "ميرا · وكيلة التوجيه",
@@ -417,7 +417,7 @@ const ar: AgentPagesCopy = {
     seo: {
       title: "لومينا — الفحص اليومي والمفكرة والتقارير",
       description:
-        "تعرّف على لومينا، رفيقة VitaMind اليومية: فحص سريع، ومفكرة خاصة بلغتين، وأهداف بسيطة، وخطّك المرجعي، وتقرير شهري للمختص لا يُشارَك إلا بموافقتك.",
+        "تعرّف على لومينا، رفيقة SynQ اليومية: فحص سريع، ومفكرة خاصة بلغتين، وأهداف بسيطة، وخطّك المرجعي، وتقرير شهري للمختص لا يُشارَك إلا بموافقتك.",
     },
     hero: {
       eyebrow: "لومينا · مساحتك اليومية",
@@ -480,7 +480,7 @@ const ar: AgentPagesCopy = {
       eyebrow: "ثلاث حالات، خيط يومي واحد",
       titleA: "مصمَّمة حول",
       titleB: "طريقة عيشك.",
-      intro: "تتكيّف لومينا مع الحالات الثلاث التي تدعمها VitaMind. وأياً كانت الحالة، يبقى الإيقاع اليومي نفسه — ويبقى المختص هو المسؤول عن الرعاية.",
+      intro: "تتكيّف لومينا مع الحالات الثلاث التي تدعمها SynQ. وأياً كانت الحالة، يبقى الإيقاع اليومي نفسه — ويبقى المختص هو المسؤول عن الرعاية.",
       sharedTitle: "النواة اليومية نفسها للجميع",
       sharedLine: "اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب والفصام يتشاركون روتيناً بسيطاً واحداً.",
       mood: {

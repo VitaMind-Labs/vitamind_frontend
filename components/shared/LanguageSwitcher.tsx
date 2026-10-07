@@ -16,7 +16,7 @@ type LanguageSwitcherProps = {
 };
 
 /**
- * The one language control used across VitaMind. The active indicator slides between options;
+ * The one language control used across SynQ. The active indicator slides between options;
  * each instance scopes its own layout group so two switchers on a page never animate into each other.
  */
 export function LanguageSwitcher({ className, size = "sm", onChange }: LanguageSwitcherProps) {

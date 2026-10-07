@@ -43,7 +43,7 @@ function social(title: string, description: string, path: string): Pick<Metadata
 export const ROOT_SOCIAL = social(SITE.title, SITE.description, "/");
 
 type PageMetaInput = {
-  /** Page title without the brand: the root template appends " | VitaMind". */
+  /** Page title without the brand: the root template appends " | SynQ". */
   title: string;
   description: string;
   /** Route path, e.g. ROUTES.support — used for the canonical URL and og:url. */

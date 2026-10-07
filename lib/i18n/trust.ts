@@ -5,7 +5,7 @@ import type { Lang } from "@/lib/i18n/config";
  * it). Every statement describes behaviour that exists in the product today (consent
  * by category, a pseudonymous patient code, access logs, two-factor for clinician and admin accounts, encrypted
  * clinician notes). Retention periods, hosting location and the full legal text are NOT claimed here: they
- * belong to VitaMind's legal owner and must be added by them. `ar` is typed against the same shape as `en`.
+ * belong to SynQ's legal owner and must be added by them. `ar` is typed against the same shape as `en`.
  */
 
 export const TRUST_IDS = ["privacy", "security", "responsible-ai", "data-handling", "terms", "contact"] as const;
@@ -45,12 +45,12 @@ export type TrustCopy = {
 const en: TrustCopy = {
   seoTitle: "Trust and safety",
   seoDescription:
-    "How VitaMind protects patient information: privacy, security, responsible AI, data handling, terms of use and how to reach us.",
+    "How SynQ protects patient information: privacy, security, responsible AI, data handling, terms of use and how to reach us.",
   eyebrow: "Trust and safety",
   titleA: "Trust is part of",
   titleB: "the product.",
   intro:
-    "VitaMind supports patients between consultations and gives clinicians clearer, earlier visibility. Because that depends on very personal information, how it is protected is described here, in plain words.",
+    "SynQ supports patients between consultations and gives clinicians clearer, earlier visibility. Because that depends on very personal information, how it is protected is described here, in plain words.",
   principle: "AI guides and flags; the professional always decides.",
   readMore: "Read more",
   sections: [
@@ -70,7 +70,7 @@ const en: TrustCopy = {
       title: "Security",
       summary: "Protected accounts, protected access, and a record of who looked at what.",
       points: [
-        "Every part of VitaMind that holds personal information requires a signed-in account. Visitors only see public pages and a demonstration with fictional data.",
+        "Every part of SynQ that holds personal information requires a signed-in account. Visitors only see public pages and a demonstration with fictional data.",
         "Clinician and administrator accounts are protected with two-factor authentication.",
         "Clinicians see only the patients assigned to them, and only what each patient has agreed to share.",
         "Clinician notes are stored encrypted, and access to patient records by clinicians and administrators is logged.",
@@ -92,20 +92,20 @@ const en: TrustCopy = {
       title: "Data handling",
       summary: "Only what is needed to provide orientation and follow-up, and nothing more.",
       points: [
-        "VitaMind collects what you give it: your account details, your answers to Mira, your daily check-ins and your journal entries.",
+        "SynQ collects what you give it: your account details, your answers to Mira, your daily check-ins and your journal entries.",
         "This information is used to provide orientation and daily follow-up, and to prepare a report for a clinician when you choose to share one.",
-        "Text you write is processed by VitaMind's AI services to produce the themes, signals and summaries you see.",
+        "Text you write is processed by SynQ's AI services to produce the themes, signals and summaries you see.",
         "Questions about your data, including how to access or remove it, can be sent to us using the contact details below.",
       ],
     },
     {
       id: "terms",
       title: "Terms of use",
-      summary: "What VitaMind is, what it is not, and what we ask of those who use it.",
+      summary: "What SynQ is, what it is not, and what we ask of those who use it.",
       points: [
-        "VitaMind is not a medical diagnosis, not a substitute for a licensed professional, and not an emergency service.",
+        "SynQ is not a medical diagnosis, not a substitute for a licensed professional, and not an emergency service.",
         "Use your own account, keep your sign-in details private, and share information about yourself honestly so that it stays useful.",
-        "Clinicians remain responsible for every clinical decision they make with VitaMind's help.",
+        "Clinicians remain responsible for every clinical decision they make with SynQ's help.",
       ],
     },
     {
@@ -121,19 +121,19 @@ const en: TrustCopy = {
     emailLabel: "Email",
     phoneLabel: "Telephone",
     addressLabel: "Address",
-    urgent: "VitaMind cannot respond to emergencies. If you are in danger, contact your local emergency services now.",
+    urgent: "SynQ cannot respond to emergencies. If you are in danger, contact your local emergency services now.",
   },
   backHome: "Back to home",
 };
 
 const ar: TrustCopy = {
   seoTitle: "الثقة والأمان",
-  seoDescription: "كيف تحمي VitaMind معلومات المرضى: الخصوصية والأمان والذكاء الاصطناعي المسؤول ومعالجة البيانات وشروط الاستخدام وسبل التواصل.",
+  seoDescription: "كيف تحمي SynQ معلومات المرضى: الخصوصية والأمان والذكاء الاصطناعي المسؤول ومعالجة البيانات وشروط الاستخدام وسبل التواصل.",
   eyebrow: "الثقة والأمان",
   titleA: "الثقة جزء",
   titleB: "من المنتج.",
   intro:
-    "تدعم VitaMind المرضى بين المواعيد وتمنح المختصين رؤية أوضح وأبكر. ولأن ذلك يقوم على معلومات شخصية جداً، فإن طريقة حمايتها مشروحة هنا بكلمات واضحة.",
+    "تدعم SynQ المرضى بين المواعيد وتمنح المختصين رؤية أوضح وأبكر. ولأن ذلك يقوم على معلومات شخصية جداً، فإن طريقة حمايتها مشروحة هنا بكلمات واضحة.",
   principle: "الذكاء الاصطناعي يوجّه وينبّه، والمختص هو من يقرّر دائماً.",
   readMore: "اقرأ المزيد",
   sections: [
@@ -153,7 +153,7 @@ const ar: TrustCopy = {
       title: "الأمان",
       summary: "حسابات محمية، ووصول محمي، وسجل يبيّن من اطّلع على ماذا.",
       points: [
-        "كل جزء في VitaMind يحتوي معلومات شخصية يتطلب حساباً مسجَّل الدخول. ولا يرى الزائر سوى الصفحات العامة وعرضاً توضيحياً ببيانات خيالية.",
+        "كل جزء في SynQ يحتوي معلومات شخصية يتطلب حساباً مسجَّل الدخول. ولا يرى الزائر سوى الصفحات العامة وعرضاً توضيحياً ببيانات خيالية.",
         "حسابات المختصين والمشرفين محمية بالمصادقة الثنائية.",
         "لا يرى المختص إلا المرضى المسندين إليه، وإلا ما وافق كل مريض على مشاركته.",
         "تُحفظ ملاحظات المختصين مشفّرة، ويُسجَّل اطّلاع المختصين والمشرفين على ملفات المرضى.",
@@ -175,20 +175,20 @@ const ar: TrustCopy = {
       title: "معالجة البيانات",
       summary: "فقط ما يلزم لتقديم التوجيه والمتابعة، ولا شيء غير ذلك.",
       points: [
-        "تجمع VitaMind ما تقدّمه لها: بيانات حسابك وإجاباتك لميرا وفحوصاتك اليومية ومدخلات مفكرتك.",
+        "تجمع SynQ ما تقدّمه لها: بيانات حسابك وإجاباتك لميرا وفحوصاتك اليومية ومدخلات مفكرتك.",
         "تُستخدم هذه المعلومات لتقديم التوجيه والمتابعة اليومية، ولإعداد تقرير لمختص حين تختار مشاركته.",
-        "يعالج النص الذي تكتبه خدمات الذكاء الاصطناعي في VitaMind لإنتاج المواضيع والإشارات والملخصات التي تراها.",
+        "يعالج النص الذي تكتبه خدمات الذكاء الاصطناعي في SynQ لإنتاج المواضيع والإشارات والملخصات التي تراها.",
         "يمكن إرسال أسئلتك عن بياناتك، ومنها كيفية الاطلاع عليها أو إزالتها، عبر بيانات التواصل أدناه.",
       ],
     },
     {
       id: "terms",
       title: "شروط الاستخدام",
-      summary: "ما هي VitaMind وما ليست، وما نطلبه ممن يستخدمها.",
+      summary: "ما هي SynQ وما ليست، وما نطلبه ممن يستخدمها.",
       points: [
-        "VitaMind ليست تشخيصاً طبياً، ولا بديلاً عن مختص مرخَّص، ولا خدمة طوارئ.",
+        "SynQ ليست تشخيصاً طبياً، ولا بديلاً عن مختص مرخَّص، ولا خدمة طوارئ.",
         "استخدم حسابك الخاص، وأبقِ بيانات الدخول سرية، وقدّم معلوماتك بصدق لتبقى مفيدة.",
-        "يبقى المختصون مسؤولين عن كل قرار سريري يتخذونه بمساعدة VitaMind.",
+        "يبقى المختصون مسؤولين عن كل قرار سريري يتخذونه بمساعدة SynQ.",
       ],
     },
     {
@@ -204,7 +204,7 @@ const ar: TrustCopy = {
     emailLabel: "البريد الإلكتروني",
     phoneLabel: "الهاتف",
     addressLabel: "العنوان",
-    urgent: "لا تستطيع VitaMind الاستجابة للطوارئ. إن كنت في خطر فاتصل بخدمات الطوارئ المحلية الآن.",
+    urgent: "لا تستطيع SynQ الاستجابة للطوارئ. إن كنت في خطر فاتصل بخدمات الطوارئ المحلية الآن.",
   },
   backHome: "العودة إلى الرئيسية",
 };

@@ -81,7 +81,7 @@ export async function POST(request: Request, context: { params: Promise<{ action
       return json({ message: "Logged out" }, 200, clearedCookie());
     }
   } catch {
-    return json({ message: "The VitaMind API is unreachable." }, 502);
+    return json({ message: "The SynQ API is unreachable." }, 502);
   }
   return json({ message: "Not found" }, 404);
 }

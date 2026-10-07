@@ -20,7 +20,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { ROUTES } from "@/lib/config/routes";
-import { recordConsent } from "@/lib/patient/consent";
+import { CONSENT_VERSION } from "@/lib/patient/consent";
 import { prefetchPatientHome } from "@/lib/patient/prefetch";
 import { cn } from "@/lib/utils";
 import { LogoSpinner } from "@/components/shared/LogoLoader";
@@ -172,11 +172,10 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
           // No leftover session can ride along: only the answer to THIS request opens the space.
           clearTokens();
           const session = isSignUp
-            ? await authApi.register({ nickname: values.nickname.trim(), email, phone: e164 ?? undefined, password: values.password, lang: language })
+            ? await authApi.register({ nickname: values.nickname.trim(), email, phone: e164 ?? undefined, password: values.password, lang: language, consentVersion: CONSENT_VERSION })
             : await authApi.login(email, values.password);
           // Navigate only once the session is really established.
           if (!hasValidSession()) throw new Error("session-not-established");
-          if (isSignUp && session.user) recordConsent(session.user.id);
           router.prefetch(target);
           if (session.user) setUser({ id: session.user.id, fullName: session.user.nickname || email, email, password: "", disease: "ADHD", createdAt: new Date().toISOString() });
           // The first screens' data loads in parallel with the navigation itself.
@@ -503,12 +502,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
               </>
             )}
           </Button>
-          {!isSignUp && (
-            <Button type="button" variant="ghost" className="mt-2 w-full text-ink-soft hover:text-teal-800">
-              <Mail aria-hidden />
-              {auth.magicLink}
-            </Button>
-          )}
+         
         </motion.div>
       </motion.form>
 

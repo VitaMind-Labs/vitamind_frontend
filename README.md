@@ -1,4 +1,4 @@
-# VitaMind Frontend
+# SynQ Frontend
 
 A premium mental wellness and digital care frontend built with Next.js, TypeScript, and modern UI tooling. The application is designed to support guided experiences across onboarding, diagnostic journeys, dashboards, clinical guidance, subscriptions, and help flows in a calm, accessible format.
 
@@ -6,7 +6,7 @@ A premium mental wellness and digital care frontend built with Next.js, TypeScri
 
 ## Overview
 
-VitaMind is structured as a modern web application focused on:
+SynQ is structured as a modern web application focused on:
 
 - patient-facing onboarding and authentication
 - mental wellness diagnostics and guided flows
@@ -15,7 +15,7 @@ VitaMind is structured as a modern web application focused on:
 - subscription and payment experiences
 - multilingual support and responsive accessibility
 
-The frontend is built to feel polished, trustworthy, and clinically aware while remaining flexible enough for future feature expansion. VitaMind supports care and does not replace qualified mental health professionals.
+The frontend is built to feel polished, trustworthy, and clinically aware while remaining flexible enough for future feature expansion. SynQ supports care and does not replace qualified mental health professionals.
 
 ## Architecture and Safety Boundaries
 

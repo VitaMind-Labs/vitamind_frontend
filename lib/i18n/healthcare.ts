@@ -3,7 +3,7 @@ import type { Lang } from "@/lib/i18n/config";
 /**
  * Copy for the home page's section for clinics, hospitals and health authorities. It only says what the sections above
  * do not: who stays in charge, how patient information is governed, and what happens with a serious case. What
- * VitaMind is and what each side gets live in the hero and the bridge; the full trust pillars live on /trust.
+ * SynQ is and what each side gets live in the hero and the bridge; the full trust pillars live on /trust.
  * `ar` is typed against the same shape as `en`. Every claim describes behaviour that exists in the product; AI guides
  * and flags, a licensed professional decides.
  */
@@ -31,7 +31,7 @@ const en: HealthcareCopy = {
   eyebrow: "For clinicians and health authorities",
   titleA: "AI guides and flags.",
   titleB: "The professional decides.",
-  intro: "Everything VitaMind produces is built to be reviewed. A serious signal is never left to AI alone.",
+  intro: "Everything SynQ produces is built to be reviewed. A serious signal is never left to AI alone.",
   charge: {
     title: "The professional stays in charge",
     points: [
@@ -69,7 +69,7 @@ const ar: HealthcareCopy = {
   eyebrow: "للمختصين والجهات الصحية",
   titleA: "الذكاء الاصطناعي يوجّه وينبّه.",
   titleB: "والمختص هو من يقرّر.",
-  intro: "كل ما تنتجه VitaMind مصمَّم ليُراجَع. ولا تُترك الإشارة الخطيرة للذكاء الاصطناعي وحده.",
+  intro: "كل ما تنتجه SynQ مصمَّم ليُراجَع. ولا تُترك الإشارة الخطيرة للذكاء الاصطناعي وحده.",
   charge: {
     title: "المختص هو المسؤول",
     points: [

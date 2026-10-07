@@ -4,10 +4,10 @@ import { BRAND } from "@/lib/config/brand";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
-  sm: "h-8",
-  md: "h-8 sm:h-9",
-  lg: "h-12 sm:h-14",
-  xl: "h-24 sm:h-28",
+  sm: { mark: "size-8", wordmark: "text-sm" },
+  md: { mark: "size-8 sm:size-9", wordmark: "text-base sm:text-lg" },
+  lg: { mark: "size-12 sm:size-14", wordmark: "text-2xl sm:text-3xl" },
+  xl: { mark: "size-24 sm:size-28", wordmark: "text-5xl sm:text-6xl" },
 } as const;
 
 type BrandLogoProps = {
@@ -19,22 +19,25 @@ type BrandLogoProps = {
 };
 
 /**
- * The single VitaMind logo used across every header, loader and footer.
- * The artwork already carries the wordmark, so no text is rendered beside it.
+ * The single SynQ logo used across every header, loader and footer.
+ * Pair the existing brand mark with a text wordmark so the product name stays current.
  */
 export function BrandLogo({ size = "md", href = "/", className, priority = true }: BrandLogoProps) {
-  const image = (
-    <Image
-      src="/assets/logo.svg"
-      alt={BRAND.name}
-      width={465}
-      height={368}
-      priority={priority}
-      className={cn("w-auto select-none object-contain", SIZES[size])}
-    />
+  const content = (
+    <>
+      <Image
+        src="/assets/logo.svg"
+        alt={href ? "" : BRAND.name}
+        aria-hidden={href ? true : undefined}
+        width={512}
+        height={512}
+        priority={priority}
+        className={cn("shrink-0 select-none object-contain", SIZES[size].mark)}
+      />
+    </>
   );
 
-  if (!href) return <span className={cn("inline-flex shrink-0", className)}>{image}</span>;
+  if (!href) return <span className={cn("inline-flex shrink-0 items-center gap-2", className)}>{content}</span>;
 
   return (
     <Link
@@ -45,7 +48,7 @@ export function BrandLogo({ size = "md", href = "/", className, priority = true 
         className,
       )}
     >
-      {image}
+      {content}
     </Link>
   );
 }

@@ -60,7 +60,7 @@ const DEFAULT_MESSAGES: Record<number, string> = {
   404: "This record no longer exists.",
   409: "This action is no longer possible.",
   429: "Too many requests. Please wait a moment and retry.",
-  502: "The VitaMind API is unreachable.",
+  502: "The SynQ API is unreachable.",
 };
 
 export function messageFrom(payload: unknown, status: number): string {

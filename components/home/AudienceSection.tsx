@@ -60,7 +60,7 @@ function ConditionRow({ index, name, line }: { index: number; name: string; line
 }
 
 /**
- * Who VitaMind is for, on one screen: the three conditions (each opens its care track), and the professionals and organisations on the other side.
+ * Who SynQ is for, on one screen: the three conditions (each opens its care track), and the professionals and organisations on the other side.
  */
 export const AudienceSection = () => {
   const { language } = useLanguage();

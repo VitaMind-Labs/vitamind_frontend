@@ -45,13 +45,13 @@ const en: TracksCopy = {
   seo: {
     title: "The three tracks: ADHD, bipolar disorder, psychosis",
     description:
-      "What ADHD, bipolar disorder and psychosis or schizophrenia are, how each can show up in daily life, and how VitaMind adapts your daily space to the track you follow.",
+      "What ADHD, bipolar disorder and psychosis or schizophrenia are, how each can show up in daily life, and how SynQ adapts your daily space to the track you follow.",
   },
   hero: {
     eyebrow: "The three tracks",
     titleA: "One space,",
     titleB: "shaped to your track.",
-    body: "ADHD, bipolar disorder and psychosis ask different things of a day. VitaMind keeps the same calm core and changes what it puts first.",
+    body: "ADHD, bipolar disorder and psychosis ask different things of a day. SynQ keeps the same calm core and changes what it puts first.",
     scroll: "Explore the tracks",
   },
   explorer: {
@@ -153,13 +153,13 @@ const ar: TracksCopy = {
   seo: {
     title: "المسارات الثلاثة: فرط الحركة، ثنائي القطب، الذهان",
     description:
-      "ما هو اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب والذهان أو الفصام، وكيف يظهر كلٌّ منها في الحياة اليومية، وكيف تتكيّف VitaMind مع المسار الذي تتابعه.",
+      "ما هو اضطراب فرط الحركة وتشتت الانتباه والاضطراب ثنائي القطب والذهان أو الفصام، وكيف يظهر كلٌّ منها في الحياة اليومية، وكيف تتكيّف SynQ مع المسار الذي تتابعه.",
   },
   hero: {
     eyebrow: "المسارات الثلاثة",
     titleA: "مساحة واحدة،",
     titleB: "على مقاس مسارك.",
-    body: "فرط الحركة وتشتت الانتباه، والاضطراب ثنائي القطب، والذهان؛ لكلٍّ منها ما يطلبه من اليوم. تُبقي VitaMind النواة الهادئة نفسها وتغيّر ما تضعه أولًا.",
+    body: "فرط الحركة وتشتت الانتباه، والاضطراب ثنائي القطب، والذهان؛ لكلٍّ منها ما يطلبه من اليوم. تُبقي SynQ النواة الهادئة نفسها وتغيّر ما تضعه أولًا.",
     scroll: "استكشف المسارات",
   },
   explorer: {

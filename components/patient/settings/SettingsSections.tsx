@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useConsents } from "@/hooks/patient/useCare";
+import { useConsents, useOrientationConsent } from "@/hooks/patient/useCare";
 import { useReminderPrefs } from "@/hooks/patient/useNotifications";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { usePatientCopy } from "@/hooks/usePatientCopy";
@@ -160,8 +160,9 @@ const JOURNAL_LEVELS: JournalShareLevel[] = ["NONE", "FLAGGED_EXCERPTS", "FULL"]
 function ConsentCard({ consent }: { consent: Consent }) {
   const copy = usePatientCopy();
   const s = copy.settings.privacy;
-  const { update } = useConsents();
+  const { update, reconfirm } = useConsents();
   const [busy, setBusy] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const [failed, setFailed] = useState(false);
   const pending = consent.status === "PENDING";
   const name = `${consent.clinician.firstName} ${consent.clinician.lastName}`.trim();
@@ -228,8 +229,77 @@ function ConsentCard({ consent }: { consent: Consent }) {
           </Row>
         </div>
       )}
+      {consent.reconfirm?.pending && !confirmed && (
+        <div className="mt-3 rounded-xl bg-teal-50/70 p-3">
+          <p className="text-sm font-medium text-ink">{s.reconfirm.bannerTitle}</p>
+          <p className="mt-0.5 text-xs text-ink-soft">{s.reconfirm.bannerBody}</p>
+          <Button
+            className="mt-2"
+            size="sm"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setFailed(false);
+              try {
+                await reconfirm(consent.assignmentId);
+                setConfirmed(true);
+              } catch {
+                setFailed(true);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {s.reconfirm.confirm}
+          </Button>
+        </div>
+      )}
+      {confirmed && <p role="status" className="mt-2 text-xs text-teal-700">{s.reconfirm.confirmed}</p>}
       {failed && <p role="alert" className="mt-2 text-xs text-rose-700">{s.saveError}</p>}
     </li>
+  );
+}
+
+/** The consent to the orientation: visible, withdrawable, and never a way to redo a finished orientation. */
+function OrientationConsentCard() {
+  const { language } = useLanguage();
+  const copy = usePatientCopy();
+  const s = copy.settings.orientationConsent;
+  const { profile } = usePatient();
+  const consent = useOrientationConsent();
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const done = Boolean(profile.orientationCompleted);
+  const granted = consent.data?.granted === true;
+
+  async function change(next: boolean) {
+    setBusy(true);
+    setFailed(false);
+    try {
+      await consent.set(next);
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 rounded-2xl border border-white/80 bg-white/65 p-4">
+      <p className="text-sm font-semibold text-ink">{s.title}</p>
+      <p className="mt-0.5 text-xs text-ink-soft">{s.body}</p>
+      {!consent.data ? (
+        <Skeleton className="mt-3 h-9" />
+      ) : (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm text-ink">{granted ? s.granted : s.withdrawn}{granted && consent.data.grantedAt ? ` · ${fill(s.since, { date: formatDay(consent.data.grantedAt, language) })}` : ""}</span>
+          <Button size="sm" variant={granted ? "outline" : "default"} disabled={busy} onClick={() => void change(!granted)}>{granted ? s.withdraw : s.accept}</Button>
+        </div>
+      )}
+      {consent.data && !granted && !done && <p className="mt-2 text-xs text-ink-soft">{s.pendingNote}</p>}
+      {done && <p className="mt-2 text-xs text-ink-soft">{s.doneNote}</p>}
+      {failed && <p role="alert" className="mt-2 text-xs text-rose-700">{s.error}</p>}
+    </div>
   );
 }
 
@@ -248,6 +318,7 @@ export function PrivacySection() {
       ) : (
         <ul className="space-y-3">{consents.data.map((consent) => <ConsentCard key={consent.assignmentId} consent={consent} />)}</ul>
       )}
+      <OrientationConsentCard />
     </Section>
   );
 }

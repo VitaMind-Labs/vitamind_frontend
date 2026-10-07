@@ -128,7 +128,7 @@ function SideNode({ node, icon }: { node: Node; icon: ReactNode }) {
   );
 }
 
-/** The middle node, VitaMind itself: the two agent marks held by a slow gold orbit, on the deep teal. */
+/** The middle node, SynQ itself: the two agent marks held by a slow gold orbit, on the deep teal. */
 function CoreNode({ node }: { node: Node }) {
   const reduce = useReducedMotion();
   return (
@@ -154,8 +154,8 @@ function CoreNode({ node }: { node: Node }) {
 }
 
 /**
- * What VitaMind is, for someone who has never heard of it: one sentence read at their pace, then one picture: you,
- * VitaMind, your clinician, and the consent gate between the last two.
+ * What SynQ is, for someone who has never heard of it: one sentence read at their pace, then one picture: you,
+ * SynQ, your clinician, and the consent gate between the last two.
  */
 export const WhatSection = () => {
   const { language } = useLanguage();

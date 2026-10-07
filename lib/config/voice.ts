@@ -8,7 +8,7 @@ export function getVoiceApiUrl() {
 }
 
 export function getVoiceApiKey() {
-  return process.env.ELEVENLABS_API_KEY || process.env.VITAMIND_VOICE || process.env.VitaMind_voice;
+  return process.env.ELEVENLABS_API_KEY || process.env.VITAMIND_VOICE || process.env.SynQ_voice;
 }
 
 export function getVoiceId(language?: VoiceLanguage) {

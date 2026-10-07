@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { streamWithFallback } from "@/lib/api/stream";
+import { profileApi } from "@/lib/api/patient";
+import { CONSENT_VERSION } from "@/lib/patient/consent";
 import { useTurnStream } from "@/hooks/patient/useTurnStream";
 import { classifyTurnFailure, type TurnFailureKind } from "@/lib/patient/turn-errors";
 import { copy, LANGUAGE_STORAGE_KEY, normalizeLanguage, type Lang } from "@/lib/i18n/config";
@@ -104,6 +106,8 @@ function fpInit(init: RequestInit = {}): RequestInit {
  */
 /** API code: the caller is a signed-in patient, who has already completed the orientation. */
 export const ORIENTATION_COMPLETED = "ORIENTATION_COMPLETED";
+/** API code: the consent to the orientation is missing or withdrawn. Accepting it resumes the SAME orientation. */
+export const ORIENTATION_CONSENT_REQUIRED = "ORIENTATION_CONSENT_REQUIRED";
 
 export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked = false }: { locked?: boolean } = {}) {
   const errors = copy[lang].diagnostic.errors;
@@ -123,6 +127,11 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
   const [sessionReady, setSessionReady] = useState(false);
   const [attempt, setAttempt] = useState<MiraAttemptState | null>(null);
   const [blocked, setBlocked] = useState(false);
+  /** The consent is missing or withdrawn: show the consent screen; accepting it picks the orientation up where it stopped. */
+  const [consentRequired, setConsentRequired] = useState(false);
+  const [consentBusy, setConsentBusy] = useState(false);
+  const [consentError, setConsentError] = useState(false);
+  const [restoreTick, setRestoreTick] = useState(0);
   // Patients have already completed their orientation: no session is started or continued.
   const [completed, setCompleted] = useState(locked);
   const [isFinalizing, setIsFinalizing] = useState(false);
@@ -181,6 +190,11 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
           setCompleted(true);
           return;
         }
+        if (data.code === ORIENTATION_CONSENT_REQUIRED) {
+          startedRef.current = false;
+          setConsentRequired(true);
+          return;
+        }
         if (data.code === "ATTEMPTS_EXHAUSTED") {
           setBlocked(true);
           if (data.attempt) setAttempt(data.attempt);
@@ -218,15 +232,27 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
     // A retry after a failure is the visitor's explicit action (start/retry), never automatic.
     if (restoredKeyRef.current === (storageKey ?? "")) return;
     restoredKeyRef.current = storageKey ?? "";
-    const storedSessionId = storageKey ? window.localStorage.getItem(storageKey) : null;
-    if (!storedSessionId) {
-      window.setTimeout(() => void start(preferredLanguage(langRef.current)), 0);
-      return;
-    }
-    sessionRef.current = storedSessionId;
-    startedRef.current = true;
+    const browserSessionId = storageKey ? window.localStorage.getItem(storageKey) : null;
 
     (async () => {
+      let storedSessionId = browserSessionId;
+      if (!storedSessionId) {
+        // An orientation started on another device or browser is resumed, never restarted from zero.
+        try {
+          const attemptsRes = await fetch("/api/mira?resource=attempts", fpInit({ cache: "no-store" }));
+          const attempts = attemptsRes.ok ? ((await attemptsRes.json()) as { resumableSessionId?: string | null }) : null;
+          storedSessionId = attempts?.resumableSessionId ?? null;
+        } catch {
+          storedSessionId = null;
+        }
+        if (storedSessionId && storageKey) window.localStorage.setItem(storageKey, storedSessionId);
+      }
+      if (!storedSessionId) {
+        window.setTimeout(() => void start(preferredLanguage(langRef.current)), 0);
+        return;
+      }
+      sessionRef.current = storedSessionId;
+      startedRef.current = true;
       try {
         // 1) Durable transcript + status from Postgres (works even if the agent forgot the session).
         const historyRes = await fetch(`/api/mira?resource=history&sessionId=${encodeURIComponent(storedSessionId)}`, fpInit({ cache: "no-store" }));
@@ -285,7 +311,7 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
         void start();
       }
     })();
-  }, [start, storageKey, errors.send]);
+  }, [start, storageKey, errors.send, restoreTick]);
 
   const displayMessages = useMemo<MiraMessage[]>(
     () =>
@@ -381,6 +407,12 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
       } catch (err) {
         const stopped = live.signal.aborted;
         const problem = classifyTurnFailure(err);
+        if (err instanceof ApiError && err.code === ORIENTATION_CONSENT_REQUIRED) {
+          setMessages((prev) => prev.filter((m) => m.id !== localId)); // it was never delivered: send it again after accepting
+          unanswered.current = null;
+          setConsentRequired(true);
+          return;
+        }
         if (err instanceof ApiError && err.code === ORIENTATION_COMPLETED) {
           lockedRef.current = true;
           setCompleted(true);
@@ -462,6 +494,27 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
     void start(nextLanguage);
   }, [start, storageKey]);
 
+  /** Accept the consent text, then resume the SAME orientation: the open session when there is one, else the stored or account one. */
+  const acceptConsent = useCallback(async () => {
+    setConsentBusy(true);
+    setConsentError(false);
+    try {
+      await profileApi.setOrientationConsent(true, CONSENT_VERSION);
+      setConsentRequired(false);
+      if (sessionRef.current) {
+        setError(null);
+      } else {
+        restoredKeyRef.current = null;
+        startedRef.current = false;
+        setRestoreTick((n) => n + 1);
+      }
+    } catch {
+      setConsentError(true);
+    } finally {
+      setConsentBusy(false);
+    }
+  }, []);
+
   return {
     messages: displayMessages,
     isStreaming: displayMessages.length > messages.length,
@@ -486,6 +539,10 @@ export function useMiraChat(chatId?: string | null, lang: Lang = "en", { locked 
     finishedLive,
     attempt,
     blocked,
+    consentRequired,
+    consentBusy,
+    consentError,
+    acceptConsent,
     /** Signed-in patient: orientation already completed, the chat is locked. */
     completed,
     assessmentComplete: Boolean(result),

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-/** The official VitaMind 3D mark (two profiles, leaves and the gold ring), background removed. */
+/** The official SynQ 3D mark (two profiles, leaves and the gold ring), background removed. */
 export const VITAMIND_MARK_SRC = "/assets/vitamind-mark-3d.png";
 
 /**

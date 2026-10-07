@@ -178,7 +178,12 @@ export type Consent = {
   categories: { diagnostics: boolean; mood: boolean; sleep: boolean; medication: boolean; exercises: boolean; journal: "NONE" | "FLAGGED_EXCERPTS" | "FULL" };
   safetyAlertsConsentAt: string | null;
   monitoringNoticeAckAt: string | null;
+  /** Relationships created while sharing was pre-ticked: confirm what is shared (`required` once the 30 days have passed). */
+  reconfirm?: { pending: boolean; required: boolean; dueAt: string | null };
 };
+
+/** The consent to orientation and follow-up on file (`/me/orientation-consent`). */
+export type OrientationConsent = { granted: boolean; version: string | null; grantedAt: string | null; currentVersion: string; upToDate: boolean };
 
 
 // ---- Check-in reports (`/me/checkins/reports/weekly|monthly`), built by the longitudinal service
