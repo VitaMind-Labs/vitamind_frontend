@@ -26,7 +26,7 @@ async function forward(path: string, init: RequestInit & MiraIdentity = {}): Pro
     return { payload, status: response.status };
   } catch {
     // Nest itself is down: answer like a gateway instead of crashing the route.
-    return { payload: { error: "The VitaMind API is unreachable." }, status: 502 };
+    return { payload: { error: "The SynQ API is unreachable." }, status: 502 };
   }
 }
 

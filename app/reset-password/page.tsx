@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   ...pageMetadata({
     title: "Reset password",
-    description: "Choose a new password for your private VitaMind space.",
+    description: "Choose a new password for your private SynQ space.",
     path: ROUTES.resetPassword,
     noindex: true,
   }),

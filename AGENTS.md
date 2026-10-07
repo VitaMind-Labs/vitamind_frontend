@@ -2,7 +2,7 @@
 
 ## Project
 
-This is the VitaMind frontend. Treat the admin interface as an operational tool, not a generic dashboard. Admins support clinical workflows but must not act as clinicians.
+This is the SynQ frontend. Treat the admin interface as an operational tool, not a generic dashboard. Admins support clinical workflows but must not act as clinicians.
 
 Before changing code, inspect the existing implementation and follow its patterns. Preserve the current brand, design system, dependencies, and working behavior. Check `package.json` before adding or importing dependencies.
 
@@ -21,7 +21,7 @@ Project requirements and the user's request take precedence over general skill a
 
 ## Product and UI
 
-* Keep operational screens clear, fast, accessible, and consistent with the existing VitaMind brand. Avoid generic dashboard decoration, unnecessary cards, and distracting motion.
+* Keep operational screens clear, fast, accessible, and consistent with the existing SynQ brand. Avoid generic dashboard decoration, unnecessary cards, and distracting motion.
 * Reuse existing components and patterns. Do not build duplicate UI primitives or introduce a second design system.
 * Use real, verified API contracts and typed responses. Never invent endpoints, response shapes, or production metrics.
 * Treat frontend role checks as UX only; backend authorization is authoritative. Never bypass authentication or store tokens in browser storage.

@@ -8,6 +8,7 @@ import { PlanCard, ProgressStrip, SignalsCard, TrendCard, WellbeingCard } from "
 import { RecommendedExercises } from "@/components/patient/home/RecommendedExercises";
 import { TourReplayButton } from "@/components/patient/tour/TourProvider";
 import { SparkCard } from "@/components/patient/home/SparkCard";
+import { SharingReconfirmBanner } from "@/components/patient/consent/SharingReconfirm";
 import { HomeSidePanel } from "@/components/patient/home/HomePanels";
 import { usePatient } from "@/hooks/patient/usePatient";
 import { useCalmTrack } from "@/hooks/useCalmTrack";
@@ -46,6 +47,7 @@ function SparkSlot() {
 export default function HomePage() {
   return (
     <div>
+      <SharingReconfirmBanner />
       <DayWelcome />
       <ReadsBand />
       {/* ADHD only: the card renders nothing for every other track. */}

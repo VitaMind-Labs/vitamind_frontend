@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/config/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Welcome",
-  description: "Welcome to your private VitaMind space.",
+  description: "Welcome to your private SynQ space.",
   path: "/welcome",
   noindex: true,
 });

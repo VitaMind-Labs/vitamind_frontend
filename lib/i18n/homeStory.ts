@@ -3,9 +3,9 @@ import type { Lang } from "@/lib/i18n/config";
 /**
  * Copy for the home page's story, in the order a first-time visitor needs it:
  *
- * Each fact is said once. The hero says what to do, `what` says what VitaMind is (you · VitaMind · your clinician), and the
+ * Each fact is said once. The hero says what to do, `what` says what SynQ is (you · SynQ · your clinician), and the
  * professional's role is left to `healthcare.ts`, so no section repeats another.
- * - `what`: what VitaMind is, as one statement and one picture.
+ * - `what`: what SynQ is, as one statement and one picture.
  * - `audience`: who it is for: people living with ADHD, bipolar disorder or psychosis, and the professionals around them.
  * - `agents`: what Mira does (once) and what Lumina does (every day), three lines each.
  * How professionals are involved lives in `healthcare.ts`. Each block only says what the visitor needs to understand the
@@ -54,15 +54,15 @@ type AgentChapter = { when: string; role: string; lead: string; does: readonly s
 const en: HomeStoryCopy = {
   what: {
     rail: "What it is",
-    eyebrow: "What VitaMind is",
+    eyebrow: "What SynQ is",
     titleA: "One platform,",
     titleB: "between you and your care.",
     statement:
-      "VitaMind is a mental health support platform for people living with ADHD, bipolar disorder or psychosis. Mira orients you, Lumina keeps your days between consultations, and a licensed clinician follows your care through what you choose to share.",
+      "SynQ is a mental health support platform for people living with ADHD, bipolar disorder or psychosis. Mira orients you, Lumina keeps your days between consultations, and a licensed clinician follows your care through what you choose to share.",
     highlight: ["mental", "health", "support", "platform", "Mira", "Lumina", "licensed", "clinician", "choose"],
     nodes: [
       { label: "You", title: "Everyday life", points: ["Check-in", "Journal", "Goals"] },
-      { label: "VitaMind", title: "Mira and Lumina", points: ["Orient", "Follow", "Flag"] },
+      { label: "SynQ", title: "Mira and Lumina", points: ["Orient", "Follow", "Flag"] },
       { label: "Your clinician", title: "Clinical care", points: ["Reviews", "Decides", "Follows up"] },
     ],
     consent: "Only with your consent",
@@ -123,15 +123,15 @@ const en: HomeStoryCopy = {
 const ar: HomeStoryCopy = {
   what: {
     rail: "ما هي",
-    eyebrow: "ما هي VitaMind",
+    eyebrow: "ما هي SynQ",
     titleA: "منصة واحدة،",
     titleB: "بينك وبين رعايتك.",
     statement:
-      "VitaMind منصة دعم للصحة النفسية لمن يعيشون مع اضطراب فرط الحركة وتشتت الانتباه أو الاضطراب ثنائي القطب أو الذهان. ميرا توجّهك، ولومينا تحفظ أيامك بين الاستشارات، ومختص مرخَّص يتابع رعايتك من خلال ما تختار مشاركته.",
+      "SynQ منصة دعم للصحة النفسية لمن يعيشون مع اضطراب فرط الحركة وتشتت الانتباه أو الاضطراب ثنائي القطب أو الذهان. ميرا توجّهك، ولومينا تحفظ أيامك بين الاستشارات، ومختص مرخَّص يتابع رعايتك من خلال ما تختار مشاركته.",
     highlight: ["دعم", "للصحة", "النفسية", "ميرا", "ولومينا", "مختص", "مرخَّص", "تختار"],
     nodes: [
       { label: "أنت", title: "الحياة اليومية", points: ["الفحص اليومي", "المفكرة", "الأهداف"] },
-      { label: "VitaMind", title: "ميرا ولومينا", points: ["توجّه", "تتابع", "تنبّه"] },
+      { label: "SynQ", title: "ميرا ولومينا", points: ["توجّه", "تتابع", "تنبّه"] },
       { label: "مختصك", title: "الرعاية السريرية", points: ["يراجع", "يقرّر", "يتابع"] },
     ],
     consent: "بموافقتك فقط",

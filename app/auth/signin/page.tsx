@@ -7,7 +7,7 @@ import { Suspense } from "react";
 
 export const metadata: Metadata = pageMetadata({
   title: "Sign in",
-  description: "Sign in to your private VitaMind space to continue your daily check-ins and follow your progress.",
+  description: "Sign in to your private SynQ space to continue your daily check-ins and follow your progress.",
   path: ROUTES.signIn,
   noindex: true,
 });

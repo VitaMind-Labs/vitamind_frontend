@@ -148,7 +148,7 @@ const baseCopy = {
         eyebrow: "Your mind · Our care",
         titleA: "Understand your days,",
         titleB: "one at a time.",
-        body: "Create your account to enter Lumina — your daily space for check-ins, a private journal and simple goals. Over time, VitaMind builds a clear picture of how you are evolving.",
+        body: "Create your account to enter Lumina — your daily space for check-ins, a private journal and simple goals. Over time, SynQ builds a clear picture of how you are evolving.",
         points: ["Mira orients you, never diagnoses", "Lumina keeps your days: check-in, journal, goals", "You decide what your clinician sees"],
         quote: "Between two consultations, your experience still counts.",
       },
@@ -163,9 +163,8 @@ const baseCopy = {
       passwordPlaceholder: "Enter your password",
       confirmPassword: "Confirm password",
       confirmPasswordPlaceholder: "Repeat your password",
-      signInButton: "Enter VitaMind",
+      signInButton: "Enter SynQ",
       signUpButton: "Create my account",
-      magicLink: "Sign in using magic link",
       gmailButton: "Continue with Google",
       or: "or",
       switchToSignIn: "Already have an account?",
@@ -178,7 +177,7 @@ const baseCopy = {
       highlights: ["Nickname-based access", "Lightweight onboarding", "Assessment ready"],
       legal: "By continuing, you agree to use this experience responsibly and seek professional care when needed.",
       consent: {
-        label: "I consent to VitaMind using my answers to guide my orientation and my daily follow-up. Nothing is shared with a clinician without my choice, and I can withdraw this consent at any time.",
+        label: "I consent to SynQ using my answers to guide my orientation and my daily follow-up. Nothing is shared with a clinician without my choice, and I can withdraw this consent at any time.",
       },
       notice: {
         orientation: "Mira is for members. Create your account and give your consent, then Mira's orientation opens right away — it takes about ten minutes and is done once.",
@@ -203,7 +202,7 @@ const baseCopy = {
         invalidCredentials: "The email or password is incorrect. Please check them and try again.",
         emailTaken: "An account with this email already exists. Try signing in instead.",
         tooManyRequests: "Too many attempts. Please wait a moment and try again.",
-        network: "We couldn't reach VitaMind. Check your connection and try again.",
+        network: "We couldn't reach SynQ. Check your connection and try again.",
         generic: "Something went wrong. Please try again.",
         cannotSignInHere: "This account cannot sign in here.",
       },
@@ -359,6 +358,15 @@ const baseCopy = {
         title: "This is your final orientation",
         body: "You have one orientation conversation left on this device. Take your time — you can download the result when you're ready.",
       },
+      consent: {
+        title: "One step before Mira continues",
+        body: "Mira needs your consent to process your answers for your orientation and follow-up. If you withdrew it, accept again: you continue exactly where you stopped.",
+        once: "Your orientation can only be done once. Withdrawing your consent never lets you redo it.",
+        accept: "I consent, continue",
+        accepting: "Saving…",
+        error: "We couldn't save your consent. Please try again.",
+        support: "Contact support",
+      },
       blocked: {
         title: "Your orientation is complete",
         body: "Your orientation is saved to your account and is done once. Continue from your dashboard, or reach out if you need help.",
@@ -367,7 +375,7 @@ const baseCopy = {
       },
       completed: {
         title: "You've already completed your orientation",
-        body: "Your orientation with Mira is complete — as a VitaMind patient, it can't be retaken. Your journey now continues in your personal space.",
+        body: "Your orientation with Mira is complete — as a SynQ patient, it can't be retaken. Your journey now continues in your personal space.",
         inputDisabled: "Orientation already completed",
       },
       resultPage: {
@@ -501,9 +509,9 @@ const baseCopy = {
       faqTitle: "Frequently asked questions",
       faqMore: "How we protect your information",
       faq: [
-        { question: "Does VitaMind diagnose or prescribe?", answer: "No. Mira offers an orientation that supports clinical assessment, and Lumina helps you track your days between consultations. Neither diagnoses, recommends treatment or prescribes medication: a licensed professional makes every clinical decision." },
+        { question: "Does SynQ diagnose or prescribe?", answer: "No. Mira offers an orientation that supports clinical assessment, and Lumina helps you track your days between consultations. Neither diagnoses, recommends treatment or prescribes medication: a licensed professional makes every clinical decision." },
         { question: "Who can see my journal and check-ins?", answer: "Only you, unless you authorize sharing. When you do, your clinician receives a structured monthly report — and you can change your choice at any time." },
-        { question: "What happens in an urgent situation?", answer: "If Mira or your journal shows signs that you may be at risk, you immediately see calm guidance and emergency resources, and your care team is alerted so that a professional can follow up. VitaMind is not an emergency service: in danger, contact your local emergency number." },
+        { question: "What happens in an urgent situation?", answer: "If Mira or your journal shows signs that you may be at risk, you immediately see calm guidance and emergency resources, and your care team is alerted so that a professional can follow up. SynQ is not an emergency service: in danger, contact your local emergency number." },
       ],
     },
     dashboard: {
@@ -703,6 +711,15 @@ const arabicDiagnostic = {
     title: "هذه محادثتك الأخيرة للتوجيه",
     body: "تبقّت لديك محادثة توجيه واحدة على هذا الجهاز. خذ وقتك — يمكنك تنزيل النتيجة عندما تكون مستعداً.",
   },
+  consent: {
+    title: "خطوة واحدة قبل أن تتابع ميرا",
+    body: "تحتاج ميرا إلى موافقتك لمعالجة إجاباتك من أجل توجيهك ومتابعتك. إن كنت قد سحبتها فوافق من جديد: ستتابع بالضبط من حيث توقفت.",
+    once: "لا يمكن إجراء التوجيه إلا مرة واحدة. سحب موافقتك لا يتيح لك إعادته أبدًا.",
+    accept: "أوافق، تابع",
+    accepting: "جارٍ الحفظ…",
+    error: "تعذّر حفظ موافقتك. حاول مرة أخرى.",
+    support: "تواصل مع الدعم",
+  },
   blocked: {
     title: "لقد أكملت محادثات التوجيه",
     body: "لقد استخدمت محادثات التوجيه المتاحة على هذا الجهاز. أنشئ حساباً للمتابعة بوصول كامل، أو تواصل معنا إن احتجت المساعدة.",
@@ -711,7 +728,7 @@ const arabicDiagnostic = {
   },
   completed: {
     title: "لقد أكملت توجيهك بالفعل",
-    body: "اكتمل توجيهك مع ميرا — وبصفتك مريضاً في VitaMind لا يمكن إعادته. تستمر رحلتك الآن في مساحتك الشخصية.",
+    body: "اكتمل توجيهك مع ميرا — وبصفتك مريضاً في SynQ لا يمكن إعادته. تستمر رحلتك الآن في مساحتك الشخصية.",
     inputDisabled: "تم إكمال التوجيه بالفعل",
   },
   resultPage: {
@@ -810,7 +827,7 @@ const arabicDiagnostic = {
 } as const;
 
 const arabicCopy = {
-  brand: "VitaMind",
+  brand: "SynQ",
   common: { close: "إغلاق", loading: "جاري التحميل…", retry: "حاول مرة أخرى" },
   nav: { badge: "واجهة صحة نفسية ديناميكية", language: "اللغة", support: "الدعم", mainNav: "التنقل الرئيسي", signIn: "تسجيل الدخول", signUp: "إنشاء حساب", diagnostic: "ابدأ التوجيه", backHome: "العودة للرئيسية", back: "رجوع", backToDashboard: "العودة إلى لوحتي" },
   header: {
@@ -842,14 +859,14 @@ const arabicCopy = {
     },
   },
   home: {
-    titleA: "تعرف على VitaMind،",
+    titleA: "تعرف على SynQ،",
     titleB: "خطوتك الأولى",
     titleC: "نحو الوضوح",
     subtitle: "مساحة محادثة هادئة وموجهة تساعدك على وصف شعورك قبل التقييم السريري الرسمي.",
     chips: ["تشتت الانتباه · ASRS-v1.1", "ثنائي القطب · MDQ", "خطر الذهان · PQ-B", "الفحص اليومي · لومينا", "المفكرة الذكية", "تقرير شهري للمختص"],
     cta: "ابدأ جلسة تشخيص",
     secondaryCta: "أنشئ حسابك",
-    disclaimer: "ليس تشخيصاً طبياً. VitaMind توجيه يكمّل الرعاية المتخصصة.",
+    disclaimer: "ليس تشخيصاً طبياً. SynQ توجيه يكمّل الرعاية المتخصصة.",
     featureTitle: "تواصل أول أكثر إنسانية",
     featureBody: "يدعم الصوت، متعدد اللغات، ومصمم ليجعل الخطوة الأولى أكثر أماناً.",
     previewTop: "تدفق محادثة خاص",
@@ -875,7 +892,7 @@ const arabicCopy = {
       eyebrow: "عقلك · رعايتنا",
       titleA: "افهم أيامك،",
       titleB: "يوماً بيوم.",
-      body: "أنشئ حسابك لتدخل إلى لومينا — مساحتك اليومية للفحص والمفكرة الخاصة وأهداف بسيطة. ومع الوقت تبني VitaMind صورة واضحة لتطوّرك.",
+      body: "أنشئ حسابك لتدخل إلى لومينا — مساحتك اليومية للفحص والمفكرة الخاصة وأهداف بسيطة. ومع الوقت تبني SynQ صورة واضحة لتطوّرك.",
       points: ["ميرا توجّهك ولا تشخّص", "لومينا تحفظ أيامك: فحص ومفكرة وأهداف", "أنت تقرر ما يراه مختصك"],
       quote: "بين موعدين، تجربتك ما زالت مهمة.",
     },
@@ -890,9 +907,8 @@ const arabicCopy = {
     passwordPlaceholder: "أدخل كلمة المرور",
     confirmPassword: "تأكيد كلمة المرور",
     confirmPasswordPlaceholder: "أعد كلمة المرور",
-    signInButton: "الدخول إلى VitaMind",
+    signInButton: "الدخول إلى SynQ",
     signUpButton: "إنشاء حسابي",
-    magicLink: "تسجيل الدخول باستخدام رابط سحري",
     gmailButton: "المتابعة باستخدام Google",
     or: "أو",
     switchToSignIn: "لديك حساب بالفعل؟",
@@ -904,7 +920,7 @@ const arabicCopy = {
     highlights: ["وصول بالاسم المستعار", "إعداد خفيف", "جلسة التشخيص جاهزة"],
     legal: "بالمتابعة، توافق على استخدام التجربة بمسؤولية وطلب رعاية متخصصة عند الحاجة.",
     consent: {
-      label: "أوافق على أن تستخدم VitaMind إجاباتي لتوجيهي ولمتابعتي اليومية. لا يُشارك شيء مع مختص دون اختياري، ويمكنني سحب هذه الموافقة في أي وقت.",
+      label: "أوافق على أن تستخدم SynQ إجاباتي لتوجيهي ولمتابعتي اليومية. لا يُشارك شيء مع مختص دون اختياري، ويمكنني سحب هذه الموافقة في أي وقت.",
     },
     notice: {
       orientation: "ميرا مخصّصة للأعضاء. أنشئ حسابك وأعطِ موافقتك، ثم يُفتح توجيه ميرا مباشرة — يستغرق نحو عشر دقائق ويُجرى مرة واحدة.",
@@ -923,7 +939,7 @@ const arabicCopy = {
       invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التحقق والمحاولة مرة أخرى.",
       emailTaken: "يوجد حساب بهذا البريد الإلكتروني بالفعل. جرّب تسجيل الدخول.",
       tooManyRequests: "محاولات كثيرة. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.",
-      network: "تعذّر الوصول إلى VitaMind. تحقق من اتصالك وحاول مرة أخرى.",
+      network: "تعذّر الوصول إلى SynQ. تحقق من اتصالك وحاول مرة أخرى.",
       generic: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
       cannotSignInHere: "لا يمكن لهذا الحساب تسجيل الدخول من هنا.",
     },
@@ -975,9 +991,9 @@ const arabicCopy = {
     faqTitle: "الأسئلة الشائعة",
     faqMore: "كيف نحمي معلوماتك",
     faq: [
-      { question: "هل تشخّص VitaMind أو تصف الأدوية؟", answer: "لا. تقدّم ميرا توجيهاً يدعم التقييم السريري، وتساعدك لومينا على متابعة أيامك بين المواعيد. لا أيٌّ منهما يشخّص أو يوصي بعلاج أو يصف دواءً: فمختص مرخَّص هو من يتخذ كل قرار سريري." },
+      { question: "هل تشخّص SynQ أو تصف الأدوية؟", answer: "لا. تقدّم ميرا توجيهاً يدعم التقييم السريري، وتساعدك لومينا على متابعة أيامك بين المواعيد. لا أيٌّ منهما يشخّص أو يوصي بعلاج أو يصف دواءً: فمختص مرخَّص هو من يتخذ كل قرار سريري." },
       { question: "من يستطيع الاطلاع على مفكرتي وفحوصي؟", answer: "أنت وحدك، ما لم تفوّض بالمشاركة. وعندها يتلقى مختصك تقريراً شهرياً منظماً — ويمكنك تغيير اختيارك في أي وقت." },
-      { question: "ماذا يحدث في حالة عاجلة؟", answer: "إذا ظهرت في ميرا أو في مفكرتك مؤشرات تدل على أنك قد تكون في خطر، ترى فوراً إرشاداً هادئاً وموارد الطوارئ، ويُنبَّه فريق رعايتك ليتابع معك مختص. VitaMind ليست خدمة طوارئ: إن كنت في خطر فاتصل برقم الطوارئ المحلي." },
+      { question: "ماذا يحدث في حالة عاجلة؟", answer: "إذا ظهرت في ميرا أو في مفكرتك مؤشرات تدل على أنك قد تكون في خطر، ترى فوراً إرشاداً هادئاً وموارد الطوارئ، ويُنبَّه فريق رعايتك ليتابع معك مختص. SynQ ليست خدمة طوارئ: إن كنت في خطر فاتصل برقم الطوارئ المحلي." },
     ],
   },
   dashboard: {

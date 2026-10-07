@@ -16,6 +16,7 @@ import type {
   Profile,
   ReportDetail,
   ReportListItem,
+  OrientationConsent,
   SparkView,
 } from "./patient-types";
 
@@ -78,6 +79,10 @@ export const profileApi = {
   get: () => api.get<Profile>("/me"),
   update: (input: { nickname?: string; language?: "EN" | "AR" }) => api.patch<Profile>("/me", input),
   completeOnboarding: () => api.post<Profile>("/me/onboarding/complete"),
+  /** The consent to orientation and follow-up on file. */
+  orientationConsent: () => api.get<{ data: OrientationConsent }>("/me/orientation-consent"),
+  /** Accept the current consent text (with its version) or withdraw it. */
+  setOrientationConsent: (granted: boolean, version?: string) => api.put<{ data: OrientationConsent }>("/me/orientation-consent", { granted, version }),
 };
 
 export const checkinsApi = {
@@ -128,6 +133,8 @@ export const clinicalApi = {
   consents: () => api.get<{ data: Consent[] }>("/me/consents"),
   consent: (assignmentId: string) => api.get<Consent>(`/me/consents/${id(assignmentId)}`),
   updateConsent: (assignmentId: string, input: ConsentInput) => api.patch<unknown>(`/me/consents/${id(assignmentId)}`, input),
+  /** Confirm what is shared (optionally changing it in the same call). The API logs the before and after. */
+  reconfirm: (assignmentId: string, input: ConsentInput = {}) => api.post<unknown>(`/me/consents/${id(assignmentId)}/reconfirm`, input),
   latestWeeklyReport: () => api.get<unknown>("/me/weekly-reports/latest"),
   weeklyNote: (note: string) => api.patch<unknown>("/me/weekly-note", { note }),
   sessionPreNote: (sessionId: string, note: string) => api.patch<unknown>(`/me/sessions/${id(sessionId)}/pre-note`, { note }),

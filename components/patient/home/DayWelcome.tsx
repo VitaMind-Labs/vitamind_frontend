@@ -47,7 +47,7 @@ function Stat({ value, label, loading }: { value: number; label: string; loading
 }
 
 /**
- * The welcome after sign-in. A clean white panel lit by the condition's colour, the VitaMind mark with its soft halo,
+ * The welcome after sign-in. A clean white panel lit by the condition's colour, the SynQ mark with its soft halo,
  * a greeting that rises word by word, and three numbers that count up: the
  * patient sees, at once, that someone has been keeping the thread of their days. Every motion
  * stops under reduced motion (and, for psychosis / schizophrenia tracks, the mark stays still).

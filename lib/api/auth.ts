@@ -9,6 +9,8 @@ export type RegisterInput = {
   nickname: string;
   phone?: string;
   lang?: "en" | "ar";
+  /** Version of the consent text accepted at signup; the API stores it with the account. */
+  consentVersion?: string;
 };
 
 /** The patient app has no two-factor flow: an account that answers with a challenge cannot sign in here. */

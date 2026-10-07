@@ -2,7 +2,7 @@
 
 /**
  * Daily check-in reminder preferences. They live on the device on purpose: browser
- * notification permission is per browser, and the reminder only fires while VitaMind
+ * notification permission is per browser, and the reminder only fires while SynQ
  * is open (no push service yet).
  */
 export type ReminderPrefs = { enabled: boolean; time: string; browser: boolean };

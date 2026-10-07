@@ -78,7 +78,7 @@ type HeaderShellProps = {
 };
 
 /**
- * The one container every VitaMind header is built from.
+ * The one container every SynQ header is built from.
  * Variants only change what goes inside and which surface it wears.
  */
 export function HeaderShell({ children, position = "sticky", surface = "edge", solid = false, className, innerClassName }: HeaderShellProps) {

@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { careApi, clinicalApi, type ConsentInput } from "@/lib/api/patient";
-import type { AssignedExercise, Consent, Exercise } from "@/lib/api/patient-types";
+import { careApi, clinicalApi, profileApi, type ConsentInput } from "@/lib/api/patient";
+import { CONSENT_VERSION } from "@/lib/patient/consent";
+import type { AssignedExercise, Consent, Exercise, OrientationConsent } from "@/lib/api/patient-types";
 import { invalidatePatientData, usePatientResource } from "@/hooks/usePatientResource";
 
 /** Exercises assigned by the care team (empty for patients without one). */
@@ -43,5 +44,20 @@ export function useConsents() {
     invalidatePatientData("clinical:consents");
   }, []);
 
-  return { ...resource, update };
+  const reconfirm = useCallback(async (assignmentId: string, input?: ConsentInput) => {
+    await clinicalApi.reconfirm(assignmentId, input);
+    invalidatePatientData("clinical:consents");
+  }, []);
+
+  return { ...resource, update, reconfirm };
+}
+
+/** The consent to orientation and follow-up on file; accepting or withdrawing it updates the screen. */
+export function useOrientationConsent() {
+  const resource = usePatientResource<OrientationConsent>("profile:orientation-consent", async () => (await profileApi.orientationConsent()).data, { staleMs: 20_000 });
+  const set = useCallback(async (granted: boolean) => {
+    await profileApi.setOrientationConsent(granted, granted ? CONSENT_VERSION : undefined);
+    invalidatePatientData("profile:orientation-consent");
+  }, []);
+  return { ...resource, set };
 }

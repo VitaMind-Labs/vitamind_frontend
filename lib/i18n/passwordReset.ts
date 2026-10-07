@@ -46,7 +46,7 @@ export const passwordResetCopy: Record<Lang, PasswordResetCopy> = {
       resendIn: (seconds) => `Send again in ${seconds}s`,
       back: "Back to sign in",
       tooMany: "Too many attempts. Please wait a few minutes and try again.",
-      unavailable: "We could not reach VitaMind. Please try again in a moment.",
+      unavailable: "We could not reach SynQ. Please try again in a moment.",
     },
     reset: {
       title: "Choose a new password",
@@ -63,7 +63,7 @@ export const passwordResetCopy: Record<Lang, PasswordResetCopy> = {
       mismatch: "The two passwords do not match.",
       tooLong: "That password is too long.",
       tooMany: "Too many attempts. Please wait a few minutes and try again.",
-      unavailable: "We could not reach VitaMind. Please try again in a moment.",
+      unavailable: "We could not reach SynQ. Please try again in a moment.",
     },
   },
   ar: {
@@ -77,7 +77,7 @@ export const passwordResetCopy: Record<Lang, PasswordResetCopy> = {
       resendIn: (seconds) => `أعد الإرسال بعد ${seconds} ث`,
       back: "العودة إلى تسجيل الدخول",
       tooMany: "محاولات كثيرة. يرجى الانتظار بضع دقائق ثم المحاولة مرة أخرى.",
-      unavailable: "تعذّر الوصول إلى VitaMind. يرجى المحاولة بعد قليل.",
+      unavailable: "تعذّر الوصول إلى SynQ. يرجى المحاولة بعد قليل.",
     },
     reset: {
       title: "اختر كلمة مرور جديدة",
@@ -94,7 +94,7 @@ export const passwordResetCopy: Record<Lang, PasswordResetCopy> = {
       mismatch: "كلمتا المرور غير متطابقتين.",
       tooLong: "كلمة المرور طويلة جدًا.",
       tooMany: "محاولات كثيرة. يرجى الانتظار بضع دقائق ثم المحاولة مرة أخرى.",
-      unavailable: "تعذّر الوصول إلى VitaMind. يرجى المحاولة بعد قليل.",
+      unavailable: "تعذّر الوصول إلى SynQ. يرجى المحاولة بعد قليل.",
     },
   },
 };

@@ -1,5 +1,5 @@
 /**
- * Where the VitaMind Nest API lives. Every backend route is versioned under
+ * Where the SynQ Nest API lives. Every backend route is versioned under
  * `/api/v1` (see vitamind_backend/apps/api/BACKEND_API.md).
  *
  * Server code (Next route handlers) may use the private `API_SERVICE_URL`;

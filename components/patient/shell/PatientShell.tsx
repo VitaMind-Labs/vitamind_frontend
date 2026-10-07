@@ -6,6 +6,7 @@ import { PatientMobileStrip, PatientRail, PatientTabBar } from "@/components/pat
 import { navFor } from "@/components/patient/shell/nav";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LogoLoader } from "@/components/shared/LogoLoader";
+import { SharingReconfirmGate } from "@/components/patient/consent/SharingReconfirm";
 import { TourProvider } from "@/components/patient/tour/TourProvider";
 import { Button } from "@/components/ui/button";
 import { PatientProvider } from "@/hooks/patient/usePatient";
@@ -136,6 +137,7 @@ export function PatientChrome({ children }: { children: ReactNode }) {
           <div className="min-w-0 flex-1">
             <PatientMobileStrip />
             <main id="patient-main" className="mx-auto w-full max-w-[88rem] px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
+              <SharingReconfirmGate />
               {children}
             </main>
           </div>
