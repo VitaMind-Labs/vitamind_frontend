@@ -4,8 +4,8 @@ import { BRAND } from "@/lib/config/brand";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
-  sm: { mark: "size-8", wordmark: "text-sm" },
-  md: { mark: "size-8 sm:size-9", wordmark: "text-base sm:text-lg" },
+  sm: { mark: "size-10", wordmark: "text-sm" },
+  md: { mark: "size-10 sm:size-16", wordmark: "text-base sm:text-lg" },
   lg: { mark: "size-12 sm:size-14", wordmark: "text-2xl sm:text-3xl" },
   xl: { mark: "size-24 sm:size-28", wordmark: "text-5xl sm:text-6xl" },
 } as const;
