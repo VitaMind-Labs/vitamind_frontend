@@ -156,7 +156,8 @@ export function MiraResult({ result, sessionId, onDownload, isFinalizing, viewer
 
   const entries = Object.entries(result.condition_scores || {}).sort((a, b) => b[1] - a[1]);
   const pathwayLabel = displayOrientation(result.orientation);
-  const hasObservations = result.supporting_features.length + result.contradictory_features.length + result.missing_information.length > 0;
+  const overlapping = result.overlapping_with_mood_episodes ?? [];
+  const hasObservations = result.supporting_features.length + result.contradictory_features.length + result.missing_information.length + overlapping.length > 0;
   const hasSide = hasObservations || !!result.recommended_test;
 
   const signals: SignalDatum[] = entries.map(([key, score]) => ({
@@ -367,7 +368,8 @@ export function MiraResult({ result, sessionId, onDownload, isFinalizing, viewer
               {hasObservations && (
                 <motion.div {...reveal} className="min-w-0 divide-y divide-line rounded-panel border border-line bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7 print:shadow-none">
                   <ObservationGroup title={mira.supportingTitle} icon={<Check className="size-4" aria-hidden />} items={result.supporting_features} />
-                  <ObservationGroup title={mira.flagsTitle} icon={<XCircle className="size-4" aria-hidden />} items={result.contradictory_features} tone="muted" />
+                  <ObservationGroup title={mira.contradictoryTitle} icon={<XCircle className="size-4" aria-hidden />} items={result.contradictory_features} tone="muted" />
+                  <ObservationGroup title={mira.overlapTitle} icon={<Info className="size-4" aria-hidden />} items={overlapping} />
                   <ObservationGroup title={mira.missingTitle} icon={<Info className="size-4" aria-hidden />} items={result.missing_information} />
                 </motion.div>
               )}

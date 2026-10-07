@@ -435,6 +435,8 @@ const baseCopy = {
         supportingTitle: "Supporting observations",
         missingTitle: "Still worth discussing with a clinician",
         flagsTitle: "Safety flags",
+        contradictoryTitle: "Described as not present",
+        overlapTitle: "Seen only during mood episodes (not counted as ADHD)",
         screeningNote:
           "This summary supports a clinical conversation. It is not a diagnosis and does not recommend any treatment or medication. A licensed professional reviews it and makes every diagnostic and treatment decision.",
         newSession: "Start a new Mira session",
@@ -789,6 +791,8 @@ const arabicDiagnostic = {
     supportingTitle: "ملاحظات داعمة",
     missingTitle: "ما يستحق مناقشته مع مختص",
     flagsTitle: "مؤشرات الأمان",
+    contradictoryTitle: "ذُكر أنها غير موجودة",
+    overlapTitle: "ظهرت فقط خلال نوبات المزاج (لا تُحسب كاضطراب انتباه)",
     screeningNote: "يدعم هذا الملخص حواراً سريرياً. وهو ليس تشخيصاً ولا يوصي بأي علاج أو دواء. يراجعه مختص مرخَّص ويتخذ هو كل قرار تشخيصي وعلاجي.",
     newSession: "بدء جلسة ميرا جديدة",
     reportReady: "التقرير جاهز",

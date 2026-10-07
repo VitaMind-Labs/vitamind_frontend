@@ -22,6 +22,8 @@ export type MiraAssessmentResult = {
   condition_scores: Record<string, number>;
   supporting_features: string[];
   contradictory_features: string[];
+  /** Attention/restlessness described only inside high or low phases: reported, but not counted for ADHD. */
+  overlapping_with_mood_episodes?: string[];
   other_signals: string[];
   missing_information: string[];
   safety: MiraSafety;
