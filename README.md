@@ -1,253 +1,153 @@
-# SynQ Frontend
+# SynQ Patient App
 
-A premium mental wellness and digital care frontend built with Next.js, TypeScript, and modern UI tooling. The application is designed to support guided experiences across onboarding, diagnostic journeys, dashboards, clinical guidance, subscriptions, and help flows in a calm, accessible format.
+The patient-facing web application of the SynQ platform: onboarding, the guided orientation with Mira, and a calm daily space for check-ins, journaling, reading and progress.
 
-> This README has been written without personal or user-identifying information.
+![Next.js](https://img.shields.io/badge/Next.js-16-000000)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)
+![License](https://img.shields.io/badge/license-proprietary-lightgrey)
+
+> SynQ supports care and does not replace qualified mental-health professionals or emergency services. AI responses are presented as support, never as a diagnosis.
+
+## Table of contents
+
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Technology stack](#technology-stack)
+4. [Getting started](#getting-started)
+5. [Configuration](#configuration)
+6. [Architecture and safety boundaries](#architecture-and-safety-boundaries)
+7. [Project structure](#project-structure)
+8. [Scripts](#scripts)
+9. [Deployment](#deployment)
+10. [Privacy and security](#privacy-and-security)
+11. [Contributing](#contributing)
 
 ## Overview
 
-SynQ is structured as a modern web application focused on:
+The app is a responsive, multilingual Next.js application. It presents conversations, assessments, loading and error states and progress, while the SynQ API owns authentication, authorisation, clinical decisions, AI orchestration, validation and every access to protected data.
 
-- patient-facing onboarding and authentication
-- mental wellness diagnostics and guided flows
-- account dashboard and progress tracking
-- educational clinical guidance content
-- subscription and payment experiences
-- multilingual support and responsive accessibility
+## Features
 
-The frontend is built to feel polished, trustworthy, and clinically aware while remaining flexible enough for future feature expansion. SynQ supports care and does not replace qualified mental health professionals.
+| Area | Description |
+|---|---|
+| Authentication | Sign-in, registration, password reset |
+| Orientation | Guided conversation with Mira (streamed answers) and the orientation result |
+| Dashboard | Daily check-in, journal, mood, progress, reports, library, Spark task planning, appointments, resources and settings |
+| Lumina and tracks | Adaptive support experience and guided audio and calm tracks |
+| Support and trust | Help pages and information on privacy and safety |
+| Live updates | A single server-sent-events stream for alerts and notifications |
+| Internationalisation | Multilingual interface with language-aware layout and theme switching |
 
-## Architecture and Safety Boundaries
+## Technology stack
 
-The frontend presents conversations, assessments, loading and error states, and user-facing progress. Authentication, authorization, clinical decisions, AI orchestration, tool execution, validation, and protected data access belong to the backend. The frontend must not execute privileged tools or access protected data sources directly.
-
-AI responses are presented as support, not as a diagnosis or a replacement for professional care.
-
-## Tech Stack
-
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS
-- Framer Motion
-- Radix UI primitives
-- Recharts and charting utilities
+- Next.js 16 (App Router), React 19, TypeScript
+- Tailwind CSS 4, Radix UI primitives
+- Framer Motion, GSAP and Lenis for motion
+- Recharts for charts
 - Socket.IO client
-- GSAP and Lenis for motion and smooth scrolling
-- ESLint and Next.js linting
+- ESLint
 
-## Project Structure
+## Getting started
 
-```text
-vitamind_frontend/
-├── app/
-│   ├── api/
-│   ├── auth/
-│   ├── clinical-guide/
-│   ├── dashboard/
-│   ├── diagnostic/
-│   ├── home/
-│   ├── subscription/
-│   ├── support/
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── auth/
-│   ├── clinical-guide/
-│   ├── dashboard/
-│   ├── diagnostic/
-│   ├── home/
-│   ├── layout/
-│   ├── providers/
-│   ├── shared/
-│   ├── subscription/
-│   ├── support/
-│   └── ui/
-├── contexts/
-│   ├── AudioContext.tsx
-│   ├── definitions.ts
-│   ├── LanguageContext.tsx
-│   └── ThemeContext.tsx
-├── doc/
-├── features/
-├── hooks/
-├── lib/
-│   ├── api/
-│   ├── config/
-│   ├── diseases/
-│   ├── i18n/
-│   ├── socket/
-│   ├── storage/
-│   └── utils.ts
-├── public/
-├── .env.local.example
-├── .gitignore
-├── AGENTS.md
-├── CLAUDE.md
-├── components.json
-├── eslint.config.mjs
-├── next-env.d.ts
-├── next.config.ts
-├── package.json
-├── postcss.config.mjs
-├── README.md
-├── tsconfig.json
-└── ...
-```
-
-## Key Areas
-
-### App layer
-The `app/` directory contains the route structure and global app shell. It includes the main application pages and Next.js App Router conventions.
-
-### Components
-Reusable UI and feature components live under `components/` and are grouped by domain: authentication, dashboard, diagnostics, home, subscriptions, and support.
-
-### Contexts and state
-Shared app state and locale/theme logic are centralized under `contexts/`, making it easier to manage language switching and cross-feature behavior.
-
-### Libraries and utilities
-The `lib/` directory contains domain logic, API helpers, configuration, storage, i18n setup, and shared utilities.
-
-### Motion and experience layer
-The frontend uses cinematic motion patterns, premium gradients, and design-system-driven transitions to create a calming, modern healthcare experience.
-
-## Prerequisites
-
-Before starting, ensure you have:
-
-- Node.js 20 or later
-- npm, pnpm, or yarn
-- A modern browser
-
-## Installation
-
-1. Open a terminal in the frontend folder:
+**Prerequisites:** Node.js 20+, npm (or pnpm / yarn), a modern browser, and a running SynQ API.
 
 ```bash
 cd vitamind_frontend
-```
-
-2. Install dependencies:
-
-```bash
 npm install
-```
-
-3. Create environment variables if needed:
-
-```bash
-cp .env.local.example .env.local
-```
-
-4. Start the local development server:
-
-```bash
+cp .env.local.example .env.local      # then adjust NEXT_PUBLIC_API_URL
 npm run dev
 ```
 
-5. Open the app in your browser:
+Open `http://localhost:3000`.
+
+### Local ports used in this documentation
+
+| Application | Port |
+|---|---|
+| SynQ API | `5000` |
+| Patient app (this project) | `3000` |
+| Psychologist app | `3005` |
+| Back-office | `3002` |
+
+The three values that must agree are the API `PORT`, this app's `NEXT_PUBLIC_API_URL` and the API's `CORS_ORIGINS`. The sample `.env.example` shows another valid split (API on `3000`, this app on `3001` with `npm run dev -- -p 3001`).
+
+## Configuration
+
+Create `.env.local` from `.env.local.example`. Use placeholders only and never commit real secrets.
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | Base URL of the SynQ API, without a trailing slash and without `/api/v1`. Baked in at build time |
+| `API_SERVICE_URL` | Optional, server-side only: internal URL used by the Next.js server (same-origin proxy) |
+| `NEXT_PUBLIC_SITE_URL` | Public origin of the site, used for canonical URLs, `sitemap.xml`, `robots.txt` and `og:image` |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search Console verification value |
+| `ELEVENLABS_*`, `AI_SERVICE_URL`, `NEXT_PUBLIC_CHATBOT_URL` | Optional or legacy services; see `.env.example` |
+
+The browser calls the API directly, including the live connections, which never pass through a Next.js rewrite or route handler:
+
+- `GET /api/v1/events`: one stream for the whole patient shell
+- `POST /api/v1/mira/session/:id/message/stream`, `/api/v1/me/lumina/chat/stream` and `/api/v1/me/spark/chat/stream`
+
+Consequently the API's `CORS_ORIGINS` must list this app's origin, and changing `NEXT_PUBLIC_API_URL` requires a rebuild. Test streaming and live updates with a production build (`npm run build && npm run start`), because the development server buffers differently from production hosting.
+
+## Architecture and safety boundaries
 
 ```text
-http://localhost:3000
+Browser ──► SynQ API (REST + SSE) ──► PostgreSQL, AI engines (Mira, Journal, Check-in, Spark)
 ```
 
-## Environment Variables
+- The frontend must not execute privileged tools or reach protected data sources directly.
+- Tokens are issued and refreshed by the API; the app only presents the session.
+- Every user-visible AI response is framed as support, with its uncertainty acknowledged.
 
-Create a `.env.local` file for local configuration. The repository includes `.env.local.example` as a template. Use placeholders only and do not commit real secrets or production credentials.
+## Project structure
 
-Example:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
+```text
+vitamind_frontend/
+├── app/                 App Router: auth, dashboard, orientation, mira, lumina, tracks,
+│                        support, trust, welcome, password reset, SEO (sitemap, robots, og)
+├── components/          UI grouped by domain (auth, dashboard, diagnostic, home, layout,
+│                        patient, providers, shared, support, tracks, trust, ui)
+├── contexts/            Language, theme and audio providers
+├── features/            Feature modules (diagnostic)
+├── hooks/               Session, event stream, media and patient-data hooks
+├── lib/                 api, config, i18n, patient, socket, storage and utilities
+├── public/              Static assets
+├── doc/                 Design documentation
+├── next.config.ts
+└── package.json
 ```
 
-`NEXT_PUBLIC_API_URL` is the base URL of the NestJS API and must match the API's own URL (`vitamind_backend/apps/api/.env.example`: `PORT=3000` locally, the Render service URL in production). The browser calls it directly, including the live connections (server-sent events for Mira and `/api/v1/events`): they never pass through Next.js. So the API's `CORS_ORIGINS` must list this app's origin, and the value is fixed at build time. See `.env.example` for every variable.
+## Scripts
 
-The API uses port 3000 locally, so run the app on another port: `npm run dev -- -p 3001`. Test streaming and live updates with `npm run build && npm run start -- -p 3001`.
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the Next.js development server |
+| `npm run build` | Create a production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
 
-## Available Scripts
+Run `npm run lint` and `npm run build` before opening a pull request.
 
-```bash
-npm run dev      # start the Next.js development server
-npm run build    # create a production build
-npm run start    # run the production server
-npm run lint     # run ESLint checks
-```
+## Deployment
 
-## Development Notes
+Build with `npm run build` and deploy to a platform such as Vercel, or in a container. Manage environment variables in the platform's secret store, never in the repository. Set `NEXT_PUBLIC_API_URL` to the production API URL before building, and add the production origin to the API's `CORS_ORIGINS`.
 
-- The app uses the App Router pattern from Next.js.
-- Global styling and theme configuration are managed in `app/globals.css`.
-- Route-level modules are organized by feature domain for maintainability.
-- Shared UI primitives and design-system patterns are centralized in the `components/ui` folder.
-- Language-aware and accessibility-oriented behavior is handled at the app shell and context layer.
+## Privacy and security
 
-## Feature Modules
-
-### Authentication
-User sign-in and registration flows, along with shared auth layout components and branding.
-
-### Diagnostic experience
-Clinical assessment and diagnostic modules for guided patient interactions and structured evaluation pathways.
-
-### Dashboard
-User-facing overview, progress tracking, and account management screens.
-
-### Clinical guidance
-Educational and informational pages tailored to wellness and treatment support.
-
-### Subscription experience
-Pricing, plans, and checkout flow presentation.
-
-### Support and help
-Support pages and customer assistance structures.
-
-## Styling and Design System
-
-The project uses a component-based design system with:
-
-- consistent spacing and typography rules
-- re-usable UI primitives
-- modern card and panel layouts
-- premium gradients and soft motion treatment
-- responsive layouts for mobile and desktop experiences
-
-## Build and Deployment
-
-Production builds can be created with:
-
-```bash
-npm run build
-```
-
-Then serve the production build locally:
-
-```bash
-npm run start
-```
-
-For deployment, use the hosting platform best suited for your environment, such as Vercel or a container-based deployment pipeline. Ensure all environment variables are managed securely outside the source repository.
-
-## Privacy and Data Handling
-
-- No personal data is included in this repository documentation.
-- Avoid committing real user records, credentials, tokens, or private identifiers.
-- Keep environment and deployment settings in secure secret stores rather than source-controlled files.
+- Do not commit real user records, credentials, tokens or private identifiers.
+- Do not use real patient data in development, tests or screenshots.
+- Keep environment and deployment settings in secure secret stores.
+- Report security issues privately to the maintainers.
 
 ## Contributing
 
-1. Create a feature branch.
-2. Keep changes focused and domain-based.
-3. Maintain consistent component and folder conventions.
-4. Run linting before submitting changes.
-5. Ensure no sensitive or personal data is added to the project.
+1. Create a focused feature branch.
+2. Follow the existing folder and component conventions.
+3. Run linting and a production build before requesting review.
+4. Make sure no sensitive or personal data is added.
 
 ## License
 
-This project does not currently declare a public license in the repository. Before public distribution or external sharing, define the appropriate licensing terms for your organization or client.
-
-## Support
-
-For project-specific setup questions, contact the appropriate team maintainer through your internal project channels rather than exposing personal contact details in the repository.
+Proprietary. No public license is declared; do not reproduce or distribute the code without the owners' permission.
