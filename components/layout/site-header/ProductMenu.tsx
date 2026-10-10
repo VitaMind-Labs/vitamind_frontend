@@ -123,10 +123,7 @@ export function ProductMenu({ triggerClassName, indicator, current, onOpenChange
                       <Link
                         href={agent.href}
                         onClick={() => setOpen(false)}
-                        className={cn(
-                          "group flex items-center gap-3.5 rounded-[1.25rem] p-3 outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-teal-500",
-                          agent.id === "mira" ? "hover:bg-teal-50/80 focus-visible:bg-teal-50/80" : "hover:bg-gold-50 focus-visible:bg-gold-50",
-                        )}
+                        className={cn("group flex items-center gap-3.5 rounded-[1.25rem] p-3 outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-teal-500", agent.tone.hover)}
                       >
                         <AgentAvatar agent={agent.id} className="size-12 rounded-2xl ring-1 ring-line transition-transform duration-500 ease-out-soft motion-safe:group-hover:scale-105" />
                         <span className="min-w-0 flex-1">

@@ -22,7 +22,7 @@ import { ArrowRight, Check, ShieldCheck, X } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-const OTHER: Record<AgentId, AgentId> = { mira: "lumina", lumina: "mira" };
+const OTHER: Record<AgentId, AgentId> = { mira: "lumina", lumina: "mira", psy: "lumina" };
 const ARROW = "size-4 transition-transform duration-300 ease-out-soft group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5";
 
 /** Everything a page needs about its agent: copy in the visitor's language, identity, tokens and where the button leads. */

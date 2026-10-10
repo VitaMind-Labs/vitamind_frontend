@@ -1,7 +1,7 @@
 import type { Lang } from "@/lib/i18n/config";
 
 /**
- * Copy for the dedicated agent pages (/mira, /lumina) and the home page's agents section. Short on purpose:
+ * Copy for the dedicated agent pages (/mira, /lumina, /psy) and the home page's agents section. Short on purpose:
  * titles, one line each, and the few numbers that matter. `ar` is typed against the same shape as `en`: a missing
  * key fails the build. Names, roles and status lines live in `dictionary.header.agents.items`.
  */
@@ -80,9 +80,84 @@ export type LuminaTracksCopy = {
   };
 };
 
+/**
+ * The clinician app, drawn on /psy as the real dashboard: its rail, its overview, a request, a patient and a weekly report.
+ * Names are examples; codes and times stay as they are in both languages.
+ */
+export type PsyPreviewCopy = {
+  caption: string;
+  /** The "shared by the patient" tag: the one rule behind every screen. */
+  shared: string;
+  greeting: string;
+  summary: string;
+  /** [name, role] of the signed-in clinician. */
+  clinician: Pair;
+  search: string;
+  /** Rail groups: [group title, item labels]. Same order as the real app, icons are fixed in the component. */
+  nav: readonly (readonly [group: string, items: readonly string[]])[];
+  settings: string;
+  /** The red card of the rail: [title, call to action]. */
+  triage: Pair;
+  /** The two buttons of the page header: [triage, schedule]. */
+  actions: Pair;
+  period: string;
+  /** [label, value, caption]. */
+  kpis: readonly (readonly [label: string, value: string, caption: string])[];
+  activity: { title: string; description: string; tabs: readonly string[]; legend: readonly string[] };
+  risk: { title: string; description: string; labels: readonly string[]; worsened: string };
+  /** [title, meta, badge]. */
+  attention: { title: string; description: string; items: readonly (readonly [title: string, meta: string, badge: string])[] };
+  /** [time, patient, kind and length]. */
+  agenda: { title: string; description: string; today: string; items: readonly (readonly [time: string, patient: string, line: string])[] };
+  /** [name, code, last activity]. */
+  patients: { title: string; description: string; columns: readonly string[]; rows: readonly (readonly [name: string, code: string, last: string])[] };
+  requests: {
+    title: string;
+    description: string;
+    waiting: string;
+    note: string;
+    /** [name, code, line, wait]. */
+    items: readonly (readonly [name: string, code: string, line: string, wait: string])[];
+    primary: string;
+    accept: string;
+    decline: string;
+    accepted: string;
+  };
+  patient: {
+    back: string;
+    name: string;
+    code: string;
+    chips: readonly string[];
+    statusTitle: string;
+    /** [label, value]. */
+    facts: readonly Pair[];
+    tabs: readonly string[];
+    chartTitle: string;
+    baseline: string;
+    verdict: string;
+    signals: readonly string[];
+    alertsTitle: string;
+    alert: string;
+    notShared: string;
+  };
+  report: {
+    title: string;
+    description: string;
+    patient: string;
+    headline: string;
+    period: string;
+    sections: readonly string[];
+    annotate: string;
+    annotation: string;
+    acknowledge: string;
+    acknowledged: string;
+  };
+};
+
 export type AgentPagesCopy = {
   mira: AgentPageCopy & { preview: MiraPreviewCopy };
   lumina: AgentPageCopy & { preview: LuminaPreviewCopy; tracks: LuminaTracksCopy };
+  psy: AgentPageCopy & { preview: PsyPreviewCopy };
 };
 
 const en: AgentPagesCopy = {
@@ -321,6 +396,173 @@ const en: AgentPagesCopy = {
       },
     },
   },
+  psy: {
+    seo: {
+      title: "Clinician Workspace — care between sessions",
+      description:
+        "Meet the Clinician Workspace, where a licensed clinician follows the patients who choose to share: requests, alerts, sessions, notes and monthly reports. It supports clinical judgment and never replaces it.",
+    },
+    hero: {
+      eyebrow: "Clinician Workspace · Consent-based care",
+      titleA: "Your patients, between",
+      titleB: "sessions, in view.",
+      body: "A calm workspace for licensed clinicians: requests, alerts, sessions and monthly reports from patients who chose to share. It supports your judgment; it never replaces it.",
+      primary: "Open the workspace",
+      secondary: "See how it works",
+    },
+    stats: [
+      ["3", "conditions followed"],
+      ["30", "days, one picture"],
+      ["1", "monthly report each"],
+    ],
+    role: {
+      eyebrow: "What the workspace holds",
+      titleA: "Everything a follow-up needs,",
+      titleB: "nothing it doesn't.",
+      items: [
+        ["Patient requests", "Accept who you can follow. Patients choose their clinician; you choose your caseload.", "Requests"],
+        ["Clinical alerts", "A signal outside someone's usual range reaches you, with the evidence behind it.", "Alerts"],
+        ["Patient profiles", "Baseline, trends and what Mira's orientation found, in one record.", "Patients"],
+        ["Sessions and coverage", "Schedule, prepare and follow up, and see who covers when you are away.", "Sessions"],
+        ["Monthly reports", "Read what the patient shared, then review and annotate it.", "Reports"],
+        ["Structured notes", "Your clinical notes, kept beside the journal themes the patient chose to share.", "Notes"],
+      ],
+    },
+    flow: {
+      eyebrow: "A day in the workspace",
+      titleA: "From a new request to",
+      titleB: "a note in the record.",
+      stepLabel: "Step",
+      steps: [
+        ["Accept a request", "A patient asks to share with you. You decide who joins your caseload."],
+        ["See what changed", "Alerts and today's sessions first, so nothing waits unseen."],
+        ["Read the picture", "Baseline, trends and signals for one patient, against their own range."],
+        ["Review and annotate", "A monthly report, read and annotated. The decision stays yours."],
+      ],
+    },
+    trust: {
+      eyebrow: "Clear boundaries",
+      titleA: "Support for judgment,",
+      titleB: "never a substitute.",
+      doesTitle: "The workspace does",
+      does: ["Shows only what patients share", "Raises signals with their evidence", "Compares each patient with their own baseline", "Keeps your notes and annotations"],
+      doesNotTitle: "The workspace never",
+      doesNot: ["Diagnose", "Prescribe or advise treatment", "Replace a clinician's judgment", "Share data without consent"],
+      note: "The workspace is a clinical support interface, not an emergency service. In immediate danger, contact local emergency services.",
+    },
+    handoff: { eyebrow: "What your patients use", title: "Meet Lumina.", body: "The daily check-in and journal your patients keep, and share with you only by choice.", cta: "Meet Lumina" },
+    cta: {
+      eyebrow: "For licensed clinicians",
+      titleA: "Follow care,",
+      titleB: "with what matters.",
+      body: "Sign in to your workspace, or ask for access.",
+      primary: "Open the workspace",
+      benefits: ["Consent-based sharing", "Alerts with evidence", "Monthly reports"],
+    },
+    preview: {
+      caption: "Illustrative screens of the clinician app, with example content. No real patients.",
+      shared: "Shared by the patient",
+      greeting: "Good morning, Layla",
+      summary: "1 high-priority alert and 3 sessions today.",
+      clinician: ["Dr. Layla Haddad", "Psychologist"],
+      search: "Search patients, sessions…",
+      nav: [
+        ["Workspace", ["Overview", "Requests", "Alerts", "Patients", "Sessions"]],
+        ["Clinical records", ["Assessments", "Monthly reports", "Notes"]],
+        ["Practice", ["Coverage", "Notifications"]],
+      ],
+      settings: "Settings",
+      triage: ["3 alerts awaiting triage", "Open triage queue"],
+      actions: ["Triage", "Schedule"],
+      period: "30D",
+      kpis: [
+        ["Open alerts", "3", "2 new vs prev 30d"],
+        ["Active patients", "12", "9 engaged vs prev 30d"],
+        ["Sessions completed", "38", "vs prev 30d"],
+        ["Pending reviews", "4", "2 assessments · 2 monthly reports"],
+      ],
+      activity: { title: "Clinical activity", description: "Last 30 days", tabs: ["Sessions", "Alerts", "Patient activity"], legend: ["Completed", "Scheduled", "Cancelled"] },
+      risk: { title: "Caseload risk", description: "12 monitored patients", labels: ["Priority", "Watch", "Stable"], worsened: "1 patient worsened since last week" },
+      attention: {
+        title: "Needs your attention",
+        description: "Alerts, priority reports and pending reviews",
+        items: [
+          ["Sleep well below usual range for 5 days", "Sara K. · 2 hours ago", "High"],
+          ["Check-ins paused for a week", "Omar R. · 5 hours ago", "Moderate"],
+          ["Priority monthly report", "Lina B. · 1 day ago", "Priority"],
+          ["Assessment awaiting review", "Mira orientation · 1 day ago", "Review"],
+        ],
+      },
+      agenda: {
+        title: "Agenda",
+        description: "Upcoming sessions",
+        today: "Today",
+        items: [
+          ["09:30", "Sara K.", "follow-up · 45 min"],
+          ["11:00", "Adam T.", "intake · 60 min"],
+          ["14:15", "Omar R.", "follow-up · 30 min"],
+        ],
+      },
+      patients: {
+        title: "Priority patients",
+        description: "Ranked by status, open alerts and drift",
+        columns: ["Patient", "Status", "Drift", "Open alerts", "Last activity"],
+        rows: [
+          ["Sara K.", "SK-014", "2 hours ago"],
+          ["Omar R.", "OR-007", "5 hours ago"],
+          ["Lina B.", "LB-021", "1 day ago"],
+          ["Yara M.", "YM-011", "2 days ago"],
+        ],
+      },
+      requests: {
+        title: "Requests",
+        description: "Patients proposed to you",
+        waiting: "2 patient requests waiting for your answer",
+        note: "Accept or decline to start care. Nothing is shared until you do.",
+        items: [
+          ["Adam T.", "AT-003", "Referred after a first screening", "Waiting 1 day"],
+          ["Nour S.", "NS-030", "Mira orientation · ADHD signals", "Waiting 3 hours"],
+        ],
+        primary: "Proposed as primary",
+        accept: "Accept",
+        decline: "Decline",
+        accepted: "Added to your patients",
+      },
+      patient: {
+        back: "Patients",
+        name: "Sara K.",
+        code: "SK-014",
+        chips: ["ADHD", "Primary clinician"],
+        statusTitle: "Clinical status",
+        facts: [
+          ["Status", "Priority"],
+          ["Drift", "0.62"],
+          ["Following", "8 weeks"],
+          ["Language", "EN"],
+        ],
+        tabs: ["Overview", "Life chart", "Assessments", "Notes"],
+        chartTitle: "Mood against the usual range",
+        baseline: "Usual range",
+        verdict: "Within range this month, one dip in week 3",
+        signals: ["Sleep", "Focus", "Energy"],
+        alertsTitle: "Open alerts",
+        alert: "Sleep below usual range for 5 days",
+        notShared: "Not shared by the patient: journal entries. Safety alerts still reach you.",
+      },
+      report: {
+        title: "Monthly reports",
+        description: "Read, annotate and acknowledge",
+        patient: "Lina B.",
+        headline: "Priority monthly report",
+        period: "This month",
+        sections: ["Trend", "Journal themes", "Goals"],
+        annotate: "Your annotation",
+        annotation: "Discuss the sleep routine at the next session.",
+        acknowledge: "Acknowledge",
+        acknowledged: "Acknowledged",
+      },
+    },
+  },
 };
 
 const ar: AgentPagesCopy = {
@@ -556,6 +798,173 @@ const ar: AgentPagesCopy = {
         plan: ["تمرين تنفّس", "ضوء الصباح", "دوّن أفكارك"],
         nextTitle: "ضمن نطاقك المعتاد",
         nextLine: "لا شيء يستدعي تصرفاً اليوم.",
+      },
+    },
+  },
+  psy: {
+    seo: {
+      title: "مساحة عمل المختص — رعاية بين الجلسات",
+      description:
+        "تعرّف على مساحة عمل المختص، حيث يتابع فيها المختص المرخّص مرضاه الذين يختارون المشاركة: الطلبات والتنبيهات والجلسات والملاحظات والتقارير الشهرية. تدعم الحكم السريري ولا تحلّ محله.",
+    },
+    hero: {
+      eyebrow: "مساحة عمل المختص · رعاية بالموافقة",
+      titleA: "مرضاك بين الجلسات،",
+      titleB: "أمام ناظريك.",
+      body: "مساحة هادئة للمختصين المرخّصين: طلبات وتنبيهات وجلسات وتقارير شهرية من مرضى اختاروا المشاركة. تدعم حكمك ولا تحلّ محله.",
+      primary: "افتح مساحة العمل",
+      secondary: "اكتشف كيف تعمل",
+    },
+    stats: [
+      ["3", "اضطرابات تتم متابعتها"],
+      ["30", "يوماً، صورة واحدة"],
+      ["1", "تقرير شهري لكل مريض"],
+    ],
+    role: {
+      eyebrow: "ما تحمله مساحة العمل",
+      titleA: "كل ما تحتاجه المتابعة،",
+      titleB: "ولا شيء زائد.",
+      items: [
+        ["طلبات المرضى", "اقبل من تستطيع متابعته. يختار المريض مختصه، وتختار أنت حالاتك.", "الطلبات"],
+        ["تنبيهات سريرية", "إشارة خارج النطاق المعتاد لمريض ما تصلك مع الأدلة التي وراءها.", "التنبيهات"],
+        ["ملفات المرضى", "الخط المرجعي والاتجاهات وما وجده توجيه ميرا، في سجل واحد.", "المرضى"],
+        ["الجلسات والتغطية", "جدولة وتحضير ومتابعة، مع رؤية من يغطي مكانك عند غيابك.", "الجلسات"],
+        ["تقارير شهرية", "اقرأ ما شاركه المريض ثم راجعه وعلّق عليه.", "التقارير"],
+        ["ملاحظات منظّمة", "ملاحظاتك السريرية بجانب مواضيع المفكرة التي اختار المريض مشاركتها.", "الملاحظات"],
+      ],
+    },
+    flow: {
+      eyebrow: "يوم في مساحة العمل",
+      titleA: "من طلب جديد إلى",
+      titleB: "ملاحظة في السجل.",
+      stepLabel: "الخطوة",
+      steps: [
+        ["اقبل طلباً", "مريض يطلب مشاركة بياناته معك. أنت تقرر من ينضم إلى حالاتك."],
+        ["انظر ما تغيّر", "التنبيهات وجلسات اليوم أولاً، كي لا ينتظر شيء دون أن يُرى."],
+        ["اقرأ الصورة", "الخط المرجعي والاتجاهات والإشارات لمريض واحد، مقارنةً بنطاقه هو."],
+        ["راجع وعلّق", "تقرير شهري تقرؤه وتعلّق عليه. يبقى القرار لك."],
+      ],
+    },
+    trust: {
+      eyebrow: "حدود واضحة",
+      titleA: "دعم للحكم السريري،",
+      titleB: "لا بديل عنه.",
+      doesTitle: "ما تفعله مساحة العمل",
+      does: ["تعرض ما يشاركه المرضى فقط", "ترفع الإشارات مع أدلتها", "تقارن كل مريض بخطّه المرجعي", "تحفظ ملاحظاتك وتعليقاتك"],
+      doesNotTitle: "ما لا تفعله مساحة العمل",
+      doesNot: ["لا تشخّص", "لا تصف دواءً ولا توصي بعلاج", "لا تحلّ محل حكم المختص", "لا تشارك بيانات دون موافقة"],
+      note: "مساحة العمل واجهة دعم سريري وليست خدمة طوارئ. في حال الخطر الفوري، تواصل مع خدمات الطوارئ المحلية.",
+    },
+    handoff: { eyebrow: "ما يستخدمه مرضاك", title: "تعرّف على لومينا.", body: "الفحص اليومي والمفكرة اللذان يحتفظ بهما مرضاك، ولا يشاركونهما معك إلا بالاختيار.", cta: "تعرّف على لومينا" },
+    cta: {
+      eyebrow: "للمختصين المرخّصين",
+      titleA: "تابع الرعاية،",
+      titleB: "بما يهم.",
+      body: "سجّل الدخول إلى مساحتك، أو اطلب الوصول.",
+      primary: "افتح مساحة العمل",
+      benefits: ["مشاركة بموافقة المريض", "تنبيهات مع الأدلة", "تقارير شهرية"],
+    },
+    preview: {
+      caption: "شاشات توضيحية من تطبيق المختص بمحتوى تجريبي. لا مرضى حقيقيين.",
+      shared: "شاركه المريض",
+      greeting: "صباح الخير، ليلى",
+      summary: "تنبيه واحد عالي الأولوية و3 جلسات اليوم.",
+      clinician: ["د. ليلى حداد", "أخصائية نفسية"],
+      search: "ابحث عن مريض أو جلسة…",
+      nav: [
+        ["مساحة العمل", ["نظرة عامة", "الطلبات", "التنبيهات", "المرضى", "الجلسات"]],
+        ["السجلات السريرية", ["التقييمات", "التقارير الشهرية", "الملاحظات"]],
+        ["العيادة", ["التغطية", "الإشعارات"]],
+      ],
+      settings: "الإعدادات",
+      triage: ["3 تنبيهات بانتظار الفرز", "افتح قائمة الفرز"],
+      actions: ["الفرز", "جدولة"],
+      period: "30 يوماً",
+      kpis: [
+        ["تنبيهات مفتوحة", "3", "2 جديدان مقابل 30 يوماً سابقة"],
+        ["مرضى نشطون", "12", "9 متفاعلين مقابل 30 يوماً سابقة"],
+        ["جلسات مكتملة", "38", "مقابل 30 يوماً سابقة"],
+        ["مراجعات معلّقة", "4", "تقييمان · تقريران شهريان"],
+      ],
+      activity: { title: "النشاط السريري", description: "آخر 30 يوماً", tabs: ["الجلسات", "التنبيهات", "نشاط المرضى"], legend: ["مكتملة", "مجدولة", "ملغاة"] },
+      risk: { title: "مستوى الخطر في الحالات", description: "12 مريضاً تحت المتابعة", labels: ["أولوية", "مراقبة", "مستقر"], worsened: "مريض واحد ساءت حالته منذ الأسبوع الماضي" },
+      attention: {
+        title: "يحتاج انتباهك",
+        description: "تنبيهات وتقارير ذات أولوية ومراجعات معلّقة",
+        items: [
+          ["النوم دون نطاقه المعتاد بكثير منذ 5 أيام", "سارة ك. · قبل ساعتين", "عالٍ"],
+          ["توقّف الفحص اليومي أسبوعاً", "عمر ر. · قبل 5 ساعات", "متوسط"],
+          ["تقرير شهري ذو أولوية", "لينا ب. · قبل يوم", "أولوية"],
+          ["تقييم بانتظار المراجعة", "توجيه ميرا · قبل يوم", "مراجعة"],
+        ],
+      },
+      agenda: {
+        title: "جدول الجلسات",
+        description: "الجلسات القادمة",
+        today: "اليوم",
+        items: [
+          ["09:30", "سارة ك.", "متابعة · 45 دقيقة"],
+          ["11:00", "آدم ت.", "أولى · 60 دقيقة"],
+          ["14:15", "عمر ر.", "متابعة · 30 دقيقة"],
+        ],
+      },
+      patients: {
+        title: "المرضى ذوو الأولوية",
+        description: "مرتّبون حسب الحالة والتنبيهات المفتوحة والانحراف",
+        columns: ["المريض", "الحالة", "الانحراف", "تنبيهات مفتوحة", "آخر نشاط"],
+        rows: [
+          ["سارة ك.", "SK-014", "قبل ساعتين"],
+          ["عمر ر.", "OR-007", "قبل 5 ساعات"],
+          ["لينا ب.", "LB-021", "قبل يوم"],
+          ["يارا م.", "YM-011", "قبل يومين"],
+        ],
+      },
+      requests: {
+        title: "الطلبات",
+        description: "مرضى اقتُرحوا عليك",
+        waiting: "طلبان من مرضى بانتظار ردّك",
+        note: "اقبل أو ارفض لبدء الرعاية. لا يُشارَك شيء قبل ذلك.",
+        items: [
+          ["آدم ت.", "AT-003", "محال بعد فحص أولي", "ينتظر منذ يوم"],
+          ["نور س.", "NS-030", "توجيه ميرا · إشارات تشتت الانتباه", "ينتظر منذ 3 ساعات"],
+        ],
+        primary: "مقترح كمختص أساسي",
+        accept: "قبول",
+        decline: "رفض",
+        accepted: "أُضيف إلى مرضاك",
+      },
+      patient: {
+        back: "المرضى",
+        name: "سارة ك.",
+        code: "SK-014",
+        chips: ["ADHD", "المختص الأساسي"],
+        statusTitle: "الحالة السريرية",
+        facts: [
+          ["الحالة", "أولوية"],
+          ["الانحراف", "0.62"],
+          ["المتابعة", "8 أسابيع"],
+          ["اللغة", "EN"],
+        ],
+        tabs: ["نظرة عامة", "الخط الحياتي", "التقييمات", "الملاحظات"],
+        chartTitle: "المزاج مقابل النطاق المعتاد",
+        baseline: "النطاق المعتاد",
+        verdict: "ضمن النطاق هذا الشهر، مع هبوط واحد في الأسبوع الثالث",
+        signals: ["النوم", "التركيز", "الطاقة"],
+        alertsTitle: "تنبيهات مفتوحة",
+        alert: "النوم دون نطاقه المعتاد منذ 5 أيام",
+        notShared: "لم يُشارَك من قبل المريض: مدخلات المفكرة. تنبيهات السلامة تصلك دائماً.",
+      },
+      report: {
+        title: "التقارير الشهرية",
+        description: "اقرأ وعلّق وأقرّ",
+        patient: "لينا ب.",
+        headline: "تقرير شهري ذو أولوية",
+        period: "هذا الشهر",
+        sections: ["الاتجاه", "مواضيع المفكرة", "الأهداف"],
+        annotate: "تعليقك",
+        annotation: "مناقشة روتين النوم في الجلسة القادمة.",
+        acknowledge: "إقرار",
+        acknowledged: "تم الإقرار",
       },
     },
   },

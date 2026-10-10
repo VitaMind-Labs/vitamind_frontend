@@ -67,6 +67,7 @@ export const SITEMAP_ROUTES: ReadonlyArray<{ path: string; priority: number; cha
   { path: ROUTES.home, priority: 1, changeFrequency: "weekly" },
   { path: ROUTES.mira, priority: 0.8, changeFrequency: "monthly" },
   { path: ROUTES.lumina, priority: 0.8, changeFrequency: "monthly" },
+  { path: ROUTES.psy, priority: 0.7, changeFrequency: "monthly" },
   { path: ROUTES.tracks, priority: 0.8, changeFrequency: "monthly" },
   { path: ROUTES.trust, priority: 0.7, changeFrequency: "monthly" },
   { path: ROUTES.support, priority: 0.6, changeFrequency: "monthly" },

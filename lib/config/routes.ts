@@ -4,6 +4,7 @@ export const ROUTES = {
   orientation: "/orientation",
   mira: "/mira",
   lumina: "/lumina",
+  psy: "/clinician",
   tracks: "/tracks",
   trust: "/trust",
   support: "/support",
@@ -14,7 +15,13 @@ export const ROUTES = {
   dashboard: "/dashboard",
 } as const;
 
-export type AgentEntry = "mira" | "lumina";
+/**
+ * The clinician workspace (SynQ Psy) is its own app. Set NEXT_PUBLIC_PSY_URL to its public address (e.g. https://psy.vitamindspace.com);
+ * until then the page's button leads to the support page, where a clinician can ask for access.
+ */
+export const PSY_APP_URL = (process.env.NEXT_PUBLIC_PSY_URL ?? "").replace(/\/+$/, "");
+
+export type AgentEntry = "mira" | "lumina" | "psy";
 
 /**
  * Where an agent's button leads. Both agents are members-only: a signed-in patient goes straight in (Mira's
@@ -22,6 +29,7 @@ export type AgentEntry = "mira" | "lumina";
  * is asked to sign up (Mira) or sign in (Lumina) first, with a `from` hint so the form can say why.
  */
 export function agentEntryHref(agent: AgentEntry, signedIn: boolean) {
+  if (agent === "psy") return PSY_APP_URL ? `${PSY_APP_URL}/signin` : ROUTES.support;
   if (agent === "mira") {
     return signedIn ? ROUTES.orientation : `${ROUTES.signUp}?from=orientation&redirect=${encodeURIComponent(ROUTES.orientation)}`;
   }
