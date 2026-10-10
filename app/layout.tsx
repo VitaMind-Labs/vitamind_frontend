@@ -28,8 +28,10 @@ export const metadata: Metadata = {
     template: `%s | ${BRAND.name}`,
   },
   description: SITE.description,
-  // favicon.ico in /app is picked up automatically; the apple icon must be a PNG.
-  icons: { apple: "/assets/vitamind-mark-3d.png" },
+  icons: {
+    icon: "/assets/logo.svg",
+    apple: "/assets/vitamind-mark-3d.png",
+  },
   ...ROOT_SOCIAL,
   // Google Search Console: set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION to the token it gives for the "HTML tag" method.
   verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
