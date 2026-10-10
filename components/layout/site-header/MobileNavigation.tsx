@@ -148,7 +148,7 @@ export function MobileNavigation({ activeId, open, onOpenChange, className }: Mo
                     </motion.p>
                   )}
 
-                  {/* The product: one titled group, Mira and Lumina under it. */}
+                  {/* The product: one titled group, Mira, Lumina and Psy under it. */}
                   <motion.p variants={fadeUp(0, 10)} className={cn(LABEL, "flex items-center gap-3 text-teal-200")}>
                     <span aria-hidden className="h-px w-8 bg-gold-300" />
                     {copy.menu.title}

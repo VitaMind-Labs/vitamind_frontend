@@ -38,6 +38,7 @@ import { MIRA_STREAM_COPY } from "../lib/stream-copy";
 import { useVisitorName } from "../lib/visitor";
 import { FINISH_STEP_MS, FinishingScreen } from "./FinishingScreen";
 import { MiraAvatar, MiraMessage } from "./MiraMessage";
+import { LastAttemptNotice } from "./LastAttemptNotice";
 import { NameIntake } from "./NameIntake";
 import { CompactProgress, SessionRail } from "./SessionProgress";
 import { TypingIndicator } from "./TypingIndicator";
@@ -409,14 +410,14 @@ export function MiraChatExperience({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE_OUT }}
           className={cn(
-            "relative mx-auto grid min-h-0 w-full flex-1 grid-rows-[minmax(0,1fr)] gap-3 px-3 pb-2 pt-3 sm:gap-5 sm:px-6 sm:pb-4 sm:pt-4 lg:min-h-[34rem] lg:gap-6 lg:px-8 lg:pb-6 lg:pt-5",
+            "relative mx-auto grid min-h-0 w-full flex-1 grid-rows-[minmax(0,1fr)] gap-2 px-0 pb-0 pt-2 sm:gap-5 sm:px-6 sm:pb-4 sm:pt-4 lg:min-h-[34rem] lg:gap-6 lg:px-8 lg:pb-6 lg:pt-5",
             completed ? "max-w-4xl" : "max-w-chat lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21.5rem_minmax(0,1fr)]",
           )}
         >
           {!completed && <SessionRail chapter={chapter} progress={progress} language={conversationLanguage} name={name} className="hidden lg:flex" />}
 
           <div className="flex min-h-0 min-w-0 flex-col gap-3">
-            {!completed && <CompactProgress chapter={chapter} progress={progress} language={conversationLanguage} className="lg:hidden" />}
+            {!completed && <CompactProgress chapter={chapter} progress={progress} language={conversationLanguage} className="max-sm:mx-3 lg:hidden" />}
 
             <AnimatePresence>
               {safety.level === "urgent" && (
@@ -425,7 +426,7 @@ export function MiraChatExperience({
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3.5"
+                  className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3.5 max-sm:mx-3"
                 >
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-700" aria-hidden />
                   <div className="min-w-0">
@@ -436,26 +437,17 @@ export function MiraChatExperience({
               )}
             </AnimatePresence>
 
-            <AnimatePresence>
-              {attempt?.isLastAttempt && !completed && safety.level !== "urgent" && (
-                <motion.div
-                  role="status"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-start gap-3 rounded-2xl border border-gold-100 bg-gold-50/90 px-4 py-3.5"
-                >
-                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold-700" aria-hidden />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-ink">{diagnostic.lastAttempt.title}</p>
-                    <p className="mt-1 text-[0.8125rem] leading-5 text-ink-soft">{diagnostic.lastAttempt.body}</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <LastAttemptNotice
+              chatId={chatId}
+              show={Boolean(attempt?.isLastAttempt) && !completed && safety.level !== "urgent"}
+              title={diagnostic.lastAttempt.title}
+              body={diagnostic.lastAttempt.body}
+              closeLabel={dictionary.common.close}
+              className="max-sm:mx-3"
+            />
 
             {/* ── Conversation pane ── */}
-            <div className="orientation-glass relative flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="orientation-glass relative flex min-h-0 flex-1 flex-col overflow-hidden max-sm:rounded-b-none max-sm:border-x-0 max-sm:border-b-0">
               <div
                 ref={scrollRef}
                 role="log"
@@ -757,7 +749,7 @@ export function MiraChatExperience({
                       {diagnostic.unreadableHint}
                     </span>
                   ) : (
-                    <span className="tabular-nums">{input.length > 0 ? `${input.length.toLocaleString()} / 10,000` : diagnostic.questionsHint}</span>
+                    <span className={cn("tabular-nums", input.length === 0 && "max-sm:hidden")}>{input.length > 0 ? `${input.length.toLocaleString()} / 10,000` : diagnostic.questionsHint}</span>
                   )}
                   <span className="hidden sm:inline">{diagnostic.enterHint}</span>
                 </div>

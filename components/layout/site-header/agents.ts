@@ -1,10 +1,10 @@
 import { ROUTES } from "@/lib/config/routes";
 
-export type AgentId = "mira" | "lumina";
+export type AgentId = "mira" | "lumina" | "psy";
 
 /**
  * Presentation of each agent (home section cards, agent pages); copy lives in `dictionary.header.agents.items`.
- * Mira is teal and aqua, Lumina champagne and gold — the two sides of the logo.
+ * Mira is teal and aqua, Lumina champagne and gold — the two sides of the logo — and Psy, the clinician's own workspace, sage.
  */
 export const AGENTS: ReadonlyArray<{
   id: AgentId;
@@ -24,6 +24,8 @@ export const AGENTS: ReadonlyArray<{
     /** The thin line along the top edge. */
     edge: string;
     arrow: string;
+    /** Row background on hover/focus in the header menu. */
+    hover: string;
   };
 }> = [
   {
@@ -40,6 +42,7 @@ export const AGENTS: ReadonlyArray<{
       wash: "bg-[linear-gradient(150deg,rgb(134_186_188/0.35),transparent_70%)]",
       edge: "from-teal-300 via-teal-500 to-teal-200",
       arrow: "bg-teal-600 text-white group-hover:bg-teal-800",
+      hover: "hover:bg-teal-50/80 focus-visible:bg-teal-50/80",
     },
   },
   {
@@ -56,11 +59,29 @@ export const AGENTS: ReadonlyArray<{
       wash: "bg-[linear-gradient(150deg,rgb(230_213_170/0.6),transparent_70%)]",
       edge: "from-gold-100 via-gold to-gold-100",
       arrow: "bg-gold text-teal-900 group-hover:bg-gold-600 group-hover:text-white",
+      hover: "hover:bg-gold-50 focus-visible:bg-gold-50",
+    },
+  },
+  {
+    id: "psy",
+    href: ROUTES.psy,
+    status: "member",
+    tone: {
+      ring: "group-hover:ring-sage-100",
+      tint: "bg-sage-50",
+      text: "text-sage-700",
+      dot: "bg-sage",
+      surface: "bg-[linear-gradient(150deg,var(--color-sage-50),#ffffff_78%)]",
+      border: "border-sage-100 hover:border-sage",
+      wash: "bg-[linear-gradient(150deg,rgb(127_176_174/0.3),transparent_70%)]",
+      edge: "from-sage-100 via-sage to-sage-100",
+      arrow: "bg-sage-700 text-white group-hover:bg-teal-800",
+      hover: "hover:bg-sage-50 focus-visible:bg-sage-50",
     },
   },
 ];
 
-/** Top-level destinations (no in-page home anchors). `product` opens the Mira / Lumina list; the others are plain links. */
+/** Top-level destinations (no in-page home anchors). `product` opens the Mira / Lumina / Psy list; the others are plain links. */
 export const PRIMARY_LINKS = [
   { id: "product", href: null },
   { id: "tracks", href: ROUTES.tracks },
